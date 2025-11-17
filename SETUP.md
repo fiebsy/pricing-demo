@@ -8,7 +8,7 @@ Your current Node.js version (18.20.8) is too old for Next.js 16. You need Node 
 
 ```bash
 # Using nvm (recommended)
-cd /Users/derickfiebiger/Payva-Repos/derick-design-system-demo
+cd /path/to/derick-design-system-demo
 nvm use  # Will automatically use Node 20.9.0 from .nvmrc
 
 # Or install Node 20+ manually from https://nodejs.org
@@ -17,7 +17,7 @@ nvm use  # Will automatically use Node 20.9.0 from .nvmrc
 ### 2. Test the Build
 
 ```bash
-cd /Users/derickfiebiger/Payva-Repos/derick-design-system-demo
+cd /path/to/derick-design-system-demo
 pnpm build
 ```
 
@@ -56,7 +56,7 @@ git push -u origin main
 npm i -g vercel
 
 # Deploy
-cd /Users/derickfiebiger/Payva-Repos/derick-design-system-demo
+cd /path/to/derick-design-system-demo
 vercel --prod
 ```
 

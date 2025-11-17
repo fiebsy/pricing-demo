@@ -117,16 +117,38 @@ src/styles/
 
 ## 🔧 Configuration
 
-### .npmrc (Authentication)
+### .npmrc & .env (Authentication)
 
+The project uses environment variables for npm authentication tokens to keep them secure.
+
+1. **Create a `.env` file** in the project root with your tokens:
+```bash
+UNTITLEDUI_AUTH_TOKEN=your_untitledui_token_here
+HUGEICONS_AUTH_TOKEN=your_hugeicons_token_here
+```
+
+2. **Load environment variables** before running pnpm commands:
+```bash
+# On macOS/Linux - export variables from .env
+export $(cat .env | xargs)
+pnpm install
+
+# Or use dotenv-cli (install globally: npm i -g dotenv-cli)
+dotenv pnpm install
+```
+
+3. **The `.npmrc` file** (already configured) references these environment variables:
 ```
 @untitledui-pro:registry=https://pkg.untitledui.com
-//pkg.untitledui.com/:_authToken=9fbc5c6d68bbb3a2b991e8787e73701d
+//pkg.untitledui.com/:_authToken=${UNTITLEDUI_AUTH_TOKEN}
 @hugeicons-pro:registry=https://npm.hugeicons.com/
-//npm.hugeicons.com/:_authToken=3D451EF0-1A4C95D6-2B588618-91F80341
+//npm.hugeicons.com/:_authToken=${HUGEICONS_AUTH_TOKEN}
 ```
 
-**Note**: These tokens are for package access only, no billing/payment involved.
+**Note**: 
+- `.env` and `.npmrc` are gitignored - never commit your tokens to version control
+- These tokens are for package access only, no billing/payment involved
+- If you prefer, you can also hardcode tokens directly in `.npmrc` (but `.env` is more secure)
 
 ### Tailwind Plugins
 
