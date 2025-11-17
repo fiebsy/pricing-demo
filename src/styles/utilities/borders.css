@@ -1,0 +1,48 @@
+/* Border utilities that use semantic tokens by default */
+@utility border {
+    border-width: 1px;
+    border-style: solid;
+    border-color: var(--border-color-DEFAULT);
+}
+
+@utility border-t {
+    border-top-width: 1px;
+    border-top-style: solid;
+    border-top-color: var(--border-color-DEFAULT);
+}
+
+@utility border-b {
+    border-bottom-width: 1px;
+    border-bottom-style: solid;
+    border-bottom-color: var(--border-color-DEFAULT);
+}
+
+@utility border-l {
+    border-left-width: 1px;
+    border-left-style: solid;
+    border-left-color: var(--border-color-DEFAULT);
+}
+
+@utility border-r {
+    border-right-width: 1px;
+    border-right-style: solid;
+    border-right-color: var(--border-color-DEFAULT);
+}
+
+@utility border-x {
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-left-style: solid;
+    border-right-style: solid;
+    border-left-color: var(--border-color-DEFAULT);
+    border-right-color: var(--border-color-DEFAULT);
+}
+
+@utility border-y {
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    border-top-style: solid;
+    border-bottom-style: solid;
+    border-top-color: var(--border-color-DEFAULT);
+    border-bottom-color: var(--border-color-DEFAULT);
+}

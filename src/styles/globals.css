@@ -1,0 +1,39 @@
+/* ========================================
+   TAILWIND V4 ENTRY POINT
+   ========================================
+
+   Design System Demo - Tailwind v4 + Semantic Design Tokens
+   
+   Import Order:
+   1. SILK styles (animations & components)
+   2. @import "tailwindcss"           → Tailwind v4 core
+   3. @import "./theme.css"           → Design tokens
+   4. @import "./base.css"            → Browser resets
+   5. @import "./utilities/*.css"    → Custom utilities
+
+   ======================================== */
+
+/* Import SILK components styles FIRST - critical for easing functions and animations */
+@import '@silk-hq/components/unlayered-styles.css';
+
+/* Import SILK custom styles for z-index and sheet stacking */
+@import './silk/silk-styles.css';
+
+@import 'tailwindcss';
+@import './theme.css';
+@import './base.css';
+@import './utilities/misc.css';
+@import './utilities/borders.css';
+@import './utilities/colors.css';
+@import './utilities/typography.css';
+@import './utilities/rings.css';
+@import './utilities/outlines.css';
+@import './utilities/animations.css';
+
+@plugin 'tailwindcss-animate';
+@plugin 'tailwindcss-react-aria-components';
+
+@custom-variant dark (&:where(.dark-mode, .dark-mode *));
+@custom-variant label (& [data-label]);
+@custom-variant focus-input-within (&:has(input:focus));
+

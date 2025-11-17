@@ -1,0 +1,273 @@
+/* Text color utilities using semantic tokens */
+@utility text-primary {
+    color: var(--text-color-primary);
+}
+
+@utility text-secondary {
+    color: var(--text-color-secondary);
+}
+
+@utility text-secondary_hover {
+    color: var(--text-color-secondary_hover);
+}
+
+@utility text-tertiary {
+    color: var(--text-color-tertiary);
+}
+
+@utility text-tertiary_hover {
+    color: var(--text-color-tertiary_hover);
+}
+
+@utility text-tertiary_on-brand {
+    color: var(--text-color-tertiary_on-brand);
+}
+
+@utility text-quaternary {
+    color: var(--text-color-quaternary);
+}
+
+@utility text-quaternary_on-brand {
+    color: var(--text-color-quaternary_on-brand);
+}
+
+@utility text-white {
+    color: var(--text-color-white);
+}
+
+@utility text-disabled {
+    color: var(--text-color-disabled);
+}
+
+@utility text-placeholder {
+    color: var(--text-color-placeholder);
+}
+
+@utility text-placeholder_subtle {
+    color: var(--text-color-placeholder_subtle);
+}
+
+@utility text-brand-primary {
+    color: var(--text-color-brand-primary);
+}
+
+@utility text-brand-secondary {
+    color: var(--text-color-brand-secondary);
+}
+
+@utility text-brand-secondary_hover {
+    color: var(--text-color-brand-secondary_hover);
+}
+
+@utility text-brand-tertiary {
+    color: var(--text-color-brand-tertiary);
+}
+
+@utility text-brand-tertiary_alt {
+    color: var(--text-color-brand-tertiary_alt);
+}
+
+@utility text-error-primary {
+    color: var(--text-color-error-primary);
+}
+
+@utility text-error-primary_hover {
+    color: var(--text-color-error-primary_hover);
+}
+
+@utility text-warning-primary {
+    color: var(--text-color-warning-primary);
+}
+
+@utility text-success-primary {
+    color: var(--text-color-success-primary);
+}
+
+@utility text-primary_on-brand {
+    color: var(--text-color-primary_on-brand);
+}
+
+@utility text-secondary_on-brand {
+    color: var(--text-color-secondary_on-brand);
+}
+
+/* Background color utilities using semantic tokens */
+
+/* Primary backgrounds */
+@utility bg-primary {
+    background-color: var(--background-color-primary);
+}
+
+@utility bg-primary-solid {
+    background-color: var(--background-color-primary-solid);
+}
+
+@utility bg-primary_alt {
+    background-color: var(--background-color-primary_alt);
+}
+
+@utility bg-primary_hover {
+    background-color: var(--background-color-primary_hover);
+}
+
+@utility bg-hover {
+    background-color: var(--background-color-primary_hover);
+}
+
+@utility bg-secondary {
+    background-color: var(--background-color-secondary);
+}
+
+@utility bg-secondary-solid {
+    background-color: var(--background-color-secondary-solid);
+}
+
+@utility bg-secondary_alt {
+    background-color: var(--background-color-secondary_alt);
+}
+
+@utility bg-secondary_hover {
+    background-color: var(--background-color-secondary_hover);
+}
+
+@utility bg-secondary_subtle {
+    background-color: var(--background-color-secondary_subtle);
+}
+
+@utility bg-tertiary {
+    background-color: var(--background-color-tertiary);
+}
+
+@utility bg-quaternary {
+    background-color: var(--background-color-quaternary);
+}
+
+/* State backgrounds */
+@utility bg-active {
+    background-color: var(--background-color-active);
+}
+
+@utility bg-disabled {
+    background-color: var(--background-color-disabled);
+}
+
+@utility bg-disabled_subtle {
+    background-color: var(--background-color-disabled_subtle);
+}
+
+@utility bg-overlay {
+    background-color: var(--background-color-overlay);
+}
+
+/* Brand backgrounds */
+@utility bg-brand-solid {
+    background-color: var(--background-color-brand-solid);
+}
+
+@utility bg-brand-solid_hover {
+    background-color: var(--background-color-brand-solid_hover);
+}
+
+@utility bg-brand-primary {
+    background-color: var(--background-color-brand-primary);
+}
+
+@utility bg-brand-primary_alt {
+    background-color: var(--background-color-brand-primary_alt);
+}
+
+@utility bg-brand-secondary {
+    background-color: var(--background-color-brand-secondary);
+}
+
+@utility bg-brand-section {
+    background-color: var(--background-color-brand-section);
+}
+
+@utility bg-brand-section_subtle {
+    background-color: var(--background-color-brand-section_subtle);
+}
+
+/* Error backgrounds */
+@utility bg-error-primary {
+    background-color: var(--background-color-error-primary);
+}
+
+@utility bg-error-secondary {
+    background-color: var(--background-color-error-secondary);
+}
+
+@utility bg-error-solid {
+    background-color: var(--background-color-error-solid);
+}
+
+@utility bg-error-solid_hover {
+    background-color: var(--background-color-error-solid_hover);
+}
+
+/* Warning backgrounds */
+@utility bg-warning-primary {
+    background-color: var(--background-color-warning-primary);
+}
+
+@utility bg-warning-secondary {
+    background-color: var(--background-color-warning-secondary);
+}
+
+@utility bg-warning-solid {
+    background-color: var(--background-color-warning-solid);
+}
+
+/* Success backgrounds */
+@utility bg-success-primary {
+    background-color: var(--background-color-success-primary);
+}
+
+@utility bg-success-secondary {
+    background-color: var(--background-color-success-secondary);
+}
+
+@utility bg-success-solid {
+    background-color: var(--background-color-success-solid);
+}
+
+/* Border color utilities (semantic token variants) */
+@utility border-secondary {
+    border-color: var(--border-color-secondary);
+}
+
+@utility border-primary {
+    border-color: var(--border-color-primary);
+}
+
+@utility border-tertiary {
+    border-color: var(--border-color-tertiary);
+}
+
+@utility border-brand {
+    border-color: var(--border-color-brand);
+}
+
+@utility border-error {
+    border-color: var(--border-color-error);
+}
+
+@utility border-error_subtle {
+    border-color: var(--border-color-error_subtle);
+}
+
+@utility border-disabled {
+    border-color: var(--border-color-disabled);
+}
+
+@utility border-disabled_subtle {
+    border-color: var(--border-color-disabled_subtle);
+}
+
+@utility border-brand_alt {
+    border-color: var(--border-color-brand_alt);
+}
+
+@utility border-secondary_alt {
+    border-color: var(--border-color-secondary_alt);
+}

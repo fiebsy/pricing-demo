@@ -1,0 +1,60 @@
+/* Ring (focus state) utilities using semantic tokens */
+
+/* Primary ring utilities */
+@utility ring-brand {
+    --tw-ring-color: var(--color-focus-ring);
+}
+
+@utility ring-primary {
+    --tw-ring-color: var(--ring-color-primary);
+}
+
+@utility ring-secondary {
+    --tw-ring-color: var(--ring-color-secondary);
+}
+
+@utility ring-secondary_alt {
+    --tw-ring-color: var(--ring-color-secondary_alt);
+}
+
+@utility ring-tertiary {
+    --tw-ring-color: var(--ring-color-tertiary);
+}
+
+/* State ring utilities */
+@utility ring-disabled {
+    --tw-ring-color: var(--ring-color-disabled);
+}
+
+@utility ring-disabled_subtle {
+    --tw-ring-color: var(--ring-color-disabled_subtle);
+}
+
+@utility ring-error {
+    --tw-ring-color: var(--color-focus-ring-error);
+}
+
+@utility ring-error_subtle {
+    --tw-ring-color: var(--ring-color-error_subtle);
+}
+
+/* Brand ring utilities */
+@utility ring-brand-primary {
+    --tw-ring-color: var(--ring-color-brand-primary);
+}
+
+@utility ring-brand-solid {
+    --tw-ring-color: var(--ring-color-brand-solid);
+}
+
+@utility ring-brand-solid_hover {
+    --tw-ring-color: var(--ring-color-brand-solid_hover);
+}
+
+@utility ring-brand_alt {
+    --tw-ring-color: var(--ring-color-brand_alt);
+}
+
+@utility ring-bg-brand-solid {
+    --tw-ring-color: var(--ring-color-bg-brand-solid);
+}
