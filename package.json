@@ -8,6 +8,7 @@
   },
   "scripts": {
     "dev": "next dev",
+    "preinstall": "bash scripts/setup-npmrc.sh || true",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
