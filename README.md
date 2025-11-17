@@ -40,8 +40,8 @@ A modern UI component library showcase built with Next.js 14, React 19, and Tail
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/design-system-demo.git
-cd design-system-demo
+git clone https://github.com/fiebsy/skwircle.git
+cd skwircle
 
 # Install dependencies
 pnpm install
@@ -187,7 +187,7 @@ All semantic tokens remap automatically - no `dark:` prefix needed!
 
 ### Vercel (Recommended)
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/yourusername/design-system-demo)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/fiebsy/skwircle)
 
 1. Push code to GitHub
 2. Import project in Vercel
