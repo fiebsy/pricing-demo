@@ -69,7 +69,7 @@ export default function LabPage() {
                   </p>
                 </div>
               </Skwircle.Card>
-              <Skwircle.Card elevation="md" roundness="rounded">
+              <Skwircle.Card elevation="sm" roundness="rounded">
                 <div className="p-5">
                   <h3 className="text-sm font-semibold text-primary">Card MD</h3>
                   <p className="mt-1 text-xs text-tertiary">
@@ -153,7 +153,7 @@ export default function LabPage() {
                   AB
                 </div>
               </Skwircle.Avatar>
-              <Skwircle.Avatar roundness="soft">
+              <Skwircle.Avatar roundness="moderate">
                 <div className="flex h-10 w-10 items-center justify-center bg-success-solid text-sm font-medium text-primary_on-brand">
                   CD
                 </div>

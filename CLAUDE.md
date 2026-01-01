@@ -112,9 +112,29 @@ The project uses premium icon libraries requiring authentication:
 - Uses localStorage for persistence with key `theme`
 - Applies `.dark-mode` class to html element
 
-### Playground Routes
-- Component showcases in `src/app/playground/` directory
-- Each component gets its own route for isolated testing
+### Playground Routes (CRITICAL)
+
+**All playground pages MUST use the `UnifiedControlPanel` component.**
+
+**Full guide**: `src/app/playground/PLAYGROUND.md`
+
+Quick pattern:
+```typescript
+import {
+  UnifiedControlPanel,
+  type ControlChangeEvent,
+  type UnifiedControlPanelConfig,
+} from '@/components/ui/controls/unified-control-panel'
+
+// Standard layout: fixed header, preview area with panel offset, fixed panel
+<div className="min-h-screen bg-gray-950">
+  <div className="fixed top-0 ...">Header</div>
+  <div className="pt-20 pr-[352px]">Preview Area</div>
+  <UnifiedControlPanel config={panelConfig} onChange={handleChange} />
+</div>
+```
+
+Reference implementation: `/playground/skwircle-card/page.tsx`
 
 ### Build Configuration
 - React Strict Mode enabled
@@ -140,6 +160,14 @@ The project uses premium icon libraries requiring authentication:
 2. Configure roundness (0-5), performance mode, shadows
 3. Use compound components for complex layouts
 4. Consider performance impact with multiple squircles
+
+### Creating a Playground Page
+1. Read `src/app/playground/PLAYGROUND.md` for complete instructions
+2. Create route at `src/app/playground/[component-name]/page.tsx`
+3. Define typed config interface and DEFAULT_CONFIG
+4. Create `createPanelConfig()` function with sections/subsections
+5. Use standard layout: fixed header, offset preview area, UnifiedControlPanel
+6. Add entry to PLAYGROUND_ITEMS in `/playground/page.tsx`
 
 ## Sync Scripts
 

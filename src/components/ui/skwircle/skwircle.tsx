@@ -171,7 +171,18 @@ const SkwircleBase: React.FC<SkwircleProps> = ({
   // When fillMode is true, measure the container (for full-width expansion)
   // Otherwise measure the content (for content-based sizing)
   const measureRef = fillMode ? containerRef : contentRef
-  const { dimensions, hasMeasured } = useDimensions(measureRef, { initialDimensions })
+  const { dimensions: rawDimensions, hasMeasured } = useDimensions(measureRef, { initialDimensions })
+
+  // When fillMode is true, we measure the container but the border needs to fit INSIDE it.
+  // Subtract the border offset from measured dimensions so paths are generated correctly:
+  // - Border path will match container size
+  // - Background path will match content area (container minus border on each side)
+  const dimensions = fillMode && rawDimensions.width > 0 && rawDimensions.height > 0
+    ? {
+        width: Math.max(0, rawDimensions.width - totalBorderOffset * 2),
+        height: Math.max(0, rawDimensions.height - totalBorderOffset * 2),
+      }
+    : rawDimensions
 
   // Mount strategy (FOUC prevention)
   const { shouldShow, opacity, transition } = useSkwircleMount({
