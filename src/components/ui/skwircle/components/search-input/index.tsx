@@ -38,6 +38,7 @@ interface SearchInputProps {
   placeholder?: string
   size?: InputSize
   disabled?: boolean
+  readOnly?: boolean
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void
   onClear?: () => void
   className?: string
@@ -81,6 +82,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
   placeholder = 'Search...',
   size = 'md',
   disabled = false,
+  readOnly = false,
   onChange,
   onClear,
   className = '',
@@ -119,6 +121,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
           value={value}
           placeholder={placeholder}
           disabled={disabled}
+          readOnly={readOnly}
           onChange={onChange}
           className={`
             flex-1 min-w-0 bg-transparent border-none outline-none
