@@ -248,6 +248,8 @@ const SkwircleBase: React.FC<SkwircleProps> = ({
           (fillMode || style?.flex || style?.flexGrow || style?.flexShrink || style?.flexBasis
             ? 'flex'
             : 'inline-flex'),
+        // When fillMode is true, use column direction so content wrapper can expand vertically
+        ...(fillMode && !style?.flexDirection && { flexDirection: 'column' }),
         isolation: 'isolate',
         opacity: disabled ? 0.5 : opacity,
         transition: transition
@@ -310,6 +312,12 @@ const SkwircleBase: React.FC<SkwircleProps> = ({
           position: 'relative',
           zIndex: 1,
           margin: totalBorderOffset,
+          // When fillMode is true, expand to fill container
+          ...(fillMode && {
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+          }),
           ...(overflow !== 'visible' && {
             overflow: 'hidden',
             // Force GPU layer for Safari clip-path fix

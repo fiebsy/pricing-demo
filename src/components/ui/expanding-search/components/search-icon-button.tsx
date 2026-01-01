@@ -31,10 +31,12 @@ export const SearchIconButton: React.FC<SearchIconButtonProps> = ({
       className={cn(
         'absolute left-0 top-0 bottom-0',
         'flex items-center justify-center',
-        'text-tertiary hover:text-primary active:text-primary',
-        'transition-colors duration-150',
+        isExpanded
+          ? 'text-primary'
+          : 'text-tertiary group-hover/search:text-primary group-active/search:text-primary',
+        'transition-[color,transform] duration-150',
         'focus:outline-none',
-        !isExpanded && 'active:scale-95 transition-transform'
+        !isExpanded && 'active:scale-95'
       )}
       style={{
         width: collapsedWidth,
