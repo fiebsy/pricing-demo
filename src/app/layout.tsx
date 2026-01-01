@@ -22,8 +22,8 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={`${neueHaasGroteskText.variable} ${neueHaasGroteskDisplay.variable}`}>
-      <body className="font-body">
+    <html lang="en" className={`${neueHaasGroteskText.variable} ${neueHaasGroteskDisplay.variable} bg-secondary_alt overscroll-none`}>
+      <body className="font-body bg-secondary_alt overscroll-none">
         <ThemeProvider>
           <ThemeToggle />
           {children}

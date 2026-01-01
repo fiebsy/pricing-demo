@@ -883,10 +883,12 @@ export default function HomePage() {
   }, [filteredComponentsBySection])
 
   return (
-    <div className="bg-secondary flex min-h-screen justify-center">
-      <div className="flex w-full max-w-[1000px]">
-      {/* Sticky Sidebar Navigation */}
-      <aside className="bg-secondary border-secondary sticky top-0 h-screen w-[260px] shrink-0 overflow-y-auto border-r py-10 pr-6 pl-6">
+    <div className="min-h-screen grid grid-cols-[1fr_260px_440px_1fr] overscroll-none">
+      {/* Left bleed - extends sidebar bg to viewport edge */}
+      <div className="bg-secondary" />
+
+      {/* Sidebar Navigation */}
+      <aside className="bg-secondary border-secondary sticky top-0 h-screen overflow-y-auto border-r py-10 pr-6 pl-6">
         {/* Sidebar Header */}
         <div className="mb-6 flex items-start justify-between">
           <div>
@@ -1043,7 +1045,9 @@ export default function HomePage() {
         )}
 
       </main>
-      </div>
+
+      {/* Right bleed - empty, shows body bg */}
+      <div />
     </div>
   )
 }
