@@ -88,18 +88,22 @@ export function useExpandingSearch({
     }
   }, [isExpanded, autoFocus])
 
-  // Collapse on outside click
+  // Collapse on outside click/touch
   useEffect(() => {
     if (!collapseOnBlur || !isExpanded) return
 
-    const handleClickOutside = (e: MouseEvent) => {
+    const handleClickOutside = (e: MouseEvent | TouchEvent) => {
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
         handleExpandedChange(false)
       }
     }
 
     document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
+    document.addEventListener('touchstart', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+      document.removeEventListener('touchstart', handleClickOutside)
+    }
   }, [isExpanded, collapseOnBlur, handleExpandedChange])
 
   // ============================================================================

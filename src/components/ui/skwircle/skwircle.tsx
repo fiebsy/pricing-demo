@@ -122,6 +122,7 @@ const SkwircleBase: React.FC<SkwircleProps> = ({
   className = '',
   style = {},
 }) => {
+  const containerRef = useRef<HTMLDivElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
 
   // Get variant defaults - ensure variant is always defined
@@ -167,7 +168,10 @@ const SkwircleBase: React.FC<SkwircleProps> = ({
   const totalBorderOffset = resolvedBorderWidth + outerBorderWidth
 
   // Dimension tracking
-  const { dimensions, hasMeasured } = useDimensions(contentRef, { initialDimensions })
+  // When fillMode is true, measure the container (for full-width expansion)
+  // Otherwise measure the content (for content-based sizing)
+  const measureRef = fillMode ? containerRef : contentRef
+  const { dimensions, hasMeasured } = useDimensions(measureRef, { initialDimensions })
 
   // Mount strategy (FOUC prevention)
   const { shouldShow, opacity, transition } = useSkwircleMount({
@@ -235,6 +239,7 @@ const SkwircleBase: React.FC<SkwircleProps> = ({
 
   return (
     <div
+      ref={containerRef}
       className={`group relative ${disabled ? 'cursor-not-allowed opacity-50' : ''} ${className}`}
       style={{
         ...style,

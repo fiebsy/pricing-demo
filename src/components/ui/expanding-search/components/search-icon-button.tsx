@@ -31,9 +31,10 @@ export const SearchIconButton: React.FC<SearchIconButtonProps> = ({
       className={cn(
         'absolute left-0 top-0 bottom-0',
         'flex items-center justify-center',
-        'text-tertiary hover:text-primary',
+        'text-tertiary hover:text-primary active:text-primary',
         'transition-colors duration-150',
-        'focus:outline-none'
+        'focus:outline-none',
+        !isExpanded && 'active:scale-95 transition-transform'
       )}
       style={{
         width: collapsedWidth,

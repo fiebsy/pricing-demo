@@ -95,3 +95,21 @@ export type {
   ButtonIntentConfig,
 } from './config'
 
+// Composed components (semantic wrappers)
+export {
+  MetricTile,
+  METRIC_TILE_DEFAULTS,
+  METRIC_TILE_SIZE_CONFIGS,
+  CHANGE_TYPE_COLORS,
+  getMetricTileSizeConfig,
+  getChangeTypeColor,
+} from './composed'
+
+export type {
+  MetricTileProps,
+  MetricTileSize,
+  MetricTileSizeConfig,
+  MetricTileDefaults,
+  ChangeType,
+} from './composed'
+

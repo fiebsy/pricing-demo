@@ -18,6 +18,8 @@ import {
   Copy01Icon,
   Delete02Icon,
   Logout01Icon,
+  ArrowUp01Icon,
+  ArrowDown01Icon,
 } from '@hugeicons-pro/core-stroke-rounded'
 
 import { HugeIcon } from '@/components/ui/icon/huge-icons/huge-icons'
@@ -25,7 +27,7 @@ import { Accordion, ACCORDION_PRESETS } from '@/components/ui/accordion'
 import { Badge } from '@/components/ui/skwircle/components/badge'
 import { Button } from '@/components/ui/skwircle/components/button'
 import { SearchInput } from '@/components/ui/skwircle/components/search-input'
-import { Skwircle } from '@/components/ui/skwircle'
+import { MetricTile } from '@/components/ui/skwircle'
 import { ExpandingSearch } from '@/components/ui/expanding-search'
 import {
   FilterChip,
@@ -45,7 +47,7 @@ import {
 
 // --- Types ---
 
-type SectionId = 'skwircle-library' | 'accordion' | 'interactive'
+type SectionId = 'skwircle' | 'accordion' | 'interactive'
 
 interface ComponentItem {
   id: string
@@ -57,7 +59,7 @@ interface ComponentItem {
 // --- Section Metadata ---
 
 const SECTIONS: { id: SectionId; label: string; description: string }[] = [
-  { id: 'skwircle-library', label: 'Skwircle', description: 'iOS-style squircle components' },
+  { id: 'skwircle', label: 'Skwircle', description: 'Semantic wrappers built on Skwircle primitives' },
   { id: 'accordion', label: 'Accordion', description: 'Expandable sections with animated L-shaped lines' },
   { id: 'interactive', label: 'Interactive', description: 'Animated expanding components' },
 ]
@@ -65,12 +67,11 @@ const SECTIONS: { id: SectionId; label: string; description: string }[] = [
 // --- Component Registry ---
 
 const COMPONENTS: ComponentItem[] = [
-  // SKWIRCLE LIBRARY
-  { id: 'skwircle', name: 'Skwircle', description: 'iOS-style superellipse container with SVG borders', section: 'skwircle-library' },
-  { id: 'card', name: 'Card', description: 'Container component with elevation and padding', section: 'skwircle-library' },
-  { id: 'button', name: 'Button', description: 'Interactive button with multiple hierarchies', section: 'skwircle-library' },
-  { id: 'badge', name: 'Badge', description: 'Status indicators and labels', section: 'skwircle-library' },
-  { id: 'search-input', name: 'SearchInput', description: 'Skwircle-based search field with clear button', section: 'skwircle-library' },
+  // SKWIRCLE
+  { id: 'metric-tile', name: 'MetricTile', description: 'Dashboard metric display with label, value, and change indicator', section: 'skwircle' },
+  { id: 'button', name: 'Button', description: 'Full-featured button with hierarchy, sizes, and icon support', section: 'skwircle' },
+  { id: 'badge', name: 'Badge', description: 'Status indicators with colors, types, icons, and dots', section: 'skwircle' },
+  { id: 'search-input', name: 'SearchInput', description: 'Skwircle-based search field with clear button', section: 'skwircle' },
 
   // ACCORDION
   { id: 'accordion', name: 'Accordion', description: 'Expandable sections with animated L-shaped lines', section: 'accordion' },
@@ -106,129 +107,65 @@ function ButtonUtility({
 
 // --- Component Showcase Sections ---
 
-function SkwircleShowcase() {
-  const roundnessOptions = ['none', 'subtle', 'moderate', 'rounded', 'pill'] as const
-
-  return (
-    <div className="space-y-8">
-      {/* Roundness Variants */}
-      <div>
-        <h4 className="text-secondary mb-4 text-sm font-medium">Roundness Variants</h4>
-        <div className="grid grid-cols-5 gap-6">
-          {roundnessOptions.map((roundness) => (
-            <div key={roundness} className="flex flex-col items-center gap-2">
-              <Skwircle
-                backgroundColor="background-secondary"
-                borderColor="border-secondary"
-                borderWidth={1}
-                roundness={roundness}
-                className="flex h-16 w-16 items-center justify-center"
-              >
-                <span className="sr-only">{roundness}</span>
-              </Skwircle>
-              <span className="text-tertiary text-xs">{roundness}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Elevation Variants */}
-      <div>
-        <h4 className="text-secondary mb-4 text-sm font-medium">Elevation Variants</h4>
-        <div className="grid grid-cols-5 gap-6">
-          {(['none', 'xs', 'sm'] as const).map((elevation) => (
-            <div key={elevation} className="flex flex-col items-center gap-2">
-              <Skwircle
-                backgroundColor="background-secondary"
-                borderColor="border-secondary"
-                borderWidth={1}
-                roundness="rounded"
-                elevation={elevation}
-                className="flex h-16 w-16 items-center justify-center"
-              >
-                <span className="sr-only">{elevation}</span>
-              </Skwircle>
-              <span className="text-tertiary text-xs">{elevation}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function CardShowcase() {
+function MetricTileShowcase() {
   return (
     <div className="space-y-6">
-      {/* Basic Cards */}
+      {/* Default MetricTile */}
       <div>
-        <h4 className="text-secondary mb-4 text-sm font-medium">Basic Card</h4>
-        <div className="flex flex-wrap gap-4">
-          <Skwircle
-            variant="card"
-            elevation="xs"
-            className="w-64"
-          >
-            <div className="p-4">
-              <h5 className="text-primary text-sm font-medium">Card Title</h5>
-              <p className="text-tertiary mt-1 text-xs">This is a basic card with some content inside.</p>
-            </div>
-          </Skwircle>
+        <h4 className="text-secondary mb-3 text-sm font-medium">Default Configuration</h4>
+        <p className="text-tertiary mb-4 text-xs">
+          Wraps Skwircle.Card with: elevation=none, roundness=rounded, backgroundGradient=depth-3-bottom
+        </p>
+        <div className="flex flex-col gap-4 max-w-[200px]">
+          <MetricTile
+            label="Total Revenue"
+            value="$45,231"
+            change="+12.5%"
+            changeType="positive"
+            period="vs last month"
+          />
+          <MetricTile
+            label="Active Orders"
+            value="1,284"
+            change="-3.2%"
+            changeType="negative"
+            period="vs last week"
+          />
+          <MetricTile
+            label="Conversion"
+            value="24.8%"
+            changeType="neutral"
+          />
         </div>
       </div>
 
-      {/* Card Elevations */}
+      {/* MetricTile Sizes */}
       <div>
-        <h4 className="text-secondary mb-4 text-sm font-medium">Elevations</h4>
-        <div className="flex flex-wrap gap-4">
-          {(['none', 'xs', 'sm'] as const).map((elevation) => (
-            <Skwircle
-              key={elevation}
-              variant="card"
-              elevation={elevation}
-              className="w-40"
-            >
-              <div className="p-4 text-center">
-                <span className="text-secondary text-xs font-medium">{elevation}</span>
-              </div>
-            </Skwircle>
-          ))}
+        <h4 className="text-secondary mb-4 text-sm font-medium">Sizes</h4>
+        <div className="flex flex-col gap-4">
+          <MetricTile size="sm" label="Small" value="$1,234" change="+5%" changeType="positive" className="max-w-[160px]" />
+          <MetricTile size="md" label="Medium" value="$12,345" change="+10%" changeType="positive" className="max-w-[180px]" />
+          <MetricTile size="lg" label="Large" value="$123,456" change="+15%" changeType="positive" className="max-w-[200px]" />
         </div>
       </div>
 
-      {/* Card with Content */}
+      {/* MetricTile with Icon */}
       <div>
-        <h4 className="text-secondary mb-4 text-sm font-medium">With Rich Content</h4>
-        <Skwircle
-          variant="card"
-          elevation="sm"
-          className="max-w-sm"
-        >
-          <div className="p-5">
-            <div className="flex items-center gap-3 mb-3">
-              <Skwircle
-                variant="avatar"
-                roundness="rounded"
-                backgroundColor="background-brand-section"
-                borderWidth={0}
-                className="h-10 w-10 flex items-center justify-center"
-              >
-                <HugeIcon icon={UserIcon} size={20} className="text-brand-secondary" />
-              </Skwircle>
-              <div>
-                <h5 className="text-primary text-sm font-medium">John Doe</h5>
-                <p className="text-tertiary text-xs">Product Designer</p>
-              </div>
-            </div>
-            <p className="text-secondary text-sm">
-              Building beautiful interfaces with Skwircle components.
-            </p>
-          </div>
-        </Skwircle>
+        <h4 className="text-secondary mb-4 text-sm font-medium">With Icon</h4>
+        <MetricTile
+          label="Growth Rate"
+          value="18.2%"
+          change="+4.1%"
+          changeType="positive"
+          period="this quarter"
+          icon={<HugeIcon icon={ArrowUp01Icon} size={20} />}
+          className="max-w-[200px]"
+        />
       </div>
     </div>
   )
 }
+
 
 function ButtonShowcase() {
   return (
@@ -738,18 +675,21 @@ function RevealMenuShowcase() {
 
 function ComponentShowcase({ componentId }: { componentId: string }) {
   switch (componentId) {
-    case 'skwircle':
-      return <SkwircleShowcase />
-    case 'card':
-      return <CardShowcase />
+    // Skwircle
+    case 'metric-tile':
+      return <MetricTileShowcase />
     case 'button':
       return <ButtonShowcase />
     case 'search-input':
       return <SearchInputShowcase />
     case 'badge':
       return <BadgeShowcase />
+
+    // Accordion
     case 'accordion':
       return <AccordionShowcase />
+
+    // Interactive
     case 'expanding-search':
       return <ExpandingSearchShowcase />
     case 'expanding-filter-chip':
@@ -767,7 +707,7 @@ function ComponentShowcase({ componentId }: { componentId: string }) {
 
 export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState('')
-  const [activeSection, setActiveSection] = useState<SectionId>('skwircle-library')
+  const [activeSection, setActiveSection] = useState<SectionId>('skwircle')
   const [expandedSections, setExpandedSections] = useState<Set<SectionId>>(
     () => new Set(SECTIONS.map((s) => s.id))
   )
@@ -844,7 +784,7 @@ export default function HomePage() {
   // Group components by section
   const componentsBySection = useMemo(() => {
     const grouped: Record<SectionId, ComponentItem[]> = {
-      'skwircle-library': [],
+      'skwircle': [],
       'accordion': [],
       'interactive': [],
     }
@@ -862,7 +802,7 @@ export default function HomePage() {
 
     const query = searchQuery.toLowerCase()
     const filtered: Record<SectionId, ComponentItem[]> = {
-      'skwircle-library': [],
+      'skwircle': [],
       'accordion': [],
       'interactive': [],
     }

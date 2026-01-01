@@ -50,13 +50,13 @@ export const SearchContainer = forwardRef<HTMLDivElement, SearchContainerProps>(
           transition: getContainerTransition(duration),
         }}
       >
-        {/* Background layer - transparent at rest, visible on hover/expanded */}
+        {/* Background layer - transparent at rest, visible on hover/active/expanded */}
         <div
           className={cn(
             'absolute inset-0 z-0 rounded-full transition-opacity duration-150 pointer-events-none',
             'bg-secondary',
             className, // includes shine-1
-            isExpanded ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+            isExpanded ? 'opacity-100' : 'opacity-0 group-hover:opacity-100 group-active:opacity-100'
           )}
         />
         {children}

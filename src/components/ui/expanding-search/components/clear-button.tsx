@@ -23,12 +23,15 @@ export const ClearButton: React.FC<ClearButtonProps> = ({ visible, onClick }) =>
       type="button"
       onClick={onClick}
       className={cn(
-        'flex-shrink-0 flex items-center justify-center',
+        'relative flex-shrink-0 flex items-center justify-center',
         'w-5 h-5 rounded-full',
-        'text-tertiary hover:text-primary',
-        'hover:bg-tertiary',
-        'transition-colors duration-150',
-        'focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-solid'
+        'text-tertiary hover:text-primary active:text-primary',
+        'hover:bg-tertiary active:bg-tertiary',
+        'active:scale-95',
+        'transition-all duration-150',
+        'focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-solid',
+        // Expand touch target without changing visual size
+        'before:absolute before:inset-[-8px] before:content-[""]'
       )}
       aria-label="Clear search"
     >
