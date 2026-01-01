@@ -55,17 +55,17 @@ export default function ComponentPlaygroundPage() {
   const getConfigForCopy = useCallback(() => config, [config])
 
   return (
-    <div className="min-h-screen bg-gray-950">
+    <div className="min-h-screen">
       {/* Fixed Header */}
-      <div className="fixed top-0 right-0 left-0 z-50 border-b border-gray-800 bg-gray-950/80 backdrop-blur-sm">
+      <div className="fixed top-0 right-0 left-0 z-50 border-b border-secondary bg-primary/80 backdrop-blur-sm">
         <div className="flex items-center justify-between px-6 py-4">
           <div className="flex items-center gap-4">
-            <Link href="/playground" className="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors">
+            <Link href="/playground" className="flex items-center gap-2 text-sm text-tertiary hover:text-primary transition-colors">
               <HugeIcon icon={ArrowLeft01Icon} size={16} />
               Back
             </Link>
-            <div className="h-4 w-px bg-gray-700" />
-            <h1 className="text-lg font-semibold text-white">Component Name</h1>
+            <div className="h-4 w-px border-secondary" />
+            <h1 className="text-lg font-semibold text-primary">Component Name</h1>
           </div>
         </div>
       </div>

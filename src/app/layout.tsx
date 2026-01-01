@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { neueHaasGroteskText, neueHaasGroteskDisplay } from '@/lib/fonts'
 import { ThemeProvider } from '@/components/theme-provider'
 import { ThemeToggle } from '@/components/ui/theme-toggle'
+import { FloatingNav } from '@/components/ui/nav'
 import '../styles/globals.css'
 
 export const metadata: Metadata = {
@@ -23,8 +24,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${neueHaasGroteskText.variable} ${neueHaasGroteskDisplay.variable} bg-secondary_alt overscroll-none`}>
-      <body className="font-body bg-secondary_alt overscroll-none">
+      <body className="font-body bg-secondary_alt overscroll-none noise-overlay noise-fixed noise-opacity-10">
         <ThemeProvider>
+          <FloatingNav />
           <ThemeToggle />
           {children}
         </ThemeProvider>

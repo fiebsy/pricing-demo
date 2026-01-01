@@ -8,9 +8,7 @@
 'use client'
 
 import { useCallback, useMemo, useState } from 'react'
-import Link from 'next/link'
-import { HugeIcon } from '@/components/ui/icon/huge-icons/huge-icons'
-import ArrowLeft01Icon from '@hugeicons-pro/core-stroke-rounded/ArrowLeft01Icon'
+import { Breadcrumbs } from '@/components/ui/nav'
 
 import {
   UnifiedControlPanel,
@@ -77,7 +75,7 @@ export default function SkwircleDemoPage() {
     ],
     defaultActiveTab: activeTab,
     position: {
-      top: '80px',
+      top: '16px',
       bottom: '16px',
       right: '16px',
       width: '320px',
@@ -164,29 +162,24 @@ export default function SkwircleDemoPage() {
   }
 
   return (
-    <div className="min-h-screen bg-primary">
-      {/* Header */}
-      <div className="fixed top-0 right-0 left-0 z-50 border-b border-primary bg-primary/80 backdrop-blur-sm">
-        <div className="flex items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-4">
-            <Link
-              href="/playground"
-              className="flex items-center gap-2 text-sm text-secondary hover:text-primary transition-colors"
-            >
-              <HugeIcon icon={ArrowLeft01Icon} size={16} />
-              Back
-            </Link>
-            <div className="h-4 w-px bg-secondary" />
-            <h1 className="text-lg font-semibold text-primary">Skwircle Demo</h1>
-          </div>
+    <div className="min-h-screen">
+      {/* Breadcrumbs */}
+      <div className="nav-clearance px-6">
+        <div className="flex items-center justify-between">
+          <Breadcrumbs
+            items={[
+              { label: 'Playground', href: '/playground' },
+              { label: 'Skwircle Demo' },
+            ]}
+          />
 
           {/* Tab indicators */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
             {(['button', 'input', 'badge', 'card', 'dashboard'] as DemoTab[]).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                className={`px-2.5 py-1 text-xs font-medium rounded-md transition-colors ${
                   activeTab === tab
                     ? 'bg-brand-secondary text-brand-secondary'
                     : 'text-tertiary hover:text-primary hover:bg-secondary'
@@ -200,8 +193,8 @@ export default function SkwircleDemoPage() {
       </div>
 
       {/* Preview Area */}
-      <div className="pt-20 pr-[352px]">
-        <div className="flex min-h-[calc(100vh-80px)] items-center justify-center">
+      <div className="pr-[352px] pb-24 md:pb-0">
+        <div className="flex min-h-[calc(100vh-120px)] items-center justify-center">
           {renderPreview()}
         </div>
       </div>

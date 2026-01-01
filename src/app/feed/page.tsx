@@ -150,7 +150,7 @@ function FeedCard({ item }: { item: FeedItem }) {
 
 export default function FeedPage() {
   return (
-    <div className="min-h-screen bg-primary py-12 px-4">
+    <div className="min-h-screen bg-primary nav-clearance nav-clearance-bottom px-4">
       {/* Feed Container */}
       <div className="mx-auto w-full max-w-[700px]">
         {/* Header */}

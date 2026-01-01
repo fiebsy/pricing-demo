@@ -827,8 +827,8 @@ export default function HomePage() {
       {/* Left bleed - extends sidebar bg to viewport edge */}
       <div className="bg-secondary" />
 
-      {/* Sidebar Navigation */}
-      <aside className="bg-secondary border-secondary sticky top-0 h-screen overflow-y-auto border-r py-10 pr-6 pl-6">
+      {/* Sidebar Navigation - extends full height, content padded for nav */}
+      <aside className="bg-secondary border-secondary sticky top-0 h-screen overflow-y-auto border-r nav-clearance pb-6 pr-6 pl-6">
         {/* Sidebar Header */}
         <div className="mb-6 flex items-start justify-between">
           <div>
@@ -917,7 +917,7 @@ export default function HomePage() {
       </aside>
 
       {/* Main Content */}
-      <main className="min-w-0 flex-1 px-12 py-10">
+      <main className="min-w-0 flex-1 px-12 nav-clearance nav-clearance-bottom">
         {/* Page Header */}
         <header className="mb-16">
           <h1 className="text-primary text-xl font-medium tracking-tight">Skwircle Components</h1>

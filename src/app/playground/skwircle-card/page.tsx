@@ -8,13 +8,12 @@
 'use client'
 
 import { useCallback, useMemo, useState, useRef, useLayoutEffect } from 'react'
-import Link from 'next/link'
-import { HugeIcon } from '@/components/ui/icon/huge-icons/huge-icons'
-import ArrowLeft01Icon from '@hugeicons-pro/core-stroke-rounded/ArrowLeft01Icon'
+import { Breadcrumbs } from '@/components/ui/nav'
 import { Skwircle } from '@/components/ui/skwircle/skwircle'
-import type { SkwircleBackgroundGradient, SkwircleRoundness, SkwircleElevation } from '@/components/ui/skwircle/types'
+import type { SkwircleBackgroundGradient, SkwircleBorderGradient, SkwircleRoundness, SkwircleElevation, GradientConfig } from '@/components/ui/skwircle/types'
 import { generateSkwirclePath } from '@/components/ui/skwircle/utils/path-generator'
 import { ROUNDNESS_CONFIGS } from '@/components/ui/skwircle/config/roundness'
+import { GRADIENT_BORDER_PRESETS } from '@/components/ui/skwircle/config/constants'
 import {
   UnifiedControlPanel,
   type ControlChangeEvent,
@@ -30,12 +29,49 @@ type DepthIntensity = 'none' | '3' | '5' | '10' | '15' | '20' | '25' | '30'
 type DepthDirection = 'top' | 'top-right' | 'right' | 'bottom-right' | 'bottom' | 'bottom-left' | 'left' | 'top-left'
 type AspectRatio = '4/3' | '16/9' | '3/2' | '1/1' | 'auto'
 type FooterStyle = 'dark' | 'light' | 'brand' | 'gradient'
+type BorderColor = 'none' | 'border-primary' | 'border-secondary' | 'border-tertiary' | 'border-brand' | 'border-brand-solid' | 'border-error' | 'border-success' | 'border-warning'
+type RingColor = 'border-brand' | 'border-brand-solid' | 'border-primary' | 'border-secondary' | 'border-error' | 'border-success' | 'border-warning'
+type PreviewBackground =
+  | 'white'
+  | 'bg-primary'
+  | 'bg-secondary'
+  | 'bg-tertiary'
+  | 'bg-quaternary'
+  | 'bg-primary_alt'
+  | 'bg-secondary_alt'
+  | 'bg-brand-primary'
+  | 'bg-brand-secondary'
+  | 'bg-brand-solid'
+  | 'bg-inverted-primary'
+  | 'bg-inverted-secondary'
+type PreviewGradientSize = 'none' | 'sm' | 'md' | 'lg'
+type GradientColor =
+  | 'brand'
+  | 'primary'
+  | 'secondary'
+  | 'tertiary'
+  | 'gray'
+  | 'gray-light'
+  | 'success'
+  | 'error'
+  | 'warning'
 
 interface ShowcaseCardConfig {
   // Card container
   roundness: SkwircleRoundness
   elevation: SkwircleElevation
+
+  // Border
   borderWidth: number
+  borderColor: BorderColor
+  borderOpacity: number
+  borderGradient: SkwircleBorderGradient
+
+  // Ring (outer border)
+  ringEnabled: boolean
+  ringColor: RingColor
+  ringWidth: number
+  ringOpacity: number
 
   // Depth gradient
   depthIntensity: DepthIntensity
@@ -43,7 +79,10 @@ interface ShowcaseCardConfig {
 
   // Preview area
   previewAspectRatio: AspectRatio
-  previewBackground: string
+  previewBackground: PreviewBackground
+  previewGradientSize: PreviewGradientSize
+  previewGradientColor: GradientColor
+  previewGradientInverse: boolean
   previewPadding: number
 
   // Footer
@@ -55,6 +94,8 @@ interface ShowcaseCardConfig {
 
   // Card dimensions
   cardWidth: number
+  cardHeight: number | null  // null = auto
+  fillWidth: boolean
 }
 
 // =============================================================================
@@ -65,10 +106,20 @@ const DEFAULT_CONFIG: ShowcaseCardConfig = {
   roundness: 'rounded',
   elevation: 'sm',
   borderWidth: 0,
+  borderColor: 'border-secondary',
+  borderOpacity: 100,
+  borderGradient: 'none',
+  ringEnabled: false,
+  ringColor: 'border-brand',
+  ringWidth: 2,
+  ringOpacity: 100,
   depthIntensity: 'none',
   depthDirection: 'bottom-right',
   previewAspectRatio: '4/3',
-  previewBackground: '#ffffff',
+  previewBackground: 'white',
+  previewGradientSize: 'none',
+  previewGradientColor: 'brand',
+  previewGradientInverse: false,
   previewPadding: 24,
   footerStyle: 'dark',
   footerTitle: 'Shared Tooltip',
@@ -76,6 +127,8 @@ const DEFAULT_CONFIG: ShowcaseCardConfig = {
   footerPaddingX: 20,
   footerPaddingY: 16,
   cardWidth: 400,
+  cardHeight: null,
+  fillWidth: false,
 }
 
 const ROUNDNESS_OPTIONS = [
@@ -129,6 +182,70 @@ const FOOTER_STYLE_OPTIONS = [
   { label: 'Gradient', value: 'gradient' },
 ]
 
+const BORDER_COLOR_OPTIONS = [
+  { label: 'None', value: 'none' },
+  { label: 'Primary', value: 'border-primary' },
+  { label: 'Secondary', value: 'border-secondary' },
+  { label: 'Tertiary', value: 'border-tertiary' },
+  { label: 'Brand', value: 'border-brand' },
+  { label: 'Brand Solid', value: 'border-brand-solid' },
+  { label: 'Error', value: 'border-error' },
+  { label: 'Success', value: 'border-success' },
+  { label: 'Warning', value: 'border-warning' },
+]
+
+const BORDER_GRADIENT_OPTIONS = [
+  { label: 'None', value: 'none' },
+  { label: 'Shine Corners', value: 'shine-corners' },
+  { label: 'Edge Glow', value: 'edge-glow' },
+  { label: 'Corner TL→BR', value: 'corner-tl-br-5' },
+  { label: 'Corner TR→BL', value: 'corner-tr-bl-5' },
+]
+
+const RING_COLOR_OPTIONS = [
+  { label: 'Brand', value: 'border-brand' },
+  { label: 'Brand Solid', value: 'border-brand-solid' },
+  { label: 'Primary', value: 'border-primary' },
+  { label: 'Secondary', value: 'border-secondary' },
+  { label: 'Error', value: 'border-error' },
+  { label: 'Success', value: 'border-success' },
+  { label: 'Warning', value: 'border-warning' },
+]
+
+const PREVIEW_BACKGROUND_OPTIONS = [
+  { label: 'White', value: 'white' },
+  { label: 'Primary', value: 'bg-primary' },
+  { label: 'Secondary', value: 'bg-secondary' },
+  { label: 'Tertiary', value: 'bg-tertiary' },
+  { label: 'Quaternary', value: 'bg-quaternary' },
+  { label: 'Primary Alt', value: 'bg-primary_alt' },
+  { label: 'Secondary Alt', value: 'bg-secondary_alt' },
+  { label: 'Brand Primary', value: 'bg-brand-primary' },
+  { label: 'Brand Secondary', value: 'bg-brand-secondary' },
+  { label: 'Brand Solid', value: 'bg-brand-solid' },
+  { label: 'Inverted Primary', value: 'bg-inverted-primary' },
+  { label: 'Inverted Secondary', value: 'bg-inverted-secondary' },
+]
+
+const PREVIEW_GRADIENT_SIZE_OPTIONS = [
+  { label: 'None', value: 'none' },
+  { label: 'Small', value: 'sm' },
+  { label: 'Medium', value: 'md' },
+  { label: 'Large', value: 'lg' },
+]
+
+const GRADIENT_COLOR_OPTIONS = [
+  { label: 'Brand', value: 'brand' },
+  { label: 'Primary', value: 'primary' },
+  { label: 'Secondary', value: 'secondary' },
+  { label: 'Tertiary', value: 'tertiary' },
+  { label: 'Gray', value: 'gray' },
+  { label: 'Gray Light', value: 'gray-light' },
+  { label: 'Success', value: 'success' },
+  { label: 'Error', value: 'error' },
+  { label: 'Warning', value: 'warning' },
+]
+
 // Footer style configurations
 const FOOTER_STYLES: Record<FooterStyle, { bg: string; title: string; subtitle: string }> = {
   dark: {
@@ -163,18 +280,40 @@ const createPanelConfig = (config: ShowcaseCardConfig): ControlSection => ({
   tabLabel: 'Card',
   subsections: [
     {
-      title: 'Container',
+      title: 'Dimensions',
       controls: [
         {
           id: 'cardWidth',
-          label: 'Card Width',
+          label: 'Width',
           type: 'slider',
           value: config.cardWidth,
-          min: 280,
-          max: 600,
-          step: 20,
+          min: 200,
+          max: 800,
+          step: 10,
           formatLabel: (v: number) => `${v}px`,
+          disabled: config.fillWidth,
         },
+        {
+          id: 'cardHeight',
+          label: 'Height',
+          type: 'slider',
+          value: config.cardHeight ?? 0,
+          min: 0,
+          max: 600,
+          step: 10,
+          formatLabel: (v: number) => v === 0 ? 'Auto' : `${v}px`,
+        },
+        {
+          id: 'fillWidth',
+          label: 'Fill Width',
+          type: 'checkbox',
+          value: config.fillWidth,
+        },
+      ],
+    },
+    {
+      title: 'Container',
+      controls: [
         {
           id: 'roundness',
           label: 'Roundness',
@@ -189,15 +328,88 @@ const createPanelConfig = (config: ShowcaseCardConfig): ControlSection => ({
           value: config.elevation,
           options: ELEVATION_OPTIONS,
         },
+      ],
+    },
+    {
+      title: 'Border',
+      controls: [
         {
           id: 'borderWidth',
-          label: 'Border Width',
+          label: 'Width',
           type: 'slider',
           value: config.borderWidth,
           min: 0,
-          max: 4,
+          max: 8,
           step: 1,
           formatLabel: (v: number) => `${v}px`,
+        },
+        {
+          id: 'borderColor',
+          label: 'Color',
+          type: 'select',
+          value: config.borderColor,
+          options: BORDER_COLOR_OPTIONS,
+          disabled: config.borderWidth === 0,
+        },
+        {
+          id: 'borderOpacity',
+          label: 'Opacity',
+          type: 'slider',
+          value: config.borderOpacity,
+          min: 0,
+          max: 100,
+          step: 5,
+          formatLabel: (v: number) => `${v}%`,
+          disabled: config.borderWidth === 0,
+        },
+        {
+          id: 'borderGradient',
+          label: 'Gradient',
+          type: 'select',
+          value: config.borderGradient,
+          options: BORDER_GRADIENT_OPTIONS,
+          disabled: config.borderWidth === 0,
+        },
+      ],
+    },
+    {
+      title: 'Ring',
+      controls: [
+        {
+          id: 'ringEnabled',
+          label: 'Enable Ring',
+          type: 'checkbox',
+          value: config.ringEnabled,
+        },
+        {
+          id: 'ringWidth',
+          label: 'Width',
+          type: 'slider',
+          value: config.ringWidth,
+          min: 1,
+          max: 6,
+          step: 1,
+          formatLabel: (v: number) => `${v}px`,
+          disabled: !config.ringEnabled,
+        },
+        {
+          id: 'ringColor',
+          label: 'Color',
+          type: 'select',
+          value: config.ringColor,
+          options: RING_COLOR_OPTIONS,
+          disabled: !config.ringEnabled,
+        },
+        {
+          id: 'ringOpacity',
+          label: 'Opacity',
+          type: 'slider',
+          value: config.ringOpacity,
+          min: 0,
+          max: 100,
+          step: 5,
+          formatLabel: (v: number) => `${v}%`,
+          disabled: !config.ringEnabled,
         },
       ],
     },
@@ -234,9 +446,31 @@ const createPanelConfig = (config: ShowcaseCardConfig): ControlSection => ({
         {
           id: 'previewBackground',
           label: 'Background',
-          type: 'color',
+          type: 'select',
           value: config.previewBackground,
-          showValue: true,
+          options: PREVIEW_BACKGROUND_OPTIONS,
+        },
+        {
+          id: 'previewGradientSize',
+          label: 'Gradient Depth',
+          type: 'select',
+          value: config.previewGradientSize,
+          options: PREVIEW_GRADIENT_SIZE_OPTIONS,
+        },
+        {
+          id: 'previewGradientColor',
+          label: 'Gradient Color',
+          type: 'select',
+          value: config.previewGradientColor,
+          options: GRADIENT_COLOR_OPTIONS,
+          disabled: config.previewGradientSize === 'none',
+        },
+        {
+          id: 'previewGradientInverse',
+          label: 'Inverse Gradient',
+          type: 'checkbox',
+          value: config.previewGradientInverse,
+          disabled: config.previewGradientSize === 'none',
         },
         {
           id: 'previewPadding',
@@ -359,15 +593,100 @@ function ShowcaseCard({ config }: ShowcaseCardProps) {
     return `path('${path}')`
   }, [dimensions.width, dimensions.height, config.roundness, config.borderWidth])
 
+  // Build card style with dimensions
+  const cardStyle: React.CSSProperties = config.fillWidth
+    ? { width: '100%' }
+    : { width: config.cardWidth }
+
+  // Add height if specified
+  if (config.cardHeight !== null && config.cardHeight > 0) {
+    cardStyle.height = config.cardHeight
+  }
+
+  // Compute border color with opacity
+  // Border tokens map: 'border-primary' -> 'border-color-primary'
+  const getBorderCssVar = (token: string) => token.replace('border-', 'border-color-')
+  const borderColorWithOpacity = config.borderColor === 'none'
+    ? undefined
+    : config.borderOpacity < 100
+      ? `color-mix(in srgb, var(--${getBorderCssVar(config.borderColor)}) ${config.borderOpacity}%, transparent)`
+      : config.borderColor
+
+  // Compute ring color with opacity
+  const ringColorWithOpacity = config.ringOpacity < 100
+    ? `color-mix(in srgb, var(--${getBorderCssVar(config.ringColor)}) ${config.ringOpacity}%, transparent)`
+    : config.ringColor
+
+  // Build custom border gradient config with user's selected color
+  const getCustomBorderGradient = (): GradientConfig | undefined => {
+    if (config.borderGradient === 'none' || config.borderColor === 'none') return undefined
+
+    const preset = GRADIENT_BORDER_PRESETS[config.borderGradient]
+    if (!preset) return undefined
+
+    // Clone the preset and replace the color with user's selection
+    return {
+      ...preset,
+      colors: [config.borderColor],
+    }
+  }
+
+  // Compute preview background
+  const getPreviewBackgroundClass = () => {
+    if (config.previewBackground === 'white') return 'bg-white'
+    return config.previewBackground
+  }
+
+  // Generate the full gradient CSS inline (required due to CSS variable scoping)
+  // The gradient patterns in CSS use var(--gradient-color) which is resolved at :root,
+  // so we must generate the entire gradient with the color injected
+  const getPreviewGradientStyle = (): string | undefined => {
+    if (config.previewGradientSize === 'none') return undefined
+
+    const colorMap: Record<GradientColor, string> = {
+      'brand': 'var(--border-color-brand)',
+      'primary': 'var(--border-color-primary)',
+      'secondary': 'var(--border-color-secondary)',
+      'tertiary': 'var(--border-color-tertiary)',
+      'gray': 'var(--color-gray-400)',
+      'gray-light': 'var(--color-gray-300)',
+      'success': 'var(--color-success-500)',
+      'error': 'var(--color-error-500)',
+      'warning': 'var(--color-warning-500)',
+    }
+    const color = colorMap[config.previewGradientColor]
+
+    // Gradient intensity configs (matches gradients.css)
+    const intensityMap: Record<PreviewGradientSize, number[]> = {
+      'none': [],
+      'sm': [3, 8, 15, 22, 28],
+      'md': [9, 20, 32, 44, 54],
+      'lg': [15, 32, 48, 64, 80],
+    }
+    const stops = intensityMap[config.previewGradientSize]
+    const orderedStops = config.previewGradientInverse ? [...stops].reverse() : stops
+
+    return `linear-gradient(238deg, ${orderedStops.map((opacity, i) =>
+      `color-mix(in srgb, ${color} ${opacity}%, transparent) ${i * 25}%`
+    ).join(', ')})`
+  }
+
   return (
     <Skwircle.Card
       elevation={config.elevation}
       roundness={config.roundness}
       borderWidth={config.borderWidth}
+      borderColor={borderColorWithOpacity}
+      borderGradient={config.borderGradient !== 'none' ? 'custom' : 'none'}
+      customBorderGradient={getCustomBorderGradient()}
+      ring={config.ringEnabled}
+      ringColor={ringColorWithOpacity}
+      ringWidth={config.ringWidth}
+      ringOpacity={config.ringOpacity}
       backgroundGradient={depthPreset}
       intent="default"
       fillMode
-      style={{ width: config.cardWidth }}
+      style={cardStyle}
     >
       {/* Content wrapper with squircle clip path */}
       <div
@@ -377,11 +696,12 @@ function ShowcaseCard({ config }: ShowcaseCardProps) {
       >
         {/* Preview Area */}
         <div
-          className="flex flex-1 items-center justify-center w-full"
+          className={`flex flex-1 items-center justify-center w-full ${getPreviewBackgroundClass()}`}
           style={{
             ...aspectStyle,
-            backgroundColor: config.previewBackground,
             padding: config.previewPadding,
+            // Generate gradient inline (CSS variable scoping workaround)
+            backgroundImage: getPreviewGradientStyle(),
           }}
         >
           {/* Placeholder content */}
@@ -435,7 +755,7 @@ export default function SkwircleCardPage() {
     sections: [createPanelConfig(config)],
     defaultActiveTab: 'showcase-card',
     position: {
-      top: '80px',
+      top: '16px',
       bottom: '16px',
       right: '16px',
       width: '320px',
@@ -447,6 +767,14 @@ export default function SkwircleCardPage() {
   // Handle control changes
   const handleControlChange = useCallback((event: ControlChangeEvent) => {
     const { controlId, value } = event
+
+    // Convert cardHeight 0 to null (auto)
+    if (controlId === 'cardHeight') {
+      const heightValue = value as number
+      setConfig(prev => ({ ...prev, cardHeight: heightValue === 0 ? null : heightValue }))
+      return
+    }
+
     setConfig(prev => ({ ...prev, [controlId]: value }))
   }, [])
 
@@ -459,34 +787,29 @@ export default function SkwircleCardPage() {
   const getConfigForCopy = useCallback(() => config, [config])
 
   return (
-    <div className="min-h-screen bg-gray-950">
-      {/* Header */}
-      <div className="fixed top-0 right-0 left-0 z-50 border-b border-gray-800 bg-gray-950/80 backdrop-blur-sm">
-        <div className="flex items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-4">
-            <Link
-              href="/playground"
-              className="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors"
-            >
-              <HugeIcon icon={ArrowLeft01Icon} size={16} />
-              Back
-            </Link>
-            <div className="h-4 w-px bg-gray-700" />
-            <h1 className="text-lg font-semibold text-white">Skwircle Card</h1>
-          </div>
-        </div>
+    <div className="min-h-screen">
+      {/* Breadcrumbs */}
+      <div className="nav-clearance px-6">
+        <Breadcrumbs
+          items={[
+            { label: 'Playground', href: '/playground' },
+            { label: 'Skwircle Card' },
+          ]}
+        />
       </div>
 
       {/* Preview Area */}
-      <div className="pt-20 pr-[352px]">
-        <div className="flex flex-col min-h-[calc(100vh-80px)] items-center justify-center p-8">
+      <div className="pr-[352px] pb-24 md:pb-0">
+        <div className="flex flex-col min-h-[calc(100vh-120px)] items-center justify-center p-8">
           {/* Description */}
-          <p className="text-gray-400 text-lg mb-12 max-w-xl text-center">
+          <p className="text-tertiary text-lg mb-12 max-w-xl text-center">
             A collection of components and widgets exploring design, animations, and micro-interactions.
           </p>
 
           {/* Card Preview */}
-          <ShowcaseCard config={config} />
+          <div className={config.fillWidth ? 'w-full max-w-4xl' : undefined}>
+            <ShowcaseCard config={config} />
+          </div>
         </div>
       </div>
 

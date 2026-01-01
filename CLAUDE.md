@@ -127,7 +127,7 @@ import {
 } from '@/components/ui/controls/unified-control-panel'
 
 // Standard layout: fixed header, preview area with panel offset, fixed panel
-<div className="min-h-screen bg-gray-950">
+<div className="min-h-screen">
   <div className="fixed top-0 ...">Header</div>
   <div className="pt-20 pr-[352px]">Preview Area</div>
   <UnifiedControlPanel config={panelConfig} onChange={handleChange} />

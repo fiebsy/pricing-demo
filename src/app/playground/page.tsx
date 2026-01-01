@@ -23,27 +23,22 @@ const PLAYGROUND_ITEMS = [
     description: 'Showcase cards with preview area and dark footer pattern',
     href: '/playground/skwircle-card',
   },
-  {
-    id: 'design-lab',
-    title: 'Design Lab',
-    description: 'Sandbox for testing and refining component designs',
-    href: '/lab',
-  },
 ]
 
 export default function PlaygroundPage() {
   return (
-    <div className="min-h-screen bg-primary">
-      {/* Header */}
-      <div className="border-b border-primary bg-primary px-8 py-6">
-        <h1 className="text-display-md font-semibold text-primary">Component Playground</h1>
-        <p className="mt-1 text-sm text-secondary">
-          Explore and test Skwircle design system components
-        </p>
-      </div>
-
+    <div className="min-h-screen nav-clearance nav-clearance-bottom">
       {/* Content */}
-      <div className="p-8">
+      <div className="px-8">
+        {/* Page Title */}
+        <div className="mb-8">
+          <h1 className="text-display-md font-semibold text-primary">Playground</h1>
+          <p className="mt-1 text-sm text-secondary">
+            Explore and test Skwircle design system components
+          </p>
+        </div>
+
+        {/* Demo Cards */}
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {PLAYGROUND_ITEMS.map((item) => (
             <Link key={item.id} href={item.href} className="group">
