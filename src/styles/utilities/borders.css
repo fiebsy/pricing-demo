@@ -1,48 +1,66 @@
-/* Border utilities that use semantic tokens by default */
+/* ========================================
+   BORDER UTILITIES
+   ========================================
+
+   Border utilities that use semantic tokens by default.
+
+   Note: These utilities create solid borders. For gradient borders,
+   use the wrapper div approach with utilities from gradients.css:
+
+   Example with gradient border:
+   <div className="border-gradient-wrapper-corner-tl-br-5 gradient-color-brand">
+     <div className="bg-primary border rounded-lg p-4">Content</div>
+   </div>
+
+   The wrapper div provides the gradient "border" effect, while the
+   inner element can still use these border utilities for additional styling.
+
+   Related: src/styles/utilities/gradients.css
+   ======================================== */
 @utility border {
-    border-width: 1px;
-    border-style: solid;
-    border-color: var(--border-color-DEFAULT);
+  border-width: 1px;
+  border-style: solid;
+  border-color: var(--border-color-DEFAULT);
 }
 
 @utility border-t {
-    border-top-width: 1px;
-    border-top-style: solid;
-    border-top-color: var(--border-color-DEFAULT);
+  border-top-width: 1px;
+  border-top-style: solid;
+  border-top-color: var(--border-color-DEFAULT);
 }
 
 @utility border-b {
-    border-bottom-width: 1px;
-    border-bottom-style: solid;
-    border-bottom-color: var(--border-color-DEFAULT);
+  border-bottom-width: 1px;
+  border-bottom-style: solid;
+  border-bottom-color: var(--border-color-DEFAULT);
 }
 
 @utility border-l {
-    border-left-width: 1px;
-    border-left-style: solid;
-    border-left-color: var(--border-color-DEFAULT);
+  border-left-width: 1px;
+  border-left-style: solid;
+  border-left-color: var(--border-color-DEFAULT);
 }
 
 @utility border-r {
-    border-right-width: 1px;
-    border-right-style: solid;
-    border-right-color: var(--border-color-DEFAULT);
+  border-right-width: 1px;
+  border-right-style: solid;
+  border-right-color: var(--border-color-DEFAULT);
 }
 
 @utility border-x {
-    border-left-width: 1px;
-    border-right-width: 1px;
-    border-left-style: solid;
-    border-right-style: solid;
-    border-left-color: var(--border-color-DEFAULT);
-    border-right-color: var(--border-color-DEFAULT);
+  border-left-width: 1px;
+  border-right-width: 1px;
+  border-left-style: solid;
+  border-right-style: solid;
+  border-left-color: var(--border-color-DEFAULT);
+  border-right-color: var(--border-color-DEFAULT);
 }
 
 @utility border-y {
-    border-top-width: 1px;
-    border-bottom-width: 1px;
-    border-top-style: solid;
-    border-bottom-style: solid;
-    border-top-color: var(--border-color-DEFAULT);
-    border-bottom-color: var(--border-color-DEFAULT);
+  border-top-width: 1px;
+  border-bottom-width: 1px;
+  border-top-style: solid;
+  border-bottom-style: solid;
+  border-top-color: var(--border-color-DEFAULT);
+  border-bottom-color: var(--border-color-DEFAULT);
 }

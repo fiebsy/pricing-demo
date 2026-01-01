@@ -2,45 +2,70 @@
    BASE STYLES & BROWSER RESETS
    ========================================
 
-   Minimal base styles and cross-browser compatibility fixes
-   
+   Purpose: Minimal base styles and cross-browser compatibility fixes
+   Edit Frequency: Rarely (only when adding new browser-specific resets)
+
    Contains:
-   - Font rendering optimizations
-   - Safari-specific fixes
-   - Firefox-specific fixes
+   - Font rendering optimizations (antialiasing, ligatures, kerning)
+   - Safari-specific fixes (details marker, number input spinners, search clear)
+   - Firefox-specific fixes (number input appearance)
+
+   Browser Support:
+   ✓ Chrome/Edge
+   ✓ Safari
+   ✓ Firefox
+
+   Related Documentation:
+   - INDEX.md → Quick reference
+   - README.md → System overview
 
    ======================================== */
 
 html,
 body {
-    font-family: var(--font-body);
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    -webkit-font-variant-ligatures: contextual;
-    font-variant-ligatures: contextual;
-    -webkit-font-kerning: normal;
-    font-kerning: normal;
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-variant-ligatures: contextual;
+  font-variant-ligatures: contextual;
+  -webkit-font-kerning: normal;
+  font-kerning: normal;
+}
+
+/* Restore cursor: pointer for interactive elements
+   Ensures consistent pointer cursor across all browsers */
+button:not(:disabled),
+[role="button"]:not(:disabled),
+a[href],
+label[for],
+input[type="button"]:not(:disabled),
+input[type="submit"]:not(:disabled),
+input[type="reset"]:not(:disabled),
+select:not(:disabled),
+summary,
+[tabindex]:not([tabindex="-1"]),
+.cursor-pointer {
+  cursor: pointer;
 }
 
 /* Hide the default expand arrow on Safari.  */
 details summary::-webkit-details-marker {
-    display: none;
+  display: none;
 }
 
 /* Hide default arrows from number inputs. */
 /* Chrome, Safari, Edge, Opera */
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
+  -webkit-appearance: none;
+  margin: 0;
 }
 /* Firefox */
-input[type="number"] {
-    -moz-appearance: textfield;
+input[type='number'] {
+  -moz-appearance: textfield;
 }
 
 /* Hide the default clear button (X) from search inputs. */
-input[type="search"]::-webkit-search-cancel-button {
-    -webkit-appearance: none;
+input[type='search']::-webkit-search-cancel-button {
+  -webkit-appearance: none;
 }
-

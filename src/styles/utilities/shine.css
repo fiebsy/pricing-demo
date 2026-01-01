@@ -1,0 +1,516 @@
+/* ========================================
+   SHINE BORDER UTILITIES
+   ========================================
+
+   Purpose: Shine border effect presets for cards, icons, and containers
+
+   Structure:
+   - Base shine types: shine-0, shine-1, shine-2, shine-3, shine-brand
+   - Intensity modifiers: -subtle (60%), normal (default), -intense (150%)
+   - Shadow combinations: -shadow-xs, -shadow-sm, -shadow-md, -shadow-lg
+
+   Usage:
+   <div className="shine-1 bg-primary rounded-3xl">Normal shine</div>
+   <div className="shine-1-subtle bg-primary rounded-3xl">Subtle shine</div>
+   <div className="shine-1-intense bg-primary rounded-3xl">Intense shine</div>
+   <div className="shine-1-shadow-md bg-primary rounded-3xl">Shine + shadow</div>
+   <div className="shine-1-subtle-shadow-sm bg-primary rounded-3xl">Subtle + shadow</div>
+
+   ======================================== */
+
+:root {
+  /* ========================================
+     SHINE-0 PRESET (195° angle)
+     ======================================== */
+  --shine-0:
+    inset 0.26px 0.97px 1px 0 rgba(255, 255, 255, 0.15),
+    inset -0.26px -0.97px 1px 0 rgba(0, 0, 0, 0.20),
+    inset -0.26px -0.97px 1.5px 0 rgba(255, 255, 255, 0.0675),
+    inset 0.26px 0.97px 1.5px 0 rgba(0, 0, 0, 0.045),
+    inset 0 0 0 1px rgba(200, 200, 210, 0.15);
+
+  --shine-0-subtle:
+    inset 0.26px 0.97px 1px 0 rgba(255, 255, 255, 0.09),
+    inset -0.26px -0.97px 1px 0 rgba(0, 0, 0, 0.12),
+    inset -0.26px -0.97px 1.5px 0 rgba(255, 255, 255, 0.04),
+    inset 0.26px 0.97px 1.5px 0 rgba(0, 0, 0, 0.027),
+    inset 0 0 0 1px rgba(200, 200, 210, 0.09);
+
+  --shine-0-intense:
+    inset 0.26px 0.97px 1px 0 rgba(255, 255, 255, 0.225),
+    inset -0.26px -0.97px 1px 0 rgba(0, 0, 0, 0.30),
+    inset -0.26px -0.97px 1.5px 0 rgba(255, 255, 255, 0.10),
+    inset 0.26px 0.97px 1.5px 0 rgba(0, 0, 0, 0.068),
+    inset 0 0 0 1px rgba(200, 200, 210, 0.225);
+
+  /* ========================================
+     SHINE-1 PRESET (180° angle)
+     ======================================== */
+  --shine-1:
+    inset 0px 1px 1px 0 rgba(255, 255, 255, 0.25),
+    inset 0px -1px 1px 0 rgba(0, 0, 0, 0.20),
+    inset 0px -1px 1.5px 0 rgba(255, 255, 255, 0.075),
+    inset 0px 1px 1.5px 0 rgba(0, 0, 0, 0.03),
+    inset 0 0 0 1px rgba(100, 100, 110, 0.10);
+
+  --shine-1-subtle:
+    inset 0px 1px 1px 0 rgba(255, 255, 255, 0.15),
+    inset 0px -1px 1px 0 rgba(0, 0, 0, 0.12),
+    inset 0px -1px 1.5px 0 rgba(255, 255, 255, 0.045),
+    inset 0px 1px 1.5px 0 rgba(0, 0, 0, 0.018),
+    inset 0 0 0 1px rgba(100, 100, 110, 0.06);
+
+  --shine-1-intense:
+    inset 0px 1px 1px 0 rgba(255, 255, 255, 0.375),
+    inset 0px -1px 1px 0 rgba(0, 0, 0, 0.30),
+    inset 0px -1px 1.5px 0 rgba(255, 255, 255, 0.1125),
+    inset 0px 1px 1.5px 0 rgba(0, 0, 0, 0.045),
+    inset 0 0 0 1px rgba(100, 100, 110, 0.15);
+
+  /* ========================================
+     SHINE-2 PRESET (Theme-aware)
+     ======================================== */
+  --shine-2-inset-border: rgba(0, 0, 0, 0.15);
+  --shine-2-inset-border-subtle: rgba(0, 0, 0, 0.09);
+  --shine-2-inset-border-intense: rgba(0, 0, 0, 0.225);
+
+  --shine-2:
+    inset 0px 1px 1px 0 rgba(255, 255, 255, 0.25),
+    inset 0px -1px 1px 0 rgba(0, 0, 0, 0.20),
+    inset 0px -1px 1.5px 0 rgba(255, 255, 255, 0.075),
+    inset 0px 1px 1.5px 0 rgba(0, 0, 0, 0.03),
+    inset 0 0 0 1px var(--shine-2-inset-border);
+
+  --shine-2-subtle:
+    inset 0px 1px 1px 0 rgba(255, 255, 255, 0.15),
+    inset 0px -1px 1px 0 rgba(0, 0, 0, 0.12),
+    inset 0px -1px 1.5px 0 rgba(255, 255, 255, 0.045),
+    inset 0px 1px 1.5px 0 rgba(0, 0, 0, 0.018),
+    inset 0 0 0 1px var(--shine-2-inset-border-subtle);
+
+  --shine-2-intense:
+    inset 0px 1px 1px 0 rgba(255, 255, 255, 0.375),
+    inset 0px -1px 1px 0 rgba(0, 0, 0, 0.30),
+    inset 0px -1px 1.5px 0 rgba(255, 255, 255, 0.1125),
+    inset 0px 1px 1.5px 0 rgba(0, 0, 0, 0.045),
+    inset 0 0 0 1px var(--shine-2-inset-border-intense);
+
+  /* ========================================
+     SHINE-3 PRESET (Enhanced, 2px thick)
+     ======================================== */
+  --shine-3:
+    inset 0px 2px 3px 0 rgba(255, 255, 255, 0.25),
+    inset 0px -2px 3px 0 rgba(0, 0, 0, 0.20),
+    inset 0px -2px 4.5px 0 rgba(255, 255, 255, 0.075),
+    inset 0px 2px 4.5px 0 rgba(0, 0, 0, 0.03),
+    inset 0 0 0 1px rgba(100, 100, 110, 0.20);
+
+  --shine-3-subtle:
+    inset 0px 2px 3px 0 rgba(255, 255, 255, 0.15),
+    inset 0px -2px 3px 0 rgba(0, 0, 0, 0.12),
+    inset 0px -2px 4.5px 0 rgba(255, 255, 255, 0.045),
+    inset 0px 2px 4.5px 0 rgba(0, 0, 0, 0.018),
+    inset 0 0 0 1px rgba(100, 100, 110, 0.12);
+
+  --shine-3-intense:
+    inset 0px 2px 3px 0 rgba(255, 255, 255, 0.375),
+    inset 0px -2px 3px 0 rgba(0, 0, 0, 0.30),
+    inset 0px -2px 4.5px 0 rgba(255, 255, 255, 0.1125),
+    inset 0px 2px 4.5px 0 rgba(0, 0, 0, 0.045),
+    inset 0 0 0 1px rgba(100, 100, 110, 0.30);
+
+  /* ========================================
+     SHINE-BRAND PRESET (High contrast)
+     ======================================== */
+  --shine-brand:
+    inset 0px 1px 0px 0 rgba(255, 255, 255, 0.40),
+    inset 0px -1px 0px 0 rgba(0, 0, 0, 0.50),
+    inset 0px -1px 0px 0 rgba(255, 255, 255, 0.12),
+    inset 0px 1px 0px 0 rgba(0, 0, 0, 0.075),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.10);
+
+  --shine-brand-subtle:
+    inset 0px 1px 0px 0 rgba(255, 255, 255, 0.24),
+    inset 0px -1px 0px 0 rgba(0, 0, 0, 0.30),
+    inset 0px -1px 0px 0 rgba(255, 255, 255, 0.072),
+    inset 0px 1px 0px 0 rgba(0, 0, 0, 0.045),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+
+  --shine-brand-intense:
+    inset 0px 1px 0px 0 rgba(255, 255, 255, 0.60),
+    inset 0px -1px 0px 0 rgba(0, 0, 0, 0.75),
+    inset 0px -1px 0px 0 rgba(255, 255, 255, 0.18),
+    inset 0px 1px 0px 0 rgba(0, 0, 0, 0.1125),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.15);
+}
+
+/* Dark mode adjustments for shine-2 */
+.dark-mode {
+  --shine-2-inset-border: rgba(255, 255, 255, 0.15);
+  --shine-2-inset-border-subtle: rgba(255, 255, 255, 0.09);
+  --shine-2-inset-border-intense: rgba(255, 255, 255, 0.225);
+}
+
+/* ========================================
+   BASE SHINE UTILITIES
+   ======================================== */
+
+@utility shine-none {
+  border: none;
+  box-shadow: none;
+}
+
+/* Shine 0 */
+@utility shine-0 {
+  border: none;
+  box-shadow: var(--shine-0);
+}
+@utility shine-0-subtle {
+  border: none;
+  box-shadow: var(--shine-0-subtle);
+}
+@utility shine-0-intense {
+  border: none;
+  box-shadow: var(--shine-0-intense);
+}
+
+/* Shine 1 */
+@utility shine-1 {
+  border: none;
+  box-shadow: var(--shine-1);
+}
+@utility shine-1-subtle {
+  border: none;
+  box-shadow: var(--shine-1-subtle);
+}
+@utility shine-1-intense {
+  border: none;
+  box-shadow: var(--shine-1-intense);
+}
+
+/* Shine 2 */
+@utility shine-2 {
+  border: none;
+  box-shadow: var(--shine-2);
+}
+@utility shine-2-subtle {
+  border: none;
+  box-shadow: var(--shine-2-subtle);
+}
+@utility shine-2-intense {
+  border: none;
+  box-shadow: var(--shine-2-intense);
+}
+
+/* Shine 3 */
+@utility shine-3 {
+  border: none;
+  box-shadow: var(--shine-3);
+}
+@utility shine-3-subtle {
+  border: none;
+  box-shadow: var(--shine-3-subtle);
+}
+@utility shine-3-intense {
+  border: none;
+  box-shadow: var(--shine-3-intense);
+}
+
+/* Shine Brand */
+@utility shine-brand {
+  border: none;
+  box-shadow: var(--shine-brand);
+}
+@utility shine-brand-subtle {
+  border: none;
+  box-shadow: var(--shine-brand-subtle);
+}
+@utility shine-brand-intense {
+  border: none;
+  box-shadow: var(--shine-brand-intense);
+}
+
+/* ========================================
+   SHINE + SHADOW COMBINATIONS
+   Normal intensity
+   ======================================== */
+
+/* Shine 0 + Shadow */
+@utility shine-0-shadow-xs {
+  border: none;
+  box-shadow: var(--shine-0), var(--shadow-xs);
+}
+@utility shine-0-shadow-sm {
+  border: none;
+  box-shadow: var(--shine-0), var(--shadow-sm);
+}
+@utility shine-0-shadow-md {
+  border: none;
+  box-shadow: var(--shine-0), var(--shadow-md);
+}
+@utility shine-0-shadow-lg {
+  border: none;
+  box-shadow: var(--shine-0), var(--shadow-lg);
+}
+
+/* Shine 1 + Shadow */
+@utility shine-1-shadow-xs {
+  border: none;
+  box-shadow: var(--shine-1), var(--shadow-xs);
+}
+@utility shine-1-shadow-sm {
+  border: none;
+  box-shadow: var(--shine-1), var(--shadow-sm);
+}
+@utility shine-1-shadow-md {
+  border: none;
+  box-shadow: var(--shine-1), var(--shadow-md);
+}
+@utility shine-1-shadow-lg {
+  border: none;
+  box-shadow: var(--shine-1), var(--shadow-lg);
+}
+
+/* Shine 2 + Shadow */
+@utility shine-2-shadow-xs {
+  border: none;
+  box-shadow: var(--shine-2), var(--shadow-xs);
+}
+@utility shine-2-shadow-sm {
+  border: none;
+  box-shadow: var(--shine-2), var(--shadow-sm);
+}
+@utility shine-2-shadow-md {
+  border: none;
+  box-shadow: var(--shine-2), var(--shadow-md);
+}
+@utility shine-2-shadow-lg {
+  border: none;
+  box-shadow: var(--shine-2), var(--shadow-lg);
+}
+
+/* Shine 3 + Shadow */
+@utility shine-3-shadow-xs {
+  border: none;
+  box-shadow: var(--shine-3), var(--shadow-xs);
+}
+@utility shine-3-shadow-sm {
+  border: none;
+  box-shadow: var(--shine-3), var(--shadow-sm);
+}
+@utility shine-3-shadow-md {
+  border: none;
+  box-shadow: var(--shine-3), var(--shadow-md);
+}
+@utility shine-3-shadow-lg {
+  border: none;
+  box-shadow: var(--shine-3), var(--shadow-lg);
+}
+
+/* Shine Brand + Shadow */
+@utility shine-brand-shadow-xs {
+  border: none;
+  box-shadow: var(--shine-brand), var(--shadow-xs);
+}
+@utility shine-brand-shadow-sm {
+  border: none;
+  box-shadow: var(--shine-brand), var(--shadow-sm);
+}
+@utility shine-brand-shadow-md {
+  border: none;
+  box-shadow: var(--shine-brand), var(--shadow-md);
+}
+@utility shine-brand-shadow-lg {
+  border: none;
+  box-shadow: var(--shine-brand), var(--shadow-lg);
+}
+
+/* ========================================
+   SHINE + SHADOW COMBINATIONS
+   Subtle intensity
+   ======================================== */
+
+/* Shine 0 Subtle + Shadow */
+@utility shine-0-subtle-shadow-xs {
+  border: none;
+  box-shadow: var(--shine-0-subtle), var(--shadow-xs);
+}
+@utility shine-0-subtle-shadow-sm {
+  border: none;
+  box-shadow: var(--shine-0-subtle), var(--shadow-sm);
+}
+@utility shine-0-subtle-shadow-md {
+  border: none;
+  box-shadow: var(--shine-0-subtle), var(--shadow-md);
+}
+@utility shine-0-subtle-shadow-lg {
+  border: none;
+  box-shadow: var(--shine-0-subtle), var(--shadow-lg);
+}
+
+/* Shine 1 Subtle + Shadow */
+@utility shine-1-subtle-shadow-xs {
+  border: none;
+  box-shadow: var(--shine-1-subtle), var(--shadow-xs);
+}
+@utility shine-1-subtle-shadow-sm {
+  border: none;
+  box-shadow: var(--shine-1-subtle), var(--shadow-sm);
+}
+@utility shine-1-subtle-shadow-md {
+  border: none;
+  box-shadow: var(--shine-1-subtle), var(--shadow-md);
+}
+@utility shine-1-subtle-shadow-lg {
+  border: none;
+  box-shadow: var(--shine-1-subtle), var(--shadow-lg);
+}
+
+/* Shine 2 Subtle + Shadow */
+@utility shine-2-subtle-shadow-xs {
+  border: none;
+  box-shadow: var(--shine-2-subtle), var(--shadow-xs);
+}
+@utility shine-2-subtle-shadow-sm {
+  border: none;
+  box-shadow: var(--shine-2-subtle), var(--shadow-sm);
+}
+@utility shine-2-subtle-shadow-md {
+  border: none;
+  box-shadow: var(--shine-2-subtle), var(--shadow-md);
+}
+@utility shine-2-subtle-shadow-lg {
+  border: none;
+  box-shadow: var(--shine-2-subtle), var(--shadow-lg);
+}
+
+/* Shine 3 Subtle + Shadow */
+@utility shine-3-subtle-shadow-xs {
+  border: none;
+  box-shadow: var(--shine-3-subtle), var(--shadow-xs);
+}
+@utility shine-3-subtle-shadow-sm {
+  border: none;
+  box-shadow: var(--shine-3-subtle), var(--shadow-sm);
+}
+@utility shine-3-subtle-shadow-md {
+  border: none;
+  box-shadow: var(--shine-3-subtle), var(--shadow-md);
+}
+@utility shine-3-subtle-shadow-lg {
+  border: none;
+  box-shadow: var(--shine-3-subtle), var(--shadow-lg);
+}
+
+/* Shine Brand Subtle + Shadow */
+@utility shine-brand-subtle-shadow-xs {
+  border: none;
+  box-shadow: var(--shine-brand-subtle), var(--shadow-xs);
+}
+@utility shine-brand-subtle-shadow-sm {
+  border: none;
+  box-shadow: var(--shine-brand-subtle), var(--shadow-sm);
+}
+@utility shine-brand-subtle-shadow-md {
+  border: none;
+  box-shadow: var(--shine-brand-subtle), var(--shadow-md);
+}
+@utility shine-brand-subtle-shadow-lg {
+  border: none;
+  box-shadow: var(--shine-brand-subtle), var(--shadow-lg);
+}
+
+/* ========================================
+   SHINE + SHADOW COMBINATIONS
+   Intense intensity
+   ======================================== */
+
+/* Shine 0 Intense + Shadow */
+@utility shine-0-intense-shadow-xs {
+  border: none;
+  box-shadow: var(--shine-0-intense), var(--shadow-xs);
+}
+@utility shine-0-intense-shadow-sm {
+  border: none;
+  box-shadow: var(--shine-0-intense), var(--shadow-sm);
+}
+@utility shine-0-intense-shadow-md {
+  border: none;
+  box-shadow: var(--shine-0-intense), var(--shadow-md);
+}
+@utility shine-0-intense-shadow-lg {
+  border: none;
+  box-shadow: var(--shine-0-intense), var(--shadow-lg);
+}
+
+/* Shine 1 Intense + Shadow */
+@utility shine-1-intense-shadow-xs {
+  border: none;
+  box-shadow: var(--shine-1-intense), var(--shadow-xs);
+}
+@utility shine-1-intense-shadow-sm {
+  border: none;
+  box-shadow: var(--shine-1-intense), var(--shadow-sm);
+}
+@utility shine-1-intense-shadow-md {
+  border: none;
+  box-shadow: var(--shine-1-intense), var(--shadow-md);
+}
+@utility shine-1-intense-shadow-lg {
+  border: none;
+  box-shadow: var(--shine-1-intense), var(--shadow-lg);
+}
+
+/* Shine 2 Intense + Shadow */
+@utility shine-2-intense-shadow-xs {
+  border: none;
+  box-shadow: var(--shine-2-intense), var(--shadow-xs);
+}
+@utility shine-2-intense-shadow-sm {
+  border: none;
+  box-shadow: var(--shine-2-intense), var(--shadow-sm);
+}
+@utility shine-2-intense-shadow-md {
+  border: none;
+  box-shadow: var(--shine-2-intense), var(--shadow-md);
+}
+@utility shine-2-intense-shadow-lg {
+  border: none;
+  box-shadow: var(--shine-2-intense), var(--shadow-lg);
+}
+
+/* Shine 3 Intense + Shadow */
+@utility shine-3-intense-shadow-xs {
+  border: none;
+  box-shadow: var(--shine-3-intense), var(--shadow-xs);
+}
+@utility shine-3-intense-shadow-sm {
+  border: none;
+  box-shadow: var(--shine-3-intense), var(--shadow-sm);
+}
+@utility shine-3-intense-shadow-md {
+  border: none;
+  box-shadow: var(--shine-3-intense), var(--shadow-md);
+}
+@utility shine-3-intense-shadow-lg {
+  border: none;
+  box-shadow: var(--shine-3-intense), var(--shadow-lg);
+}
+
+/* Shine Brand Intense + Shadow */
+@utility shine-brand-intense-shadow-xs {
+  border: none;
+  box-shadow: var(--shine-brand-intense), var(--shadow-xs);
+}
+@utility shine-brand-intense-shadow-sm {
+  border: none;
+  box-shadow: var(--shine-brand-intense), var(--shadow-sm);
+}
+@utility shine-brand-intense-shadow-md {
+  border: none;
+  box-shadow: var(--shine-brand-intense), var(--shadow-md);
+}
+@utility shine-brand-intense-shadow-lg {
+  border: none;
+  box-shadow: var(--shine-brand-intense), var(--shadow-lg);
+}

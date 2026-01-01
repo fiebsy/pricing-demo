@@ -2,51 +2,51 @@
 
 /* Primary outline utilities */
 @utility outline-primary {
-    outline-color: var(--outline-color-primary);
+  outline-color: var(--outline-color-primary);
 }
 
 @utility outline-secondary {
-    outline-color: var(--outline-color-secondary);
+  outline-color: var(--outline-color-secondary);
 }
 
 @utility outline-secondary_alt {
-    outline-color: var(--outline-color-secondary_alt);
+  outline-color: var(--outline-color-secondary_alt);
 }
 
 @utility outline-tertiary {
-    outline-color: var(--outline-color-tertiary);
+  outline-color: var(--outline-color-tertiary);
 }
 
 /* State outline utilities */
 @utility outline-disabled {
-    outline-color: var(--outline-color-disabled);
+  outline-color: var(--outline-color-disabled);
 }
 
 @utility outline-disabled_subtle {
-    outline-color: var(--outline-color-disabled_subtle);
+  outline-color: var(--outline-color-disabled_subtle);
 }
 
 @utility outline-error {
-    outline-color: var(--outline-color-error);
+  outline-color: var(--outline-color-error);
 }
 
 @utility outline-error_subtle {
-    outline-color: var(--outline-color-error_subtle);
+  outline-color: var(--outline-color-error_subtle);
 }
 
 /* Brand outline utilities */
 @utility outline-brand {
-    outline-color: var(--outline-color-brand);
+  outline-color: var(--outline-color-brand);
 }
 
 @utility outline-brand-solid {
-    outline-color: var(--outline-color-brand-solid);
+  outline-color: var(--outline-color-brand-solid);
 }
 
 @utility outline-brand-solid_hover {
-    outline-color: var(--outline-color-brand-solid_hover);
+  outline-color: var(--outline-color-brand-solid_hover);
 }
 
 @utility outline-brand_alt {
-    outline-color: var(--outline-color-brand_alt);
+  outline-color: var(--outline-color-brand_alt);
 }

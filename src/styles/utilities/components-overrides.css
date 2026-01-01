@@ -1,0 +1,239 @@
+/* Third-party component style overrides - Global styles for external libraries */
+
+/* ========================================
+   Google Maps Place Autocomplete
+   ======================================== */
+
+gmp-place-autocomplete {
+  background-color: var(--color-bg-primary);
+  color-scheme: light;
+  border: 1px solid var(--color-border-primary)
+}
+
+/* TODO fix it so the outline is purple instead of blue */
+
+/* Dark mode styles for Google Maps autocomplete */
+.dark-mode gmp-place-autocomplete {
+  background-color: var(--color-bg-primary);
+  color-scheme: dark;
+  border: 1px solid var(--color-border-primary)
+}
+
+.dark-mode gmp-place-autocomplete input {
+  color: var(--color-text-primary) !important;
+}
+
+.dark-mode gmp-place-autocomplete input::placeholder {
+  color: var(--color-text-secondary) !important;
+}
+
+/* ========================================
+   React Phone Input 2 - Semantic token overrides
+   ======================================== */
+
+/* Input field - ensure all corners have matching border radius */
+.react-tel-input .form-control {
+  border-radius: var(--radius-md) !important;
+}
+
+/* Flag element - ensure flags are visible */
+.react-tel-input .flag {
+  display: inline-block !important;
+  width: 16px !important;
+  height: 11px !important;
+  background-repeat: no-repeat !important;
+  background-size: auto !important;
+  visibility: visible !important;
+}
+
+/* Country selector button (flag dropdown) */
+.react-tel-input .flag-dropdown {
+  background-color: var(--color-bg-secondary) !important;
+  border-color: var(--color-border-primary) !important;
+  border-radius: var(--radius-md) 0 0 var(--radius-md) !important;
+}
+
+.react-tel-input .flag-dropdown.open {
+  background-color: var(--color-bg-primary) !important;
+  border-radius: var(--radius-md) 0 0 var(--radius-md) !important;
+}
+
+.react-tel-input .selected-flag {
+  background-color: var(--color-bg-secondary) !important;
+  border-radius: var(--radius-md) 0 0 var(--radius-md) !important;
+}
+
+.react-tel-input .selected-flag:hover,
+.react-tel-input .selected-flag:focus {
+  background-color: var(--color-bg-primary_hover) !important;
+  border-radius: var(--radius-md) 0 0 var(--radius-md) !important;
+}
+
+.react-tel-input .flag-dropdown.open .selected-flag {
+  background-color: var(--color-bg-primary) !important;
+  border-radius: var(--radius-md) 0 0 var(--radius-md) !important;
+}
+
+.react-tel-input .flag-dropdown.open .selected-flag:hover,
+.react-tel-input .flag-dropdown.open .selected-flag:focus {
+  background-color: var(--color-bg-primary) !important;
+  border-radius: var(--radius-md) 0 0 var(--radius-md) !important;
+}
+
+.react-tel-input .selected-flag .arrow {
+  border-top-color: var(--color-text-secondary) !important;
+}
+
+.react-tel-input .selected-flag .arrow.up {
+  border-bottom-color: var(--color-text-secondary) !important;
+}
+
+/* Country dropdown list */
+.react-tel-input .country-list {
+  background-color: var(--color-bg-primary) !important;
+  border: 1px solid var(--color-border-primary) !important;
+  border-radius: var(--radius-md) !important;
+  margin-top: 4px !important;
+  margin-bottom: 0 !important;
+  margin-left: -1px !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  padding: 0 !important;
+}
+
+.react-tel-input .country-list .country {
+  padding: 8px 12px !important;
+  margin: 0 !important;
+  width: 100% !important;
+  display: block !important;
+}
+
+/* Ensure flags in dropdown list are visible */
+.react-tel-input .country-list .flag {
+  display: inline-block !important;
+  width: 16px !important;
+  height: 11px !important;
+  background-repeat: no-repeat !important;
+  background-size: auto !important;
+  visibility: visible !important;
+  margin-right: 7px !important;
+  margin-top: 2px !important;
+}
+
+.react-tel-input .country-list .country:hover,
+.react-tel-input .country-list .country.highlight {
+  background-color: var(--color-bg-primary_hover) !important;
+}
+
+.react-tel-input .country-list .search {
+  background-color: var(--color-bg-primary) !important;
+  padding: 10px 12px 12px 12px !important;
+  margin-bottom: 4px !important;
+}
+
+.react-tel-input .country-list .search-box {
+  background-color: var(--color-bg-secondary) !important;
+  border-color: var(--color-border-primary) !important;
+  border-radius: var(--radius-md) !important;
+  color: var(--color-text-primary) !important;
+  padding: 8px 12px !important;
+  width: 100% !important;
+  margin-left: 0 !important;
+  transition: border-color 0.2s ease, background-color 0.2s ease !important;
+}
+
+.react-tel-input .country-list .search-box:focus {
+  outline: none !important;
+  border-color: var(--color-border-primary) !important;
+  background-color: var(--color-bg-primary) !important;
+  box-shadow: 0 0 0 2px var(--ring-color-primary) !important;
+}
+
+.react-tel-input .country-list .search-box::placeholder {
+  color: var(--color-text-secondary) !important;
+  text-transform: capitalize !important;
+}
+
+.react-tel-input .country-list .country .dial-code {
+  color: var(--color-text-secondary) !important;
+}
+
+.react-tel-input .country-list .country-name {
+  color: var(--color-text-primary) !important;
+}
+
+/* Country list divider/separator */
+.react-tel-input .country-list .divider {
+  border-bottom-color: var(--color-border-primary) !important;
+  opacity: 0.3;
+}
+
+/* Scrollbar styling */
+.react-tel-input .country-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.react-tel-input .country-list::-webkit-scrollbar-track {
+  background-color: transparent !important;
+  margin: 4px 0;
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+}
+
+.react-tel-input .country-list::-webkit-scrollbar-thumb {
+  background-color: var(--color-border-primary) !important;
+  border-radius: var(--radius-full) !important;
+  opacity: 0.5;
+  margin: 2px;
+}
+
+.react-tel-input .country-list::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-border-secondary) !important;
+  opacity: 0.8;
+}
+
+/* ========================================
+   Radix UI Portal - Prevent Backdrops
+   ======================================== */
+
+/* Ensure Radix Portal containers don't create backdrops */
+[data-radix-portal] {
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Prevent any backdrop effects on Radix Select Portal */
+[data-radix-select-portal],
+[data-radix-select-content] {
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Ensure no overlay/backdrop appears behind Radix Select dropdowns */
+[data-radix-select-content]::before,
+[data-radix-select-content]::after {
+  display: none !important;
+}
+
+/* Prevent any backdrop on input focus (mobile browser behavior) */
+input:focus,
+select:focus,
+textarea:focus {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Prevent backdrop on any element that might be creating overlays */
+body:has([data-radix-select-content][data-state="open"]),
+html:has([data-radix-select-content][data-state="open"]) {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Firefox scrollbar */
+.react-tel-input .country-list {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border-primary) var(--color-bg-secondary);
+}
+

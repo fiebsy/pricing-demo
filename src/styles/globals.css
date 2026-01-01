@@ -2,14 +2,29 @@
    TAILWIND V4 ENTRY POINT
    ========================================
 
-   Design System Demo - Tailwind v4 + Semantic Design Tokens
-   
-   Import Order:
-   1. SILK styles (animations & components)
+   Purpose: Main CSS entry point for Tailwind v4 + semantic design tokens
+   Edit Frequency: Rarely (only when adding new utility files or plugins)
+
+   Import Order (CRITICAL - Do not change):
+   1. @import SILK styles             → SILK component animations/styles
    2. @import "tailwindcss"           → Tailwind v4 core
-   3. @import "./theme.css"           → Design tokens
+   3. @import "./theme.css"           → Design tokens (1,322 lines)
    4. @import "./base.css"            → Browser resets
-   5. @import "./utilities/*.css"    → Custom utilities
+   5. @import "./utilities/*.css"    → Custom utilities (misc, borders, colors, typography, rings, outlines, animations, components-overrides)
+
+   Plugins:
+   - tailwindcss-animate              → Animation utilities
+   - tailwindcss-react-aria-components → React Aria styling hooks
+
+   Custom Variants:
+   - dark                             → Dark mode (.dark-mode class)
+   - label                            → Label-specific styles
+   - focus-input-within               → Parent element with focused input
+
+   Related Documentation:
+   - INDEX.md → Quick reference
+   - THEME-STRUCTURE.md → Design token details
+   - UTILITIES-GUIDE.md → Utility reference
 
    ======================================== */
 
@@ -17,23 +32,28 @@
 @import '@silk-hq/components/unlayered-styles.css';
 
 /* Import SILK custom styles for z-index and sheet stacking */
-@import './silk/silk-styles.css';
+@import './utilities/silk-styles.css';
 
 @import 'tailwindcss';
 @import './theme.css';
 @import './base.css';
 @import './utilities/misc.css';
 @import './utilities/borders.css';
+@import './utilities/corners.css';
 @import './utilities/colors.css';
 @import './utilities/typography.css';
 @import './utilities/rings.css';
 @import './utilities/outlines.css';
+@import './utilities/gradients.css';
+@import './utilities/shine.css';
+@import './utilities/depth.css';
 @import './utilities/animations.css';
+@import './utilities/components-overrides.css';
 
 @plugin 'tailwindcss-animate';
 @plugin 'tailwindcss-react-aria-components';
+@plugin '@toolwind/corner-shape';
 
 @custom-variant dark (&:where(.dark-mode, .dark-mode *));
 @custom-variant label (& [data-label]);
 @custom-variant focus-input-within (&:has(input:focus));
-

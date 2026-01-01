@@ -1,0 +1,41 @@
+/* Corner Shape Utilities
+ *
+ * Purpose: Corner-shape utilities using @toolwind/corner-shape plugin
+ * Edit Frequency: Rarely (only when adding new corner-shape variants)
+ *
+ * These utilities leverage the CSS corner-shape property for modern corner styling.
+ * The corner-shape property works alongside border-radius to provide more control.
+ *
+ * Usage:
+ *   - corner-squircle: Apply squircle corners (most common)
+ *   - corner-round: Standard rounded corners (default border-radius behavior)
+ *   - corner-bevel: Straight diagonal corners
+ *   - corner-scoop: Concave rounded corners
+ *   - corner-notch: 90-degree concave square corners
+ *   - corner-square: Sharp 90-degree corners
+ *
+ * Per-corner control:
+ *   - corner-tl-{shape}: Top-left corner
+ *   - corner-tr-{shape}: Top-right corner
+ *   - corner-bl-{shape}: Bottom-left corner
+ *   - corner-br-{shape}: Bottom-right corner
+ *   - corner-t-{shape}: Top edge (both corners)
+ *   - corner-b-{shape}: Bottom edge (both corners)
+ *   - corner-l-{shape}: Left edge (both corners)
+ *   - corner-r-{shape}: Right edge (both corners)
+ *
+ * Superellipse functional values:
+ *   - corner-superellipse/{value}: Custom curve (e.g., corner-superellipse/2)
+ *
+ * Related:
+ *   - borders.css: Border utilities
+ *   - theme.css: Design tokens
+ *   - @toolwind/corner-shape: Plugin providing these utilities
+ */
+
+/* Default corner-shape for common elements */
+/* Note: These are applied globally via base.css or component defaults */
+
+/* You can add custom corner-shape utilities here if needed */
+/* Example: @utility corner-brand { corner-shape: squircle; } */
+

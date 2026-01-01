@@ -73,3 +73,7 @@ const neueHaasGroteskDisplay = localFont({
 
 export { neueHaasGroteskText, neueHaasGroteskDisplay }
 
+
+
+
+

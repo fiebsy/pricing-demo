@@ -1,273 +1,604 @@
 /* Text color utilities using semantic tokens */
 @utility text-primary {
-    color: var(--text-color-primary);
+  color: var(--text-color-primary);
 }
 
 @utility text-secondary {
-    color: var(--text-color-secondary);
+  color: var(--text-color-secondary);
 }
 
 @utility text-secondary_hover {
-    color: var(--text-color-secondary_hover);
+  color: var(--text-color-secondary_hover);
 }
 
 @utility text-tertiary {
-    color: var(--text-color-tertiary);
+  color: var(--text-color-tertiary);
 }
 
 @utility text-tertiary_hover {
-    color: var(--text-color-tertiary_hover);
+  color: var(--text-color-tertiary_hover);
 }
 
 @utility text-tertiary_on-brand {
-    color: var(--text-color-tertiary_on-brand);
+  color: var(--text-color-tertiary_on-brand);
 }
 
 @utility text-quaternary {
-    color: var(--text-color-quaternary);
+  color: var(--text-color-quaternary);
 }
 
 @utility text-quaternary_on-brand {
-    color: var(--text-color-quaternary_on-brand);
+  color: var(--text-color-quaternary_on-brand);
 }
 
 @utility text-white {
-    color: var(--text-color-white);
+  color: var(--text-color-white);
 }
 
 @utility text-disabled {
-    color: var(--text-color-disabled);
+  color: var(--text-color-disabled);
 }
 
 @utility text-placeholder {
-    color: var(--text-color-placeholder);
+  color: var(--text-color-placeholder);
 }
 
 @utility text-placeholder_subtle {
-    color: var(--text-color-placeholder_subtle);
+  color: var(--text-color-placeholder_subtle);
 }
 
 @utility text-brand-primary {
-    color: var(--text-color-brand-primary);
+  color: var(--text-color-brand-primary);
 }
 
 @utility text-brand-secondary {
-    color: var(--text-color-brand-secondary);
+  color: var(--text-color-brand-secondary);
 }
 
 @utility text-brand-secondary_hover {
-    color: var(--text-color-brand-secondary_hover);
+  color: var(--text-color-brand-secondary_hover);
 }
 
 @utility text-brand-tertiary {
-    color: var(--text-color-brand-tertiary);
+  color: var(--text-color-brand-tertiary);
 }
 
 @utility text-brand-tertiary_alt {
-    color: var(--text-color-brand-tertiary_alt);
+  color: var(--text-color-brand-tertiary_alt);
 }
 
 @utility text-error-primary {
-    color: var(--text-color-error-primary);
+  color: var(--text-color-error-primary);
 }
 
 @utility text-error-primary_hover {
-    color: var(--text-color-error-primary_hover);
+  color: var(--text-color-error-primary_hover);
 }
 
 @utility text-warning-primary {
-    color: var(--text-color-warning-primary);
+  color: var(--text-color-warning-primary);
 }
 
 @utility text-success-primary {
-    color: var(--text-color-success-primary);
+  color: var(--text-color-success-primary);
 }
 
 @utility text-primary_on-brand {
-    color: var(--text-color-primary_on-brand);
+  color: var(--text-color-primary_on-brand);
 }
 
 @utility text-secondary_on-brand {
-    color: var(--text-color-secondary_on-brand);
+  color: var(--text-color-secondary_on-brand);
+}
+
+/* Foreground (icon) color utilities using semantic tokens */
+@utility text-fg-primary {
+  color: var(--color-fg-primary);
+}
+
+@utility text-fg-quaternary {
+  color: var(--color-fg-quaternary);
+}
+
+@utility text-fg-quaternary_hover {
+  color: var(--color-fg-quaternary_hover);
+}
+
+@utility text-fg-brand-primary {
+  color: var(--color-fg-brand-primary);
+}
+
+@utility text-fg-brand-secondary {
+  color: var(--color-fg-brand-secondary);
+}
+
+@utility text-fg-brand-secondary_hover {
+  color: var(--color-fg-brand-secondary_hover);
+}
+
+@utility text-fg-brand-secondary_alt {
+  color: var(--color-fg-brand-secondary_alt);
 }
 
 /* Background color utilities using semantic tokens */
 
 /* Primary backgrounds */
 @utility bg-primary {
-    background-color: var(--background-color-primary);
+  background-color: var(--background-color-primary);
 }
 
 @utility bg-primary-solid {
-    background-color: var(--background-color-primary-solid);
+  background-color: var(--background-color-primary-solid);
 }
 
 @utility bg-primary_alt {
-    background-color: var(--background-color-primary_alt);
+  background-color: var(--background-color-primary_alt);
 }
 
 @utility bg-primary_hover {
-    background-color: var(--background-color-primary_hover);
+  background-color: var(--background-color-primary_hover);
 }
 
 @utility bg-hover {
-    background-color: var(--background-color-primary_hover);
+  background-color: var(--background-color-primary_hover);
 }
 
 @utility bg-secondary {
-    background-color: var(--background-color-secondary);
+  background-color: var(--background-color-secondary);
 }
 
 @utility bg-secondary-solid {
-    background-color: var(--background-color-secondary-solid);
+  background-color: var(--background-color-secondary-solid);
 }
 
 @utility bg-secondary_alt {
-    background-color: var(--background-color-secondary_alt);
+  background-color: var(--background-color-secondary_alt);
 }
 
 @utility bg-secondary_hover {
-    background-color: var(--background-color-secondary_hover);
+  background-color: var(--background-color-secondary_hover);
 }
 
 @utility bg-secondary_subtle {
-    background-color: var(--background-color-secondary_subtle);
+  background-color: var(--background-color-secondary_subtle);
 }
 
 @utility bg-tertiary {
-    background-color: var(--background-color-tertiary);
+  background-color: var(--background-color-tertiary);
 }
 
 @utility bg-quaternary {
-    background-color: var(--background-color-quaternary);
+  background-color: var(--background-color-quaternary);
+}
+
+/* Intermediate background colors */
+@utility bg-secondary_p1 {
+  background-color: var(--background-color-secondary_p1);
+}
+
+@utility bg-secondary_t1 {
+  background-color: var(--background-color-secondary_t1);
+}
+
+@utility bg-secondary_t2 {
+  background-color: var(--background-color-secondary_t2);
+}
+
+@utility bg-primary_s1 {
+  background-color: var(--background-color-primary_s1);
 }
 
 /* State backgrounds */
 @utility bg-active {
-    background-color: var(--background-color-active);
+  background-color: var(--background-color-active);
 }
 
 @utility bg-disabled {
-    background-color: var(--background-color-disabled);
+  background-color: var(--background-color-disabled);
 }
 
 @utility bg-disabled_subtle {
-    background-color: var(--background-color-disabled_subtle);
+  background-color: var(--background-color-disabled_subtle);
 }
 
 @utility bg-overlay {
-    background-color: var(--background-color-overlay);
+  background-color: var(--background-color-overlay);
 }
 
 /* Brand backgrounds */
 @utility bg-brand-solid {
-    background-color: var(--background-color-brand-solid);
+  background-color: var(--background-color-brand-solid);
 }
 
 @utility bg-brand-solid_hover {
-    background-color: var(--background-color-brand-solid_hover);
+  background-color: var(--background-color-brand-solid_hover);
 }
 
 @utility bg-brand-primary {
-    background-color: var(--background-color-brand-primary);
+  background-color: var(--background-color-brand-primary);
 }
 
 @utility bg-brand-primary_alt {
-    background-color: var(--background-color-brand-primary_alt);
+  background-color: var(--background-color-brand-primary_alt);
 }
 
 @utility bg-brand-secondary {
-    background-color: var(--background-color-brand-secondary);
+  background-color: var(--background-color-brand-secondary);
 }
 
 @utility bg-brand-section {
-    background-color: var(--background-color-brand-section);
+  background-color: var(--background-color-brand-section);
 }
 
 @utility bg-brand-section_subtle {
-    background-color: var(--background-color-brand-section_subtle);
+  background-color: var(--background-color-brand-section_subtle);
 }
 
 /* Error backgrounds */
 @utility bg-error-primary {
-    background-color: var(--background-color-error-primary);
+  background-color: var(--background-color-error-primary);
 }
 
 @utility bg-error-secondary {
-    background-color: var(--background-color-error-secondary);
+  background-color: var(--background-color-error-secondary);
 }
 
 @utility bg-error-solid {
-    background-color: var(--background-color-error-solid);
+  background-color: var(--background-color-error-solid);
 }
 
 @utility bg-error-solid_hover {
-    background-color: var(--background-color-error-solid_hover);
+  background-color: var(--background-color-error-solid_hover);
 }
 
 /* Warning backgrounds */
 @utility bg-warning-primary {
-    background-color: var(--background-color-warning-primary);
+  background-color: var(--background-color-warning-primary);
 }
 
 @utility bg-warning-secondary {
-    background-color: var(--background-color-warning-secondary);
+  background-color: var(--background-color-warning-secondary);
 }
 
 @utility bg-warning-solid {
-    background-color: var(--background-color-warning-solid);
+  background-color: var(--background-color-warning-solid);
 }
 
 /* Success backgrounds */
 @utility bg-success-primary {
-    background-color: var(--background-color-success-primary);
+  background-color: var(--background-color-success-primary);
 }
 
 @utility bg-success-secondary {
-    background-color: var(--background-color-success-secondary);
+  background-color: var(--background-color-success-secondary);
 }
 
 @utility bg-success-solid {
-    background-color: var(--background-color-success-solid);
+  background-color: var(--background-color-success-solid);
+}
+
+/* Inverted backgrounds - dark in light mode, light in dark mode */
+@utility bg-inverted-primary {
+  background-color: var(--background-color-inverted-primary);
+}
+
+@utility bg-inverted-secondary {
+  background-color: var(--background-color-inverted-secondary);
+}
+
+@utility bg-inverted-tertiary {
+  background-color: var(--background-color-inverted-tertiary);
+}
+
+@utility bg-inverted-quaternary {
+  background-color: var(--background-color-inverted-quaternary);
+}
+
+/* Text on inverted backgrounds */
+@utility text-on-inverted-primary {
+  color: var(--text-color-on-inverted-primary);
+}
+
+@utility text-on-inverted-secondary {
+  color: var(--text-color-on-inverted-secondary);
+}
+
+@utility text-on-inverted-tertiary {
+  color: var(--text-color-on-inverted-tertiary);
+}
+
+@utility text-on-inverted-quaternary {
+  color: var(--text-color-on-inverted-quaternary);
 }
 
 /* Border color utilities (semantic token variants) */
 @utility border-secondary {
-    border-color: var(--border-color-secondary);
+  border-color: var(--border-color-secondary);
 }
 
 @utility border-primary {
-    border-color: var(--border-color-primary);
+  border-color: var(--border-color-primary);
 }
 
 @utility border-tertiary {
-    border-color: var(--border-color-tertiary);
+  border-color: var(--border-color-tertiary);
 }
 
 @utility border-brand {
-    border-color: var(--border-color-brand);
+  border-color: var(--border-color-brand);
 }
 
 @utility border-error {
-    border-color: var(--border-color-error);
+  border-color: var(--border-color-error);
 }
 
 @utility border-error_subtle {
-    border-color: var(--border-color-error_subtle);
+  border-color: var(--border-color-error_subtle);
+}
+
+@utility border-warning-primary {
+  border-color: var(--text-color-warning-primary);
+}
+
+@utility border-warning-secondary {
+  border-color: var(--color-warning-300);
 }
 
 @utility border-disabled {
-    border-color: var(--border-color-disabled);
+  border-color: var(--border-color-disabled);
 }
 
 @utility border-disabled_subtle {
-    border-color: var(--border-color-disabled_subtle);
+  border-color: var(--border-color-disabled_subtle);
 }
 
 @utility border-brand_alt {
-    border-color: var(--border-color-brand_alt);
+  border-color: var(--border-color-brand_alt);
 }
 
 @utility border-secondary_alt {
-    border-color: var(--border-color-secondary_alt);
+  border-color: var(--border-color-secondary_alt);
+}
+
+/* Chart color utilities - Text */
+@utility text-chart-1 {
+  color: var(--text-color-chart-1);
+}
+
+@utility text-chart-1-muted {
+  color: var(--text-color-chart-1-muted);
+}
+
+@utility text-chart-2 {
+  color: var(--text-color-chart-2);
+}
+
+@utility text-chart-2-muted {
+  color: var(--text-color-chart-2-muted);
+}
+
+@utility text-chart-3 {
+  color: var(--text-color-chart-3);
+}
+
+@utility text-chart-3-muted {
+  color: var(--text-color-chart-3-muted);
+}
+
+@utility text-chart-4 {
+  color: var(--text-color-chart-4);
+}
+
+@utility text-chart-4-muted {
+  color: var(--text-color-chart-4-muted);
+}
+
+@utility text-chart-warning {
+  color: var(--text-color-chart-warning);
+}
+
+@utility text-chart-warning-muted {
+  color: var(--text-color-chart-warning-muted);
+}
+
+@utility text-chart-error {
+  color: var(--text-color-chart-error);
+}
+
+@utility text-chart-error-muted {
+  color: var(--text-color-chart-error-muted);
+}
+
+/* Chart color utilities - Background */
+@utility bg-chart-1 {
+  background-color: var(--background-color-chart-1);
+}
+
+@utility bg-chart-1-muted {
+  background-color: var(--background-color-chart-1-muted);
+}
+
+@utility bg-chart-1-alpha-10 {
+  background-color: var(--background-color-chart-1-alpha-10);
+}
+
+@utility bg-chart-1-alpha-20 {
+  background-color: var(--background-color-chart-1-alpha-20);
+}
+
+@utility bg-chart-1-alpha-30 {
+  background-color: var(--background-color-chart-1-alpha-30);
+}
+
+@utility bg-chart-1-alpha-50 {
+  background-color: var(--background-color-chart-1-alpha-50);
+}
+
+@utility bg-chart-2 {
+  background-color: var(--background-color-chart-2);
+}
+
+@utility bg-chart-2-muted {
+  background-color: var(--background-color-chart-2-muted);
+}
+
+@utility bg-chart-2-alpha-10 {
+  background-color: var(--background-color-chart-2-alpha-10);
+}
+
+@utility bg-chart-2-alpha-20 {
+  background-color: var(--background-color-chart-2-alpha-20);
+}
+
+@utility bg-chart-2-alpha-30 {
+  background-color: var(--background-color-chart-2-alpha-30);
+}
+
+@utility bg-chart-2-alpha-50 {
+  background-color: var(--background-color-chart-2-alpha-50);
+}
+
+@utility bg-chart-3 {
+  background-color: var(--background-color-chart-3);
+}
+
+@utility bg-chart-3-muted {
+  background-color: var(--background-color-chart-3-muted);
+}
+
+@utility bg-chart-3-alpha-10 {
+  background-color: var(--background-color-chart-3-alpha-10);
+}
+
+@utility bg-chart-3-alpha-20 {
+  background-color: var(--background-color-chart-3-alpha-20);
+}
+
+@utility bg-chart-3-alpha-30 {
+  background-color: var(--background-color-chart-3-alpha-30);
+}
+
+@utility bg-chart-3-alpha-50 {
+  background-color: var(--background-color-chart-3-alpha-50);
+}
+
+@utility bg-chart-4 {
+  background-color: var(--background-color-chart-4);
+}
+
+@utility bg-chart-4-muted {
+  background-color: var(--background-color-chart-4-muted);
+}
+
+@utility bg-chart-4-alpha-10 {
+  background-color: var(--background-color-chart-4-alpha-10);
+}
+
+@utility bg-chart-4-alpha-20 {
+  background-color: var(--background-color-chart-4-alpha-20);
+}
+
+@utility bg-chart-4-alpha-30 {
+  background-color: var(--background-color-chart-4-alpha-30);
+}
+
+@utility bg-chart-4-alpha-50 {
+  background-color: var(--background-color-chart-4-alpha-50);
+}
+
+@utility bg-chart-warning {
+  background-color: var(--background-color-chart-warning);
+}
+
+@utility bg-chart-warning-muted {
+  background-color: var(--background-color-chart-warning-muted);
+}
+
+@utility bg-chart-warning-alpha-10 {
+  background-color: var(--background-color-chart-warning-alpha-10);
+}
+
+@utility bg-chart-warning-alpha-20 {
+  background-color: var(--background-color-chart-warning-alpha-20);
+}
+
+@utility bg-chart-warning-alpha-30 {
+  background-color: var(--background-color-chart-warning-alpha-30);
+}
+
+@utility bg-chart-warning-alpha-50 {
+  background-color: var(--background-color-chart-warning-alpha-50);
+}
+
+@utility bg-chart-error {
+  background-color: var(--background-color-chart-error);
+}
+
+@utility bg-chart-error-muted {
+  background-color: var(--background-color-chart-error-muted);
+}
+
+@utility bg-chart-error-alpha-10 {
+  background-color: var(--background-color-chart-error-alpha-10);
+}
+
+@utility bg-chart-error-alpha-20 {
+  background-color: var(--background-color-chart-error-alpha-20);
+}
+
+@utility bg-chart-error-alpha-30 {
+  background-color: var(--background-color-chart-error-alpha-30);
+}
+
+@utility bg-chart-error-alpha-50 {
+  background-color: var(--background-color-chart-error-alpha-50);
+}
+
+/* Chart color utilities - Border */
+@utility border-chart-1 {
+  border-color: var(--border-color-chart-1);
+}
+
+@utility border-chart-1-muted {
+  border-color: var(--border-color-chart-1-muted);
+}
+
+@utility border-chart-2 {
+  border-color: var(--border-color-chart-2);
+}
+
+@utility border-chart-2-muted {
+  border-color: var(--border-color-chart-2-muted);
+}
+
+@utility border-chart-3 {
+  border-color: var(--border-color-chart-3);
+}
+
+@utility border-chart-3-muted {
+  border-color: var(--border-color-chart-3-muted);
+}
+
+@utility border-chart-4 {
+  border-color: var(--border-color-chart-4);
+}
+
+@utility border-chart-4-muted {
+  border-color: var(--border-color-chart-4-muted);
+}
+
+@utility border-chart-warning {
+  border-color: var(--border-color-chart-warning);
+}
+
+@utility border-chart-warning-muted {
+  border-color: var(--border-color-chart-warning-muted);
+}
+
+@utility border-chart-error {
+  border-color: var(--border-color-chart-error);
+}
+
+@utility border-chart-error-muted {
+  border-color: var(--border-color-chart-error-muted);
 }

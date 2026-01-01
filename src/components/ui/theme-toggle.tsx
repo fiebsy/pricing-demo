@@ -1,41 +1,44 @@
 'use client'
 
 import * as React from 'react'
+import { Switch } from 'react-aria-components'
 import { useTheme } from '../theme-provider'
-import { HugeIcon } from '@/v2/components/ui/icon/huge-icons/huge-icons'
+import { HugeIcon } from '@/components/ui/icon/huge-icons/huge-icons'
 import { Moon02Icon, Sun03Icon } from '@hugeicons-pro/core-duotone-rounded'
 
 /**
- * Theme toggle button
- * Demonstrates semantic tokens adapting to light/dark modes
+ * Theme toggle switch
+ * Uses react-aria-components Switch for accessibility and proper toggle behavior
  */
 export function ThemeToggle() {
-  const { theme, toggleTheme } = useTheme()
+  const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = React.useState(false)
 
-  // Only render after mounting to prevent hydration mismatch
   React.useEffect(() => {
     setMounted(true)
   }, [])
 
   if (!mounted) {
-    return (
-      <div className="fixed top-4 right-4 z-50 h-10 w-10" />
-    )
+    return <div className="fixed top-4 right-4 z-50 h-8 w-14" />
   }
 
+  const isDark = theme === 'dark'
+
   return (
-    <button
-      onClick={toggleTheme}
-      className="fixed top-4 right-4 z-50 p-2 text-primary hover:text-brand-primary transition-colors"
-      aria-label="Toggle theme"
+    <Switch
+      isSelected={isDark}
+      onChange={(selected) => setTheme(selected ? 'dark' : 'light')}
+      className="group fixed top-4 right-4 z-50 flex h-8 w-14 cursor-pointer items-center rounded-full bg-tertiary p-1 transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary selected:bg-quaternary"
+      aria-label="Toggle dark mode"
     >
-      <HugeIcon 
-        icon={theme === 'light' ? Moon02Icon : Sun03Icon}
-        size={24}
-        strokeWidth={1.5}
-      />
-    </button>
+      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary shadow-sm transition-transform duration-200 ease-out group-selected:translate-x-6">
+        <HugeIcon
+          icon={isDark ? Moon02Icon : Sun03Icon}
+          size={14}
+          strokeWidth={1.5}
+          className="text-quaternary"
+        />
+      </span>
+    </Switch>
   )
 }
-

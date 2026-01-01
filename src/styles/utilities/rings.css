@@ -58,3 +58,52 @@
 @utility ring-bg-brand-solid {
     --tw-ring-color: var(--ring-color-bg-brand-solid);
 }
+
+/* Chart color ring utilities */
+@utility ring-chart-1 {
+    --tw-ring-color: var(--ring-color-chart-1);
+}
+
+@utility ring-chart-1-muted {
+    --tw-ring-color: var(--ring-color-chart-1-muted);
+}
+
+@utility ring-chart-2 {
+    --tw-ring-color: var(--ring-color-chart-2);
+}
+
+@utility ring-chart-2-muted {
+    --tw-ring-color: var(--ring-color-chart-2-muted);
+}
+
+@utility ring-chart-3 {
+    --tw-ring-color: var(--ring-color-chart-3);
+}
+
+@utility ring-chart-3-muted {
+    --tw-ring-color: var(--ring-color-chart-3-muted);
+}
+
+@utility ring-chart-4 {
+    --tw-ring-color: var(--ring-color-chart-4);
+}
+
+@utility ring-chart-4-muted {
+    --tw-ring-color: var(--ring-color-chart-4-muted);
+}
+
+@utility ring-chart-warning {
+    --tw-ring-color: var(--ring-color-chart-warning);
+}
+
+@utility ring-chart-warning-muted {
+    --tw-ring-color: var(--ring-color-chart-warning-muted);
+}
+
+@utility ring-chart-error {
+    --tw-ring-color: var(--ring-color-chart-error);
+}
+
+@utility ring-chart-error-muted {
+    --tw-ring-color: var(--ring-color-chart-error-muted);
+}

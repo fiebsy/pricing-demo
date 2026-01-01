@@ -6,6 +6,7 @@ type Theme = 'light' | 'dark'
 
 type ThemeContextType = {
   theme: Theme
+  setTheme: (theme: Theme) => void
   toggleTheme: () => void
 }
 
@@ -28,27 +29,24 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     }
   }, [])
 
-  const toggleTheme = React.useCallback(() => {
+  const handleSetTheme = React.useCallback((newTheme: Theme) => {
     if (!mounted) return
-    
-    setTheme((prev) => {
-      const newTheme = prev === 'light' ? 'dark' : 'light'
-      localStorage.setItem('theme', newTheme)
-      
-      // Toggle dark-mode class on document element
-      if (newTheme === 'dark') {
-        document.documentElement.classList.add('dark-mode')
-      } else {
-        document.documentElement.classList.remove('dark-mode')
-      }
-      
-      return newTheme
-    })
+    setTheme(newTheme)
+    localStorage.setItem('theme', newTheme)
+    if (newTheme === 'dark') {
+      document.documentElement.classList.add('dark-mode')
+    } else {
+      document.documentElement.classList.remove('dark-mode')
+    }
   }, [mounted])
+
+  const toggleTheme = React.useCallback(() => {
+    handleSetTheme(theme === 'light' ? 'dark' : 'light')
+  }, [theme, handleSetTheme])
 
   // Always provide context, even before mounting
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+    <ThemeContext.Provider value={{ theme, setTheme: handleSetTheme, toggleTheme }}>
       {children}
     </ThemeContext.Provider>
   )

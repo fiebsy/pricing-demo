@@ -1,0 +1,625 @@
+/* ========================================
+   GRADIENT UTILITIES
+   ========================================
+
+   Purpose: Gradient presets and utilities for borders and backgrounds
+   Edit Frequency: Sometimes (when adding new gradient presets)
+
+   Key Concepts:
+   - Gradients use semantic tokens for colors (border-brand, border-primary, etc.)
+   - Gradient patterns are defined as CSS custom properties
+   - Utilities can be combined with color utilities for dynamic gradients
+   - Opacity/intensity controlled via CSS custom properties
+
+   Related Files:
+   - theme.css → Semantic color tokens
+   - colors.css → Color utilities
+   - borders.css → Border utilities
+
+   Usage:
+   - Border gradients: Use with border-gradient-* utilities + color utilities
+   - Background gradients: Use with bg-gradient-* utilities + color utilities
+   - Custom colors: Override --gradient-color custom property
+
+   ⚠️  IMPORTANT: CSS Variable Scoping Limitation
+   ========================================
+
+   The gradient-color-* utilities (e.g., gradient-color-brand) DO NOT work
+   correctly with bg-gradient-* utilities due to CSS custom property scoping.
+
+   WHY: The gradient patterns (--gradient-pattern-*) are defined in :root and
+   contain var(--gradient-color). When CSS resolves nested var() references,
+   it uses the :root value, NOT the element's overridden value.
+
+   WRONG (will always show default brand color):
+   <div class="bg-gradient-subtle-depth-sm gradient-color-success">
+
+   RIGHT (generates gradient inline with color injected):
+   Use the createSubtleDepthGradient() utility from config.ts:
+   - base-ui/menu/config.ts → getAppearanceStyle()
+
+   For React components that need dynamic gradient colors, generate the
+   gradient inline using the helper functions, not CSS utility classes.
+
+   ======================================== */
+
+/* ========================================
+   GRADIENT PATTERN DEFINITIONS
+   ========================================
+
+   These CSS custom properties define gradient patterns (angles, stops, opacities).
+   Colors are applied via semantic tokens or custom properties.
+   ======================================== */
+
+/* Border Gradient Patterns */
+:root {
+  /* Corner glow TL-BR (Top-left to bottom-right, 45deg) */
+  --gradient-pattern-corner-tl-br-1: linear-gradient(
+    45deg,
+    var(--gradient-color) 0%,
+    transparent 25%,
+    transparent 50%,
+    transparent 75%,
+    var(--gradient-color) 100%
+  );
+  --gradient-pattern-corner-tl-br-2: linear-gradient(
+    45deg,
+    var(--gradient-color) 0%,
+    color-mix(in srgb, var(--gradient-color) 28%, transparent) 25%,
+    transparent 50%,
+    color-mix(in srgb, var(--gradient-color) 28%, transparent) 75%,
+    var(--gradient-color) 100%
+  );
+  --gradient-pattern-corner-tl-br-3: linear-gradient(
+    45deg,
+    var(--gradient-color) 0%,
+    color-mix(in srgb, var(--gradient-color) 41%, transparent) 25%,
+    transparent 50%,
+    color-mix(in srgb, var(--gradient-color) 41%, transparent) 75%,
+    var(--gradient-color) 100%
+  );
+  --gradient-pattern-corner-tl-br-4: linear-gradient(
+    45deg,
+    var(--gradient-color) 0%,
+    color-mix(in srgb, var(--gradient-color) 45%, transparent) 25%,
+    color-mix(in srgb, var(--gradient-color) 15%, transparent) 50%,
+    color-mix(in srgb, var(--gradient-color) 45%, transparent) 75%,
+    var(--gradient-color) 100%
+  );
+  --gradient-pattern-corner-tl-br-5: linear-gradient(
+    45deg,
+    var(--gradient-color) 0%,
+    color-mix(in srgb, var(--gradient-color) 70%, transparent) 25%,
+    color-mix(in srgb, var(--gradient-color) 45%, transparent) 50%,
+    color-mix(in srgb, var(--gradient-color) 70%, transparent) 75%,
+    var(--gradient-color) 100%
+  );
+
+  /* Corner glow TR-BL (Top-right to bottom-left, 135deg) */
+  --gradient-pattern-corner-tr-bl-1: linear-gradient(
+    135deg,
+    var(--gradient-color) 0%,
+    transparent 25%,
+    transparent 50%,
+    transparent 75%,
+    var(--gradient-color) 100%
+  );
+  --gradient-pattern-corner-tr-bl-2: linear-gradient(
+    135deg,
+    var(--gradient-color) 0%,
+    color-mix(in srgb, var(--gradient-color) 28%, transparent) 25%,
+    transparent 50%,
+    color-mix(in srgb, var(--gradient-color) 28%, transparent) 75%,
+    var(--gradient-color) 100%
+  );
+  --gradient-pattern-corner-tr-bl-3: linear-gradient(
+    135deg,
+    var(--gradient-color) 0%,
+    color-mix(in srgb, var(--gradient-color) 41%, transparent) 25%,
+    transparent 50%,
+    color-mix(in srgb, var(--gradient-color) 41%, transparent) 75%,
+    var(--gradient-color) 100%
+  );
+  --gradient-pattern-corner-tr-bl-4: linear-gradient(
+    135deg,
+    var(--gradient-color) 0%,
+    color-mix(in srgb, var(--gradient-color) 45%, transparent) 25%,
+    color-mix(in srgb, var(--gradient-color) 15%, transparent) 50%,
+    color-mix(in srgb, var(--gradient-color) 45%, transparent) 75%,
+    var(--gradient-color) 100%
+  );
+  --gradient-pattern-corner-tr-bl-5: linear-gradient(
+    135deg,
+    var(--gradient-color) 0%,
+    color-mix(in srgb, var(--gradient-color) 70%, transparent) 25%,
+    color-mix(in srgb, var(--gradient-color) 45%, transparent) 50%,
+    color-mix(in srgb, var(--gradient-color) 70%, transparent) 75%,
+    var(--gradient-color) 100%
+  );
+
+  /* Radial edge glow (edges visible, middle invisible) */
+  --gradient-pattern-radial-edge-glow: linear-gradient(
+    1deg,
+    var(--gradient-color) 0%,
+    transparent 25%,
+    transparent 50%,
+    transparent 75%,
+    var(--gradient-color) 100%
+  );
+
+  /* Background Gradient Patterns */
+  /* Subtle depth gradients (238deg angle) */
+  --gradient-pattern-subtle-depth-sm: linear-gradient(
+    238deg,
+    color-mix(in srgb, var(--gradient-color) 3%, transparent) 0%,
+    color-mix(in srgb, var(--gradient-color) 8%, transparent) 25%,
+    color-mix(in srgb, var(--gradient-color) 15%, transparent) 50%,
+    color-mix(in srgb, var(--gradient-color) 22%, transparent) 75%,
+    color-mix(in srgb, var(--gradient-color) 28%, transparent) 100%
+  );
+  --gradient-pattern-subtle-depth: linear-gradient(
+    238deg,
+    color-mix(in srgb, var(--gradient-color) 9%, transparent) 0%,
+    color-mix(in srgb, var(--gradient-color) 20%, transparent) 25%,
+    color-mix(in srgb, var(--gradient-color) 32%, transparent) 50%,
+    color-mix(in srgb, var(--gradient-color) 44%, transparent) 75%,
+    color-mix(in srgb, var(--gradient-color) 54%, transparent) 100%
+  );
+  --gradient-pattern-subtle-depth-md: linear-gradient(
+    238deg,
+    color-mix(in srgb, var(--gradient-color) 9%, transparent) 0%,
+    color-mix(in srgb, var(--gradient-color) 20%, transparent) 25%,
+    color-mix(in srgb, var(--gradient-color) 32%, transparent) 50%,
+    color-mix(in srgb, var(--gradient-color) 44%, transparent) 75%,
+    color-mix(in srgb, var(--gradient-color) 54%, transparent) 100%
+  );
+  --gradient-pattern-subtle-depth-lg: linear-gradient(
+    238deg,
+    color-mix(in srgb, var(--gradient-color) 15%, transparent) 0%,
+    color-mix(in srgb, var(--gradient-color) 32%, transparent) 25%,
+    color-mix(in srgb, var(--gradient-color) 48%, transparent) 50%,
+    color-mix(in srgb, var(--gradient-color) 64%, transparent) 75%,
+    color-mix(in srgb, var(--gradient-color) 80%, transparent) 100%
+  );
+
+  /* Inverse subtle depth gradients */
+  --gradient-pattern-subtle-depth-sm-inverse: linear-gradient(
+    238deg,
+    color-mix(in srgb, var(--gradient-color) 28%, transparent) 0%,
+    color-mix(in srgb, var(--gradient-color) 22%, transparent) 25%,
+    color-mix(in srgb, var(--gradient-color) 15%, transparent) 50%,
+    color-mix(in srgb, var(--gradient-color) 8%, transparent) 75%,
+    color-mix(in srgb, var(--gradient-color) 3%, transparent) 100%
+  );
+  --gradient-pattern-subtle-depth-inverse: linear-gradient(
+    238deg,
+    color-mix(in srgb, var(--gradient-color) 54%, transparent) 0%,
+    color-mix(in srgb, var(--gradient-color) 44%, transparent) 25%,
+    color-mix(in srgb, var(--gradient-color) 32%, transparent) 50%,
+    color-mix(in srgb, var(--gradient-color) 20%, transparent) 75%,
+    color-mix(in srgb, var(--gradient-color) 9%, transparent) 100%
+  );
+  --gradient-pattern-subtle-depth-md-inverse: linear-gradient(
+    238deg,
+    color-mix(in srgb, var(--gradient-color) 54%, transparent) 0%,
+    color-mix(in srgb, var(--gradient-color) 44%, transparent) 25%,
+    color-mix(in srgb, var(--gradient-color) 32%, transparent) 50%,
+    color-mix(in srgb, var(--gradient-color) 20%, transparent) 75%,
+    color-mix(in srgb, var(--gradient-color) 9%, transparent) 100%
+  );
+  --gradient-pattern-subtle-depth-lg-inverse: linear-gradient(
+    238deg,
+    color-mix(in srgb, var(--gradient-color) 80%, transparent) 0%,
+    color-mix(in srgb, var(--gradient-color) 64%, transparent) 25%,
+    color-mix(in srgb, var(--gradient-color) 48%, transparent) 50%,
+    color-mix(in srgb, var(--gradient-color) 32%, transparent) 75%,
+    color-mix(in srgb, var(--gradient-color) 15%, transparent) 100%
+  );
+
+  /* Linear top-to-bottom fade gradients (180deg) */
+  --gradient-pattern-linear-top-fade-brand: linear-gradient(
+    180deg,
+    var(--gradient-color) 0%,
+    color-mix(in srgb, var(--gradient-color) 50%, transparent) 50%,
+    transparent 100%
+  );
+  --gradient-pattern-linear-top-fade-primary: linear-gradient(
+    180deg,
+    var(--gradient-color) 0%,
+    color-mix(in srgb, var(--gradient-color) 40%, transparent) 50%,
+    transparent 100%
+  );
+  --gradient-pattern-linear-top-fade-secondary: linear-gradient(
+    180deg,
+    var(--gradient-color) 0%,
+    color-mix(in srgb, var(--gradient-color) 30%, transparent) 50%,
+    transparent 100%
+  );
+  --gradient-pattern-linear-top-fade-tertiary: linear-gradient(
+    180deg,
+    var(--gradient-color) 0%,
+    color-mix(in srgb, var(--gradient-color) 25%, transparent) 50%,
+    transparent 100%
+  );
+
+  /* Linear bottom-to-top fade gradients (0deg, inverse) */
+  --gradient-pattern-linear-bottom-fade-brand: linear-gradient(
+    0deg,
+    transparent 0%,
+    color-mix(in srgb, var(--gradient-color) 50%, transparent) 50%,
+    var(--gradient-color) 100%
+  );
+  --gradient-pattern-linear-bottom-fade-primary: linear-gradient(
+    0deg,
+    transparent 0%,
+    color-mix(in srgb, var(--gradient-color) 40%, transparent) 50%,
+    var(--gradient-color) 100%
+  );
+  --gradient-pattern-linear-bottom-fade-secondary: linear-gradient(
+    0deg,
+    transparent 0%,
+    color-mix(in srgb, var(--gradient-color) 30%, transparent) 50%,
+    var(--gradient-color) 100%
+  );
+  --gradient-pattern-linear-bottom-fade-tertiary: linear-gradient(
+    0deg,
+    transparent 0%,
+    color-mix(in srgb, var(--gradient-color) 25%, transparent) 50%,
+    var(--gradient-color) 100%
+  );
+
+  /* Payva logo minimal gradient */
+  --gradient-pattern-payva-logo-minimal: linear-gradient(
+    180deg,
+    transparent 0%,
+    color-mix(in srgb, var(--gradient-color) 20%, transparent) 100%
+  );
+
+  /* Default gradient color (can be overridden) */
+  --gradient-color: var(--border-color-brand);
+}
+
+/* ========================================
+   BORDER GRADIENT WRAPPER UTILITIES
+   ========================================
+
+   Border gradients use a wrapper div approach (padding + background gradient).
+   These utilities set up the wrapper div with gradient background.
+   The inner element should have your content with border-radius.
+
+   Usage Pattern:
+   <div className="border-gradient-wrapper-corner-tl-br-5 gradient-color-brand">
+     <div className="bg-primary rounded-lg p-4">Content</div>
+   </div>
+
+   How it works:
+   1. Wrapper div gets padding: 1px (creates border width)
+   2. Wrapper div gets gradient background (creates border appearance)
+   3. Inner div gets solid background + border-radius (creates content area)
+
+   Note: These utilities work with borders.css utilities on the inner element.
+   The wrapper handles the gradient "border", inner element can use regular borders.
+   ======================================== */
+
+/* Border gradient wrapper utilities - Corner TL-BR (Top-left to Bottom-right)
+
+   These utilities use CSS custom property --gradient-color which can be set
+   by gradient-color-* utilities. The gradient is inlined to ensure the
+   --gradient-color value is properly resolved at compute time.
+*/
+@utility border-gradient-wrapper-corner-tl-br-1 {
+  padding: 1px;
+  background: linear-gradient(
+    45deg,
+    var(--gradient-color) 0%,
+    transparent 25%,
+    transparent 50%,
+    transparent 75%,
+    var(--gradient-color) 100%
+  );
+}
+
+@utility border-gradient-wrapper-corner-tl-br-2 {
+  padding: 1px;
+  background: linear-gradient(
+    45deg,
+    var(--gradient-color) 0%,
+    color-mix(in srgb, var(--gradient-color) 28%, transparent) 25%,
+    transparent 50%,
+    color-mix(in srgb, var(--gradient-color) 28%, transparent) 75%,
+    var(--gradient-color) 100%
+  );
+}
+
+@utility border-gradient-wrapper-corner-tl-br-3 {
+  padding: 1px;
+  background: linear-gradient(
+    45deg,
+    var(--gradient-color) 0%,
+    color-mix(in srgb, var(--gradient-color) 41%, transparent) 25%,
+    transparent 50%,
+    color-mix(in srgb, var(--gradient-color) 41%, transparent) 75%,
+    var(--gradient-color) 100%
+  );
+}
+
+@utility border-gradient-wrapper-corner-tl-br-4 {
+  padding: 1px;
+  background: linear-gradient(
+    45deg,
+    var(--gradient-color) 0%,
+    color-mix(in srgb, var(--gradient-color) 45%, transparent) 25%,
+    color-mix(in srgb, var(--gradient-color) 15%, transparent) 50%,
+    color-mix(in srgb, var(--gradient-color) 45%, transparent) 75%,
+    var(--gradient-color) 100%
+  );
+}
+
+@utility border-gradient-wrapper-corner-tl-br-5 {
+  padding: 1px;
+  background: linear-gradient(
+    45deg,
+    var(--gradient-color) 0%,
+    color-mix(in srgb, var(--gradient-color) 70%, transparent) 25%,
+    color-mix(in srgb, var(--gradient-color) 45%, transparent) 50%,
+    color-mix(in srgb, var(--gradient-color) 70%, transparent) 75%,
+    var(--gradient-color) 100%
+  );
+}
+
+/* Border gradient wrapper utilities - Corner TR-BL (Top-right to Bottom-left) */
+@utility border-gradient-wrapper-corner-tr-bl-1 {
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    var(--gradient-color) 0%,
+    transparent 25%,
+    transparent 50%,
+    transparent 75%,
+    var(--gradient-color) 100%
+  );
+}
+
+@utility border-gradient-wrapper-corner-tr-bl-2 {
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    var(--gradient-color) 0%,
+    color-mix(in srgb, var(--gradient-color) 28%, transparent) 25%,
+    transparent 50%,
+    color-mix(in srgb, var(--gradient-color) 28%, transparent) 75%,
+    var(--gradient-color) 100%
+  );
+}
+
+@utility border-gradient-wrapper-corner-tr-bl-3 {
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    var(--gradient-color) 0%,
+    color-mix(in srgb, var(--gradient-color) 41%, transparent) 25%,
+    transparent 50%,
+    color-mix(in srgb, var(--gradient-color) 41%, transparent) 75%,
+    var(--gradient-color) 100%
+  );
+}
+
+@utility border-gradient-wrapper-corner-tr-bl-4 {
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    var(--gradient-color) 0%,
+    color-mix(in srgb, var(--gradient-color) 45%, transparent) 25%,
+    color-mix(in srgb, var(--gradient-color) 15%, transparent) 50%,
+    color-mix(in srgb, var(--gradient-color) 45%, transparent) 75%,
+    var(--gradient-color) 100%
+  );
+}
+
+@utility border-gradient-wrapper-corner-tr-bl-5 {
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    var(--gradient-color) 0%,
+    color-mix(in srgb, var(--gradient-color) 70%, transparent) 25%,
+    color-mix(in srgb, var(--gradient-color) 45%, transparent) 50%,
+    color-mix(in srgb, var(--gradient-color) 70%, transparent) 75%,
+    var(--gradient-color) 100%
+  );
+}
+
+/* Border gradient wrapper utility - Radial edge glow */
+@utility border-gradient-wrapper-radial-edge-glow {
+  padding: 1px;
+  background: linear-gradient(
+    1deg,
+    var(--gradient-color) 0%,
+    transparent 25%,
+    transparent 50%,
+    transparent 75%,
+    var(--gradient-color) 100%
+  );
+}
+
+/* ========================================
+   BACKGROUND GRADIENT UTILITIES
+   ========================================
+
+   Background gradients use background-image with gradient patterns.
+   Set --gradient-color to customize the gradient color.
+   ======================================== */
+
+/* Subtle depth gradients */
+@utility bg-gradient-subtle-depth-sm {
+  background-image: var(--gradient-pattern-subtle-depth-sm);
+}
+
+@utility bg-gradient-subtle-depth {
+  background-image: var(--gradient-pattern-subtle-depth);
+}
+
+@utility bg-gradient-subtle-depth-md {
+  background-image: var(--gradient-pattern-subtle-depth-md);
+}
+
+@utility bg-gradient-subtle-depth-lg {
+  background-image: var(--gradient-pattern-subtle-depth-lg);
+}
+
+/* Inverse subtle depth gradients */
+@utility bg-gradient-subtle-depth-sm-inverse {
+  background-image: var(--gradient-pattern-subtle-depth-sm-inverse);
+}
+
+@utility bg-gradient-subtle-depth-inverse {
+  background-image: var(--gradient-pattern-subtle-depth-inverse);
+}
+
+@utility bg-gradient-subtle-depth-md-inverse {
+  background-image: var(--gradient-pattern-subtle-depth-md-inverse);
+}
+
+@utility bg-gradient-subtle-depth-lg-inverse {
+  background-image: var(--gradient-pattern-subtle-depth-lg-inverse);
+}
+
+/* Linear top-to-bottom fade gradients */
+@utility bg-gradient-linear-top-fade-brand {
+  background-image: var(--gradient-pattern-linear-top-fade-brand);
+}
+
+@utility bg-gradient-linear-top-fade-primary {
+  background-image: var(--gradient-pattern-linear-top-fade-primary);
+}
+
+@utility bg-gradient-linear-top-fade-secondary {
+  background-image: var(--gradient-pattern-linear-top-fade-secondary);
+}
+
+@utility bg-gradient-linear-top-fade-tertiary {
+  background-image: var(--gradient-pattern-linear-top-fade-tertiary);
+}
+
+/* Linear bottom-to-top fade gradients */
+@utility bg-gradient-linear-bottom-fade-brand {
+  background-image: var(--gradient-pattern-linear-bottom-fade-brand);
+}
+
+@utility bg-gradient-linear-bottom-fade-primary {
+  background-image: var(--gradient-pattern-linear-bottom-fade-primary);
+}
+
+@utility bg-gradient-linear-bottom-fade-secondary {
+  background-image: var(--gradient-pattern-linear-bottom-fade-secondary);
+}
+
+@utility bg-gradient-linear-bottom-fade-tertiary {
+  background-image: var(--gradient-pattern-linear-bottom-fade-tertiary);
+}
+
+/* Special gradients */
+@utility bg-gradient-payva-logo-minimal {
+  background-image: var(--gradient-pattern-payva-logo-minimal);
+}
+
+/* ========================================
+   GRADIENT COLOR UTILITIES
+   ========================================
+
+   Set the --gradient-color custom property to customize gradient colors.
+   These utilities use semantic tokens for automatic dark mode support.
+   ======================================== */
+
+@utility gradient-color-brand {
+  --gradient-color: var(--border-color-brand);
+}
+
+@utility gradient-color-primary {
+  --gradient-color: var(--border-color-primary);
+}
+
+@utility gradient-color-secondary {
+  --gradient-color: var(--border-color-secondary);
+}
+
+@utility gradient-color-tertiary {
+  --gradient-color: var(--border-color-tertiary);
+}
+
+@utility gradient-color-background-primary {
+  --gradient-color: var(--background-color-primary);
+}
+
+@utility gradient-color-text-primary {
+  --gradient-color: var(--text-color-primary);
+}
+
+/* Chart color gradient utilities */
+@utility gradient-color-chart-1 {
+  --gradient-color: var(--color-chart-1);
+}
+
+@utility gradient-color-chart-1-muted {
+  --gradient-color: var(--color-chart-1-muted);
+}
+
+@utility gradient-color-chart-2 {
+  --gradient-color: var(--color-chart-2);
+}
+
+@utility gradient-color-chart-2-muted {
+  --gradient-color: var(--color-chart-2-muted);
+}
+
+@utility gradient-color-chart-3 {
+  --gradient-color: var(--color-chart-3);
+}
+
+@utility gradient-color-chart-3-muted {
+  --gradient-color: var(--color-chart-3-muted);
+}
+
+@utility gradient-color-chart-4 {
+  --gradient-color: var(--color-chart-4);
+}
+
+@utility gradient-color-chart-4-muted {
+  --gradient-color: var(--color-chart-4-muted);
+}
+
+@utility gradient-color-chart-warning {
+  --gradient-color: var(--color-chart-warning);
+}
+
+@utility gradient-color-chart-warning-muted {
+  --gradient-color: var(--color-chart-warning-muted);
+}
+
+@utility gradient-color-chart-error {
+  --gradient-color: var(--color-chart-error);
+}
+
+@utility gradient-color-chart-error-muted {
+  --gradient-color: var(--color-chart-error-muted);
+}
+
+/* Semantic color gradient utilities - for visible gradient effects */
+@utility gradient-color-success {
+  --gradient-color: var(--color-success-500);
+}
+
+@utility gradient-color-error {
+  --gradient-color: var(--color-error-500);
+}
+
+@utility gradient-color-warning {
+  --gradient-color: var(--color-warning-500);
+}
+
+@utility gradient-color-gray {
+  --gradient-color: var(--color-gray-400);
+}
+
+@utility gradient-color-gray-light {
+  --gradient-color: var(--color-gray-300);
+}

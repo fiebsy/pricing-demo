@@ -1,12 +1,12 @@
 @font-face {
-	font-family: 'Haas Grotesk Display R Web';
-	src: url('NeueHaasGroteskDisplay(RoundDots)-26XThinItalic-Web.woff2') format('woff2');
-	font-weight: 200;
-	font-style: italic;
-	}
+  font-family: 'Haas Grotesk Display R Web';
+  src: url('NeueHaasGroteskDisplay(RoundDots)-26XThinItalic-Web.woff2') format('woff2');
+  font-weight: 200;
+  font-style: italic;
+}
 
 .NeueHaasGroteskDisplayRoundDots-26XThinItalic-Web {
-	font-family: 'Haas Grotesk Display R Web';
-	font-weight: 200;
-	font-style: italic;
-	}
+  font-family: 'Haas Grotesk Display R Web';
+  font-weight: 200;
+  font-style: italic;
+}
