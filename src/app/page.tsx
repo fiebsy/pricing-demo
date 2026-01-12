@@ -1,993 +1,238 @@
 'use client'
 
-import React, { useEffect, useMemo, useRef, useState } from 'react'
-import {
-  FolderMinusIcon,
-  FolderOpenIcon,
-  Search01Icon,
-  Home01Icon,
-  Settings01Icon,
-  Settings02Icon,
-  UserIcon,
-  StarIcon,
-  CheckmarkCircle02Icon,
-  Alert02Icon,
-  InformationCircleIcon,
-  MoreHorizontalCircle01Icon,
-  Edit02Icon,
-  Copy01Icon,
-  Delete02Icon,
-  Logout01Icon,
-  ArrowUp01Icon,
-  ArrowDown01Icon,
-} from '@hugeicons-pro/core-stroke-rounded'
+import Image from 'next/image'
+import { useCallback, useState } from 'react'
+import { motion, AnimatePresence } from 'motion/react'
+import { Tooltip as BaseTooltip } from '@base-ui/react/tooltip'
 
-import { HugeIcon } from '@/components/ui/icon/huge-icons/huge-icons'
-import { Accordion, ACCORDION_PRESETS } from '@/components/ui/accordion'
-import { Badge } from '@/components/ui/skwircle/components/badge'
-import { Button } from '@/components/ui/skwircle/components/button'
-import { SearchInput } from '@/components/ui/skwircle/components/search-input'
-import { MetricTile } from '@/components/ui/skwircle'
-import { ExpandingSearch } from '@/components/ui/expanding-search'
-import {
-  FilterChip,
-  ExpandingFilterChip,
-  AddFilterMenu,
-  DEFAULT_FILTER_STYLING_CONFIG,
-  DEFAULT_FILTER_APPEARANCE,
-  DEFAULT_CHIP_STYLE,
-  CHIP_STYLE_PRESETS,
-  getChipStylePreset,
-} from '@/components/ui/filter'
-import {
-  RevealMenu,
-  DEFAULT_APPEARANCE,
-  type MenuItem,
-} from '@/components/ui/menu'
+// -----------------------------------------------------------------------------
+// Types
+// -----------------------------------------------------------------------------
 
-// --- Types ---
+type ParticleShape = 'circle' | 'square' | 'star'
 
-type SectionId = 'skwircle' | 'accordion' | 'interactive'
-
-interface ComponentItem {
-  id: string
-  name: string
-  description: string
-  section: SectionId
+interface ParticleConfig {
+  count: number
+  distance: { min: number; max: number }
+  size: { min: number; max: number }
+  duration: { min: number; max: number }
 }
 
-// --- Section Metadata ---
-
-const SECTIONS: { id: SectionId; label: string; description: string }[] = [
-  { id: 'skwircle', label: 'Skwircle', description: 'Semantic wrappers built on Skwircle primitives' },
-  { id: 'accordion', label: 'Accordion', description: 'Expandable sections with animated L-shaped lines' },
-  { id: 'interactive', label: 'Interactive', description: 'Animated expanding components' },
-]
-
-// --- Component Registry ---
-
-const COMPONENTS: ComponentItem[] = [
-  // SKWIRCLE
-  { id: 'metric-tile', name: 'MetricTile', description: 'Dashboard metric display with label, value, and change indicator', section: 'skwircle' },
-  { id: 'button', name: 'Button', description: 'Full-featured button with hierarchy, sizes, and icon support', section: 'skwircle' },
-  { id: 'badge', name: 'Badge', description: 'Status indicators with colors, types, icons, and dots', section: 'skwircle' },
-  { id: 'search-input', name: 'SearchInput', description: 'Skwircle-based search field with clear button', section: 'skwircle' },
-
-  // ACCORDION
-  { id: 'accordion', name: 'Accordion', description: 'Expandable sections with animated L-shaped lines', section: 'accordion' },
-
-  // INTERACTIVE
-  { id: 'expanding-search', name: 'ExpandingSearch', description: 'Search input that expands from a compact icon state', section: 'interactive' },
-  { id: 'expanding-filter-chip', name: 'ExpandingFilterChip', description: 'Filter chip that expands to reveal value and close button', section: 'interactive' },
-  { id: 'add-filter-menu', name: 'AddFilterMenu', description: 'Filter selection dropdown with submenu navigation', section: 'interactive' },
-  { id: 'reveal-menu', name: 'RevealMenu', description: 'Animated dropdown menu with reveal animation', section: 'interactive' },
-]
-
-// --- Button Utility ---
-
-function ButtonUtility({
-  icon,
-  onClick,
-  tooltip,
-}: {
-  icon: React.ReactNode
-  onClick: () => void
-  tooltip?: string
-}) {
-  return (
-    <button
-      onClick={onClick}
-      title={tooltip}
-      className="hover:bg-secondary_hover flex h-7 w-7 items-center justify-center rounded-md transition-colors"
-    >
-      {icon}
-    </button>
-  )
+interface Particle {
+  id: number
+  x: number
+  y: number
+  color: string
+  size: number
+  tx: number
+  ty: number
+  rotation: number
+  duration: number
+  shape: ParticleShape
 }
 
-// --- Component Showcase Sections ---
+// -----------------------------------------------------------------------------
+// Constants
+// -----------------------------------------------------------------------------
 
-function MetricTileShowcase() {
-  return (
-    <div className="space-y-6">
-      {/* Default MetricTile */}
-      <div>
-        <h4 className="text-secondary mb-3 text-sm font-medium">Default Configuration</h4>
-        <p className="text-tertiary mb-4 text-xs">
-          Wraps Skwircle.Card with: elevation=none, roundness=rounded, backgroundGradient=depth-3-bottom
-        </p>
-        <div className="flex flex-col gap-4 max-w-[200px]">
-          <MetricTile
-            label="Total Revenue"
-            value="$45,231"
-            change="+12.5%"
-            changeType="positive"
-            period="vs last month"
-          />
-          <MetricTile
-            label="Active Orders"
-            value="1,284"
-            change="-3.2%"
-            changeType="negative"
-            period="vs last week"
-          />
-          <MetricTile
-            label="Conversion"
-            value="24.8%"
-            changeType="neutral"
-          />
-        </div>
-      </div>
+const COLORS = ['#8b5cf6', '#06b6d4', '#f59e0b', '#ec4899', '#10b981', '#f43f5e', '#22c55e', '#eab308']
+const GREETINGS = ['hi', 'sup', 'yo', 'ciao', 'hey', 'hola', 'oi', 'howdy', 'ahoy']
+const OUCH_WORDS = ['ouch', 'oof', 'egh', 'ow', 'yikes', 'ack', 'oops', 'hey!']
+const PARTICLE_SHAPES: ParticleShape[] = ['circle', 'square', 'star']
 
-      {/* MetricTile Sizes */}
-      <div>
-        <h4 className="text-secondary mb-4 text-sm font-medium">Sizes</h4>
-        <div className="flex flex-col gap-4">
-          <MetricTile size="sm" label="Small" value="$1,234" change="+5%" changeType="positive" className="max-w-[160px]" />
-          <MetricTile size="md" label="Medium" value="$12,345" change="+10%" changeType="positive" className="max-w-[180px]" />
-          <MetricTile size="lg" label="Large" value="$123,456" change="+15%" changeType="positive" className="max-w-[200px]" />
-        </div>
-      </div>
+const PARTICLE_CONFIG = {
+  normal: { count: 16, distance: { min: 40, max: 100 }, size: { min: 4, max: 10 }, duration: { min: 0.4, max: 0.8 } },
+  hovered: { count: 32, distance: { min: 80, max: 180 }, size: { min: 6, max: 14 }, duration: { min: 0.6, max: 1.2 } },
+} as const
 
-      {/* MetricTile with Icon */}
-      <div>
-        <h4 className="text-secondary mb-4 text-sm font-medium">With Icon</h4>
-        <MetricTile
-          label="Growth Rate"
-          value="18.2%"
-          change="+4.1%"
-          changeType="positive"
-          period="this quarter"
-          icon={<HugeIcon icon={ArrowUp01Icon} size={20} />}
-          className="max-w-[200px]"
-        />
-      </div>
-    </div>
-  )
+const SHAPE_BORDER_RADIUS: Record<ParticleShape, string> = {
+  circle: '50%',
+  square: '3px',
+  star: '2px',
 }
 
+const TEXT_FLASH_DURATION = 300
+const PARTICLE_LIFETIME = 1200
+const DEFAULT_TOOLTIP_COLOR = '#1a1a1a' // Matches bg-primary-solid
 
-function ButtonShowcase() {
-  return (
-    <div className="space-y-6">
-      <div>
-        <h4 className="text-secondary mb-3 text-sm font-medium">Hierarchy</h4>
-        <div className="flex flex-wrap items-center gap-3">
-          <Button hierarchy="primary">Primary</Button>
-          <Button hierarchy="secondary">Secondary</Button>
-          <Button hierarchy="tertiary">Tertiary</Button>
-          <Button hierarchy="link-gray">Link</Button>
-        </div>
-      </div>
-      <div>
-        <h4 className="text-secondary mb-3 text-sm font-medium">Sizes</h4>
-        <div className="flex flex-wrap items-center gap-3">
-          <Button size="sm">Small</Button>
-          <Button size="md">Medium</Button>
-          <Button size="lg">Large</Button>
-          <Button size="xl">XL</Button>
-        </div>
-      </div>
-      <div>
-        <h4 className="text-secondary mb-3 text-sm font-medium">With Icons</h4>
-        <div className="flex flex-wrap items-center gap-3">
-          <Button.WithIcon icon={Home01Icon} hierarchy="primary">
-            Home
-          </Button.WithIcon>
-          <Button.WithIcon icon={Settings01Icon} hierarchy="secondary">
-            Settings
-          </Button.WithIcon>
-          <Button.Icon icon={UserIcon} hierarchy="tertiary" ariaLabel="User" />
-        </div>
-      </div>
-      <div>
-        <h4 className="text-secondary mb-3 text-sm font-medium">States</h4>
-        <div className="flex flex-wrap items-center gap-3">
-          <Button>Default</Button>
-          <Button disabled>Disabled</Button>
-          <Button loading>Loading</Button>
-        </div>
-      </div>
-    </div>
-  )
+// -----------------------------------------------------------------------------
+// Utilities
+// -----------------------------------------------------------------------------
+
+function randomBetween(min: number, max: number): number {
+  return Math.random() * (max - min) + min
 }
 
-function SearchInputShowcase() {
-  const [value, setValue] = useState('')
+function randomFrom<T>(array: readonly T[]): T {
+  return array[Math.floor(Math.random() * array.length)]
+}
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setValue(e.target.value)
+function createParticle(x: number, y: number, index: number, config: ParticleConfig): Particle {
+  const angle = randomBetween(0, Math.PI * 2)
+  const distance = randomBetween(config.distance.min, config.distance.max)
+
+  return {
+    id: Date.now() + index,
+    x,
+    y,
+    color: randomFrom(COLORS),
+    size: randomBetween(config.size.min, config.size.max),
+    tx: Math.cos(angle) * distance,
+    ty: Math.sin(angle) * distance - randomBetween(20, 60),
+    rotation: randomBetween(-720, 720),
+    duration: randomBetween(config.duration.min, config.duration.max),
+    shape: randomFrom(PARTICLE_SHAPES),
   }
-
-  const handleClear = () => {
-    setValue('')
-  }
-
-  return (
-    <div className="space-y-6">
-      <div>
-        <h4 className="text-secondary mb-3 text-sm font-medium">Sizes</h4>
-        <div className="flex flex-col gap-3 max-w-sm">
-          <SearchInput size="sm" placeholder="Small search..." value={value} onChange={handleChange} />
-          <SearchInput size="md" placeholder="Medium search..." value={value} onChange={handleChange} />
-        </div>
-      </div>
-      <div>
-        <h4 className="text-secondary mb-3 text-sm font-medium">Interactive</h4>
-        <div className="max-w-sm">
-          <SearchInput
-            size="md"
-            placeholder="Type to search..."
-            value={value}
-            onChange={handleChange}
-            onClear={handleClear}
-          />
-          {value && <p className="text-tertiary mt-2 text-xs">Value: "{value}"</p>}
-        </div>
-      </div>
-    </div>
-  )
 }
 
-function BadgeShowcase() {
-  return (
-    <div className="space-y-6">
-      <div>
-        <h4 className="text-secondary mb-3 text-sm font-medium">Colors</h4>
-        <div className="flex flex-wrap items-center gap-2">
-          <Badge color="gray">Gray</Badge>
-          <Badge color="brand">Brand</Badge>
-          <Badge color="error">Error</Badge>
-          <Badge color="warning">Warning</Badge>
-          <Badge color="success">Success</Badge>
-          <Badge color="blue">Blue</Badge>
-          <Badge color="indigo">Indigo</Badge>
-          <Badge color="purple">Purple</Badge>
-          <Badge color="orange">Orange</Badge>
-        </div>
-      </div>
-      <div>
-        <h4 className="text-secondary mb-3 text-sm font-medium">Sizes</h4>
-        <div className="flex flex-wrap items-center gap-2">
-          <Badge size="sm">Small</Badge>
-          <Badge size="md">Medium</Badge>
-          <Badge size="lg">Large</Badge>
-        </div>
-      </div>
-      <div>
-        <h4 className="text-secondary mb-3 text-sm font-medium">Types</h4>
-        <div className="flex flex-wrap items-center gap-2">
-          <Badge type="badge" color="brand">Badge</Badge>
-          <Badge type="pill" color="brand">Pill</Badge>
-          <Badge type="modern" color="brand">Modern</Badge>
-        </div>
-      </div>
-      <div>
-        <h4 className="text-secondary mb-3 text-sm font-medium">With Icons</h4>
-        <div className="flex flex-wrap items-center gap-2">
-          <Badge.WithIcon icon={CheckmarkCircle02Icon} color="success">
-            Success
-          </Badge.WithIcon>
-          <Badge.WithIcon icon={Alert02Icon} color="warning">
-            Warning
-          </Badge.WithIcon>
-          <Badge.WithIcon icon={InformationCircleIcon} color="blue">
-            Info
-          </Badge.WithIcon>
-          <Badge.Icon icon={StarIcon} color="brand" />
-        </div>
-      </div>
-      <div>
-        <h4 className="text-secondary mb-3 text-sm font-medium">With Dot</h4>
-        <div className="flex flex-wrap items-center gap-2">
-          <Badge.WithDot dotColor="success">Online</Badge.WithDot>
-          <Badge.WithDot dotColor="warning">Away</Badge.WithDot>
-          <Badge.WithDot dotColor="error">Offline</Badge.WithDot>
-        </div>
-      </div>
-    </div>
-  )
-}
+// -----------------------------------------------------------------------------
+// Component
+// -----------------------------------------------------------------------------
 
-function AccordionShowcase() {
-  return (
-    <div className="space-y-6">
-      <div>
-        <h4 className="text-secondary mb-3 text-sm font-medium">Default Preset</h4>
-        <div className="bg-secondary rounded-lg p-4 max-w-xs">
-          <Accordion
-            label="Navigation"
-            triggerConfig={ACCORDION_PRESETS.default.trigger}
-            itemConfig={ACCORDION_PRESETS.default.item}
-            defaultExpanded
-          >
-            <Accordion.Item href="#">Dashboard</Accordion.Item>
-            <Accordion.Item href="#">Settings</Accordion.Item>
-            <Accordion.Item href="#">Profile</Accordion.Item>
-          </Accordion>
-        </div>
-      </div>
-      <div>
-        <h4 className="text-secondary mb-3 text-sm font-medium">Compact Preset</h4>
-        <div className="bg-secondary rounded-lg p-4 max-w-xs">
-          <Accordion
-            label="Files"
-            triggerConfig={ACCORDION_PRESETS.compact.trigger}
-            itemConfig={ACCORDION_PRESETS.compact.item}
-            defaultExpanded
-          >
-            <Accordion.Item href="#">document.pdf</Accordion.Item>
-            <Accordion.Item href="#">image.png</Accordion.Item>
-            <Accordion.Item href="#">data.json</Accordion.Item>
-            <Accordion.Item href="#">config.ts</Accordion.Item>
-          </Accordion>
-        </div>
-      </div>
-      <div>
-        <h4 className="text-secondary mb-3 text-sm font-medium">Comfortable Preset</h4>
-        <div className="bg-secondary rounded-lg p-4 max-w-xs">
-          <Accordion
-            label="Features"
-            triggerConfig={ACCORDION_PRESETS.comfortable.trigger}
-            itemConfig={ACCORDION_PRESETS.comfortable.item}
-            defaultExpanded
-          >
-            <Accordion.Item href="#">Analytics</Accordion.Item>
-            <Accordion.Item href="#">Integrations</Accordion.Item>
-          </Accordion>
-        </div>
-      </div>
-    </div>
-  )
-}
+export default function HomePage(): React.ReactElement {
+  const [particles, setParticles] = useState<Particle[]>([])
+  const [isHovered, setIsHovered] = useState(false)
+  const [textColor, setTextColor] = useState<string | null>(null)
+  const [greeting, setGreeting] = useState('hi')
+  const [tooltipOpen, setTooltipOpen] = useState(false)
 
-function ExpandingSearchShowcase() {
-  const [searchValue, setSearchValue] = useState('')
+  const handleClick = useCallback(
+    (e: React.MouseEvent) => {
+      const config = isHovered ? PARTICLE_CONFIG.hovered : PARTICLE_CONFIG.normal
+      const newParticles = Array.from({ length: config.count }, (_, i) =>
+        createParticle(e.clientX, e.clientY, i, config)
+      )
+      const newParticleIds = new Set(newParticles.map((p) => p.id))
 
-  return (
-    <div className="space-y-6">
-      <div>
-        <h4 className="text-secondary mb-3 text-sm font-medium">Default</h4>
-        <div className="flex items-center gap-4">
-          <ExpandingSearch
-            placeholder="Search..."
-            value={searchValue}
-            onChange={setSearchValue}
-            className="shine-1"
-          />
-          {searchValue && (
-            <span className="text-tertiary text-xs">Value: "{searchValue}"</span>
-          )}
-        </div>
-      </div>
-      <div>
-        <h4 className="text-secondary mb-3 text-sm font-medium">Custom Sizes</h4>
-        <div className="flex flex-col gap-3">
-          <ExpandingSearch
-            placeholder="Compact (32px)"
-            collapsedWidth={32}
-            expandedWidth={200}
-            height={32}
-            iconSize={16}
-            className="shine-1"
-          />
-          <ExpandingSearch
-            placeholder="Default (40px)"
-            collapsedWidth={40}
-            expandedWidth={240}
-            height={40}
-            className="shine-1"
-          />
-          <ExpandingSearch
-            placeholder="Large (48px)"
-            collapsedWidth={48}
-            expandedWidth={280}
-            height={48}
-            iconSize={22}
-            className="shine-1"
-          />
-        </div>
-      </div>
-      <div>
-        <h4 className="text-secondary mb-3 text-sm font-medium">Animation Modes</h4>
-        <div className="flex flex-wrap gap-4">
-          <div className="flex flex-col gap-1">
-            <ExpandingSearch placeholder="Immediate" revealMode="immediate" className="shine-1" />
-            <span className="text-quaternary text-xs">Immediate</span>
-          </div>
-          <div className="flex flex-col gap-1">
-            <ExpandingSearch placeholder="Fade" revealMode="fade" className="shine-1" />
-            <span className="text-quaternary text-xs">Fade</span>
-          </div>
-          <div className="flex flex-col gap-1">
-            <ExpandingSearch placeholder="Sync" revealMode="sync" className="shine-1" />
-            <span className="text-quaternary text-xs">Sync</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
+      setParticles((prev) => [...prev, ...newParticles])
 
-function ExpandingFilterChipShowcase() {
-  const [chips, setChips] = useState([
-    { id: 1, label: 'Status', value: 'Active', icon: CheckmarkCircle02Icon },
-    { id: 2, label: 'Category', value: 'Sales', icon: StarIcon },
-  ])
+      // Show ouch word on click
+      setGreeting(randomFrom(OUCH_WORDS))
 
-  const removeChip = (id: number) => {
-    setChips(chips.filter(c => c.id !== id))
-  }
+      setTextColor(randomFrom(COLORS))
+      setTimeout(() => setTextColor(null), TEXT_FLASH_DURATION)
 
-  const resetChips = () => {
-    setChips([
-      { id: 1, label: 'Status', value: 'Active', icon: CheckmarkCircle02Icon },
-      { id: 2, label: 'Category', value: 'Sales', icon: StarIcon },
-    ])
-  }
-
-  return (
-    <div className="space-y-6">
-      {/* FilterChip - Recommended Usage */}
-      <div>
-        <h4 className="text-secondary mb-3 text-sm font-medium">FilterChip (Recommended)</h4>
-        <p className="text-tertiary mb-2 text-xs">Uses icons by default with all styling applied automatically</p>
-        <div className="flex flex-wrap items-center gap-2">
-          {chips.map(chip => (
-            <FilterChip
-              key={chip.id}
-              icon={chip.icon}
-              value={chip.value}
-              onRemove={() => removeChip(chip.id)}
-            />
-          ))}
-          {chips.length === 0 && (
-            <button
-              onClick={resetChips}
-              className="text-brand-primary text-sm hover:underline"
-            >
-              Reset chips
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* Small Preset */}
-      <div>
-        <h4 className="text-secondary mb-3 text-sm font-medium">Small Preset</h4>
-        <div className="flex flex-wrap items-center gap-2">
-          <FilterChip
-            preset="small"
-            icon={CheckmarkCircle02Icon}
-            value="Active"
-            onRemove={() => {}}
-          />
-          <FilterChip
-            preset="small"
-            icon={StarIcon}
-            value="Featured"
-            onRemove={() => {}}
-          />
-        </div>
-      </div>
-
-      {/* With Labels (no icons) */}
-      <div>
-        <h4 className="text-secondary mb-3 text-sm font-medium">With Labels (no icons)</h4>
-        <div className="flex flex-wrap items-center gap-2">
-          <FilterChip
-            label="Status"
-            value="Active"
-            chipConfig={{ useIcon: false }}
-            onRemove={() => {}}
-          />
-          <FilterChip
-            label="Category"
-            value="Sales"
-            chipConfig={{ useIcon: false }}
-            onRemove={() => {}}
-          />
-        </div>
-      </div>
-
-      {/* All Sizes */}
-      <div>
-        <h4 className="text-secondary mb-3 text-sm font-medium">All Sizes</h4>
-        <div className="flex flex-wrap items-center gap-2">
-          <FilterChip icon={UserIcon} value="XS" chipConfig={{ size: 'xs' }} />
-          <FilterChip icon={UserIcon} value="SM" chipConfig={{ size: 'sm' }} />
-          <FilterChip icon={UserIcon} value="Default" />
-          <FilterChip icon={UserIcon} value="MD" chipConfig={{ size: 'md' }} />
-          <FilterChip icon={UserIcon} value="LG" chipConfig={{ size: 'lg' }} />
-        </div>
-      </div>
-
-      {/* With Icons (default behavior) */}
-      <div>
-        <h4 className="text-secondary mb-3 text-sm font-medium">With Icons (default)</h4>
-        <div className="flex flex-wrap items-center gap-2">
-          <FilterChip
-            icon={CheckmarkCircle02Icon}
-            value="Active"
-            onRemove={() => {}}
-          />
-          <FilterChip
-            icon={StarIcon}
-            value="Featured"
-            onRemove={() => {}}
-          />
-          <FilterChip
-            icon={UserIcon}
-            value="John Doe"
-            onRemove={() => {}}
-          />
-        </div>
-      </div>
-
-      {/* Click to Expand Animation */}
-      <div>
-        <h4 className="text-secondary mb-3 text-sm font-medium">Click to Expand</h4>
-        <p className="text-tertiary mb-2 text-xs">Click the collapsed chips to expand them</p>
-        <div className="flex flex-wrap items-center gap-2">
-          <FilterChip icon={CheckmarkCircle02Icon} value="Pending" defaultExpanded={false} />
-          <FilterChip icon={StarIcon} value="Invoice" defaultExpanded={false} />
-          <FilterChip icon={Home01Icon} value="Home" defaultExpanded={false} />
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function AddFilterMenuShowcase() {
-  const [selectedFilter, setSelectedFilter] = useState<string | null>(null)
-
-  return (
-    <div className="space-y-6">
-      <div>
-        <h4 className="text-secondary mb-3 text-sm font-medium">Default Filter Menu</h4>
-        <div className="flex items-center gap-4">
-          <AddFilterMenu
-            config={DEFAULT_FILTER_STYLING_CONFIG}
-            appearance={DEFAULT_FILTER_APPEARANCE}
-            onFilterSelect={(filterId) => setSelectedFilter(filterId)}
-          />
-          {selectedFilter && (
-            <span className="text-tertiary text-sm">
-              Selected: <span className="text-primary font-medium">{selectedFilter}</span>
-            </span>
-          )}
-        </div>
-      </div>
-      <div>
-        <h4 className="text-secondary mb-3 text-sm font-medium">Features</h4>
-        <ul className="text-tertiary space-y-1 text-sm">
-          <li>• Animated reveal on open</li>
-          <li>• Submenu navigation with slide transitions</li>
-          <li>• Height animation between menu levels</li>
-          <li>• Opacity crossfade effects</li>
-        </ul>
-      </div>
-    </div>
-  )
-}
-
-function RevealMenuShowcase() {
-  const menuItems: MenuItem[] = [
-    { id: 'edit', label: 'Edit', icon: Edit02Icon, onClick: () => console.log('Edit') },
-    { id: 'copy', label: 'Copy', icon: Copy01Icon, onClick: () => console.log('Copy') },
-    { id: 'separator-1', type: 'separator' },
-    {
-      id: 'settings',
-      type: 'submenu',
-      label: 'Settings',
-      icon: Settings02Icon,
-      items: [
-        { id: 'profile', label: 'Profile', icon: UserIcon, onClick: () => console.log('Profile') },
-        { id: 'logout', label: 'Logout', icon: Logout01Icon, onClick: () => console.log('Logout') },
-      ],
+      setTimeout(() => {
+        setParticles((prev) => prev.filter((p) => !newParticleIds.has(p.id)))
+      }, PARTICLE_LIFETIME)
     },
-    { id: 'separator-2', type: 'separator' },
-    { id: 'delete', label: 'Delete', icon: Delete02Icon, className: 'text-error-primary', onClick: () => console.log('Delete') },
-  ]
+    [isHovered]
+  )
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h4 className="text-secondary mb-3 text-sm font-medium">Icon Trigger Menu</h4>
-        <div className="flex items-center gap-4">
-          <RevealMenu
-            trigger={{ icon: MoreHorizontalCircle01Icon }}
-            items={menuItems}
-            appearance={DEFAULT_APPEARANCE}
-          />
-          <span className="text-tertiary text-xs">Click the icon to open menu</span>
-        </div>
-      </div>
-      <div>
-        <h4 className="text-secondary mb-3 text-sm font-medium">Positions</h4>
-        <div className="flex items-center gap-6">
-          <div className="flex flex-col items-center gap-1">
-            <RevealMenu
-              trigger={{ icon: MoreHorizontalCircle01Icon }}
-              items={menuItems.slice(0, 3)}
-              side="bottom"
-              align="start"
-              appearance={DEFAULT_APPEARANCE}
-            />
-            <span className="text-quaternary text-xs">Bottom-Start</span>
-          </div>
-          <div className="flex flex-col items-center gap-1">
-            <RevealMenu
-              trigger={{ icon: MoreHorizontalCircle01Icon }}
-              items={menuItems.slice(0, 3)}
-              side="bottom"
-              align="end"
-              appearance={DEFAULT_APPEARANCE}
-            />
-            <span className="text-quaternary text-xs">Bottom-End</span>
-          </div>
-          <div className="flex flex-col items-center gap-1">
-            <RevealMenu
-              trigger={{ icon: MoreHorizontalCircle01Icon }}
-              items={menuItems.slice(0, 3)}
-              side="right"
-              align="start"
-              appearance={DEFAULT_APPEARANCE}
-            />
-            <span className="text-quaternary text-xs">Right-Start</span>
-          </div>
-        </div>
-      </div>
-      <div>
-        <h4 className="text-secondary mb-3 text-sm font-medium">Features</h4>
-        <ul className="text-tertiary space-y-1 text-sm">
-          <li>• Scale + opacity reveal animation</li>
-          <li>• Submenu navigation with back button</li>
-          <li>• Keyboard navigation support</li>
-          <li>• Customizable appearance (shine, shadow, radius)</li>
-        </ul>
-      </div>
-    </div>
-  )
-}
+    <div className="flex min-h-screen flex-col items-center justify-center gap-4">
+      <BaseTooltip.Provider delay={0} closeDelay={0}>
+        <BaseTooltip.Root open={tooltipOpen}>
+          <BaseTooltip.Trigger
+            onClick={handleClick}
+            onMouseEnter={() => {
+              setIsHovered(true)
+              setGreeting(randomFrom(GREETINGS))
+              setTooltipOpen(true)
+            }}
+            onMouseLeave={() => {
+              setIsHovered(false)
+              setTooltipOpen(false)
+            }}
+            className="cursor-pointer"
+          >
+            <div className="rounded-3xl corner-squircle bg-primary p-1 shine-3 transition-all duration-150 scale-100 active:scale-90 hover:shine-3-intense">
+              <div className="overflow-hidden rounded-[20px] corner-squircle">
+                <Image
+                  src="/skwircle-kid.jpg"
+                  alt="i like skwircles"
+                  height={80}
+                  width={142}
+                  draggable={false}
+                  className="pointer-events-none select-none"
+                />
+              </div>
+            </div>
+          </BaseTooltip.Trigger>
 
-// --- Component Renderer ---
+          {/* Tooltip disabled for now
+          <AnimatePresence>
+            {tooltipOpen && (
+              <BaseTooltip.Portal keepMounted>
+                <BaseTooltip.Positioner side="top" sideOffset={12} className="z-40">
+                  <BaseTooltip.Popup
+                    render={
+                      <motion.div
+                        initial={{ opacity: 0, y: 4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 4 }}
+                        transition={{ duration: 0.1, ease: 'easeOut' }}
+                      />
+                    }
+                    className="relative overflow-hidden rounded-lg corner-squircle px-2 pb-1 shine-1-shadow-lg transition-[width,background-color] duration-200 ease-out"
+                    style={{ backgroundColor: textColor || DEFAULT_TOOLTIP_COLOR }}
+                  >
+                    <div
+                      className="pointer-events-none absolute inset-0 rounded-lg"
+                      style={{
+                        background: 'linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(0,0,0,0.06) 100%)',
+                      }}
+                    />
+                    <span className="relative text-xs font-semibold text-white whitespace-nowrap">
+                      {greeting}
+                    </span>
+                  </BaseTooltip.Popup>
+                </BaseTooltip.Positioner>
+              </BaseTooltip.Portal>
+            )}
+          </AnimatePresence>
+          */}
+        </BaseTooltip.Root>
+      </BaseTooltip.Provider>
 
-function ComponentShowcase({ componentId }: { componentId: string }) {
-  switch (componentId) {
-    // Skwircle
-    case 'metric-tile':
-      return <MetricTileShowcase />
-    case 'button':
-      return <ButtonShowcase />
-    case 'search-input':
-      return <SearchInputShowcase />
-    case 'badge':
-      return <BadgeShowcase />
+      <p
+        className="text-xl font-medium text-white transition-colors duration-300"
+        style={{
+          opacity: isHovered ? 1 : 0.5,
+          color: textColor || undefined
+        }}
+      >
+        i like skwircles
+      </p>
 
-    // Accordion
-    case 'accordion':
-      return <AccordionShowcase />
+      {particles.map((particle) => (
+        <span
+          key={particle.id}
+          className="confetti-particle pointer-events-none fixed z-50"
+          style={{
+            left: particle.x,
+            top: particle.y,
+            width: particle.size,
+            height: particle.size,
+            backgroundColor: particle.color,
+            borderRadius: SHAPE_BORDER_RADIUS[particle.shape],
+            transform: particle.shape === 'star' ? 'rotate(45deg)' : undefined,
+            '--tx': `${particle.tx}px`,
+            '--ty': `${particle.ty}px`,
+            '--rotation': `${particle.rotation}deg`,
+            '--duration': `${particle.duration}s`,
+          } as React.CSSProperties}
+        />
+      ))}
 
-    // Interactive
-    case 'expanding-search':
-      return <ExpandingSearchShowcase />
-    case 'expanding-filter-chip':
-      return <ExpandingFilterChipShowcase />
-    case 'add-filter-menu':
-      return <AddFilterMenuShowcase />
-    case 'reveal-menu':
-      return <RevealMenuShowcase />
-    default:
-      return <p className="text-tertiary">No showcase available</p>
-  }
-}
-
-// --- Page Component ---
-
-export default function HomePage() {
-  const [searchQuery, setSearchQuery] = useState('')
-  const [activeSection, setActiveSection] = useState<SectionId>('skwircle')
-  const [expandedSections, setExpandedSections] = useState<Set<SectionId>>(
-    () => new Set(SECTIONS.map((s) => s.id))
-  )
-  const sectionRefs = useRef<Record<string, HTMLElement | null>>({})
-  const navItemRefs = useRef<Record<string, HTMLDivElement | null>>({})
-  const navContainerRef = useRef<HTMLElement | null>(null)
-  const [indicatorY, setIndicatorY] = useState(0)
-
-  const toggleSection = (sectionId: SectionId, expanded: boolean) => {
-    setExpandedSections((prev) => {
-      const next = new Set(prev)
-      if (expanded) {
-        next.add(sectionId)
-      } else {
-        next.delete(sectionId)
-      }
-      return next
-    })
-  }
-
-  // Fast scroll helper (150ms)
-  const fastScrollTo = (element: HTMLElement | null, block: ScrollLogicalPosition = 'start') => {
-    if (!element) return
-    const rect = element.getBoundingClientRect()
-    const offset = block === 'center' ? window.innerHeight / 2 - rect.height / 2 : 0
-    const targetY = window.scrollY + rect.top - offset
-    const startY = window.scrollY
-    const diff = targetY - startY
-    const duration = 150
-    let start: number | null = null
-
-    const step = (timestamp: number) => {
-      if (!start) start = timestamp
-      const progress = Math.min((timestamp - start) / duration, 1)
-      const easeOut = 1 - Math.pow(1 - progress, 3)
-      window.scrollTo(0, startY + diff * easeOut)
-      if (progress < 1) requestAnimationFrame(step)
-    }
-    requestAnimationFrame(step)
-  }
-
-  // Track active section on scroll
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollPosition = window.scrollY + 200
-
-      for (const section of SECTIONS) {
-        const element = sectionRefs.current[section.id]
-        if (element) {
-          const { offsetTop, offsetHeight } = element
-          if (scrollPosition >= offsetTop && scrollPosition < offsetTop + offsetHeight) {
-            setActiveSection(section.id)
-            break
+      <style jsx>{`
+        .confetti-particle {
+          animation: confetti-goofy var(--duration) cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+        @keyframes confetti-goofy {
+          0% {
+            transform: translate(0, 0) rotate(0deg) scale(1);
+            opacity: 1;
+          }
+          50% {
+            opacity: 1;
+          }
+          100% {
+            transform: translate(var(--tx), var(--ty)) rotate(var(--rotation)) scale(0);
+            opacity: 0;
           }
         }
-      }
-    }
-
-    window.addEventListener('scroll', handleScroll, { passive: true })
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
-
-  // Update indicator position when active section changes
-  useEffect(() => {
-    const navItem = navItemRefs.current[activeSection]
-    const navContainer = navContainerRef.current
-    if (navItem && navContainer) {
-      const containerRect = navContainer.getBoundingClientRect()
-      const itemRect = navItem.getBoundingClientRect()
-      setIndicatorY(itemRect.top - containerRect.top + 4)
-    }
-  }, [activeSection, expandedSections])
-
-  // Group components by section
-  const componentsBySection = useMemo(() => {
-    const grouped: Record<SectionId, ComponentItem[]> = {
-      'skwircle': [],
-      'accordion': [],
-      'interactive': [],
-    }
-
-    COMPONENTS.forEach((component) => {
-      grouped[component.section].push(component)
-    })
-
-    return grouped
-  }, [])
-
-  // Filter components by search
-  const filteredComponentsBySection = useMemo(() => {
-    if (!searchQuery.trim()) return componentsBySection
-
-    const query = searchQuery.toLowerCase()
-    const filtered: Record<SectionId, ComponentItem[]> = {
-      'skwircle': [],
-      'accordion': [],
-      'interactive': [],
-    }
-
-    Object.entries(componentsBySection).forEach(([section, components]) => {
-      filtered[section as SectionId] = components.filter((c) => {
-        const searchFields = [c.name, c.description, c.id]
-        return searchFields.some((field) => field?.toLowerCase().includes(query))
-      })
-    })
-
-    return filtered
-  }, [searchQuery, componentsBySection])
-
-  // Total filtered count
-  const totalCount = useMemo(() => {
-    return Object.values(filteredComponentsBySection).reduce((sum, components) => sum + components.length, 0)
-  }, [filteredComponentsBySection])
-
-  return (
-    <div className="min-h-screen grid grid-cols-[1fr_260px_440px_1fr] overscroll-none">
-      {/* Left bleed - extends sidebar bg to viewport edge */}
-      <div className="bg-secondary" />
-
-      {/* Sidebar Navigation - extends full height, content padded for nav */}
-      <aside className="bg-secondary border-secondary sticky top-0 h-screen overflow-y-auto border-r nav-clearance pb-6 pr-6 pl-6">
-        {/* Sidebar Header */}
-        <div className="mb-6 flex items-start justify-between">
-          <div>
-            <h1 className="text-primary text-[15px] font-medium">Skwircle</h1>
-            <p className="text-quaternary mt-1 text-[13px]">Component Library</p>
-          </div>
-          <ButtonUtility
-            icon={
-              <HugeIcon
-                icon={expandedSections.size === SECTIONS.length ? FolderMinusIcon : FolderOpenIcon}
-                size={14}
-                strokeWidth={2}
-                className="text-tertiary"
-              />
-            }
-            onClick={() =>
-              setExpandedSections(
-                expandedSections.size === SECTIONS.length ? new Set() : new Set(SECTIONS.map((s) => s.id))
-              )
-            }
-            tooltip={expandedSections.size === SECTIONS.length ? 'Collapse all' : 'Expand all'}
-          />
-        </div>
-
-        {/* Sidebar Search */}
-        <div className="mb-6">
-          <div className="relative">
-            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-              <HugeIcon icon={Search01Icon} size={16} className="text-quaternary" />
-            </div>
-            <input
-              type="text"
-              placeholder="Search..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="border-secondary bg-secondary_subtle text-primary placeholder:text-quaternary focus:border-brand-primary focus:ring-brand-primary w-full rounded-lg border py-2 pr-3 pl-9 text-[13px] focus:ring-1 focus:outline-none"
-            />
-          </div>
-        </div>
-
-        <nav ref={navContainerRef} className="relative -ml-2 flex flex-col gap-5">
-          {/* Sliding indicator - positioned relative to nav, accounts for -ml-2 offset */}
-          <div
-            className="absolute -left-1 h-5 w-1 rounded-full bg-brand-secondary shine-3 transition-transform duration-150 ease-out"
-            style={{ transform: `translateY(${indicatorY}px)` }}
-          />
-          {SECTIONS.map((section) => {
-            const components = filteredComponentsBySection[section.id]
-            if (components.length === 0) return null
-
-            return (
-              <div
-                key={section.id}
-                ref={(el) => {
-                  navItemRefs.current[section.id] = el
-                }}
-              >
-                <Accordion
-                  label={section.label}
-                  expanded={expandedSections.has(section.id)}
-                  onExpandedChange={(expanded) => toggleSection(section.id, expanded)}
-                  triggerConfig={ACCORDION_PRESETS.compact.trigger}
-                  itemConfig={ACCORDION_PRESETS.compact.item}
-                  toggleOnChevronOnly
-                  onLabelClick={() => {
-                    fastScrollTo(document.getElementById(section.id), 'start')
-                  }}
-                >
-                  {components.map((component) => (
-                    <Accordion.Item
-                      key={component.id}
-                      href={`#${component.id}`}
-                      onClick={() => {
-                        fastScrollTo(document.getElementById(component.id), 'center')
-                      }}
-                    >
-                      <span className="block truncate text-[13px]">{component.name}</span>
-                    </Accordion.Item>
-                  ))}
-                </Accordion>
-              </div>
-            )
-          })}
-        </nav>
-
-      </aside>
-
-      {/* Main Content */}
-      <main className="min-w-0 flex-1 px-12 nav-clearance nav-clearance-bottom">
-        {/* Page Header */}
-        <header className="mb-16">
-          <h1 className="text-primary text-xl font-medium tracking-tight">Skwircle Components</h1>
-          <p className="text-tertiary mt-2 text-[15px]">
-            Interactive showcase of Skwircle UI components.
-          </p>
-        </header>
-
-        {/* Sections */}
-        {SECTIONS.map((section) => {
-          const components = filteredComponentsBySection[section.id]
-          if (components.length === 0) return null
-
-          return (
-            <section
-              key={section.id}
-              id={section.id}
-              ref={(el) => {
-                sectionRefs.current[section.id] = el
-              }}
-              className="mb-20 scroll-mt-8"
-            >
-              {/* Section Header */}
-              <div className="mb-8 pb-3 border-b border-secondary">
-                <h2 className="text-primary text-xl font-medium">{section.label}</h2>
-                <p className="text-quaternary mt-1.5 text-[13px]">{section.description}</p>
-              </div>
-
-              {/* Components List */}
-              <div className="space-y-10">
-                {components.map((component) => (
-                  <div
-                    key={component.id}
-                    id={component.id}
-                    className="scroll-mt-8"
-                  >
-                    {/* Component Header */}
-                    <div className="mb-4">
-                      <h3 className="text-primary text-[15px] font-medium">{component.name}</h3>
-                      <p className="text-tertiary mt-1 text-[13px]">{component.description}</p>
-                    </div>
-
-                    {/* Component Showcase */}
-                    <div className="bg-primary border-secondary rounded-xl border p-6">
-                      <ComponentShowcase componentId={component.id} />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </section>
-          )
-        })}
-
-        {/* Empty State */}
-        {totalCount === 0 && (
-          <div className="py-20 text-center">
-            <p className="text-tertiary text-[15px]">No components found matching your search.</p>
-            <button
-              onClick={() => setSearchQuery('')}
-              className="text-brand-primary mt-4 text-[13px] font-medium hover:underline"
-            >
-              Clear search
-            </button>
-          </div>
-        )}
-
-      </main>
-
-      {/* Right bleed - empty, shows body bg */}
-      <div />
+      `}</style>
     </div>
   )
 }

@@ -1,0 +1,229 @@
+/**
+ * FilterSelectChip Transition CSS
+ *
+ * Animation tier breakdown:
+ * - Backdrop: B-tier (layout via width/height, but isolated to single element)
+ * - Content reveal: C-tier (clip-path, paint only)
+ * - All other elements: S-tier (opacity, transform)
+ *
+ * All transitions controlled via data attributes - no inline transition styles.
+ * This ensures motion-reduce actually works.
+ *
+ * @see /docs/frontend/ANIMATION-PREFERENCES.md
+ */
+
+/* ==========================================================================
+   CSS CUSTOM PROPERTIES
+   Set by React component via inline style on container
+   ========================================================================== */
+
+.filter-select-chip-container {
+  /* Defaults - overridden by component */
+  --fsc-chip-width: 100px;
+  --fsc-panel-width: 200px;
+  --fsc-panel-height: 200px;
+  --fsc-chip-height: 32px;
+  --fsc-top-extension: 0px;
+  --fsc-duration: 225ms;
+  --fsc-collapse-duration: 125ms;
+  --fsc-easing: cubic-bezier(0.16, 1, 0.3, 1);
+  --fsc-content-fade-duration: 75ms;
+  --fsc-content-fade-delay: 0ms;
+  --fsc-border-radius: 16px;
+}
+
+/* ==========================================================================
+   BACKDROP LAYER
+   B-tier: Uses width/height animation (layout) but isolated to single element
+   ========================================================================== */
+
+.fsc-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--fsc-chip-width);
+  height: var(--fsc-chip-height);
+  border-radius: var(--fsc-border-radius);
+  pointer-events: none;
+  z-index: 10;
+  /* Use contain to isolate layout calculations */
+  contain: layout style;
+  transform: translate(0, 0);
+  transition:
+    transform var(--fsc-collapse-duration) var(--fsc-easing),
+    width var(--fsc-collapse-duration) var(--fsc-easing),
+    height var(--fsc-collapse-duration) var(--fsc-easing);
+}
+
+/* Expanded state - grow to panel size, shift up via translateY (S-tier) */
+[data-fsc-expanded="true"] .fsc-backdrop {
+  transform: translateY(calc(-1 * var(--fsc-top-extension)));
+  width: var(--fsc-panel-width);
+  height: var(--fsc-panel-height);
+  transition-duration: var(--fsc-duration);
+}
+
+/* Center anchor variant - shift left AND up when expanded (S-tier: translate) */
+[data-fsc-anchor="center"][data-fsc-expanded="true"] .fsc-backdrop {
+  transform: translate(
+    calc((var(--fsc-chip-width) - var(--fsc-panel-width)) / 2),
+    calc(-1 * var(--fsc-top-extension))
+  );
+}
+
+/* ==========================================================================
+   CONTENT LAYER
+   S-tier (transform) + C-tier (clip-path): Uses translateX for position, clip-path for reveal
+   ========================================================================== */
+
+.fsc-content {
+  position: absolute;
+  top: calc(-1 * var(--fsc-top-extension));
+  left: 0;
+  width: var(--fsc-panel-width);
+  height: var(--fsc-panel-height);
+  border-radius: var(--fsc-border-radius);
+  z-index: 11;
+  transform: translateX(0);
+  transition:
+    clip-path var(--fsc-collapse-duration) var(--fsc-easing),
+    transform var(--fsc-collapse-duration) var(--fsc-easing);
+}
+
+[data-fsc-expanded="true"] .fsc-content {
+  transition-duration: var(--fsc-duration);
+}
+
+/* Center anchor - content shifts left when expanded (S-tier: translateX) */
+[data-fsc-anchor="center"][data-fsc-expanded="true"] .fsc-content {
+  transform: translateX(calc((var(--fsc-chip-width) - var(--fsc-panel-width)) / 2));
+}
+
+/* ==========================================================================
+   CHIP TRIGGER
+   S-tier: Uses translateX for center anchor positioning
+   ========================================================================== */
+
+.fsc-trigger {
+  position: absolute;
+  top: var(--fsc-top-extension);
+  left: 0;
+  height: var(--fsc-chip-height);
+  display: flex;
+  align-items: center;
+  pointer-events: auto;
+  transition: transform var(--fsc-collapse-duration) var(--fsc-easing);
+}
+
+[data-fsc-expanded="true"] .fsc-trigger {
+  transition-duration: var(--fsc-duration);
+}
+
+/* Center anchor - trigger moves to center when expanded */
+[data-fsc-anchor="center"][data-fsc-expanded="true"] .fsc-trigger {
+  transform: translateX(calc((var(--fsc-panel-width) - var(--fsc-chip-width)) / 2));
+}
+
+/* ==========================================================================
+   CLOSE BUTTON
+   S-tier: Opacity fade
+   ========================================================================== */
+
+.fsc-close {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--fsc-content-fade-duration) var(--fsc-easing);
+}
+
+[data-fsc-expanded="true"] .fsc-close {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ==========================================================================
+   OPTIONS LIST
+   S-tier: Opacity fade with delay
+   ========================================================================== */
+
+.fsc-options {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  pointer-events: none;
+  /* Quick fade out on collapse */
+  transition: opacity 0ms;
+}
+
+[data-fsc-expanded="true"] .fsc-options {
+  opacity: 1;
+  pointer-events: auto;
+  /* Delayed fade in on expand */
+  transition: opacity var(--fsc-content-fade-duration) var(--fsc-easing) var(--fsc-content-fade-delay);
+}
+
+/* ==========================================================================
+   HEADER SEPARATOR
+   ========================================================================== */
+
+.fsc-separator {
+  opacity: 0;
+  transition: opacity var(--fsc-content-fade-duration) var(--fsc-easing);
+}
+
+[data-fsc-expanded="true"] .fsc-separator {
+  opacity: 0.5;
+  transition-delay: var(--fsc-content-fade-delay);
+}
+
+/* ==========================================================================
+   CHIP TRIGGER INTERNALS
+   S-tier: Opacity transitions for chip content reveal
+   ========================================================================== */
+
+/* Chip wrapper - fade in on mount */
+.fsc-chip-wrapper {
+  transition: opacity 200ms var(--fsc-easing);
+}
+
+/* Chip clip container - clip-path for entry animation (C-tier: paint only) */
+.fsc-chip-clip {
+  transition: clip-path var(--fsc-duration) var(--fsc-easing);
+}
+
+/* Chip value area - delayed opacity reveal */
+.fsc-chip-value {
+  transition: opacity calc(var(--fsc-duration) * 0.8) var(--fsc-easing) calc(var(--fsc-duration) * 0.2);
+}
+
+/* Chip close area - delayed opacity reveal (same timing as value) */
+.fsc-chip-close-area {
+  transition: opacity calc(var(--fsc-duration) * 0.8) var(--fsc-easing) calc(var(--fsc-duration) * 0.2);
+}
+
+/* ==========================================================================
+   ACCESSIBILITY: Respect reduced motion preference
+   Catches ALL transitions since they're CSS-driven (not inline styles)
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .fsc-backdrop,
+  .fsc-content,
+  .fsc-trigger,
+  .fsc-close,
+  .fsc-options,
+  .fsc-separator,
+  .fsc-chip-wrapper,
+  .fsc-chip-clip,
+  .fsc-chip-value,
+  .fsc-chip-close-area {
+    transition: none !important;
+  }
+}

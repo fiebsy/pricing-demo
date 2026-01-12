@@ -1147,6 +1147,35 @@
   --text-color-warning-primary: var(--color-text-warning-primary);
   --text-color-success-primary: var(--color-text-success-primary);
 
+  /* BUTTON ICON TEXT COLORS */
+  --text-color-button-primary-icon: var(--color-button-primary-icon);
+  --text-color-button-primary-icon_hover: var(--color-button-primary-icon_hover);
+  --text-color-button-destructive-primary-icon: var(--color-button-destructive-primary-icon);
+  --text-color-button-destructive-primary-icon_hover: var(--color-button-destructive-primary-icon_hover);
+
+  /* FOREGROUND TEXT COLORS (text-fg-*) */
+  --text-color-fg-primary: var(--color-fg-primary);
+  --text-color-fg-secondary: var(--color-fg-secondary);
+  --text-color-fg-secondary_hover: var(--color-fg-secondary_hover);
+  --text-color-fg-tertiary: var(--color-fg-tertiary);
+  --text-color-fg-tertiary_hover: var(--color-fg-tertiary_hover);
+  --text-color-fg-quaternary: var(--color-fg-quaternary);
+  --text-color-fg-quaternary_hover: var(--color-fg-quaternary_hover);
+  --text-color-fg-white: var(--color-fg-white);
+  --text-color-fg-disabled: var(--color-fg-disabled);
+  --text-color-fg-disabled_subtle: var(--color-fg-disabled_subtle);
+  --text-color-fg-brand-primary: var(--color-fg-brand-primary);
+  --text-color-fg-brand-primary_alt: var(--color-fg-brand-primary_alt);
+  --text-color-fg-brand-secondary: var(--color-fg-brand-secondary);
+  --text-color-fg-brand-secondary_alt: var(--color-fg-brand-secondary_alt);
+  --text-color-fg-brand-secondary_hover: var(--color-fg-brand-secondary_hover);
+  --text-color-fg-error-primary: var(--color-fg-error-primary);
+  --text-color-fg-error-secondary: var(--color-fg-error-secondary);
+  --text-color-fg-warning-primary: var(--color-fg-warning-primary);
+  --text-color-fg-warning-secondary: var(--color-fg-warning-secondary);
+  --text-color-fg-success-primary: var(--color-fg-success-primary);
+  --text-color-fg-success-secondary: var(--color-fg-success-secondary);
+
   /* BORDER PROPERTY COLORS */
   --border-color-DEFAULT: var(--color-border-primary);
   --border-color-primary: var(--color-border-primary);
@@ -1625,6 +1654,35 @@
     --text-color-warning-primary: var(--color-text-warning-primary);
     --text-color-success-primary: var(--color-text-success-primary);
     --text-color-tooltip-supporting-text: var(--color-tooltip-supporting-text);
+
+    /* BUTTON ICON TEXT COLORS */
+    --text-color-button-primary-icon: var(--color-button-primary-icon);
+    --text-color-button-primary-icon_hover: var(--color-button-primary-icon_hover);
+    --text-color-button-destructive-primary-icon: var(--color-button-destructive-primary-icon);
+    --text-color-button-destructive-primary-icon_hover: var(--color-button-destructive-primary-icon_hover);
+
+    /* FOREGROUND TEXT COLORS (text-fg-*) */
+    --text-color-fg-primary: var(--color-fg-primary);
+    --text-color-fg-secondary: var(--color-fg-secondary);
+    --text-color-fg-secondary_hover: var(--color-fg-secondary_hover);
+    --text-color-fg-tertiary: var(--color-fg-tertiary);
+    --text-color-fg-tertiary_hover: var(--color-fg-tertiary_hover);
+    --text-color-fg-quaternary: var(--color-fg-quaternary);
+    --text-color-fg-quaternary_hover: var(--color-fg-quaternary_hover);
+    --text-color-fg-white: var(--color-fg-white);
+    --text-color-fg-disabled: var(--color-fg-disabled);
+    --text-color-fg-disabled_subtle: var(--color-fg-disabled_subtle);
+    --text-color-fg-brand-primary: var(--color-fg-brand-primary);
+    --text-color-fg-brand-primary_alt: var(--color-fg-brand-primary_alt);
+    --text-color-fg-brand-secondary: var(--color-fg-brand-secondary);
+    --text-color-fg-brand-secondary_alt: var(--color-fg-brand-secondary_alt);
+    --text-color-fg-brand-secondary_hover: var(--color-fg-brand-secondary_hover);
+    --text-color-fg-error-primary: var(--color-fg-error-primary);
+    --text-color-fg-error-secondary: var(--color-fg-error-secondary);
+    --text-color-fg-warning-primary: var(--color-fg-warning-primary);
+    --text-color-fg-warning-secondary: var(--color-fg-warning-secondary);
+    --text-color-fg-success-primary: var(--color-fg-success-primary);
+    --text-color-fg-success-secondary: var(--color-fg-success-secondary);
 
     /* BORDER PROPERTY COLORS */
     --border-color-DEFAULT: var(--color-border-primary); /* bare 'border' utility defaults to primary */

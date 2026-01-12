@@ -1,6 +1,8 @@
-# PAYVA Styles - Tailwind v4 + Semantic Design Tokens
+# PAYVA Style System
 
-**Purpose:** Semantic design token system for PAYVA dashboard with automatic dark mode support.
+Semantic design token system for PAYVA built on Tailwind CSS v4 with automatic dark mode support.
+
+**Full Documentation:** [`docs/init.md`](./docs/init.md)
 
 ---
 
@@ -12,7 +14,7 @@
 <p className="text-primary">Body text</p>
 <p className="text-secondary">Supporting text</p>
 <button className="bg-brand-solid text-primary_on-brand">Action</button>
-<div className="border border-primary bg-primary">Card</div>
+<div className="border border-primary bg-secondary">Card</div>
 ```
 
 ### Don't Use Raw Colors (Wrong)
@@ -27,11 +29,20 @@
 
 ## Documentation
 
-| Document | Purpose |
-|----------|---------|
-| **[THEME-STRUCTURE.md](./docs/THEME-STRUCTURE.md)** | Deep dive into theme.css token architecture |
-| **[UTILITIES-GUIDE.md](./docs/UTILITIES-GUIDE.md)** | Complete utilities reference with examples |
-| **[HOW-TO-GUIDES.md](./docs/HOW-TO-GUIDES.md)** | Step-by-step guides for common tasks |
+| Section | Description | Link |
+|---------|-------------|------|
+| **Getting Started** | Quick start, dark mode, migration | [docs/getting-started/](./docs/getting-started/init.md) |
+| **Design Tokens** | Architecture, colors, spacing | [docs/tokens/](./docs/tokens/init.md) |
+| **Utilities** | Colors, typography, borders, effects | [docs/utilities/](./docs/utilities/init.md) |
+| **Reference** | All utilities, patterns | [docs/reference/](./docs/reference/init.md) |
+
+### Quick Links
+
+- [Quick Start Guide](./docs/getting-started/quick-start.md)
+- [Color Tokens](./docs/tokens/colors.md)
+- [Migration Rules](./docs/getting-started/migration-rules.md)
+- [Common Patterns](./docs/reference/patterns.md)
+- [All Utilities](./docs/reference/all-utilities.md)
 
 ---
 
@@ -39,20 +50,22 @@
 
 ```
 src/styles/
-├── README.md           # This file (entry point)
-├── docs/               # Detailed documentation
-│   ├── THEME-STRUCTURE.md
-│   ├── UTILITIES-GUIDE.md
-│   └── HOW-TO-GUIDES.md
+├── README.md           # This file
+├── docs/               # Comprehensive documentation
+│   ├── init.md         # Documentation entry point
+│   ├── getting-started/
+│   ├── tokens/
+│   ├── utilities/
+│   └── reference/
 │
 ├── globals.css         # Tailwind v4 entry point
 ├── base.css            # Browser resets & base styles
-├── theme.css           # Semantic design tokens (1,672 lines)
+├── theme.css           # Semantic design tokens (~1700 lines)
 │
 ├── fonts/              # Font files
 │   └── neue-haas-grotesk/
 │
-└── utilities/          # Custom Tailwind utilities (3,710 lines)
+└── utilities/          # Custom Tailwind utilities
     ├── colors.css      # Text/background/border colors
     ├── borders.css     # Border utilities
     ├── rings.css       # Focus ring utilities
@@ -62,35 +75,28 @@ src/styles/
     ├── gradients.css   # Gradient utilities
     ├── depth.css       # Subtle depth effects
     ├── shine.css       # Shine border effects
-    ├── corners.css     # Corner utilities
+    ├── corners.css     # Corner shape utilities
     ├── misc.css        # Scrollbar, transitions
-    ├── silk-styles.css # Silk component styles
-    └── components-overrides.css # Third-party overrides
+    ├── silk-styles.css # SILK component styles
+    └── components-overrides.css
 ```
 
 ---
 
 ## Token Architecture
 
-### The 3-Level Token System
-
 ```
-Level 1: BASE COLORS (static)
-         --color-brand-600: rgb(127 86 217)
-                    ↓
-Level 2: SEMANTIC TOKENS (theme-aware)
-         Light: --color-bg-brand-solid: var(--color-brand-600)
-         Dark:  --color-bg-brand-solid: var(--color-brand-600)
-                    ↓
-Level 3: PROPERTY TOKENS (Tailwind v4)
-         @theme inline { --background-color-brand-solid: var(--color-bg-brand-solid) }
-                    ↓
-UTILITY: @utility bg-brand-solid { background-color: var(--background-color-brand-solid) }
-                    ↓
-USAGE:   <button className="bg-brand-solid">Click me</button>
+Base Colors → Semantic Tokens → Property Tokens → Tailwind Utilities
 ```
 
-**Key insight:** When `.dark-mode` class is applied, Level 2 tokens remap automatically. Your code stays the same.
+| Layer | Example | Purpose |
+|-------|---------|---------|
+| Base | `--color-gray-900` | Raw RGB values |
+| Semantic | `--color-text-primary` | Purpose-based naming |
+| Property | `--text-color-primary` | CSS property binding |
+| Utility | `text-primary` | Tailwind class |
+
+When `.dark-mode` class is applied, semantic tokens remap automatically. Your code stays the same.
 
 ---
 
@@ -98,62 +104,53 @@ USAGE:   <button className="bg-brand-solid">Click me</button>
 
 ### Text Colors
 
-| Utility | Purpose | Light | Dark |
-|---------|---------|-------|------|
-| `text-primary` | Body text | gray-900 | gray-50 |
-| `text-secondary` | Supporting text | gray-700 | gray-300 |
-| `text-tertiary` | Muted text | gray-600 | gray-400 |
-| `text-brand-primary` | Brand text | brand-900 | gray-50 |
-| `text-error-primary` | Error text | error-600 | error-400 |
-| `text-warning-primary` | Warning text | warning-600 | warning-400 |
-| `text-success-primary` | Success text | success-600 | success-400 |
+```tsx
+text-primary       // Main text
+text-secondary     // Supporting text
+text-tertiary      // Muted text
+text-disabled      // Disabled state
+text-brand-*       // Brand colors
+text-error-*       // Error states
+text-success-*     // Success states
+text-warning-*     // Warning states
+```
 
-### Background Colors
+### Backgrounds
 
-| Utility | Purpose |
-|---------|---------|
-| `bg-primary` | Main surface |
-| `bg-secondary` | Secondary surface |
-| `bg-tertiary` | Tertiary surface |
-| `bg-brand-solid` | CTA buttons |
-| `bg-brand-primary` | Subtle brand surface |
-| `bg-error-primary` | Error background |
-| `bg-success-primary` | Success background |
+```tsx
+bg-primary         // Main surface
+bg-secondary       // Cards, inputs
+bg-tertiary        // Sections
+bg-brand-solid     // Brand buttons
+bg-error-primary   // Error background
+bg-success-primary // Success background
+```
 
-### Border Colors
+### Borders & Rings
 
-| Utility | Purpose |
-|---------|---------|
-| `border` | Default border (all sides) |
-| `border-t/b/l/r/x/y` | Directional borders |
-| `border-primary` | Default border color |
-| `border-secondary` | Subtle border |
-| `border-brand` | Brand accent border |
-| `border-error` | Error border |
-
-### Focus Rings
-
-| Utility | Purpose |
-|---------|---------|
-| `ring-brand` | Brand focus ring |
-| `ring-primary` | Default focus ring |
-| `ring-error` | Error focus ring |
+```tsx
+border-primary     // Standard border
+border-secondary   // Subtle border
+border-brand       // Brand accent
+ring-brand         // Focus ring
+ring-error         // Error focus
+```
 
 ### Typography
 
-| Utility | Purpose |
-|---------|---------|
-| `font-display` | Headings (Neue Haas Grotesk Display) |
-| `font-body` | Body text (Neue Haas Grotesk Text) |
-| `text-display-xs/sm/md/lg/xl/2xl` | Display text sizes |
+```tsx
+font-display       // Headings
+font-body          // Body text
+text-display-*     // xs, sm, md, lg, xl, 2xl
+```
 
-### Depth Effects
+### Effects
 
 ```tsx
-// Subtle depth gradient backgrounds
-<div className="subtle-depth-20-primary bg-primary">Primary depth</div>
-<div className="subtle-depth-30-brand bg-primary">Brand depth</div>
-// Directions: -left, -right, -top, -bottom
+shine-1            // Glossy effect
+shine-1-shadow-md  // Shine + shadow
+depth-gradient-1   // Subtle depth
+corner-squircle    // iOS-style corners
 ```
 
 ---
@@ -168,10 +165,7 @@ Dark mode uses `.dark-mode` class on a parent element:
 </div>
 ```
 
-**How it works:**
-1. Light mode: `--color-text-primary` = gray-900 (dark)
-2. Dark mode: `--color-text-primary` = gray-50 (light)
-3. Your `text-primary` class automatically shows the right color
+No `dark:` variants needed - tokens swap automatically.
 
 ---
 
@@ -180,53 +174,48 @@ Dark mode uses `.dark-mode` class on a parent element:
 ### Card
 
 ```tsx
-<div className="bg-primary border border-primary rounded-lg p-6">
-  <h3 className="text-primary">Title</h3>
-  <p className="text-secondary">Description</p>
+<div className="bg-secondary border border-primary rounded-xl p-4">
+  <h3 className="text-primary font-medium">Title</h3>
+  <p className="text-secondary mt-2">Description</p>
 </div>
 ```
 
-### Button (Primary)
+### Button
 
 ```tsx
-<button className="bg-brand-solid hover:bg-brand-solid_hover text-primary_on-brand px-4 py-2 rounded-lg focus:ring-2 focus:ring-brand">
+<button className="bg-brand-solid hover:bg-brand-solid_hover text-white rounded-lg px-4 py-2 focus:ring-2 focus:ring-brand">
   Submit
 </button>
 ```
 
-### Form Input
+### Input
 
 ```tsx
 <input
-  className="bg-primary border border-primary text-primary placeholder:text-placeholder rounded-lg px-4 py-2 focus:border-brand focus:ring-2 focus:ring-brand"
+  className="bg-secondary border border-primary rounded-md px-3 py-2 text-primary placeholder:text-placeholder focus:ring-2 focus:ring-brand"
   placeholder="Enter text..."
 />
 ```
 
-### Alert
+See [Patterns Reference](./docs/reference/patterns.md) for more examples.
+
+---
+
+## Style Migration Rules
+
+When migrating or refactoring, **preserve all styles exactly as-is**.
 
 ```tsx
-<div className="bg-error-primary border-l-4 border-error p-4">
-  <p className="text-error-primary">Error message</p>
-</div>
+// WRONG - Removing classes
+// Source: "flex items-center gap-2 px-4 py-2"
+// Target: "flex gap-2 px-4"  // Missing classes
+
+// CORRECT - 1:1 preservation
+// Source: "flex items-center gap-2 px-4 py-2"
+// Target: "flex items-center gap-2 px-4 py-2"
 ```
 
----
-
-## Adding New Tokens
-
-Quick 4-step process (see [HOW-TO-GUIDES.md](./docs/HOW-TO-GUIDES.md) for details):
-
-1. **Add semantic token** in `theme.css` Section 3
-2. **Add property token** in `theme.css` @theme inline
-3. **Add dark mode override** in `theme.css` .dark-mode
-4. **Create utility** in `utilities/colors.css`
-
----
-
-## Testing
-
-**Design system audit page:** `/playground/deprecated/v2-design-system-audit`
+See [Migration Rules](./docs/getting-started/migration-rules.md) for conversion tables.
 
 ---
 
@@ -237,4 +226,4 @@ Quick 4-step process (see [HOW-TO-GUIDES.md](./docs/HOW-TO-GUIDES.md) for detail
 
 ---
 
-**Last Updated:** December 2025
+**Last Updated:** January 2025
