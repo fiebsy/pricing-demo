@@ -7,32 +7,25 @@ set -e
 
 NPMRC_FILE=".npmrc"
 
-if [ ! -f "$NPMRC_FILE" ]; then
-  echo "Error: .npmrc file not found"
-  exit 1
-fi
+# Create .npmrc with required configuration
+cat > "$NPMRC_FILE" << EOF
+enable-pre-post-scripts=true
+auto-install-peers=true
+strict-peer-dependencies=false
+@untitledui-pro:registry=https://pkg.untitledui.com
+//pkg.untitledui.com/:_authToken=${UNTITLEDUI_AUTH_TOKEN:-}
+@hugeicons-pro:registry=https://npm.hugeicons.com/
+//npm.hugeicons.com/:_authToken=${HUGEICONS_AUTH_TOKEN:-}
+EOF
 
-# Portable sed in-place editing
-sed_inplace() {
-  local pattern="$1"
-  local file="$2"
-  local tmp_file="${file}.tmp"
-  sed "$pattern" "$file" > "$tmp_file" && mv "$tmp_file" "$file"
-}
+echo "Created .npmrc"
 
-# Update Hugeicons auth token if set
-if [ -n "$HUGEICONS_AUTH_TOKEN" ]; then
-  sed_inplace "s|//npm.hugeicons.com/:_authToken=.*|//npm.hugeicons.com/:_authToken=${HUGEICONS_AUTH_TOKEN}|" "$NPMRC_FILE"
-  echo "Updated Hugeicons auth token"
-else
+# Warn if tokens are missing
+if [ -z "$HUGEICONS_AUTH_TOKEN" ]; then
   echo "Warning: HUGEICONS_AUTH_TOKEN not set"
 fi
 
-# Update Untitled UI auth token if set
-if [ -n "$UNTITLEDUI_AUTH_TOKEN" ]; then
-  sed_inplace "s|//pkg.untitledui.com/:_authToken=.*|//pkg.untitledui.com/:_authToken=${UNTITLEDUI_AUTH_TOKEN}|" "$NPMRC_FILE"
-  echo "Updated Untitled UI auth token"
-else
+if [ -z "$UNTITLEDUI_AUTH_TOKEN" ]; then
   echo "Warning: UNTITLEDUI_AUTH_TOKEN not set"
 fi
 
