@@ -15,7 +15,8 @@ import { cn } from '@/lib/utils'
 import {
   FilterMenu,
   FilterTrigger,
-  FilterSelectChip,
+  FilterSelectChipMotion,
+  type FilterChipData,
   type FilterOption,
 } from '@/components/ui/prod/base/filter'
 
@@ -62,6 +63,30 @@ const FILTER_OPTIONS_BY_CATEGORY: Record<ActiveFilter['category'], FilterOption[
 // =============================================================================
 
 const EASING_EXPO_OUT = 'cubic-bezier(0.16, 1, 0.3, 1)'
+
+// =============================================================================
+// HELPER: Convert ActiveFilter[] to FilterChipData[]
+// =============================================================================
+
+function toFilterChipData(
+  activeFilters: ActiveFilter[],
+  optionsByCategory: Record<ActiveFilter['category'], FilterOption[]>,
+  iconsByCategory: Record<string, React.ComponentType<{ className?: string }>>
+): FilterChipData[] {
+  return activeFilters.map((filter) => ({
+    id: filter.id,
+    label: filter.category,
+    value: filter.id,
+    icon: iconsByCategory[filter.category],
+    options: optionsByCategory[filter.category].map((opt) => ({
+      ...opt,
+      // Disable options that are already active in the same category
+      disabled: activeFilters.some(
+        (f) => f.category === filter.category && f.id !== filter.id && f.id === opt.id
+      ),
+    })),
+  }))
+}
 
 // =============================================================================
 // TYPES
@@ -134,53 +159,6 @@ const ClearAllButton: React.FC<ClearAllButtonProps> = ({ onPress, config }) => {
   )
 }
 
-// =============================================================================
-// FILTER SELECT CHIP CONFIG
-// =============================================================================
-
-const FILTER_SELECT_CHIP_CONFIG = {
-  chipSize: 'sm' as const,
-  chipRounded: 'full' as const,
-  iconSize: 14,
-  chipDuration: 175,
-  revealMode: 'fade' as const,
-  chipExpandAnimation: false,
-  iconOpacity: 0.5,
-  iconValueGap: 4,
-  paddingLeft: 8,
-  paddingRight: 6,
-  menuDuration: 225,
-  menuCollapseDuration: 125,
-  contentFadeDuration: 75,
-  contentFadeDelay: 0,
-  minPanelWidth: 200,
-  maxPanelHeight: 300,
-  innerPadding: 4,
-  itemHeight: 32,
-  itemTextSize: 'xs' as const,
-  itemGap: 2,
-  borderRadius: 16,
-  contentTopOffset: 0,
-  topExtension: 6,
-  showHeaderSeparator: true,
-  squircleOnOpen: false,
-  shadowOnExpandOnly: true,
-  menuAnchor: 'left' as const,
-  appearance: {
-    borderRadius: '2xl' as const,
-    shadow: '2xl' as const,
-    shine: 'shine-3' as const,
-    background: 'primary' as const,
-    gradient: 'subtle-depth-lg' as const,
-    gradientColor: 'tertiary' as const,
-    squircle: false,
-  },
-}
-
-// Hover trigger settings
-const TRIGGER_MODE: 'click' | 'hover' = 'hover'
-const HOVER_OPEN_DELAY = 100
-const HOVER_CLOSE_DELAY = 75
 
 // =============================================================================
 // COMPONENT
@@ -196,11 +174,22 @@ export const LeftToolbarContent: React.FC<LeftToolbarContentProps> = ({
 }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
-  // Get disabled options for a filter (other filters in same category that are active)
-  const getDisabledOptions = (filter: ActiveFilter): string[] => {
-    return activeFilters
-      .filter((f) => f.category === filter.category && f.id !== filter.id)
-      .map((f) => f.id)
+  // Convert ActiveFilter[] to FilterChipData[] for the motion component
+  const filterChips = toFilterChipData(
+    activeFilters,
+    FILTER_OPTIONS_BY_CATEGORY,
+    FILTER_ICONS
+  )
+
+  // Handler: when a filter value changes via dropdown selection
+  const handleFilterChange = (filterId: string, newValue: string) => {
+    // filterId is the current filter id, newValue is the new option id
+    onFilterChange(filterId, newValue)
+  }
+
+  // Handler: when a filter chip is removed
+  const handleFilterRemove = (filterId: string) => {
+    onFilterRemove(filterId)
   }
 
   return (
@@ -225,29 +214,23 @@ export const LeftToolbarContent: React.FC<LeftToolbarContentProps> = ({
         width={240}
       />
 
-      {/* Active Filter Chips - Now using FilterSelectChip */}
-      {activeFilters.map((filter, index) => {
-        const IconComponent = FILTER_ICONS[filter.category]
-        const options = FILTER_OPTIONS_BY_CATEGORY[filter.category]
-        const disabledOptions = getDisabledOptions(filter)
-
-        return (
-          <FilterSelectChip
-            key={`filter-${index}-${filter.category}`}
-            value={filter.id}
-            options={options}
-            disabledOptions={disabledOptions}
-            icon={IconComponent}
-            expandedLabel={filter.category}
-            config={FILTER_SELECT_CHIP_CONFIG}
-            onChange={(newFilterId) => onFilterChange(filter.id, newFilterId)}
-            onRemove={() => onFilterRemove(filter.id)}
-            triggerMode={TRIGGER_MODE}
-            hoverOpenDelay={HOVER_OPEN_DELAY}
-            hoverCloseDelay={HOVER_CLOSE_DELAY}
-          />
-        )
-      })}
+      {/* Active Filter Chips - Using Motion-based component */}
+      <FilterSelectChipMotion
+        filters={filterChips}
+        onFilterChange={handleFilterChange}
+        onFilterRemove={handleFilterRemove}
+        styleConfig={{
+          size: 'sm',
+          roundness: 'full',
+          gap: 'md',
+        }}
+        animationConfig={{
+          transitionType: 'tween',
+          easing: 'expo',
+          duration: 0.15,
+          exitDuration: 0.1,
+        }}
+      />
 
       {/* Clear All Button */}
       {activeFilters.length > 0 && (

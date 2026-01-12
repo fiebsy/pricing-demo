@@ -7,7 +7,26 @@
  * @module prod/base/filter/filter-menu-motion/animation-config
  */
 
-import type { MotionAnimationConfig } from './types'
+import type { MotionAnimationConfig, ScaleOrigin } from './types'
+
+// ============================================================================
+// SCALE ORIGIN MAP
+// ============================================================================
+
+/**
+ * Map scale origin values to CSS transform-origin strings.
+ */
+export const SCALE_ORIGIN_MAP: Record<ScaleOrigin, string> = {
+  'top-left': 'top left',
+  'top': 'top center',
+  'top-right': 'top right',
+  'left': 'left center',
+  'center': 'center center',
+  'right': 'right center',
+  'bottom-left': 'bottom left',
+  'bottom': 'bottom center',
+  'bottom-right': 'bottom right',
+}
 
 // ============================================================================
 // DEFAULT CONFIGURATION
@@ -17,9 +36,8 @@ import type { MotionAnimationConfig } from './types'
  * Default animation configuration.
  *
  * Designed for smooth, natural-feeling interactions:
- * - Spring physics by default for organic motion
+ * - Timed easing for predictable motion
  * - Subtle scale and slide for reveal
- * - Staggered item animations for visual interest
  * - Height animation for panel transitions
  */
 export const DEFAULT_MOTION_ANIMATION: MotionAnimationConfig = {
@@ -29,24 +47,29 @@ export const DEFAULT_MOTION_ANIMATION: MotionAnimationConfig = {
   revealSlideY: 8,
 
   // Spring physics
-  useSpring: true,
+  useSpring: false,
   springStiffness: 400,
   springDamping: 30,
 
   // Panel transitions
-  slideDuration: 280,
-  panelExitScale: 0.96,
-  panelEnterScale: 0.96,
-  panelScaleOrigin: 'center',
+  panelTransitionMode: 'slide',
+  slideDuration: 300,
+  slideOffset: 50,
+  stripWidth: 200,
+  panelExitScale: 0.86,
+  panelEnterScale: 0.86,
+  panelScaleOrigin: 'top-left',
 
   // Height animation
   animateHeight: true,
-  heightDuration: 280,
+  heightDuration: 300,
 
   // Item animations
-  opacityDuration: 220,
-  enableItemStagger: true,
+  enableItemFade: true,
+  opacityDuration: 225,
+  enableItemStagger: false,
   itemStagger: 30,
+  enableCrossfade: true,
   panelCrossfadeDuration: 150,
 }
 

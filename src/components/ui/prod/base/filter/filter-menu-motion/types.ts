@@ -66,6 +66,27 @@ export interface PanelState {
 // ============================================================================
 
 /**
+ * Panel transition mode.
+ * - 'slide': Sliding strip with both panels mounted
+ * - 'popLayout': AnimatePresence with popLayout mode for exit animations
+ */
+export type PanelTransitionMode = 'slide' | 'popLayout'
+
+/**
+ * Scale origin for panel animations (9-point grid).
+ */
+export type ScaleOrigin =
+  | 'top-left'
+  | 'top'
+  | 'top-right'
+  | 'left'
+  | 'center'
+  | 'right'
+  | 'bottom-left'
+  | 'bottom'
+  | 'bottom-right'
+
+/**
  * Configuration for Motion Dev animations.
  *
  * Follows the Motion Dev patterns for Base UI integration:
@@ -91,14 +112,20 @@ export interface MotionAnimationConfig {
   springDamping: number
 
   // Panel transitions
+  /** Panel transition mode: 'slide' or 'popLayout' */
+  panelTransitionMode: PanelTransitionMode
   /** Duration for panel slide animation (ms) */
   slideDuration: number
+  /** Slide offset percentage (50 = standard, <50 = overlap, >50 = gap) */
+  slideOffset: number
+  /** Strip width percentage (200 = standard, up to 400 for extended) */
+  stripWidth: number
   /** Scale for exiting panel during transition (0-1) */
   panelExitScale: number
   /** Scale for entering panel during transition (0-1) */
   panelEnterScale: number
-  /** Transform origin for panel scale */
-  panelScaleOrigin: 'left' | 'right' | 'center'
+  /** Transform origin for panel scale (9-point grid) */
+  panelScaleOrigin: ScaleOrigin
 
   // Height animation
   /** Enable height animation between panels */
@@ -107,12 +134,16 @@ export interface MotionAnimationConfig {
   heightDuration: number
 
   // Item animations
+  /** Enable item fade animation */
+  enableItemFade: boolean
   /** Duration for opacity transitions (ms) */
   opacityDuration: number
   /** Enable item stagger animation */
   enableItemStagger: boolean
   /** Stagger delay for menu items (ms) */
   itemStagger: number
+  /** Enable crossfade between panels */
+  enableCrossfade: boolean
   /** Panel crossfade duration (ms) */
   panelCrossfadeDuration: number
 }

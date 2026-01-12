@@ -224,7 +224,7 @@ export function FilterMenuMotion({
                   />
                 }
                 className={cn(
-                  'overflow-hidden rounded-2xl corner-squircle',
+                  'rounded-2xl corner-squircle',
                   'bg-primary shine-2-subtle-shadow-lg',
                   'motion-reduce:animate-none motion-reduce:transition-none',
                   className

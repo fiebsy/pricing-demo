@@ -97,6 +97,26 @@ export type {
 } from './filter-select-chip'
 
 // ============================================================================
+// Filter Select Chip Motion (Motion-based with AnimatePresence)
+// ============================================================================
+
+export {
+  FilterSelectChipMotion,
+  DEFAULT_ANIMATION_CONFIG,
+  DEFAULT_STYLE_CONFIG,
+  EASING_CURVES,
+} from './filter-select-chip-motion'
+
+export type {
+  FilterSelectChipMotionProps,
+  FilterChipData,
+  AnimationConfig as MotionAnimationConfig,
+  StyleConfig as MotionStyleConfig,
+  TransitionType,
+  EasingType,
+} from './filter-select-chip-motion'
+
+// ============================================================================
 // Re-export Menu types for convenience
 // ============================================================================
 

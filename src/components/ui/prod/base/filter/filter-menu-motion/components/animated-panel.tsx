@@ -14,7 +14,7 @@ import { forwardRef } from 'react'
 import { motion } from 'motion/react'
 
 import type { MotionAnimationConfig } from '../types'
-import { getSlideTransition } from '../animation-config'
+import { getSlideTransition, SCALE_ORIGIN_MAP } from '../animation-config'
 
 // ============================================================================
 // PROPS
@@ -57,23 +57,8 @@ export const AnimatedPanel = forwardRef<HTMLDivElement, AnimatedPanelProps>(
         ? animationConfig.panelEnterScale
         : animationConfig.panelExitScale
 
-    // Transform origin: opposite side of slide direction
-    // Root panel (left) scales from right, Submenu (right) scales from left
-    const getTransformOrigin = () => {
-      if (animationConfig.panelScaleOrigin === 'center') {
-        return 'center center'
-      }
-      if (isSubmenu) {
-        // Submenu is on right, scale from left (toward root)
-        return animationConfig.panelScaleOrigin === 'left'
-          ? 'left center'
-          : 'right center'
-      }
-      // Root is on left, scale from right (toward submenu)
-      return animationConfig.panelScaleOrigin === 'left'
-        ? 'right center'
-        : 'left center'
-    }
+    // Use the SCALE_ORIGIN_MAP for 9-point transform origins
+    const transformOrigin = SCALE_ORIGIN_MAP[animationConfig.panelScaleOrigin]
 
     return (
       <motion.div
@@ -81,7 +66,7 @@ export const AnimatedPanel = forwardRef<HTMLDivElement, AnimatedPanelProps>(
         initial={false}
         animate={{ scale }}
         transition={getSlideTransition(animationConfig)}
-        style={{ transformOrigin: getTransformOrigin() }}
+        style={{ transformOrigin }}
         className={className}
       >
         {children}
