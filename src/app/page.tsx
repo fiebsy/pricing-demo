@@ -139,7 +139,7 @@ export default function HomePage(): React.ReactElement {
             <div className="rounded-3xl corner-squircle bg-primary p-1 shine-3 transition-all duration-150 scale-100 active:scale-90 hover:shine-3-intense">
               <div className="overflow-hidden rounded-[20px] corner-squircle">
                 <Image
-                  src="/skwircle-kid.jpg"
+                  src="/skwircle-kid.png"
                   alt="i like skwircles"
                   height={80}
                   width={142}

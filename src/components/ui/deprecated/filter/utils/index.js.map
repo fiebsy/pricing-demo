@@ -1,0 +1,1 @@
+{"version":3,"file":"index.js","sourceRoot":"/","sources":["other-repos/demo-repo/src/components/ui/deprecated/filter/utils/index.ts"],"names":[],"mappings":";AAAA;;;;GAIG;;;AAEH,uDAA6D;AAApD,4HAAA,wBAAwB,OAAA","sourcesContent":["/**\n * Filter Utilities Index\n *\n * @module base-ui/filter/utils\n */\n\nexport { buildChipClassFromConfig } from './build-chip-class'\n"]}

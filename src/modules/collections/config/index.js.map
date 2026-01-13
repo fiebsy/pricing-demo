@@ -1,0 +1,1 @@
+{"version":3,"file":"index.js","sourceRoot":"/","sources":["other-repos/demo-repo/src/modules/collections/config/index.ts"],"names":[],"mappings":";AAAA;;GAEG;;;AAEH,4DAAiC;AACjC,0DAA+B;AAC/B,0DAA+B","sourcesContent":["/**\n * Collections Module - Configuration Exports\n */\n\nexport * from './hardened-preset'\nexport * from './column-config'\nexport * from './filter-config'\n"]}

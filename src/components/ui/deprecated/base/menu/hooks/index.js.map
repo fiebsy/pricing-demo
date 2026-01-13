@@ -1,0 +1,1 @@
+{"version":3,"file":"index.js","sourceRoot":"/","sources":["other-repos/demo-repo/src/components/ui/deprecated/base/menu/hooks/index.ts"],"names":[],"mappings":";;;AAAA,6DAAyD;AAAhD,wHAAA,iBAAiB,OAAA;AAC1B,+DAA2D;AAAlD,0HAAA,kBAAkB,OAAA","sourcesContent":["export { useMenuNavigation } from './use-menu-navigation'\nexport { useRevealAnimation } from './use-reveal-animation'\n"]}

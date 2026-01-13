@@ -44,18 +44,30 @@ export { FilterSelectChipMotion } from './filter-select-chip-motion'
 // ============================================================================
 
 export {
+  // Defaults
   DEFAULT_ANIMATION_CONFIG,
   DEFAULT_STYLE_CONFIG,
+  // Mappings
   SIZE_MAP,
   GAP_MAP,
   ROUNDNESS_MAP,
   EASING_CURVES,
+  ANIMATION_PRESETS,
+  // Helpers
   mergeAnimationConfig,
   mergeStyleConfig,
   getSizeConfig,
   getGapClass,
   getRoundnessClass,
   buildLayoutTransition,
+  getPresetConfig,
+  // Playground options (for control panels)
+  TRANSITION_TYPE_OPTIONS,
+  EASING_OPTIONS,
+  SIZE_OPTIONS,
+  GAP_OPTIONS,
+  ROUNDNESS_OPTIONS,
+  PRESET_OPTIONS,
 } from './config'
 
 // ============================================================================
@@ -87,6 +99,8 @@ export type {
   OptionItemProps,
   RemoveButtonProps,
 } from './types'
+
+export type { AnimationPreset } from './config'
 
 // ============================================================================
 // SUBCOMPONENTS (for advanced composition)

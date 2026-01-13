@@ -1,0 +1,96 @@
+"use strict";
+/**
+ * Select Component
+ *
+ * Simple select using native elements with styling.
+ */
+'use client';
+/**
+ * Select Component
+ *
+ * Simple select using native elements with styling.
+ */
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.SelectValue = exports.SelectItem = exports.SelectContent = exports.SelectTrigger = exports.Select = void 0;
+const React = require("react");
+const cx_1 = require("@/components/utils/cx");
+// Context for select state
+const SelectContext = React.createContext(null);
+const useSelectContext = () => {
+    const context = React.useContext(SelectContext);
+    if (!context)
+        throw new Error('Select components must be used within Select');
+    return context;
+};
+function Select({ value, onValueChange, disabled, children }) {
+    const [isOpen, setIsOpen] = React.useState(false);
+    const [options, setOptions] = React.useState([]);
+    const registerOption = React.useCallback((option) => {
+        setOptions((prev) => {
+            if (prev.some((o) => o.value === option.value))
+                return prev;
+            return [...prev, option];
+        });
+    }, []);
+    return (<SelectContext.Provider value={{ value, onValueChange, disabled, isOpen, setIsOpen, options, registerOption }}>
+      <div className="relative">{children}</div>
+    </SelectContext.Provider>);
+}
+exports.Select = Select;
+function SelectTrigger({ children, className }) {
+    const { isOpen, setIsOpen, disabled } = useSelectContext();
+    return (<button type="button" onClick={() => !disabled && setIsOpen(!isOpen)} disabled={disabled} className={(0, cx_1.cx)('h-10 w-full min-w-0', 'flex items-center justify-between gap-2', 'border-primary bg-secondary rounded-md border px-3 py-2', 'text-primary text-sm text-left', 'focus-visible:border-brand focus-visible:ring-brand focus-visible:ring-2 focus-visible:ring-offset-0 focus-visible:outline-none', 'disabled:cursor-not-allowed disabled:opacity-50', className)}>
+      <span className="min-w-0 flex-1 truncate">{children}</span>
+      <svg className="size-4 shrink-0 opacity-50" viewBox="0 0 16 16" fill="none">
+        <path d="M4 6L8 10L12 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    </button>);
+}
+exports.SelectTrigger = SelectTrigger;
+function SelectContent({ children, className }) {
+    const { isOpen, setIsOpen } = useSelectContext();
+    const ref = React.useRef(null);
+    React.useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (ref.current && !ref.current.contains(e.target)) {
+                setIsOpen(false);
+            }
+        };
+        if (isOpen) {
+            document.addEventListener('mousedown', handleClickOutside);
+        }
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [isOpen, setIsOpen]);
+    if (!isOpen)
+        return null;
+    return (<div ref={ref} className={(0, cx_1.cx)('absolute z-50 mt-1 w-full', 'max-h-60 overflow-auto', 'border-primary bg-secondary rounded-md border shadow-md', 'p-1', className)}>
+      {children}
+    </div>);
+}
+exports.SelectContent = SelectContent;
+function SelectItem({ value, children, className }) {
+    const { value: selectedValue, onValueChange, setIsOpen, registerOption } = useSelectContext();
+    React.useEffect(() => {
+        registerOption({ value, label: typeof children === 'string' ? children : value });
+    }, [value, children, registerOption]);
+    const isSelected = selectedValue === value;
+    return (<button type="button" onClick={() => {
+            onValueChange?.(value);
+            setIsOpen(false);
+        }} className={(0, cx_1.cx)('relative flex w-full cursor-pointer items-center select-none', 'rounded-sm py-1.5 pr-2 pl-8', 'text-primary text-sm', 'outline-none', 'hover:bg-primary_hover', isSelected && 'bg-primary_hover', className)}>
+      <span className="absolute left-2 flex size-3.5 items-center justify-center">
+        {isSelected && (<svg className="size-4" viewBox="0 0 16 16" fill="none">
+            <path d="M13.5 4.5L6.5 11.5L3 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>)}
+      </span>
+      <span className="truncate">{children}</span>
+    </button>);
+}
+exports.SelectItem = SelectItem;
+function SelectValue({ placeholder }) {
+    const { value, options } = useSelectContext();
+    const selectedOption = options.find((o) => o.value === value);
+    return <span className="truncate">{selectedOption?.label || placeholder || 'Select...'}</span>;
+}
+exports.SelectValue = SelectValue;
+//# sourceMappingURL=select.js.map
