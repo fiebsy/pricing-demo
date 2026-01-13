@@ -47,18 +47,30 @@
  * - Cleanup ensures theme doesn't persist when navigating away
  */
 
-import { useEffect } from 'react'
+import { useLayoutEffect } from 'react'
+
+const THEME_CLASS = 'theme-delphi'
 
 export function DelphiThemeProvider({ children }: { children: React.ReactNode }) {
-  useEffect(() => {
+  // useLayoutEffect runs synchronously before paint, preventing flash
+  useLayoutEffect(() => {
+    const root = document.documentElement
+
+    // Skip if already applied (e.g., SSR hydration or re-render)
+    if (root.classList.contains(THEME_CLASS)) {
+      return () => {
+        root.classList.remove(THEME_CLASS)
+      }
+    }
+
     // Add theme class to <html> element so all elements inherit it,
     // including portals that render outside the React tree
-    document.documentElement.classList.add('theme-delphi')
+    root.classList.add(THEME_CLASS)
 
     // Cleanup: Remove class when component unmounts (route change)
     // This prevents the theme from leaking to other routes
     return () => {
-      document.documentElement.classList.remove('theme-delphi')
+      root.classList.remove(THEME_CLASS)
     }
   }, [])
 

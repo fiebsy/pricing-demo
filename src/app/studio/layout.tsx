@@ -14,10 +14,9 @@ import { DelphiThemeProvider } from '@/styles/themes/delphi-theme-provider'
 export default function StudioLayout({ children }: { children: React.ReactNode }) {
   return (
     <DelphiThemeProvider>
-      {/* Hide global nav elements from root layout */}
+      {/* Hide global nav from root layout (but not theme toggle) */}
       <style>{`
-        nav[class*="fixed"][class*="right-4"][class*="top-4"],
-        [class*="fixed"][class*="bottom-4"][class*="right-4"][class*="z-50"] {
+        nav[class*="fixed"][class*="right-4"][class*="top-4"] {
           display: none !important;
         }
       `}</style>

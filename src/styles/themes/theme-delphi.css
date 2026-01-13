@@ -254,10 +254,10 @@
 /* ============================================================================
  * DARK MODE VARIANT
  * Warm dark theme that maintains earthy character
+ * Note: Only .theme-delphi.dark-mode matches since both classes are on <html>
  * ============================================================================ */
 
-.theme-delphi.dark-mode,
-.dark-mode .theme-delphi {
+.theme-delphi.dark-mode {
   /* Inverted warm scale - rich dark browns */
   --color-white: rgb(25 22 18);
   --color-alpha-white: rgb(25 22 18);

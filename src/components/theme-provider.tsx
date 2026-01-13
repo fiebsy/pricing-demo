@@ -12,6 +12,39 @@ type ThemeContextType = {
 
 const ThemeContext = React.createContext<ThemeContextType | undefined>(undefined)
 
+/**
+ * Applies theme class to document with optimized DOM updates.
+ * Uses View Transitions API when available for smooth switching.
+ */
+function applyThemeClass(newTheme: Theme) {
+  const root = document.documentElement
+  const isDark = newTheme === 'dark'
+
+  // Skip if already in correct state
+  const currentlyDark = root.classList.contains('dark-mode')
+  if (isDark === currentlyDark) return
+
+  // Use View Transitions API for smooth theme switching (Chrome 111+)
+  // Falls back to instant switch on unsupported browsers
+  const updateDOM = () => {
+    if (isDark) {
+      root.classList.add('dark-mode')
+    } else {
+      root.classList.remove('dark-mode')
+    }
+  }
+
+  if (typeof document.startViewTransition === 'function') {
+    // Disable transition animation for instant switch (no visual delay)
+    document.startViewTransition(() => {
+      updateDOM()
+      return Promise.resolve()
+    })
+  } else {
+    updateDOM()
+  }
+}
+
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = React.useState<Theme>('dark')
   const [mounted, setMounted] = React.useState(false)
@@ -23,12 +56,10 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     const savedTheme = localStorage.getItem('theme') as Theme | null
     if (savedTheme) {
       setTheme(savedTheme)
-      if (savedTheme === 'dark') {
-        document.documentElement.classList.add('dark-mode')
-      }
+      applyThemeClass(savedTheme)
     } else {
       // Default to dark mode if no saved preference
-      document.documentElement.classList.add('dark-mode')
+      applyThemeClass('dark')
     }
   }, [])
 
@@ -36,11 +67,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     if (!mounted) return
     setTheme(newTheme)
     localStorage.setItem('theme', newTheme)
-    if (newTheme === 'dark') {
-      document.documentElement.classList.add('dark-mode')
-    } else {
-      document.documentElement.classList.remove('dark-mode')
-    }
+    applyThemeClass(newTheme)
   }, [mounted])
 
   const toggleTheme = React.useCallback(() => {
