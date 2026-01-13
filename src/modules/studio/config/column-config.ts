@@ -29,8 +29,7 @@ export const AUDIENCE_COLUMNS: ColumnConfig[] = [
   },
   {
     key: 'messages',
-    width: 80,
-    maxWidth: 80,
+    width: 70,
     align: 'right',
     sortable: true,
   },
@@ -42,8 +41,7 @@ export const AUDIENCE_COLUMNS: ColumnConfig[] = [
   },
   {
     key: 'lastInteracted',
-    width: 350,
-    minWidth: 300,
+    width: 240,
     align: 'left',
     sortable: true,
   },

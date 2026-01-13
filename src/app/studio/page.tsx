@@ -16,19 +16,7 @@ import {
   TableEmptyState,
   useColumnConfiguration,
   type SelectionState,
-  type ColumnConfig,
 } from '@/components/ui/prod/data/sticky-data-table'
-
-// ============================================================================
-// TEMPORARY: Control Panel for column width testing - REMOVE WHEN DONE
-// ============================================================================
-import {
-  UnifiedControlPanel,
-  type ControlChangeEvent,
-  type Section as ControlSection,
-  type UnifiedControlPanelProps,
-} from '@/components/ui/prod/base/control-panel'
-type PanelConfig = UnifiedControlPanelProps['config']
 
 // Studio module imports
 import {
@@ -59,60 +47,6 @@ import type {
 } from '@/modules/studio/types'
 
 // ============================================================================
-// TEMPORARY: Column width testing - REMOVE WHEN DONE
-// ============================================================================
-
-interface AudienceColumnWidths {
-  name: number
-  messages: number
-  tags: number
-  lastInteracted: number
-  accessGroup: number
-}
-
-const DEFAULT_COLUMN_WIDTHS: AudienceColumnWidths = {
-  name: 200,
-  messages: 80,
-  tags: 200,
-  lastInteracted: 350,
-  accessGroup: 120,
-}
-
-// Base column configs (width comes from state)
-const COLUMN_BASE_CONFIGS: Omit<ColumnConfig, 'width'>[] = [
-  { key: 'name', align: 'left', sortable: true, isSticky: true, stickyLeft: 0 },
-  { key: 'messages', align: 'right', sortable: true, maxWidth: 80 },
-  { key: 'tags', align: 'left', sortable: false },
-  { key: 'lastInteracted', align: 'left', sortable: true, minWidth: 300 },
-  { key: 'accessGroup', align: 'left', sortable: false },
-]
-
-const buildAudienceColumns = (widths: AudienceColumnWidths): ColumnConfig[] =>
-  COLUMN_BASE_CONFIGS.map((col) => ({
-    ...col,
-    width: widths[col.key as keyof AudienceColumnWidths],
-  }))
-
-const createColumnWidthsPanel = (widths: AudienceColumnWidths): ControlSection => ({
-  id: 'column-widths',
-  title: 'Column Widths',
-  tabLabel: 'Columns',
-  subsections: [
-    {
-      title: 'Adjust Widths',
-      controls: [
-        { id: 'cw_name', label: 'Name', type: 'slider', value: widths.name, min: 120, max: 400, step: 10, formatLabel: (v: number) => `${v}px` },
-        { id: 'cw_messages', label: 'Messages', type: 'slider', value: widths.messages, min: 60, max: 150, step: 10, formatLabel: (v: number) => `${v}px` },
-        { id: 'cw_tags', label: 'Tags', type: 'slider', value: widths.tags, min: 100, max: 400, step: 10, formatLabel: (v: number) => `${v}px` },
-        { id: 'cw_lastInteracted', label: 'Last Interacted', type: 'slider', value: widths.lastInteracted, min: 200, max: 500, step: 10, formatLabel: (v: number) => `${v}px` },
-        { id: 'cw_accessGroup', label: 'Access Group', type: 'slider', value: widths.accessGroup, min: 80, max: 250, step: 10, formatLabel: (v: number) => `${v}px` },
-      ],
-    },
-  ],
-})
-// ============================================================================
-
-// ============================================================================
 // MAIN PAGE COMPONENT
 // ============================================================================
 
@@ -132,18 +66,14 @@ export default function StudioPage() {
   const [sortOrder, setSortOrder] = useState<AudienceSortOrder>('DESC')
   const [sortColumnKey, setSortColumnKey] = useState<string | null>('lastInteracted')
 
-  // TEMPORARY: Column width state - REMOVE WHEN DONE
-  const [columnWidths, setColumnWidths] = useState<AudienceColumnWidths>(DEFAULT_COLUMN_WIDTHS)
-  const dynamicColumns = useMemo(() => buildAudienceColumns(columnWidths), [columnWidths])
-
   // Column configuration (no drag-to-reorder for this dashboard)
   const {
     columns: orderedColumns,
     reorderColumns,
     isHydrated: isColumnConfigHydrated,
   } = useColumnConfiguration({
-    columns: dynamicColumns, // TEMPORARY: was AUDIENCE_COLUMNS
-    storageKey: 'studio-audience-columns',
+    columns: AUDIENCE_COLUMNS,
+    storageKey: 'studio-audience-columns-v2',
   })
 
   // Fetch data using mock pagination hook
@@ -316,26 +246,8 @@ export default function StudioPage() {
     console.log('Export selected:', selectionState?.selectedIds.size ?? 0, 'users')
   }, [])
 
-  // TEMPORARY: Control panel for column widths - REMOVE WHEN DONE
-  const panelConfig = useMemo<PanelConfig>(() => ({
-    sections: [createColumnWidthsPanel(columnWidths)],
-    position: { top: '16px', bottom: '16px', right: '16px', width: '300px' },
-    showReset: true,
-  }), [columnWidths])
-
-  const handlePanelChange = useCallback((event: ControlChangeEvent) => {
-    const { controlId, value } = event
-    if (controlId.startsWith('cw_')) {
-      const key = controlId.replace('cw_', '') as keyof AudienceColumnWidths
-      setColumnWidths((prev) => ({ ...prev, [key]: value as number }))
-    }
-  }, [])
-
-  const getConfigForCopy = useCallback(() => columnWidths, [columnWidths])
-  // END TEMPORARY
-
   return (
-    <div className="mx-auto w-full max-w-[1000px] px-6 pt-16 pr-[332px]"> {/* TEMP: pr-[332px] for panel */}
+    <div className="mx-auto w-full max-w-[1000px] px-6 pt-16">
       {/* Page Header */}
       <div className="mb-6">
         <h1 className="text-primary text-xl font-semibold lg:text-2xl">Audience</h1>
