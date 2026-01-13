@@ -50,14 +50,16 @@ const formatRelativeTime = (date: Date): string => {
  * Format date for tooltip (full date and time)
  */
 const formatFullDate = (date: Date): string => {
-  return date.toLocaleString('en-US', {
-    weekday: 'short',
+  const dateStr = date.toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
     year: 'numeric',
+  })
+  const timeStr = date.toLocaleTimeString('en-US', {
     hour: 'numeric',
     minute: '2-digit',
   })
+  return `${dateStr} · ${timeStr}`
 }
 
 // =============================================================================
@@ -155,10 +157,16 @@ export const renderCell = (
     case 'lastInteracted': {
       const relativeTime = formatRelativeTime(item.lastInteracted)
       const fullTime = formatFullDate(item.lastInteracted)
+      const firstName = item.name.split(' ')[0]
 
       return (
         <Tooltip
-          title={item.lastConversationSummary}
+          title={
+            <span className="flex flex-col gap-1">
+              <span className="font-medium opacity-50">{firstName} asked about</span>
+              <span>{item.lastConversationSummary}</span>
+            </span>
+          }
           description={fullTime}
           side="top"
           delay={200}
