@@ -256,9 +256,9 @@ export default function StudioPage() {
   }, [])
 
   return (
-    <div className="mx-auto w-full max-w-[1000px] px-6 pt-16 pb-20">
+    <div className="mx-auto w-full max-w-[1000px] px-6 pt-20 pb-20">
       {/* Page Header */}
-      <div className="mb-12">
+      <div className="mb-8">
         <h1 className="text-primary text-xl font-semibold lg:text-2xl">Audience</h1>
         <p className="text-tertiary mt-1 text-sm">
           Everyone who has interacted with your Delphi

@@ -29,7 +29,7 @@ export const AUDIENCE_COLUMNS: ColumnConfig[] = [
   },
   {
     key: 'messages',
-    width: 70,
+    width: 100,
     align: 'right',
     sortable: true,
   },
