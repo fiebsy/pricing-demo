@@ -1,1 +1,0 @@
-{"version":3,"file":"index.js","sourceRoot":"/","sources":["other-repos/demo-repo/src/components/ui/prod/base/skeleton/index.ts"],"names":[],"mappings":";;;AAAA,uCAAqC;AAA5B,oGAAA,QAAQ,OAAA","sourcesContent":["export { Skeleton } from './skeleton'\nexport type { SkeletonProps } from './skeleton'\n"]}

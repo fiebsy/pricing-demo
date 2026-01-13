@@ -10,6 +10,10 @@ import React from 'react'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/prod/base/badge'
 import { Tooltip } from '@/components/ui/prod/base/tooltip'
+import Globe02Icon from '@hugeicons-pro/core-stroke-rounded/Globe02Icon'
+import StarIcon from '@hugeicons-pro/core-stroke-rounded/StarIcon'
+import Mail01Icon from '@hugeicons-pro/core-stroke-rounded/Mail01Icon'
+import Cancel01Icon from '@hugeicons-pro/core-stroke-rounded/Cancel01Icon'
 import type { AudienceUser, AccessGroup } from '../types'
 
 // =============================================================================
@@ -27,16 +31,16 @@ const formatRelativeTime = (date: Date): string => {
   const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
 
   if (diffMins < 60) {
-    return diffMins <= 1 ? 'Just now' : `${diffMins} minutes ago`
+    return diffMins <= 1 ? 'Just now' : `${diffMins}m ago`
   }
   if (diffHours < 24) {
-    return diffHours === 1 ? '1 hour ago' : `${diffHours} hours ago`
+    return `${diffHours}h ago`
   }
   if (diffDays === 1) {
     return 'Yesterday'
   }
   if (diffDays < 7) {
-    return `${diffDays} days ago`
+    return `${diffDays}d ago`
   }
   // Format as "Jan 10" for older dates
   return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
@@ -65,6 +69,13 @@ const ACCESS_GROUP_COLORS: Record<AccessGroup, 'success' | 'info' | 'gray' | 'er
   Insiders: 'info',
   Invited: 'gray',
   Revoked: 'error',
+}
+
+const ACCESS_GROUP_ICONS: Record<AccessGroup, typeof Globe02Icon> = {
+  Public: Globe02Icon,
+  Insiders: StarIcon,
+  Invited: Mail01Icon,
+  Revoked: Cancel01Icon,
 }
 
 // =============================================================================
@@ -121,7 +132,7 @@ export const renderCell = (
       return (
         <div className="flex flex-wrap items-center gap-1">
           {visibleTags.map((tag) => (
-            <Badge key={tag} size="xs" shape="pill" color="gray">
+            <Badge key={tag} size="xs" shape="squircle" color="gray">
               {tag}
             </Badge>
           ))}
@@ -132,7 +143,7 @@ export const renderCell = (
               side="top"
               delay={200}
             >
-              <Badge size="xs" shape="pill" color="gray">
+              <Badge size="xs" shape="squircle" color="gray">
                 +{remainingCount}
               </Badge>
             </Tooltip>
@@ -146,10 +157,20 @@ export const renderCell = (
       const fullTime = formatFullDate(item.lastInteracted)
 
       return (
-        <Tooltip title={fullTime} side="top" delay={200}>
-          <span className="text-sm text-tertiary cursor-default">
-            {relativeTime}
-          </span>
+        <Tooltip
+          title={item.lastConversationSummary}
+          description={fullTime}
+          side="top"
+          delay={200}
+        >
+          <div className="flex items-center gap-2 cursor-default min-w-0">
+            <span className="text-xs text-primary/70 truncate min-w-0 flex-1">
+              {item.lastConversationSummary}
+            </span>
+            <span className="text-xs text-tertiary/60 shrink-0">
+              {relativeTime}
+            </span>
+          </div>
         </Tooltip>
       )
     }
@@ -158,8 +179,9 @@ export const renderCell = (
       return (
         <Badge
           size="xs"
-          shape="pill"
+          shape="squircle"
           color={ACCESS_GROUP_COLORS[item.accessGroup]}
+          iconLeading={ACCESS_GROUP_ICONS[item.accessGroup]}
         >
           {item.accessGroup}
         </Badge>

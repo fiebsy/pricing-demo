@@ -35,6 +35,15 @@ export function createTableConfiguration(
 
 /**
  * Convert TableConfiguration to StickyDataTable props
+ *
+ * @deprecated Use the `config` prop on StickyDataTable directly instead:
+ * ```tsx
+ * // Before (deprecated)
+ * <StickyDataTable {...tableConfigToProps(myConfig)} data={data} columns={columns} />
+ *
+ * // After (recommended)
+ * <StickyDataTable config={myConfig} data={data} columns={columns} />
+ * ```
  */
 export function tableConfigToProps(config: TableConfiguration): TableConfigurationProps {
   return {
@@ -110,13 +119,13 @@ export function tableConfigToProps(config: TableConfiguration): TableConfigurati
 /**
  * Get default table props (convenience function)
  *
- * @example
+ * @deprecated Use the `config` prop on StickyDataTable directly instead:
  * ```tsx
- * <StickyDataTable
- *   {...getDefaultTableProps()}
- *   data={myData}
- *   columns={columns}
- * />
+ * // Before (deprecated)
+ * <StickyDataTable {...getDefaultTableProps()} data={data} columns={columns} />
+ *
+ * // After (recommended)
+ * <StickyDataTable config={DEFAULT_TABLE_CONFIGURATION} data={data} columns={columns} />
  * ```
  */
 export function getDefaultTableProps(): TableConfigurationProps {

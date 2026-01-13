@@ -27,6 +27,8 @@ export interface AudienceUser extends Record<string, unknown> {
   tags: string[]
   /** Last interaction timestamp */
   lastInteracted: Date
+  /** LLM-generated conversation summary (max 32 chars) */
+  lastConversationSummary: string
   /** Access group classification */
   accessGroup: AccessGroup
   /** User status */

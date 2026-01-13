@@ -12,6 +12,7 @@ import type { SortDirection } from '../core/sort.types'
 import type { SelectionState } from '../core/selection.types'
 import type { InfiniteScrollConfig } from '../infinite-scroll.types'
 import type { SkeletonCellConfig, SkeletonScope, SkeletonStickyStateMode } from '../configuration/skeleton.types'
+import type { TableConfiguration } from '../configuration/unified.types'
 import type { ToolbarLayoutConfig } from '../../config'
 import type { DragCloneMode } from '../../types'
 import type { BorderConfig } from '../styling/border.types'
@@ -23,6 +24,24 @@ import type { BackgroundConfig } from '../styling/background.types'
  * @see docs/STYLING-GUIDE.md for complete styling documentation
  */
 export interface StickyDataTableProps<T extends Record<string, unknown>> {
+  /**
+   * Unified table configuration object.
+   *
+   * When provided, styling props (borderRadius, borderConfig, backgroundConfig,
+   * toolbarLayout, etc.) are extracted from this config. Individual props can
+   * still be passed to override specific values.
+   *
+   * @example
+   * ```tsx
+   * // Use default configuration
+   * <StickyDataTable config={DEFAULT_TABLE_CONFIGURATION} data={data} columns={columns} />
+   *
+   * // Override specific values
+   * <StickyDataTable config={myConfig} borderRadius={20} data={data} columns={columns} />
+   * ```
+   */
+  config?: TableConfiguration
+
   /** Data array to display */
   data: T[]
 

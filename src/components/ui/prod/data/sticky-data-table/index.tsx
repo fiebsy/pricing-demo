@@ -58,20 +58,28 @@ import { processColumns, createVisibleColumnKeys } from './utils'
  * - Unified infinite scroll with automatic skeleton generation
  */
 export function StickyDataTable<T extends Record<string, unknown>>({
+  // Unified configuration (optional - individual props can override)
+  config,
+  // Data props
   data,
   columns,
   columnLabels,
   renderCell,
   onRowClick,
-  borderRadius = TABLE_CONFIG.DEFAULT_BORDER_RADIUS,
-  headerHeight = TABLE_CONFIG.HEADER_HEIGHT,
-  rowHeight = TABLE_CONFIG.ROW_HEIGHT,
+  // Dimension props (can be overridden from config)
+  borderRadius: borderRadiusOverride,
+  headerHeight: headerHeightOverride,
+  rowHeight: rowHeightOverride,
+  // Styling config props (can be overridden from config)
   borderConfig: borderConfigOverrides,
   backgroundConfig: backgroundConfigOverrides,
-  showColumnControl = true,
+  // Feature flags (can be overridden from config)
+  showColumnControl: showColumnControlOverride,
+  enableSelection: enableSelectionOverride,
+  showCount: showCountOverride,
+  // Other props
   className,
   arrowPreferredTopOffset,
-  enableSelection = false,
   getRowId,
   exportAll,
   exportSelected,
@@ -81,7 +89,6 @@ export function StickyDataTable<T extends Record<string, unknown>>({
   columnGroups,
   leftToolbar,
   rightToolbar,
-  showCount = false,
   totalCount,
   countLabel = 'items',
   testId,
@@ -108,13 +115,51 @@ export function StickyDataTable<T extends Record<string, unknown>>({
   enableColumnReorder = true,
   onReorderColumns,
   isColumnConfigHydrated = true, // Default to true to avoid breaking existing usage
-  dragCloneMode = 'inline',
+  dragCloneMode: dragCloneModeOverride,
   dragSwapThreshold,
   // Skeleton configuration
   skeletonConfig,
   // Filter status bar
   filterStatusBar,
 }: StickyDataTableProps<T>) {
+  // ==========================================================================
+  // CONFIG EXTRACTION - Merge config with individual prop overrides
+  // ==========================================================================
+
+  // Dimensions: individual props override config values
+  const borderRadius = borderRadiusOverride ?? config?.dimensions.borderRadius ?? TABLE_CONFIG.DEFAULT_BORDER_RADIUS
+  const headerHeight = headerHeightOverride ?? config?.dimensions.headerHeight ?? TABLE_CONFIG.HEADER_HEIGHT
+  const rowHeight = rowHeightOverride ?? config?.dimensions.rowHeight ?? TABLE_CONFIG.ROW_HEIGHT
+
+  // Feature flags: individual props override config values
+  const showColumnControl = showColumnControlOverride ?? config?.features.showColumnControl ?? true
+  const enableSelection = enableSelectionOverride ?? config?.features.enableSelection ?? false
+  const showCount = showCountOverride ?? config?.features.showCount ?? false
+  const dragCloneMode = dragCloneModeOverride ?? config?.features.dragCloneMode ?? 'inline'
+
+  // Merge config border/background/toolbar with overrides (overrides take precedence)
+  const mergedBorderConfig = config?.border
+    ? { ...config.border, ...borderConfigOverrides }
+    : borderConfigOverrides
+  const mergedBackgroundConfig = config?.background
+    ? { ...config.background, ...backgroundConfigOverrides }
+    : backgroundConfigOverrides
+  const mergedToolbarLayout = config?.toolbar
+    ? {
+        position: config.toolbar.position,
+        countPosition: config.toolbar.countPosition,
+        countStackPosition: config.toolbar.countStackPosition,
+        toolbarBottomMargin: config.toolbar.bottomMargin,
+        toolbarToCountGap: config.toolbar.countGap,
+        headerGap: config.dimensions.headerGap,
+        integratedToolbarHeight: config.toolbar.integratedHeight,
+        integratedPadding: config.toolbar.integratedPadding,
+        countPaddingLeft: config.toolbar.countPaddingLeft,
+        countPaddingRight: config.toolbar.countPaddingRight,
+        debug: config.toolbar.debug,
+        ...toolbarLayoutOverrides,
+      }
+    : toolbarLayoutOverrides
   // ==========================================================================
   // REFS
   // ==========================================================================
@@ -178,8 +223,8 @@ export function StickyDataTable<T extends Record<string, unknown>>({
     columns,
     columnLabels,
     borderRadius,
-    borderConfig: borderConfigOverrides,
-    backgroundConfig: backgroundConfigOverrides,
+    borderConfig: mergedBorderConfig,
+    backgroundConfig: mergedBackgroundConfig,
     showColumnControl,
     enableSelection,
     getRowId,
@@ -191,7 +236,7 @@ export function StickyDataTable<T extends Record<string, unknown>>({
     leftToolbar,
     rightToolbar,
     showCount,
-    toolbarLayout: toolbarLayoutOverrides,
+    toolbarLayout: mergedToolbarLayout,
     serverSideSort,
     onServerSort,
     serverSortColumn,
@@ -332,10 +377,10 @@ export function StickyDataTable<T extends Record<string, unknown>>({
       visibleColumnKeys: visibleKeys,
       simulateScrollable: effectiveSkeletonConfig.simulateStickyState === 'scrollable' ||
         (effectiveSkeletonConfig.simulateStickyState === 'auto' && columns.some(c => c.isSticky)),
-      borderConfig: borderConfigOverrides,
-      backgroundConfig: backgroundConfigOverrides,
+      borderConfig: mergedBorderConfig,
+      backgroundConfig: mergedBackgroundConfig,
     })
-  }, [isSkeletonMode, columns, defaultVisibleColumns, enableSelection, effectiveSkeletonConfig.simulateStickyState, borderConfigOverrides, backgroundConfigOverrides])
+  }, [isSkeletonMode, columns, defaultVisibleColumns, enableSelection, effectiveSkeletonConfig.simulateStickyState, mergedBorderConfig, mergedBackgroundConfig])
 
   // ==========================================================================
   // RENDER
@@ -451,8 +496,8 @@ export function StickyDataTable<T extends Record<string, unknown>>({
                 rowHeight={rowHeight}
                 enableSelection={enableSelection}
                 defaultVisibleColumns={defaultVisibleColumns}
-                borderConfig={borderConfigOverrides}
-                backgroundConfig={backgroundConfigOverrides}
+                borderConfig={mergedBorderConfig}
+                backgroundConfig={mergedBackgroundConfig}
                 stickyState={stickyState}
                 bodyCellConfig={effectiveSkeletonConfig.bodyCellConfig}
                 asRowsOnly={false}

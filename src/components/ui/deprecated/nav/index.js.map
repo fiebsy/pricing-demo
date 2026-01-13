@@ -1,1 +1,0 @@
-{"version":3,"file":"index.js","sourceRoot":"/","sources":["other-repos/demo-repo/src/components/ui/deprecated/nav/index.ts"],"names":[],"mappings":";;;AAAA,+CAA4C;AAAnC,2GAAA,WAAW,OAAA;AACpB,6CAA2C;AAAlC,0GAAA,WAAW,OAAA","sourcesContent":["export { FloatingNav } from './floating-nav'\nexport { Breadcrumbs } from './breadcrumbs'\n"]}
