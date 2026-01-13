@@ -52,9 +52,9 @@ export const MetricTileBar: React.FC<MetricTileBarProps> = ({
   const [hoveredId, setHoveredId] = useState<AudienceMetricId | null>(null)
   const [animated, setAnimated] = useState(false)
 
-  // Trigger animation after mount with longer delay for smoother start
+  // Brief delay before showing numbers
   React.useEffect(() => {
-    const timer = setTimeout(() => setAnimated(true), 300)
+    const timer = setTimeout(() => setAnimated(true), 50)
     return () => clearTimeout(timer)
   }, [])
 
@@ -67,7 +67,11 @@ export const MetricTileBar: React.FC<MetricTileBarProps> = ({
       {
         id: 'totalActive' as AudienceMetricId,
         label: 'Total Active Users',
-        value: <span className={animated ? 'opacity-100' : 'opacity-0'}><NumberFlow value={animated ? metrics.totalActiveUsers : 0} locales="en-US" transformTiming={timing} spinTiming={timing} /></span>,
+        value: animated ? (
+          <NumberFlow value={metrics.totalActiveUsers} locales="en-US" transformTiming={timing} spinTiming={timing} />
+        ) : (
+          <span className="inline-block h-[1em] w-6 rounded bg-quaternary/50" />
+        ),
         subtext: 'from last 30 days',
         trend: {
           value: Math.abs(metrics.activeUsersChange),
@@ -77,7 +81,11 @@ export const MetricTileBar: React.FC<MetricTileBarProps> = ({
       {
         id: 'totalMessages' as AudienceMetricId,
         label: 'Total Messages',
-        value: <span className={animated ? 'opacity-100' : 'opacity-0'}><NumberFlow value={animated ? metrics.totalMessages : 0} locales="en-US" transformTiming={timing} spinTiming={timing} /></span>,
+        value: animated ? (
+          <NumberFlow value={metrics.totalMessages} locales="en-US" transformTiming={timing} spinTiming={timing} />
+        ) : (
+          <span className="inline-block h-[1em] w-6 rounded bg-quaternary/50" />
+        ),
         subtext: 'from last 30 days',
         trend: {
           value: Math.abs(metrics.messagesChange),
@@ -87,7 +95,11 @@ export const MetricTileBar: React.FC<MetricTileBarProps> = ({
       {
         id: 'avgMessages' as AudienceMetricId,
         label: 'Avg Messages / User',
-        value: <span className={animated ? 'opacity-100' : 'opacity-0'}><NumberFlow value={animated ? metrics.avgMessagesPerUser : 0} format={{ maximumFractionDigits: 1, minimumFractionDigits: 1 }} transformTiming={timing} spinTiming={timing} /></span>,
+        value: animated ? (
+          <NumberFlow value={metrics.avgMessagesPerUser} format={{ maximumFractionDigits: 1, minimumFractionDigits: 1 }} transformTiming={timing} spinTiming={timing} />
+        ) : (
+          <span className="inline-block h-[1em] w-6 rounded bg-quaternary/50" />
+        ),
         subtext: 'from last 30 days',
         trend: {
           value: Math.abs(metrics.avgMessagesChange),
@@ -97,7 +109,11 @@ export const MetricTileBar: React.FC<MetricTileBarProps> = ({
       {
         id: 'mostEngaged' as AudienceMetricId,
         label: 'Most Engaged Users',
-        value: <span className={animated ? 'opacity-100' : 'opacity-0'}><NumberFlow value={animated ? metrics.mostEngagedUsers : 0} locales="en-US" transformTiming={timing} spinTiming={timing} /></span>,
+        value: animated ? (
+          <NumberFlow value={metrics.mostEngagedUsers} locales="en-US" transformTiming={timing} spinTiming={timing} />
+        ) : (
+          <span className="inline-block h-[1em] w-6 rounded bg-quaternary/50" />
+        ),
         subtext: 'from last 30 days',
         trend: {
           value: Math.abs(metrics.engagedUsersChange),
@@ -108,23 +124,25 @@ export const MetricTileBar: React.FC<MetricTileBarProps> = ({
   }, [metrics, animated])
 
   return (
-    <div className={cn('grid grid-cols-2 gap-3 lg:grid-cols-4', className)}>
-      {metricValues.map((metric) => (
-        <MetricCard
-          key={metric.id}
-          label={metric.label}
-          value={metric.value}
-          count={metric.subtext}
-          trend={metric.trend}
-          config={METRIC_CARD_PRESETS.flat}
-          isActive={activeMetric === metric.id}
-          isHovered={hoveredId === metric.id}
-          onClick={() => onMetricClick(metric.id)}
-          onMouseEnter={() => setHoveredId(metric.id)}
-          onMouseLeave={() => setHoveredId(null)}
-        />
-      ))}
-    </div>
+    <NumberFlowGroup>
+      <div className={cn('grid grid-cols-2 gap-3 lg:grid-cols-4', className)}>
+        {metricValues.map((metric) => (
+          <MetricCard
+            key={metric.id}
+            label={metric.label}
+            value={metric.value}
+            count={metric.subtext}
+            trend={metric.trend}
+            config={METRIC_CARD_PRESETS.flat}
+            isActive={activeMetric === metric.id}
+            isHovered={hoveredId === metric.id}
+            onClick={() => onMetricClick(metric.id)}
+            onMouseEnter={() => setHoveredId(metric.id)}
+            onMouseLeave={() => setHoveredId(null)}
+          />
+        ))}
+      </div>
+    </NumberFlowGroup>
   )
 }
 
