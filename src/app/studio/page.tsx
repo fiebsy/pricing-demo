@@ -38,6 +38,7 @@ import { MetricTileBar } from '@/modules/studio/components/metric-tile-bar'
 import { LeftToolbarContent, RightToolbarContent } from '@/modules/studio/components/toolbar'
 import { renderCell } from '@/modules/studio/components/cell-renderer'
 import { ThemeToggle } from '@/components/ui/deprecated/theme-toggle'
+import { ModeToggle } from '@/components/ui/deprecated/mode-toggle'
 
 import type {
   AudienceMetricId,
@@ -255,7 +256,7 @@ export default function StudioPage() {
   }, [])
 
   return (
-    <div className="mx-auto w-full max-w-[1000px] px-6 pt-16">
+    <div className="mx-auto w-full max-w-[1000px] px-6 pt-16 pb-20">
       {/* Page Header */}
       <div className="mb-6">
         <h1 className="text-primary text-xl font-semibold lg:text-2xl">Audience</h1>
@@ -365,7 +366,8 @@ export default function StudioPage() {
         }
       />
 
-      {/* Theme Toggle */}
+      {/* Theme Mode Toggle (left) & Dark Mode Toggle (right) */}
+      <ModeToggle />
       <ThemeToggle />
     </div>
   )
