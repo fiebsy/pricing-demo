@@ -13,7 +13,7 @@
 
 'use client'
 
-import React, { useState, useMemo, useCallback } from 'react'
+import React, { useState, useMemo, useCallback, useDeferredValue } from 'react'
 
 import {
   StickyDataTable,
@@ -124,10 +124,15 @@ export default function DashboardPage() {
     delay: 300,
   })
 
-  // Apply client-side filters
+  // Deferred filters for table - allows chips to animate immediately while table catches up
+  // This separates the high-priority chip animation from the lower-priority table re-render
+  const deferredActiveFilters = useDeferredValue(activeFilters)
+
+  // Apply client-side filters using DEFERRED value - table updates are deprioritized
+  // Chips use immediate activeFilters, table uses deferredActiveFilters
   const filteredItems = useMemo(() => {
-    return applyFilters(items, activeFilters)
-  }, [items, activeFilters])
+    return applyFilters(items, deferredActiveFilters)
+  }, [items, deferredActiveFilters])
 
   // Metric click handler - toggle status filters on/off
   const handleMetricClick = useCallback((metricId: MetricFilterId) => {

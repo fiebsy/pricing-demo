@@ -8,8 +8,8 @@
 'use client'
 
 import * as React from 'react'
-import { useState, useEffect } from 'react'
-import { Button as AriaButton } from 'react-aria-components'
+import { useState } from 'react'
+import { LayoutGroup, motion } from 'motion/react'
 import { cn } from '@/lib/utils'
 
 import {
@@ -59,36 +59,6 @@ const FILTER_OPTIONS_BY_CATEGORY: Record<ActiveFilter['category'], FilterOption[
 }
 
 // =============================================================================
-// CONSTANTS
-// =============================================================================
-
-const EASING_EXPO_OUT = 'cubic-bezier(0.16, 1, 0.3, 1)'
-
-// =============================================================================
-// HELPER: Convert ActiveFilter[] to FilterChipData[]
-// =============================================================================
-
-function toFilterChipData(
-  activeFilters: ActiveFilter[],
-  optionsByCategory: Record<ActiveFilter['category'], FilterOption[]>,
-  iconsByCategory: Record<string, React.ComponentType<{ className?: string }>>
-): FilterChipData[] {
-  return activeFilters.map((filter) => ({
-    id: filter.id,
-    label: filter.category,
-    value: filter.id,
-    icon: iconsByCategory[filter.category],
-    options: optionsByCategory[filter.category].map((opt) => ({
-      ...opt,
-      // Disable options that are already active in the same category
-      disabled: activeFilters.some(
-        (f) => f.category === filter.category && f.id !== filter.id && f.id === opt.id
-      ),
-    })),
-  }))
-}
-
-// =============================================================================
 // TYPES
 // =============================================================================
 
@@ -108,57 +78,21 @@ export interface LeftToolbarContentProps {
 }
 
 // =============================================================================
-// CLEAR ALL BUTTON CONFIG
+// FILTER SELECT CHIP MOTION CONFIG
 // =============================================================================
 
-interface ClearAllConfig {
-  /** Duration of the opacity fade in (ms). Default: 150 */
-  fadeDuration: number
-  /** Delay before starting the fade when filters appear (ms). Default: 200 */
-  appearDelay: number
+const ANIMATION_CONFIG = {
+  transitionType: 'tween' as const,
+  easing: 'easeOut' as const,
+  duration: 0.15,
+  exitDuration: 0.05,
 }
 
-const DEFAULT_CLEAR_ALL_CONFIG: ClearAllConfig = {
-  fadeDuration: 150,
-  appearDelay: 20,
+const STYLE_CONFIG = {
+  size: 'sm' as const,
+  roundness: 'full' as const,
+  gap: 'md' as const,
 }
-
-// =============================================================================
-// CLEAR ALL BUTTON (with delayed fade-in animation)
-// =============================================================================
-
-interface ClearAllButtonProps {
-  onPress: () => void
-  config?: Partial<ClearAllConfig>
-}
-
-const ClearAllButton: React.FC<ClearAllButtonProps> = ({ onPress, config }) => {
-  const [isVisible, setIsVisible] = useState(false)
-  const { fadeDuration, appearDelay } = { ...DEFAULT_CLEAR_ALL_CONFIG, ...config }
-
-  useEffect(() => {
-    // Delay the appearance to coordinate with filter chip animation
-    const timer = setTimeout(() => setIsVisible(true), appearDelay)
-    return () => clearTimeout(timer)
-  }, [appearDelay])
-
-  return (
-    <AriaButton
-      onPress={onPress}
-      className={cn(
-        'text-sm font-medium text-tertiary hover:text-secondary transition-colors',
-        'outline-hidden focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand'
-      )}
-      style={{
-        opacity: isVisible ? 1 : 0,
-        transition: `opacity ${fadeDuration}ms ${EASING_EXPO_OUT}`,
-      }}
-    >
-      Clear all
-    </AriaButton>
-  )
-}
-
 
 // =============================================================================
 // COMPONENT
@@ -174,22 +108,37 @@ export const LeftToolbarContent: React.FC<LeftToolbarContentProps> = ({
 }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
-  // Convert ActiveFilter[] to FilterChipData[] for the motion component
-  const filterChips = toFilterChipData(
-    activeFilters,
-    FILTER_OPTIONS_BY_CATEGORY,
-    FILTER_ICONS
-  )
+  // Transform activeFilters to FilterChipData format for the motion component
+  // IMPORTANT: Use category as the stable ID so value changes don't trigger enter/exit animations
+  const filterChipData: FilterChipData[] = activeFilters.map((filter) => ({
+    id: filter.category.toLowerCase(), // Stable key based on category (e.g., 'status')
+    label: filter.category, // Category name shown in dropdown header
+    icon: FILTER_ICONS[filter.category],
+    value: filter.id, // Currently selected option ID (e.g., 'status-collections')
+    options: FILTER_OPTIONS_BY_CATEGORY[filter.category],
+  }))
 
-  // Handler: when a filter value changes via dropdown selection
-  const handleFilterChange = (filterId: string, newValue: string) => {
-    // filterId is the current filter id, newValue is the new option id
-    onFilterChange(filterId, newValue)
+  // Handle filter value change (switching to a different option in same category)
+  // filterId is now the category (e.g., 'status'), newValue is the new option ID
+  const handleFilterChange = (categoryId: string, newValue: string) => {
+    // Find the current filter for this category to get its option ID
+    const currentFilter = activeFilters.find(
+      (f) => f.category.toLowerCase() === categoryId
+    )
+    if (currentFilter) {
+      onFilterChange(currentFilter.id, newValue)
+    }
   }
 
-  // Handler: when a filter chip is removed
-  const handleFilterRemove = (filterId: string) => {
-    onFilterRemove(filterId)
+  // Handle filter removal
+  // filterId is now the category (e.g., 'status'), need to find the actual option ID
+  const handleFilterRemove = (categoryId: string) => {
+    const currentFilter = activeFilters.find(
+      (f) => f.category.toLowerCase() === categoryId
+    )
+    if (currentFilter) {
+      onFilterRemove(currentFilter.id)
+    }
   }
 
   return (
@@ -214,27 +163,37 @@ export const LeftToolbarContent: React.FC<LeftToolbarContentProps> = ({
         width={240}
       />
 
-      {/* Active Filter Chips - Using Motion-based component */}
-      <FilterSelectChipMotion
-        filters={filterChips}
-        onFilterChange={handleFilterChange}
-        onFilterRemove={handleFilterRemove}
-        styleConfig={{
-          size: 'sm',
-          roundness: 'full',
-          gap: 'md',
-        }}
-        animationConfig={{
-          transitionType: 'tween',
-          easing: 'expo',
-          duration: 0.15,
-          exitDuration: 0.1,
-        }}
-      />
-
-      {/* Clear All Button */}
+      {/* Active Filter Chips - Using FilterSelectChipMotion */}
       {activeFilters.length > 0 && (
-        <ClearAllButton onPress={onFiltersClear} />
+        <LayoutGroup>
+          <FilterSelectChipMotion
+            filters={filterChipData}
+            onFilterChange={handleFilterChange}
+            onFilterRemove={handleFilterRemove}
+            animationConfig={ANIMATION_CONFIG}
+            styleConfig={STYLE_CONFIG}
+          />
+
+          {/* Clear All Button - animated with LayoutGroup for smooth reflow */}
+          <motion.button
+            layout
+            transition={{
+              layout: {
+                type: 'tween',
+                duration: ANIMATION_CONFIG.duration,
+                ease: [0.33, 1, 0.68, 1],
+              },
+            }}
+            onClick={onFiltersClear}
+            className={cn(
+              'text-sm font-medium text-tertiary hover:text-secondary',
+              'transition-colors whitespace-nowrap',
+              'outline-hidden focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand'
+            )}
+          >
+            Clear all
+          </motion.button>
+        </LayoutGroup>
       )}
     </div>
   )
