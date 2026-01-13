@@ -186,7 +186,7 @@ export default function HomePage(): React.ReactElement {
       </BaseTooltip.Provider>
 
       <p
-        className="text-xl font-medium text-white transition-colors duration-300"
+        className="text-xl font-medium text-primary transition-colors duration-300"
         style={{
           opacity: isHovered ? 1 : 0.5,
           color: textColor || undefined
