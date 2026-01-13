@@ -40,16 +40,16 @@ export const AUDIENCE_COLUMNS: ColumnConfig[] = [
     sortable: false,
   },
   {
-    key: 'lastInteracted',
-    width: 240,
-    align: 'left',
-    sortable: true,
-  },
-  {
     key: 'accessGroup',
     width: 120,
     align: 'left',
     sortable: false,
+  },
+  {
+    key: 'lastInteracted',
+    width: 240,
+    align: 'left',
+    sortable: true,
   },
 ]
 
