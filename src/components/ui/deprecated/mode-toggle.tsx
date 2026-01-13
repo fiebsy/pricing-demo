@@ -25,17 +25,13 @@ function applyModeClass(mode: ThemeMode) {
  */
 export function ModeToggle() {
   const [mounted, setMounted] = React.useState(false)
-  const [mode, setMode] = React.useState<ThemeMode>('delphi')
+  const [mode, setMode] = React.useState<ThemeMode>('website')
 
-  // Initialize on mount - check DOM state first, then localStorage
+  // Initialize on mount
   React.useEffect(() => {
     setMounted(true)
-    const root = document.documentElement
-    const hasDelphiClass = root.classList.contains(DELPHI_CLASS)
     const savedMode = localStorage.getItem('themeMode') as ThemeMode | null
-
-    // Use saved preference, or detect from current DOM state
-    const initialMode = savedMode ?? (hasDelphiClass ? 'delphi' : 'website')
+    const initialMode = savedMode ?? 'website'
     setMode(initialMode)
     applyModeClass(initialMode)
   }, [])
@@ -60,12 +56,18 @@ export function ModeToggle() {
       aria-label="Toggle theme mode"
     >
       <span className="relative flex h-6 w-6 items-center justify-center rounded-full bg-primary shadow-sm transition-transform duration-200 ease-out group-selected:translate-x-6">
-        <span className="text-[10px] font-semibold text-quaternary">D</span>
-        {!isDelphi && (
-          <span className="absolute inset-0 flex items-center justify-center">
-            <span className="h-[2px] w-4 rotate-[-45deg] rounded-full bg-quaternary" />
-          </span>
-        )}
+        <svg
+          width="14"
+          height="9"
+          viewBox="0 0 33 20"
+          fill="none"
+          className={isDelphi ? 'text-brand-primary' : 'text-quaternary opacity-60'}
+        >
+          <path
+            fill="currentColor"
+            d="M32.615 0h-6.514q-3.372 0-5.743 1.086A7.9 7.9 0 0 0 16.7 4.429a8 8 0 0 0-.393.774 8 8 0 0 0-.393-.774 7.9 7.9 0 0 0-3.658-3.343Q9.887 0 6.514 0H0v2.657h6.514q3.715 0 5.572 1.886 1.44 1.462 1.763 3.937H0v2.9h13.869q-.182 1.605-.812 2.763-.885 1.629-2.514 2.4t-3.943.771H0V20h6.886q3.315 0 5.629-1.229 2.313-1.228 3.485-3.485a9 9 0 0 0 .308-.636q.142.325.307.636 1.171 2.257 3.486 3.486Q22.415 20 25.729 20h6.886v-2.686h-6.6q-2.314 0-3.943-.771-1.628-.771-2.514-2.4-.63-1.157-.812-2.762h13.87V8.48h-13.85q.324-2.476 1.763-3.937 1.858-1.886 5.572-1.886h6.514z"
+          />
+        </svg>
       </span>
     </Switch>
   )
