@@ -559,7 +559,7 @@ export function StickyDataTable<T extends Record<string, unknown>>({
               pointerEvents: 'auto',
             }}
           >
-            {React.cloneElement(filterStatusBar as React.ReactElement, {
+            {React.cloneElement(filterStatusBar as React.ReactElement<{ positionMode?: string }>, {
               positionMode: filterBarPosition.mode,
             })}
           </div>

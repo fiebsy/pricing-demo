@@ -50,16 +50,6 @@ export const MetricTileBar: React.FC<MetricTileBarProps> = ({
   className,
 }) => {
   const [hoveredId, setHoveredId] = useState<AudienceMetricId | null>(null)
-  const [animated, setAnimated] = useState(false)
-
-  // Brief delay before showing numbers
-  React.useEffect(() => {
-    const timer = setTimeout(() => setAnimated(true), 50)
-    return () => clearTimeout(timer)
-  }, [])
-
-  // Smooth animation timing
-  const timing = { duration: 800, easing: 'ease-out' as const }
 
   // Format metrics for display with NumberFlow animation
   const metricValues = useMemo(() => {
@@ -67,11 +57,7 @@ export const MetricTileBar: React.FC<MetricTileBarProps> = ({
       {
         id: 'totalActive' as AudienceMetricId,
         label: 'Total Active Users',
-        value: animated ? (
-          <NumberFlow value={metrics.totalActiveUsers} locales="en-US" transformTiming={timing} spinTiming={timing} />
-        ) : (
-          <span className="inline-block h-[1em] w-6 rounded bg-quaternary/50" />
-        ),
+        value: <NumberFlow value={metrics.totalActiveUsers} locales="en-US" />,
         subtext: 'from last 30 days',
         trend: {
           value: Math.abs(metrics.activeUsersChange),
@@ -81,11 +67,7 @@ export const MetricTileBar: React.FC<MetricTileBarProps> = ({
       {
         id: 'totalMessages' as AudienceMetricId,
         label: 'Total Messages',
-        value: animated ? (
-          <NumberFlow value={metrics.totalMessages} locales="en-US" transformTiming={timing} spinTiming={timing} />
-        ) : (
-          <span className="inline-block h-[1em] w-6 rounded bg-quaternary/50" />
-        ),
+        value: <NumberFlow value={metrics.totalMessages} locales="en-US" />,
         subtext: 'from last 30 days',
         trend: {
           value: Math.abs(metrics.messagesChange),
@@ -95,11 +77,7 @@ export const MetricTileBar: React.FC<MetricTileBarProps> = ({
       {
         id: 'avgMessages' as AudienceMetricId,
         label: 'Avg Messages / User',
-        value: animated ? (
-          <NumberFlow value={metrics.avgMessagesPerUser} format={{ maximumFractionDigits: 1, minimumFractionDigits: 1 }} transformTiming={timing} spinTiming={timing} />
-        ) : (
-          <span className="inline-block h-[1em] w-6 rounded bg-quaternary/50" />
-        ),
+        value: <NumberFlow value={metrics.avgMessagesPerUser} format={{ maximumFractionDigits: 1, minimumFractionDigits: 1 }} />,
         subtext: 'from last 30 days',
         trend: {
           value: Math.abs(metrics.avgMessagesChange),
@@ -109,11 +87,7 @@ export const MetricTileBar: React.FC<MetricTileBarProps> = ({
       {
         id: 'mostEngaged' as AudienceMetricId,
         label: 'Most Engaged Users',
-        value: animated ? (
-          <NumberFlow value={metrics.mostEngagedUsers} locales="en-US" transformTiming={timing} spinTiming={timing} />
-        ) : (
-          <span className="inline-block h-[1em] w-6 rounded bg-quaternary/50" />
-        ),
+        value: <NumberFlow value={metrics.mostEngagedUsers} locales="en-US" />,
         subtext: 'from last 30 days',
         trend: {
           value: Math.abs(metrics.engagedUsersChange),
@@ -121,7 +95,7 @@ export const MetricTileBar: React.FC<MetricTileBarProps> = ({
         },
       },
     ]
-  }, [metrics, animated])
+  }, [metrics])
 
   return (
     <NumberFlowGroup>
