@@ -159,8 +159,8 @@ export interface MetricCardProps {
   label: string
   /** Optional suffix label shown next to main label */
   labelSuffix?: string
-  /** Main value (e.g., "$125,000") */
-  value: string
+  /** Main value (e.g., "$125,000") - can be string or ReactNode for animated values */
+  value: string | React.ReactNode
   /** Count/subtitle (e.g., "24 orders") */
   count: string
   /** Optional trend indicator shown next to value */

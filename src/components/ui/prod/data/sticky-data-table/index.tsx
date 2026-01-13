@@ -32,6 +32,7 @@
  * ```
  */
 
+import * as React from 'react'
 import { useMemo, useRef } from 'react'
 import { GradientOverlay, StickyHeaderWrapper, TableBody, ToolbarContent, LoadMoreSkeleton } from './components'
 import { useHeaderDrag } from './components/header/use-header-drag'
@@ -287,7 +288,7 @@ export function StickyDataTable<T extends Record<string, unknown>>({
   const filterBarPosition = useFilterBarPosition({
     tableContainerRef,
     bodyRef: bodyScrollRef,
-    bottomOffset: 80,
+    bottomOffset: 0,
   })
 
   // ==========================================================================
@@ -550,6 +551,7 @@ export function StickyDataTable<T extends Record<string, unknown>>({
 
         {/* Filter Status Bar - positioned outside sticky wrapper for correct coordinate system */}
         {/* Uses fixed positioning when table is tall, absolute when table is short */}
+        {/* Passes positionMode to allow flip corners to adapt based on positioning */}
         {filterStatusBar && filterBarPosition.isReady && (
           <div
             style={{
@@ -557,7 +559,9 @@ export function StickyDataTable<T extends Record<string, unknown>>({
               pointerEvents: 'auto',
             }}
           >
-            {filterStatusBar}
+            {React.cloneElement(filterStatusBar as React.ReactElement, {
+              positionMode: filterBarPosition.mode,
+            })}
           </div>
         )}
       </div>

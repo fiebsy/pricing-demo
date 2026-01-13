@@ -14,6 +14,7 @@ import React, { useState, useMemo, useCallback, useDeferredValue } from 'react'
 import {
   StickyDataTable,
   TableEmptyState,
+  FilterStatusBar,
   useColumnConfiguration,
   type SelectionState,
 } from '@/components/ui/prod/data/sticky-data-table'
@@ -362,6 +363,15 @@ export default function StudioPage() {
                 ? { label: 'Clear filters', onClick: handleClearAll }
                 : undefined
             }
+          />
+        }
+        // Filter status bar with flip-corner styling
+        filterStatusBar={
+          <FilterStatusBar
+            visibleCount={filteredItems.length}
+            totalCount={totalCount}
+            isFiltered={activeFilters.length > 0}
+            visible={!isLoading && filteredItems.length > 0}
           />
         }
       />

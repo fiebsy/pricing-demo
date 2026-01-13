@@ -55,8 +55,9 @@ export const MetricCard = forwardRef<HTMLButtonElement, MetricCardProps>(
     },
     ref
   ) => {
-    // Format value into parts for styling
+    // Format value into parts for styling (only if value is a string)
     const valueParts = useMemo(() => {
+      if (typeof value !== 'string') return null
       const format = config.valueFormat ?? DEFAULT_VALUE_FORMAT
       return formatCompactValue(value, format)
     }, [value, config.valueFormat])
@@ -148,16 +149,22 @@ export const MetricCard = forwardRef<HTMLButtonElement, MetricCardProps>(
             className={cn(buildSectionClasses(resolvedValueStyle), 'tabular-nums')}
             style={{ opacity: (resolvedValueStyle.opacity ?? 100) / 100 }}
           >
-            {valueParts.prefix && (
-              <span style={{ opacity: (config.valueFormat?.prefixOpacity ?? 100) / 100 }}>
-                {valueParts.prefix}
-              </span>
-            )}
-            {valueParts.number}
-            {valueParts.suffix && (
-              <span style={{ opacity: (config.valueFormat?.suffixOpacity ?? 100) / 100 }}>
-                {valueParts.suffix}
-              </span>
+            {valueParts ? (
+              <>
+                {valueParts.prefix && (
+                  <span style={{ opacity: (config.valueFormat?.prefixOpacity ?? 100) / 100 }}>
+                    {valueParts.prefix}
+                  </span>
+                )}
+                {valueParts.number}
+                {valueParts.suffix && (
+                  <span style={{ opacity: (config.valueFormat?.suffixOpacity ?? 100) / 100 }}>
+                    {valueParts.suffix}
+                  </span>
+                )}
+              </>
+            ) : (
+              value
             )}
           </span>
           {trend && <TrendBadge trend={trend} style={config.trendStyle} />}

@@ -6,4 +6,4 @@
  * @module components/status
  */
 
-export { FilterStatusBar, type FilterStatusBarProps, type ActiveFilter } from './filter-status-bar'
+export { FilterStatusBar, type FilterStatusBarProps, type ActiveFilter, type PositionMode } from './filter-status-bar'

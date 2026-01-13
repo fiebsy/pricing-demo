@@ -1,129 +1,229 @@
 'use client'
 
 /**
- * StickyDataTable - FilterStatusBar Component
+ * FilterStatusBar Component
  *
- * A floating status bar that displays filter information at the bottom of the table.
- * Shows "Showing X of Y orders" with a progress fill and active filter badges.
+ * A floating status bar with flip-corner styling that displays filter state
+ * and count information at the bottom of the table.
+ *
+ * Features:
+ * - SVG-based S-curve flip corners (Safari tab style)
+ * - Adaptive corner flipping based on scroll position (fixed vs absolute)
+ * - Badge indicators for filter state
+ * - Automatic positioning via useFilterBarPosition hook
+ *
+ * Display states:
+ * - Unfiltered: "287 orders [All]"
+ * - Filtered: "50 / 287 orders [Filtered]"
  *
  * @module components/status/filter-status-bar
  */
 
-import { memo, useMemo } from 'react'
+import { memo, useRef, useState, useLayoutEffect } from 'react'
 import { cn } from '@/lib/utils'
-import { Badge } from '@/components/ui/prod/base/badge'
+
+// Subcomponents
+import {
+  CornerShape,
+  CountDisplay,
+  BadgeGroup,
+  EdgeStroke,
+  useAdaptiveStyles,
+} from './filter-status-bar/index'
+
+// Constants
+import {
+  BACKGROUND_COLOR,
+  FLIP_CORNER_CURVATURE,
+  PADDING_X,
+  PADDING_Y,
+} from './filter-status-bar/constants'
+
+// Types
+import type {
+  FilterStatusBarProps,
+  ActiveFilter,
+  PositionMode,
+} from './filter-status-bar/types'
+
+// Re-export types for external use
+export type { FilterStatusBarProps, ActiveFilter, PositionMode }
 
 // ============================================================================
-// TYPES
-// ============================================================================
-
-export interface ActiveFilter {
-  /** Unique identifier for the filter */
-  id: string
-  /** Display label for the filter badge */
-  label: string
-}
-
-export interface FilterStatusBarProps {
-  /** Current visible count */
-  visibleCount: number
-  /** Total count before filtering */
-  totalCount: number
-  /** Array of active filters to display as badges */
-  activeFilters?: ActiveFilter[]
-  /** Whether the bar should be visible */
-  visible?: boolean
-  /** Optional className for customization */
-  className?: string
-}
-
-// ============================================================================
-// FILTER STATUS BAR COMPONENT
+// MAIN COMPONENT
 // ============================================================================
 
 /**
- * FilterStatusBar - Floating filter information display
+ * FilterStatusBar - Floating filter information display with flip corners
  *
- * Features:
- * - Progress fill background showing filter ratio
- * - "Filtering X of Y orders" text
- * - Active filter badges
- * - Smooth fade in/out transitions
+ * Renders a status bar showing:
+ * - Count display: "X orders [All]" or "X / Y orders [Filtered]"
+ * - Optional filter badges
+ * - SVG flip corners that adapt based on positioning mode
  */
 const FilterStatusBarBase = ({
   visibleCount,
   totalCount,
+  isFiltered = false,
   activeFilters = [],
   visible = true,
+  positionMode = 'absolute',
   className,
 }: FilterStatusBarProps) => {
-  // Calculate percentage for progress fill
-  const percentage = useMemo(() => {
-    if (totalCount === 0) return 100
-    return (visibleCount / totalCount) * 100
-  }, [visibleCount, totalCount])
+  // Ref for measuring bar height
+  const barRef = useRef<HTMLDivElement>(null)
+  const [barHeight, setBarHeight] = useState(36)
 
-  // Determine if we should show - only when filtering is active
-  const hasContent = activeFilters.length > 0 || visibleCount !== totalCount
-  const shouldShow = visible && hasContent
+  // Measure bar height for corner sizing
+  useLayoutEffect(() => {
+    if (barRef.current) {
+      const height = barRef.current.offsetHeight
+      if (height > 0) {
+        setBarHeight(height)
+      }
+    }
+  }, [visibleCount, totalCount, isFiltered, activeFilters])
+
+  // Get adaptive styles based on position mode
+  const {
+    effectiveCorners,
+    cornerWidth,
+    topCornerStroke,
+    bottomCornerStroke,
+    topEdgeStroke,
+    bottomEdgeStroke,
+    sidesBorderStyle,
+  } = useAdaptiveStyles(positionMode)
+
+  // Determine visibility - show when there's data
+  const shouldShow = visible && totalCount > 0
+
+  // Determine corner positions based on which corners are active
+  const hasTopCorners = effectiveCorners.topLeft > 0 || effectiveCorners.topRight > 0
+  const hasBottomCorners = effectiveCorners.bottomLeft > 0 || effectiveCorners.bottomRight > 0
 
   return (
     <div
       className={cn(
         'pointer-events-none',
+        'transition-opacity duration-200 ease-out',
+        'motion-reduce:transition-none',
         className
       )}
       style={{
         opacity: shouldShow ? 1 : 0,
-        transition: 'opacity 200ms ease-out',
       }}
     >
-      <div
-        className={cn(
-          'pointer-events-auto',
-          'relative overflow-hidden',
-          'inline-flex items-center gap-2',
-          'rounded-full',
-          'px-3 py-1.5',
-          'bg-primary/95 backdrop-blur-sm',
-          'shadow-lg',
-          'border border-primary',
-          'text-xs font-medium',
-          'transition-all duration-200',
-          'motion-reduce:transition-none'
+      {/* Main bar container with relative positioning for corners */}
+      <div className="pointer-events-auto relative">
+        {/* Left flip corner */}
+        {(hasTopCorners || hasBottomCorners) && (
+          <>
+            {/* Top-left corner */}
+            {effectiveCorners.topLeft > 0 && (
+              <CornerShape
+                position="top-left"
+                size={cornerWidth}
+                height={barHeight}
+                fillColor={BACKGROUND_COLOR}
+                strokeWidth={topCornerStroke.width}
+                strokeColor={topCornerStroke.color}
+                curvature={FLIP_CORNER_CURVATURE}
+              />
+            )}
+            {/* Bottom-left corner */}
+            {effectiveCorners.bottomLeft > 0 && (
+              <CornerShape
+                position="bottom-left"
+                size={cornerWidth}
+                height={barHeight}
+                fillColor={BACKGROUND_COLOR}
+                strokeWidth={bottomCornerStroke.width}
+                strokeColor={bottomCornerStroke.color}
+                curvature={FLIP_CORNER_CURVATURE}
+              />
+            )}
+          </>
         )}
-      >
-        {/* Progress fill background */}
+
+        {/* Right flip corner */}
+        {(hasTopCorners || hasBottomCorners) && (
+          <>
+            {/* Top-right corner */}
+            {effectiveCorners.topRight > 0 && (
+              <CornerShape
+                position="top-right"
+                size={cornerWidth}
+                height={barHeight}
+                fillColor={BACKGROUND_COLOR}
+                strokeWidth={topCornerStroke.width}
+                strokeColor={topCornerStroke.color}
+                curvature={FLIP_CORNER_CURVATURE}
+              />
+            )}
+            {/* Bottom-right corner */}
+            {effectiveCorners.bottomRight > 0 && (
+              <CornerShape
+                position="bottom-right"
+                size={cornerWidth}
+                height={barHeight}
+                fillColor={BACKGROUND_COLOR}
+                strokeWidth={bottomCornerStroke.width}
+                strokeColor={bottomCornerStroke.color}
+                curvature={FLIP_CORNER_CURVATURE}
+              />
+            )}
+          </>
+        )}
+
+        {/* Edge strokes (horizontal lines) */}
+        {topEdgeStroke.enabled && (
+          <EdgeStroke
+            position="top"
+            strokeWidth={topEdgeStroke.width}
+            strokeColor={topEdgeStroke.color}
+            leftInset={effectiveCorners.topLeft > 0 ? cornerWidth : 0}
+            rightInset={effectiveCorners.topRight > 0 ? cornerWidth : 0}
+          />
+        )}
+        {bottomEdgeStroke.enabled && (
+          <EdgeStroke
+            position="bottom"
+            strokeWidth={bottomEdgeStroke.width}
+            strokeColor={bottomEdgeStroke.color}
+            leftInset={effectiveCorners.bottomLeft > 0 ? cornerWidth : 0}
+            rightInset={effectiveCorners.bottomRight > 0 ? cornerWidth : 0}
+          />
+        )}
+
+        {/* Bar content */}
         <div
-          className="absolute inset-0 bg-brand-primary/10 transition-all duration-300 ease-out"
-          style={{ width: `${percentage}%` }}
-          aria-hidden="true"
-        />
+          ref={barRef}
+          className="relative flex items-center gap-2 text-xs"
+          style={{
+            backgroundColor: BACKGROUND_COLOR,
+            paddingLeft: `${PADDING_X}px`,
+            paddingRight: `${PADDING_X}px`,
+            paddingTop: `${PADDING_Y}px`,
+            paddingBottom: `${PADDING_Y}px`,
+            ...sidesBorderStyle,
+          }}
+        >
+          {/* Count display */}
+          <CountDisplay
+            visibleCount={visibleCount}
+            totalCount={totalCount}
+            isFiltered={isFiltered}
+            visible={true}
+          />
 
-        {/* Content (above the fill) */}
-        <div className="relative z-10 flex items-center gap-2">
-          {/* Count Display */}
-          <span className="text-secondary whitespace-nowrap">
-            Showing{' '}
-            <span className="text-primary font-semibold">{visibleCount.toLocaleString()}</span>
-            {' '}of{' '}
-            <span className="text-tertiary">{totalCount.toLocaleString()}</span>
-            {' '}orders
-          </span>
-
-          {/* Filter Badges */}
-          {activeFilters.length > 0 && (
-            <>
-              <span className="bg-quaternary h-3 w-px shrink-0" aria-hidden="true" />
-              <div className="flex items-center gap-1">
-                {activeFilters.map((filter) => (
-                  <Badge key={filter.id} size="xs" color="gray">
-                    {filter.label}
-                  </Badge>
-                ))}
-              </div>
-            </>
-          )}
+          {/* Badge group for active filters */}
+          <BadgeGroup
+            activeFilters={activeFilters}
+            visible={activeFilters.length > 0}
+            showDivider={true}
+            hasCountText={true}
+          />
         </div>
       </div>
     </div>

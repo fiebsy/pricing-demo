@@ -15,6 +15,7 @@
 
 import * as React from 'react'
 import { useMemo, useState } from 'react'
+import NumberFlow, { NumberFlowGroup } from '@number-flow/react'
 import { cn } from '@/lib/utils'
 import {
   MetricCard,
@@ -49,14 +50,24 @@ export const MetricTileBar: React.FC<MetricTileBarProps> = ({
   className,
 }) => {
   const [hoveredId, setHoveredId] = useState<AudienceMetricId | null>(null)
+  const [animated, setAnimated] = useState(false)
 
-  // Format metrics for display
+  // Trigger animation after mount with longer delay for smoother start
+  React.useEffect(() => {
+    const timer = setTimeout(() => setAnimated(true), 300)
+    return () => clearTimeout(timer)
+  }, [])
+
+  // Smooth animation timing
+  const timing = { duration: 800, easing: 'ease-out' as const }
+
+  // Format metrics for display with NumberFlow animation
   const metricValues = useMemo(() => {
     return [
       {
         id: 'totalActive' as AudienceMetricId,
         label: 'Total Active Users',
-        value: metrics.totalActiveUsers.toLocaleString(),
+        value: <span className={animated ? 'opacity-100' : 'opacity-0'}><NumberFlow value={animated ? metrics.totalActiveUsers : 0} locales="en-US" transformTiming={timing} spinTiming={timing} /></span>,
         subtext: 'from last 30 days',
         trend: {
           value: Math.abs(metrics.activeUsersChange),
@@ -66,7 +77,7 @@ export const MetricTileBar: React.FC<MetricTileBarProps> = ({
       {
         id: 'totalMessages' as AudienceMetricId,
         label: 'Total Messages',
-        value: metrics.totalMessages.toLocaleString(),
+        value: <span className={animated ? 'opacity-100' : 'opacity-0'}><NumberFlow value={animated ? metrics.totalMessages : 0} locales="en-US" transformTiming={timing} spinTiming={timing} /></span>,
         subtext: 'from last 30 days',
         trend: {
           value: Math.abs(metrics.messagesChange),
@@ -76,7 +87,7 @@ export const MetricTileBar: React.FC<MetricTileBarProps> = ({
       {
         id: 'avgMessages' as AudienceMetricId,
         label: 'Avg Messages / User',
-        value: metrics.avgMessagesPerUser.toFixed(1),
+        value: <span className={animated ? 'opacity-100' : 'opacity-0'}><NumberFlow value={animated ? metrics.avgMessagesPerUser : 0} format={{ maximumFractionDigits: 1, minimumFractionDigits: 1 }} transformTiming={timing} spinTiming={timing} /></span>,
         subtext: 'from last 30 days',
         trend: {
           value: Math.abs(metrics.avgMessagesChange),
@@ -86,7 +97,7 @@ export const MetricTileBar: React.FC<MetricTileBarProps> = ({
       {
         id: 'mostEngaged' as AudienceMetricId,
         label: 'Most Engaged Users',
-        value: metrics.mostEngagedUsers.toLocaleString(),
+        value: <span className={animated ? 'opacity-100' : 'opacity-0'}><NumberFlow value={animated ? metrics.mostEngagedUsers : 0} locales="en-US" transformTiming={timing} spinTiming={timing} /></span>,
         subtext: 'from last 30 days',
         trend: {
           value: Math.abs(metrics.engagedUsersChange),
@@ -94,7 +105,7 @@ export const MetricTileBar: React.FC<MetricTileBarProps> = ({
         },
       },
     ]
-  }, [metrics])
+  }, [metrics, animated])
 
   return (
     <div className={cn('grid grid-cols-2 gap-3 lg:grid-cols-4', className)}>
