@@ -9,16 +9,18 @@
 
 import * as React from 'react'
 import { useState } from 'react'
-import { LayoutGroup, motion } from 'motion/react'
 import { cn } from '@/lib/utils'
 
 import {
   FilterMenu,
   FilterTrigger,
-  FilterSelectChipMotion,
-  type FilterChipData,
   type FilterOption,
 } from '@/components/ui/prod/base/filter'
+
+import {
+  FilterSelectChipStatic,
+  type FilterChipData,
+} from '@/components/ui/prod/base/filter/filter-select-chip-static'
 
 import {
   AUDIENCE_FILTER_ITEMS,
@@ -79,15 +81,8 @@ export interface LeftToolbarContentProps {
 }
 
 // =============================================================================
-// FILTER SELECT CHIP MOTION CONFIG
+// FILTER SELECT CHIP STATIC CONFIG
 // =============================================================================
-
-const ANIMATION_CONFIG = {
-  transitionType: 'tween' as const,
-  easing: 'easeOut' as const,
-  duration: 0.15,
-  exitDuration: 0.05,
-}
 
 const STYLE_CONFIG = {
   size: 'sm' as const,
@@ -162,27 +157,18 @@ export const LeftToolbarContent: React.FC<LeftToolbarContentProps> = ({
         width={240}
       />
 
-      {/* Active Filter Chips - Using FilterSelectChipMotion */}
+      {/* Active Filter Chips - Using FilterSelectChipStatic */}
       {activeFilters.length > 0 && (
-        <LayoutGroup>
-          <FilterSelectChipMotion
+        <>
+          <FilterSelectChipStatic
             filters={filterChipData}
             onFilterChange={handleFilterChange}
             onFilterRemove={handleFilterRemove}
-            animationConfig={ANIMATION_CONFIG}
             styleConfig={STYLE_CONFIG}
           />
 
-          {/* Clear All Button - animated with LayoutGroup for smooth reflow */}
-          <motion.button
-            layout
-            transition={{
-              layout: {
-                type: 'tween',
-                duration: ANIMATION_CONFIG.duration,
-                ease: [0.33, 1, 0.68, 1],
-              },
-            }}
+          {/* Clear All Button */}
+          <button
             onClick={onFiltersClear}
             className={cn(
               'text-sm font-medium text-tertiary hover:text-secondary',
@@ -191,8 +177,8 @@ export const LeftToolbarContent: React.FC<LeftToolbarContentProps> = ({
             )}
           >
             Clear all
-          </motion.button>
-        </LayoutGroup>
+          </button>
+        </>
       )}
     </div>
   )

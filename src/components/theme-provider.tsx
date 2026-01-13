@@ -13,7 +13,7 @@ type ThemeContextType = {
 const ThemeContext = React.createContext<ThemeContextType | undefined>(undefined)
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = React.useState<Theme>('light')
+  const [theme, setTheme] = React.useState<Theme>('dark')
   const [mounted, setMounted] = React.useState(false)
 
   // Only run on client side
@@ -26,6 +26,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       if (savedTheme === 'dark') {
         document.documentElement.classList.add('dark-mode')
       }
+    } else {
+      // Default to dark mode if no saved preference
+      document.documentElement.classList.add('dark-mode')
     }
   }, [])
 

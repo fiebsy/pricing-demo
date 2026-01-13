@@ -37,6 +37,7 @@ import { useMockAudience } from '@/modules/studio/hooks/use-mock-audience'
 import { MetricTileBar } from '@/modules/studio/components/metric-tile-bar'
 import { LeftToolbarContent, RightToolbarContent } from '@/modules/studio/components/toolbar'
 import { renderCell } from '@/modules/studio/components/cell-renderer'
+import { ThemeToggle } from '@/components/ui/deprecated/theme-toggle'
 
 import type {
   AudienceMetricId,
@@ -55,11 +56,18 @@ export default function StudioPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [searchExpanded, setSearchExpanded] = useState(false)
 
-  // Filter state - default to no filters
-  const [activeFilters, setActiveFilters] = useState<ActiveFilter[]>([])
+  // Filter state - default to active users filter
+  const [activeFilters, setActiveFilters] = useState<ActiveFilter[]>([
+    {
+      id: 'status-active',
+      label: FILTER_DISPLAY_LABELS['status-active'].label,
+      value: FILTER_DISPLAY_LABELS['status-active'].value,
+      category: FILTER_DISPLAY_LABELS['status-active'].category,
+    },
+  ])
 
-  // Active metric for highlighting tiles (no filter by default)
-  const [activeMetric, setActiveMetric] = useState<AudienceMetricId | null>(null)
+  // Active metric for highlighting tiles - default to totalActive
+  const [activeMetric, setActiveMetric] = useState<AudienceMetricId | null>('totalActive')
 
   // Server-side sort state
   const [sortBy, setSortBy] = useState<AudienceSortField>('LAST_INTERACTED')
@@ -73,7 +81,7 @@ export default function StudioPage() {
     isHydrated: isColumnConfigHydrated,
   } = useColumnConfiguration({
     columns: AUDIENCE_COLUMNS,
-    storageKey: 'studio-audience-columns-v2',
+    // storageKey disabled to test fresh config
   })
 
   // Fetch data using mock pagination hook
@@ -356,6 +364,9 @@ export default function StudioPage() {
           />
         }
       />
+
+      {/* Theme Toggle */}
+      <ThemeToggle />
     </div>
   )
 }
