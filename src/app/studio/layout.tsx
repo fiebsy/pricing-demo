@@ -20,7 +20,7 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
           display: none !important;
         }
       `}</style>
-      <div className="min-h-screen bg-primary">
+      <div className="min-h-screen bg-secondary_alt">
         {children}
       </div>
     </DelphiThemeProvider>
