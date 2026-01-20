@@ -50,14 +50,20 @@ const ITEM_SIZE = 34 // p-2 (8px * 2) + icon 18px = 34px
 export function FloatingNav({ className = '' }: FloatingNavProps) {
   const pathname = usePathname()
 
+  // Hide nav entirely on /a/ routes
+  const isHiddenRoute = pathname.startsWith('/a')
+
   // Check if current path matches nav item (exact or starts with for nested routes)
   const isActive = (href: string) => {
     if (href === '/') return pathname === '/'
     return pathname === href || pathname.startsWith(`${href}/`)
   }
 
-  // Get active index for slider position
+  // Get active index for slider position (-1 if no match)
   const activeIndex = NAV_ITEMS.findIndex((item) => isActive(item.href))
+
+  // Don't render on hidden routes
+  if (isHiddenRoute) return null
 
   return (
     <nav
@@ -67,14 +73,16 @@ export function FloatingNav({ className = '' }: FloatingNavProps) {
       `}
     >
       <div className="relative flex items-center rounded-full border border-primary bg-secondary p-1 backdrop-blur-xl shadow-lg shadow-black/10">
-        {/* Sliding indicator */}
-        <div
-          className="absolute top-1 bottom-1 rounded-full bg-quaternary transition-transform duration-300 ease-out"
-          style={{
-            width: ITEM_SIZE,
-            transform: `translateX(${activeIndex * ITEM_SIZE}px)`,
-          }}
-        />
+        {/* Sliding indicator - only show when a nav item is active */}
+        {activeIndex >= 0 && (
+          <div
+            className="absolute top-1 bottom-1 rounded-full bg-quaternary transition-transform duration-300 ease-out"
+            style={{
+              width: ITEM_SIZE,
+              transform: `translateX(${activeIndex * ITEM_SIZE}px)`,
+            }}
+          />
+        )}
 
         {/* Nav items */}
         {NAV_ITEMS.map((item) => {

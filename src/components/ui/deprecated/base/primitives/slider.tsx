@@ -56,17 +56,18 @@ export function Slider({
       )}
     >
       <BaseSlider.Control className="relative flex h-5 w-full items-center">
-        <BaseSlider.Track className="bg-tertiary relative h-1.5 w-full grow overflow-hidden rounded-full">
+        <BaseSlider.Track className="bg-tertiary relative h-1.5 w-full grow rounded-full">
           <BaseSlider.Indicator className="bg-brand-solid absolute h-full rounded-full" />
+          <BaseSlider.Thumb
+            className={cx(
+              'block size-4 rounded-full bg-primary shadow-md',
+              'ring-1 ring-inset ring-fg-quaternary/80',
+              'focus:outline-none focus-visible:ring-2 focus-visible:ring-brand',
+              'transition-colors',
+              !isDisabled && 'cursor-grab active:cursor-grabbing'
+            )}
+          />
         </BaseSlider.Track>
-        <BaseSlider.Thumb
-          className={cx(
-            'block size-4 rounded-full border-2 border-brand-solid bg-primary shadow',
-            'focus:outline-none focus-visible:ring-2 focus-visible:ring-brand',
-            'transition-colors',
-            !isDisabled && 'cursor-grab active:cursor-grabbing'
-          )}
-        />
       </BaseSlider.Control>
     </BaseSlider.Root>
   )

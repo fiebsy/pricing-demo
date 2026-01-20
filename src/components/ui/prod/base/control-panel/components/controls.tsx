@@ -16,7 +16,6 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from '@/components/ui/deprecated/base/primitives/select'
 import { Slider } from '@/components/ui/deprecated/base/primitives/slider'
 
@@ -207,7 +206,7 @@ export function SelectControl({ control, onChange }: SelectControlProps) {
           {showColorSwatch && selectedOption?.color && (
             <ColorSwatch color={selectedOption.color} size="xs" />
           )}
-          <SelectValue placeholder="Select..." />
+          <span className="truncate">{selectedOption?.label || 'Select...'}</span>
         </span>
       </SelectTrigger>
       <SelectContent>
@@ -245,9 +244,7 @@ export function ColorSelectControl({ control, onChange }: ColorSelectControlProp
       >
         <span className="flex items-center gap-2.5">
           {selectedOption?.color && <ColorSwatch color={selectedOption.color} size={swatchSize} />}
-          <span className="truncate">
-            <SelectValue placeholder="Select color..." />
-          </span>
+          <span className="truncate">{selectedOption?.label || 'Select color...'}</span>
         </span>
       </SelectTrigger>
       <SelectContent className="max-h-[300px]">

@@ -7,6 +7,7 @@
 'use client'
 
 import * as React from 'react'
+import { createPortal } from 'react-dom'
 import { cx } from '@/components/utils/cx'
 
 interface SelectOption {
@@ -51,6 +52,7 @@ const SelectContext = React.createContext<{
   setIsOpen: (open: boolean) => void
   options: SelectOption[]
   registerOption: (option: SelectOption) => void
+  triggerRef: React.RefObject<HTMLButtonElement | null>
 } | null>(null)
 
 const useSelectContext = () => {
@@ -62,6 +64,7 @@ const useSelectContext = () => {
 export function Select({ value, onValueChange, disabled, children }: SelectProps) {
   const [isOpen, setIsOpen] = React.useState(false)
   const [options, setOptions] = React.useState<SelectOption[]>([])
+  const triggerRef = React.useRef<HTMLButtonElement>(null)
 
   const registerOption = React.useCallback((option: SelectOption) => {
     setOptions((prev) => {
@@ -71,17 +74,18 @@ export function Select({ value, onValueChange, disabled, children }: SelectProps
   }, [])
 
   return (
-    <SelectContext.Provider value={{ value, onValueChange, disabled, isOpen, setIsOpen, options, registerOption }}>
+    <SelectContext.Provider value={{ value, onValueChange, disabled, isOpen, setIsOpen, options, registerOption, triggerRef }}>
       <div className="relative">{children}</div>
     </SelectContext.Provider>
   )
 }
 
 export function SelectTrigger({ children, className }: SelectTriggerProps) {
-  const { isOpen, setIsOpen, disabled } = useSelectContext()
+  const { isOpen, setIsOpen, disabled, triggerRef } = useSelectContext()
 
   return (
     <button
+      ref={triggerRef}
       type="button"
       onClick={() => !disabled && setIsOpen(!isOpen)}
       disabled={disabled}
@@ -104,12 +108,43 @@ export function SelectTrigger({ children, className }: SelectTriggerProps) {
 }
 
 export function SelectContent({ children, className }: SelectContentProps) {
-  const { isOpen, setIsOpen } = useSelectContext()
+  const { isOpen, setIsOpen, triggerRef } = useSelectContext()
   const ref = React.useRef<HTMLDivElement>(null)
+  const [position, setPosition] = React.useState({ top: 0, left: 0, width: 0 })
+
+  // Update position when dropdown opens or on scroll/resize
+  React.useEffect(() => {
+    if (!isOpen || !triggerRef.current) return
+
+    const updatePosition = () => {
+      const rect = triggerRef.current?.getBoundingClientRect()
+      if (rect) {
+        setPosition({
+          top: rect.bottom + 4,
+          left: rect.left,
+          width: rect.width,
+        })
+      }
+    }
+
+    updatePosition()
+    window.addEventListener('scroll', updatePosition, true)
+    window.addEventListener('resize', updatePosition)
+
+    return () => {
+      window.removeEventListener('scroll', updatePosition, true)
+      window.removeEventListener('resize', updatePosition)
+    }
+  }, [isOpen, triggerRef])
 
   React.useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
+      if (
+        ref.current &&
+        !ref.current.contains(e.target as Node) &&
+        triggerRef.current &&
+        !triggerRef.current.contains(e.target as Node)
+      ) {
         setIsOpen(false)
       }
     }
@@ -117,15 +152,21 @@ export function SelectContent({ children, className }: SelectContentProps) {
       document.addEventListener('mousedown', handleClickOutside)
     }
     return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [isOpen, setIsOpen])
+  }, [isOpen, setIsOpen, triggerRef])
 
   if (!isOpen) return null
 
-  return (
+  const content = (
     <div
       ref={ref}
+      style={{
+        position: 'fixed',
+        top: position.top,
+        left: position.left,
+        width: position.width,
+      }}
       className={cx(
-        'absolute z-50 mt-1 w-full',
+        'z-[9999]',
         'max-h-60 overflow-auto',
         'border-primary bg-secondary rounded-md border shadow-md',
         'p-1',
@@ -135,6 +176,8 @@ export function SelectContent({ children, className }: SelectContentProps) {
       {children}
     </div>
   )
+
+  return createPortal(content, document.body)
 }
 
 export function SelectItem({ value, children, className }: SelectItemProps) {
