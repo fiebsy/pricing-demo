@@ -110,7 +110,7 @@ export function SelectTrigger({ children, className }: SelectTriggerProps) {
 export function SelectContent({ children, className }: SelectContentProps) {
   const { isOpen, setIsOpen, triggerRef } = useSelectContext()
   const ref = React.useRef<HTMLDivElement>(null)
-  const [position, setPosition] = React.useState({ top: 0, left: 0, width: 0 })
+  const [position, setPosition] = React.useState({ top: 0, left: 0, width: 0, openUpward: false })
 
   // Update position when dropdown opens or on scroll/resize
   React.useEffect(() => {
@@ -119,10 +119,19 @@ export function SelectContent({ children, className }: SelectContentProps) {
     const updatePosition = () => {
       const rect = triggerRef.current?.getBoundingClientRect()
       if (rect) {
+        // Check available space below vs above
+        const spaceBelow = window.innerHeight - rect.bottom
+        const spaceAbove = rect.top
+        const dropdownHeight = 240 // max-h-60 = 15rem = 240px
+
+        // Open upward if not enough space below and more space above
+        const shouldOpenUpward = spaceBelow < dropdownHeight && spaceAbove > spaceBelow
+
         setPosition({
-          top: rect.bottom + 4,
+          top: shouldOpenUpward ? rect.top - 4 : rect.bottom + 4,
           left: rect.left,
           width: rect.width,
+          openUpward: shouldOpenUpward,
         })
       }
     }
@@ -161,8 +170,10 @@ export function SelectContent({ children, className }: SelectContentProps) {
       ref={ref}
       style={{
         position: 'fixed',
-        top: position.top,
-        left: position.left,
+        // When opening upward, position bottom edge at the calculated top position
+        ...(position.openUpward
+          ? { bottom: window.innerHeight - position.top, left: position.left }
+          : { top: position.top, left: position.left }),
         width: position.width,
       }}
       className={cx(

@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import { neueHaasGroteskText, neueHaasGroteskDisplay } from '@/lib/fonts'
 import { ThemeProvider } from '@/components/theme-provider'
-import { ThemeToggle } from '@/components/ui/deprecated/theme-toggle'
 import { FloatingNav } from '@/components/ui/deprecated/nav'
 import '../styles/globals.css'
 
@@ -36,7 +35,6 @@ export default function RootLayout({
       <body className="font-body bg-secondary_alt overscroll-none noise-overlay noise-fixed noise-opacity-90">
         <ThemeProvider>
           <FloatingNav />
-          <ThemeToggle />
           {children}
         </ThemeProvider>
       </body>

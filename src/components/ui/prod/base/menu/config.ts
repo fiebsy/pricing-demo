@@ -411,12 +411,12 @@ export function getSeparatorClasses(context: 'header' | 'list'): string {
 // ============================================================================
 
 export const INTERACTIVE_STATES = {
-  /** Hover background */
-  hover: 'hover:bg-quaternary',
+  /** Hover background - Base UI uses data-highlighted for Menu.Item hover states */
+  hover: 'hover:bg-tertiary data-[highlighted]:bg-tertiary',
   /** Focus visible background */
-  focusVisible: 'focus-visible:bg-quaternary',
+  focusVisible: 'focus-visible:bg-tertiary',
   /** Active/pressed background */
-  active: 'active:bg-tertiary',
+  active: 'active:bg-quaternary',
   /** Disabled state */
   disabled: 'data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
 } as const

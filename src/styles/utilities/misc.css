@@ -1,5 +1,15 @@
 /* Miscellaneous utility classes */
 
+/* Navigation clearance - provides top padding to account for fixed nav */
+@utility nav-clearance {
+  padding-top: 56px;
+}
+
+/* Bottom nav clearance for mobile */
+@utility nav-clearance-bottom {
+  padding-bottom: 72px;
+}
+
 @utility scrollbar-hide {
   /* For Webkit-based browsers (Chrome, Safari and Opera) */
   &::-webkit-scrollbar {

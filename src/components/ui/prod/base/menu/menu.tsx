@@ -358,9 +358,9 @@ export const Menu: React.FC<MenuProps> = ({
 
       <BaseMenu.Root open={isOpen} onOpenChange={handleOpenChange} modal={false}>
         <BaseMenu.Trigger nativeButton={false} render={<span className="outline-none focus:outline-none" />}>
-          {/* Inject isActive prop into trigger when menu is open */}
+          {/* Inject data-active attribute into trigger when menu is open */}
           {isValidElement(trigger)
-            ? cloneElement(trigger as React.ReactElement<{ isActive?: boolean }>, { isActive: isOpen })
+            ? cloneElement(trigger as React.ReactElement<{ 'data-active'?: boolean }>, { 'data-active': isOpen || undefined })
             : trigger}
         </BaseMenu.Trigger>
 

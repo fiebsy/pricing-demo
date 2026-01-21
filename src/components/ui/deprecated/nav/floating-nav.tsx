@@ -1,32 +1,35 @@
 /**
  * FloatingNav
  *
- * Minimalist floating navigation bar with sliding toggle indicator.
- * - Top center on desktop (md+)
- * - Bottom center on mobile
- * - Same component for both layouts
+ * Minimalist floating navigation with dropdown menu.
+ * - Top left on all pages
+ * - Full page navigation with Menu component
  */
 
 'use client'
 
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import type { ComponentType } from 'react'
+import { useRouter } from 'next/navigation'
 import { HugeIcon } from '@/components/ui/prod/base/icon'
+import { Menu } from '@/components/ui/prod/base/menu'
+import type { MenuItemType, MenuItemAction, MenuItemSubmenu } from '@/components/ui/prod/base/menu'
 import {
   Home01Icon,
   AnalyticsUpIcon,
+  Menu01Icon,
+  GridIcon,
+  ImageIcon,
+  UserIcon,
+  FilterIcon,
+  Table01Icon,
+  LayersIcon,
 } from '@hugeicons-pro/core-stroke-rounded'
 
 // =============================================================================
 // TYPES
 // =============================================================================
 
-interface NavItem {
-  id: string
-  label: string
-  href: string
-  icon: typeof Home01Icon
-}
+type IconComponent = ComponentType<{ className?: string }>
 
 interface FloatingNavProps {
   className?: string
@@ -36,74 +39,151 @@ interface FloatingNavProps {
 // CONSTANTS
 // =============================================================================
 
-const NAV_ITEMS: NavItem[] = [
-  { id: 'home', label: 'Home', href: '/', icon: Home01Icon },
-  { id: 'dashboard', label: 'Dashboard', href: '/dashboard', icon: AnalyticsUpIcon },
+// Navigation menu items with submenus
+const createNavMenuItems = (router: ReturnType<typeof useRouter>): MenuItemType[] => [
+  {
+    id: 'main',
+    type: 'submenu',
+    label: 'Main',
+    icon: Home01Icon as unknown as IconComponent,
+    items: [
+      {
+        id: 'home',
+        label: 'Home',
+        icon: Home01Icon as unknown as IconComponent,
+        onClick: () => router.push('/'),
+      } as MenuItemAction,
+      {
+        id: 'dashboard',
+        label: 'Dashboard',
+        icon: AnalyticsUpIcon as unknown as IconComponent,
+        onClick: () => router.push('/dashboard'),
+      } as MenuItemAction,
+      {
+        id: 'studio',
+        label: 'Studio',
+        icon: GridIcon as unknown as IconComponent,
+        onClick: () => router.push('/studio'),
+      } as MenuItemAction,
+      {
+        id: 'carousel',
+        label: 'Carousel',
+        icon: ImageIcon as unknown as IconComponent,
+        onClick: () => router.push('/carousel'),
+      } as MenuItemAction,
+    ],
+  } as MenuItemSubmenu,
+  {
+    id: 'playground',
+    type: 'submenu',
+    label: 'Playground',
+    icon: LayersIcon as unknown as IconComponent,
+    items: [
+      {
+        id: 'filter-chip-motion',
+        label: 'Filter Chip Motion',
+        icon: FilterIcon as unknown as IconComponent,
+        onClick: () => router.push('/playground/filter-chip-motion'),
+      } as MenuItemAction,
+      {
+        id: 'sticky-data-table',
+        label: 'Sticky Data Table',
+        icon: Table01Icon as unknown as IconComponent,
+        onClick: () => router.push('/playground/sticky-data-table'),
+      } as MenuItemAction,
+    ],
+  } as MenuItemSubmenu,
+  {
+    id: 'profiles',
+    type: 'submenu',
+    label: 'Profiles',
+    icon: UserIcon as unknown as IconComponent,
+    items: [
+      {
+        id: 'profile-playground',
+        label: 'Profile Playground',
+        icon: UserIcon as unknown as IconComponent,
+        onClick: () => router.push('/a/playground'),
+      } as MenuItemAction,
+      {
+        id: 'profile-mock',
+        label: 'Profile Mock',
+        icon: UserIcon as unknown as IconComponent,
+        onClick: () => router.push('/a/mock'),
+      } as MenuItemAction,
+    ],
+  } as MenuItemSubmenu,
+  { id: 'sep-1', type: 'separator' },
+  {
+    id: 'hidden',
+    type: 'submenu',
+    label: 'Hidden',
+    icon: LayersIcon as unknown as IconComponent,
+    items: [
+      {
+        id: 'skwircle-demo',
+        label: 'Skwircle Demo',
+        icon: GridIcon as unknown as IconComponent,
+        onClick: () => router.push('/_hidden/playground/skwircle-demo'),
+      } as MenuItemAction,
+      {
+        id: 'skwircle-card',
+        label: 'Skwircle Card',
+        icon: GridIcon as unknown as IconComponent,
+        onClick: () => router.push('/_hidden/playground/skwircle-card'),
+      } as MenuItemAction,
+      {
+        id: 'hidden-sticky-table',
+        label: 'Sticky Table (Dev)',
+        icon: Table01Icon as unknown as IconComponent,
+        onClick: () => router.push('/_hidden/playground/sticky-data-table'),
+      } as MenuItemAction,
+      {
+        id: 'feed',
+        label: 'Feed',
+        icon: GridIcon as unknown as IconComponent,
+        onClick: () => router.push('/_hidden/feed'),
+      } as MenuItemAction,
+    ],
+  } as MenuItemSubmenu,
 ]
-
-const ITEM_SIZE = 34 // p-2 (8px * 2) + icon 18px = 34px
 
 // =============================================================================
 // COMPONENT
 // =============================================================================
 
 export function FloatingNav({ className = '' }: FloatingNavProps) {
-  const pathname = usePathname()
+  const router = useRouter()
 
-  // Hide nav entirely on /a/ routes
-  const isHiddenRoute = pathname.startsWith('/a')
-
-  // Check if current path matches nav item (exact or starts with for nested routes)
-  const isActive = (href: string) => {
-    if (href === '/') return pathname === '/'
-    return pathname === href || pathname.startsWith(`${href}/`)
-  }
-
-  // Get active index for slider position (-1 if no match)
-  const activeIndex = NAV_ITEMS.findIndex((item) => isActive(item.href))
-
-  // Don't render on hidden routes
-  if (isHiddenRoute) return null
+  // Create menu items with router
+  const menuItems = createNavMenuItems(router)
 
   return (
     <nav
       className={`
-        fixed right-4 top-4 z-50
+        fixed left-4 top-4 z-50
         ${className}
       `}
     >
-      <div className="relative flex items-center rounded-full border border-primary bg-secondary p-1 backdrop-blur-xl shadow-lg shadow-black/10">
-        {/* Sliding indicator - only show when a nav item is active */}
-        {activeIndex >= 0 && (
-          <div
-            className="absolute top-1 bottom-1 rounded-full bg-quaternary transition-transform duration-300 ease-out"
-            style={{
-              width: ITEM_SIZE,
-              transform: `translateX(${activeIndex * ITEM_SIZE}px)`,
-            }}
-          />
-        )}
-
-        {/* Nav items */}
-        {NAV_ITEMS.map((item) => {
-          const active = isActive(item.href)
-
-          return (
-            <Link
-              key={item.id}
-              href={item.href}
-              title={item.label}
-              className={`
-                relative z-10 flex items-center justify-center rounded-full p-2
-                transition-colors duration-200
-                ${active ? 'text-primary' : 'text-quaternary hover:text-secondary'}
-              `}
-            >
-              <HugeIcon icon={item.icon} size={18} />
-            </Link>
-          )
-        })}
-      </div>
+      <Menu
+        items={menuItems}
+        trigger={
+          <button
+            className="flex items-center justify-center rounded-full border border-primary bg-secondary p-2 backdrop-blur-xl shadow-lg shadow-black/10 text-secondary hover:text-primary hover:bg-tertiary transition-colors"
+            title="Navigate"
+          >
+            <HugeIcon icon={Menu01Icon} size={18} />
+          </button>
+        }
+        side="bottom"
+        align="start"
+        width={200}
+        appearance={{
+          borderRadius: 'xl',
+          shadow: 'lg',
+          background: 'secondary',
+        }}
+      />
     </nav>
   )
 }

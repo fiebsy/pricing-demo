@@ -12,14 +12,39 @@ Skwircle (demo-repo) is a **sandboxed UI testing environment** for PAYVA design 
 
 **No sensitive data** - only pure UI components.
 
-**Full documentation**: `/Users/derickfiebiger/Payva-Repos/docs/demo-repo/INDEX.md`
+---
+
+## Workspace Scope
+
+This is a **standalone repository** separate from the main PAYVA monorepo.
+
+```
+demo-repo/                              # This codebase
+├── src/
+│   ├── app/                            # Next.js App Router pages
+│   │   ├── playground/                 # Active playground routes
+│   │   └── _hidden/playground/         # Development playgrounds
+│   ├── components/ui/prod/             # Production-ready components
+│   ├── v2/components/ui/               # V2 component system
+│   ├── styles/                         # Theme, tokens, utilities
+│   └── docs/                           # Embedded documentation
+├── docs/                               # Project documentation
+└── .claude/commands/                   # Slash commands (/docs, /playground)
+```
+
+**Parent repo reference** (when needed): `/Users/derickfiebiger/Payva-Repos/`
+
+---
 
 ## Tech Stack
 
-- Next.js 16 (App Router)
-- React 19
-- Tailwind CSS v4
-- Hugeicons PRO (exclusive icon library)
+- **Next.js 16** (App Router)
+- **React 19**
+- **Tailwind CSS v4** (CSS-first config with `@theme`, `@custom-variant`)
+- **Hugeicons PRO** (exclusive icon library)
+- **Base UI** (`@base-ui/react`) for headless primitives
+
+---
 
 ## Development Commands
 
@@ -43,37 +68,38 @@ pnpm lint
 pnpm start
 ```
 
+---
+
 ## Architecture & Code Structure
 
 ### Component System
-- **V2 components** (`src/v2/components/ui/`): Production-ready components using squircle primitives
-- **Skwircle core** (`src/v2/components/ui/skwircle/`): 500+ line foundational squircle implementation with SVG-based rendering, performance modes, and variant-first API
-- **Component patterns**: All V2 components extend the skwircle primitive with semantic design tokens
+
+| Location | Purpose |
+|----------|---------|
+| `src/components/ui/prod/` | Production-ready components |
+| `src/v2/components/ui/` | V2 component system (skwircle primitives) |
+| `src/v2/components/ui/skwircle/` | Core squircle implementation |
+| `src/components/ui/deprecated/` | Legacy components (do not use) |
 
 ### Design Token System
-- **200+ semantic tokens** in `src/styles/theme.css` that automatically remap between light/dark modes
-- **Token usage**: Always use semantic tokens like `text-primary`, `bg-brand-solid`, `border-secondary` - never hardcode colors
-- **Dark mode**: Handled automatically via `.dark-mode` class on html element - tokens remap without dark: prefixes
+
+- **200+ semantic tokens** in `src/styles/theme.css`
+- **Token usage**: Always use semantic tokens like `text-primary`, `bg-brand-solid`, `border-secondary`
+- **Dark mode**: Handled via `.dark-mode` class - tokens remap automatically
 
 ### Styling Approach
-- **Tailwind v4**: Using beta version with PostCSS plugin (`@tailwindcss/postcss`)
-- **Custom utilities**: Extended utilities in `src/styles/utilities/` for animations, gradients, corners, depth
-- **Class merging**: Use `cx()` utility from `src/v2/utils/cx.ts` for conditional classes
 
-### Typography
-- **Neue Haas Grotesk**: Custom font with Text and Display variants loaded locally from `src/styles/fonts/`
-- **Font usage**: Applied via `fontVariableDefinitions` and `fontFamilyDefinitions` in `src/lib/fonts.ts`
+- **Tailwind v4**: CSS-first config via `@theme`, `@custom-variant`
+- **Custom utilities**: `src/styles/utilities/` for animations, gradients, corners, depth
+- **Class merging**: Use `cx()` utility from `src/v2/utils/cx.ts`
+
+---
 
 ## Key Technical Patterns
 
-### Component Development
-1. V2 components should extend the skwircle primitive where applicable
-2. Use semantic design tokens exclusively - no hardcoded colors
-3. Include TypeScript types for all props
-4. Follow variant-first API pattern (type, variant, size props)
-
 ### Icons (CRITICAL)
-**Hugeicons PRO is the EXCLUSIVE icon library for Skwircle. No Untitled UI icons allowed.**
+
+**Hugeicons PRO is the EXCLUSIVE icon library. No Untitled UI icons allowed.**
 
 ```typescript
 // CORRECT - Always use Hugeicons with wrapper
@@ -86,47 +112,85 @@ import Home01Icon from '@hugeicons-pro/core-stroke-rounded/Home01Icon'
 import { User01 } from '@untitledui-pro/icons/line'  // NO!
 ```
 
-**Why?** Skwircle demos components for PAYVA frontend, which is deprecating Untitled UI. Keeping Skwircle Hugeicons-only prevents deprecated patterns from propagating.
-
 **Full guide**: `docs/styles/icons/hugeicons.md`
 
-### Premium Package Authentication
-The project uses premium icon libraries requiring authentication:
-- `@hugeicons-pro` requires auth tokens
-- Tokens managed via environment variables in production
-
-### Performance Considerations
-- Skwircle components have three performance modes: high, balanced, low
-- Use appropriate mode based on component count and user device
-- SVG filters are expensive - consider performance mode for multiple squircles
-
 ### File Naming Conventions
-- Components: PascalCase files (`Badge.tsx`)
-- Utilities: kebab-case (`cx.ts`, `utils.ts`)
-- Styles: kebab-case (`theme.css`, `globals.css`)
 
-## Important Implementation Details
+| Type | Convention | Example |
+|------|------------|---------|
+| Components | PascalCase | `Badge.tsx`, `MetricCard.tsx` |
+| Utilities | kebab-case | `cx.ts`, `utils.ts` |
+| Styles | kebab-case | `theme.css`, `globals.css` |
 
-### Theme Provider
-- Theme context at `src/components/theme-provider.tsx` manages dark mode
-- Uses localStorage for persistence with key `theme`
-- Applies `.dark-mode` class to html element
+---
 
-### Playground Routes (CRITICAL)
+## Animation Preferences (CRITICAL)
 
-**All playground pages MUST use the `UnifiedControlPanel` component.**
+Follow the performance tier system from `docs/ANIMATION-PREFERENCES.md`:
 
-**Full guide**: `src/app/playground/PLAYGROUND.md`
+### S-Tier (Prefer) - Compositor-only
 
-Quick pattern:
+```typescript
+// Animate transform + opacity only
+className="transition-transform transition-opacity duration-300
+           ease-[cubic-bezier(.2,.8,.2,1)] transform-gpu
+           translate-x-0 opacity-100"
+
+// Use data attributes for state
+className="translate-x-full opacity-0
+           data-open:translate-x-0 data-open:opacity-100"
+```
+
+### Accessibility - Always include
+
+```typescript
+// Gate motion for reduced-motion users
+className="motion-safe:transition motion-reduce:transition-none"
+```
+
+### Avoid - Layout animations
+
+```typescript
+// NEVER animate these properties
+width, height, top, left, margin, padding
+
+// If layout must change, use FLIP technique
+// (measure once, animate with transforms)
+```
+
+### Tailwind v4 Motion Tokens
+
+```css
+@theme {
+  --ease-standard: cubic-bezier(.2,.8,.2,1);
+  --ease-snappy: cubic-bezier(.2, 0, 0, 1);
+  --duration-fast: 150ms;
+  --duration-base: 300ms;
+  --duration-slow: 500ms;
+}
+```
+
+---
+
+## Playground System
+
+### Routes
+
+| Route | Purpose |
+|-------|---------|
+| `/playground/[name]` | Active playgrounds |
+| `/_hidden/playground/[name]` | Development/experimental |
+
+### UnifiedControlPanel (Required for all playgrounds)
+
 ```typescript
 import {
   UnifiedControlPanel,
   type ControlChangeEvent,
-  type UnifiedControlPanelConfig,
-} from '@/components/ui/controls/unified-control-panel'
+  type PanelConfig,
+} from '@/components/ui/prod/base/control-panel'
 
-// Standard layout: fixed header, preview area with panel offset, fixed panel
+// Standard layout
 <div className="min-h-screen">
   <div className="fixed top-0 ...">Header</div>
   <div className="pt-20 pr-[352px]">Preview Area</div>
@@ -134,53 +198,98 @@ import {
 </div>
 ```
 
-Reference implementation: `/playground/skwircle-card/page.tsx`
+**Every playground MUST include:**
+- Preset dropdown (select from saved configurations)
+- Copy Preset button (exports current config as JSON)
+- Reset to default functionality
 
-### Build Configuration
-- React Strict Mode enabled
-- TypeScript strict mode with path aliases (`@/*` maps to `src/*`)
-- Next.js App Router with server components by default
+**Reference implementation**: `src/app/_hidden/playground/skwircle-demo/`
 
-## Common Tasks
+---
 
-### Adding a New V2 Component
-1. Create component directory in `src/v2/components/ui/[component-name]/`
-2. Export from `index.tsx` with named export
-3. Extend skwircle primitive if applicable
-4. Use semantic design tokens from theme.css
-5. Add TypeScript types for all props
+## Component Transfer (Frontend → Demo Repo)
 
-### Modifying Design Tokens
-1. Edit `src/styles/theme.css`
-2. Tokens automatically remap in dark mode via CSS custom properties
-3. Follow naming pattern: `--[category]-[semantic-name]`
+When bringing components from PAYVA frontend into demo-repo:
 
-### Working with Squircles
-1. Import from `src/v2/components/ui/skwircle/`
-2. Configure roundness (0-5), performance mode, shadows
-3. Use compound components for complex layouts
-4. Consider performance impact with multiple squircles
+### 1. Identify Source & Target
 
-### Creating a Playground Page
-1. Read `src/app/playground/PLAYGROUND.md` for complete instructions
-2. Create route at `src/app/playground/[component-name]/page.tsx`
-3. Define typed config interface and DEFAULT_CONFIG
-4. Create `createPanelConfig()` function with sections/subsections
-5. Use standard layout: fixed header, offset preview area, UnifiedControlPanel
-6. Add entry to PLAYGROUND_ITEMS in `/playground/page.tsx`
+```
+# Source (frontend)
+front-end/src/modules/v2/[feature]/components/[component]/
+
+# Target (demo-repo)
+src/components/ui/prod/features/[component]/
+# OR for primitives:
+src/v2/components/ui/[component]/
+```
+
+### 2. Adapt Import Paths
+
+| Frontend | Demo Repo |
+|----------|-----------|
+| `@/modules/design-system/v2/components/ui/...` | `@/components/ui/prod/...` |
+| `@/modules/api/generated/graphql` | Remove (no GraphQL in demo) |
+| `@untitledui-pro/icons/...` | `@hugeicons-pro/core-stroke-rounded/...` |
+
+### 3. Remove Business Logic
+
+- Strip GraphQL hooks/queries
+- Replace API data with mock data
+- Remove authentication checks
+- Keep only UI rendering logic
+
+### 4. Checklist
+
+- [ ] Update all import paths
+- [ ] Replace Untitled UI icons with Hugeicons
+- [ ] Remove GraphQL dependencies
+- [ ] Add mock data if needed
+- [ ] Verify semantic tokens work
+- [ ] Test dark mode
+- [ ] Add to playground if applicable
+
+---
 
 ## Sync Scripts
 
 ### Pull styles from frontend
+
 ```bash
 ./scripts/sync-styles.sh
 ```
+
 Syncs `theme.css`, `base.css`, and all `utilities/*.css` from PAYVA frontend.
 
 ### Push components to frontend
+
 ```bash
 ./scripts/sync-to-frontend.sh
 ```
-Syncs Skwircle core files, config, hooks, rendering, and utils to frontend.
 
-**Transfer guide**: `/Users/derickfiebiger/Payva-Repos/docs/demo-repo/COMPONENT-TRANSFER.md`
+Syncs Skwircle core files to frontend.
+
+---
+
+## Documentation
+
+| Topic | Location |
+|-------|----------|
+| Animation Preferences | `docs/ANIMATION-PREFERENCES.md` |
+| Collections Migration | `docs/COLLECTIONS-MIGRATION.md` |
+| Sticky Data Table | `docs/design-system/sticky-data-table/init.md` |
+| Base UI Components | `src/docs/base-ui/` |
+| Motion.dev Reference | `src/docs/motion-dev/` |
+| Style Utilities | `src/styles/docs/init.md` |
+
+---
+
+## Slash Commands
+
+| Command | Purpose |
+|---------|---------|
+| `/docs [topic]` | Generate progressive disclosure documentation |
+| `/playground [component]` | Create playground page with UnifiedControlPanel |
+
+---
+
+**Last Updated**: January 2025
