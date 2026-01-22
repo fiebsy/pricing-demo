@@ -165,6 +165,28 @@ function CategoryRow({ category, config, onClick, isVisible, index }: CategoryRo
     exit: { opacity: 0, x: -15 },
   }
 
+  const improveButton = categoryRow.showImproveButton && (
+    <button
+      type="button"
+      onClick={(e) => {
+        e.stopPropagation()
+        console.log('Improve:', category.id)
+      }}
+      className={cn(
+        'px-2.5 py-1 rounded-lg',
+        'text-xs font-medium',
+        'bg-brand-primary/10 text-brand-primary',
+        'hover:bg-brand-primary/20',
+        'motion-safe:transition-colors motion-safe:duration-150',
+        'motion-reduce:transition-none',
+        'flex items-center gap-1 shrink-0'
+      )}
+    >
+      <HugeIcon icon={SparklesIcon} size={12} strokeWidth={2} className="text-current" />
+      Improve
+    </button>
+  )
+
   return (
     <motion.div
       variants={animation.enableItemFade ? itemVariants : undefined}
@@ -179,77 +201,68 @@ function CategoryRow({ category, config, onClick, isVisible, index }: CategoryRo
       className={cn(dividerClasses)}
       style={{ marginBottom: layout.categoryGap }}
     >
-      <button
-        type="button"
-        onClick={onClick}
-        className={cn(
-          'w-full flex items-center gap-3 py-3 px-2 rounded-lg text-left',
-          categoryRow.hoverEffect && 'hover:bg-secondary/50',
-          'motion-safe:transition-colors motion-safe:duration-150',
-          'motion-reduce:transition-none'
-        )}
+      <div
+        className="flex items-center gap-2"
+        style={{ padding: `${layout.rowPaddingY}px ${layout.rowPaddingX}px` }}
       >
-        {/* Icon */}
-        {categoryRow.showIcon && (
-          <div className="size-8 rounded-lg bg-quaternary flex items-center justify-center shrink-0">
-            <HugeIcon icon={Icon} size={16} strokeWidth={1.5} className="text-secondary" />
-          </div>
-        )}
-
-        {/* Label and progress */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center justify-between mb-1.5">
-            <span className="text-sm font-medium text-primary">{category.label}</span>
-            <span className={cn('text-sm font-semibold tabular-nums', colorClass)}>
-              {category.aggregate.current}
-            </span>
-          </div>
-          {categoryRow.showProgressBar && (
-            <ProgressBar
-              value={category.aggregate.current}
-              networkAverage={category.aggregate.networkAverage}
-              showBenchmark={categoryRow.showNetworkBenchmark}
-              size={categoryRow.progressBarSize}
-            />
+        <button
+          type="button"
+          onClick={onClick}
+          className={cn(
+            'flex-1 flex items-center gap-3 rounded-lg text-left',
+            categoryRow.hoverEffect && 'hover:bg-secondary/50',
+            'motion-safe:transition-colors motion-safe:duration-150',
+            'motion-reduce:transition-none'
           )}
-        </div>
+          style={categoryRow.hoverEffect ? { margin: -8, padding: 8 } : undefined}
+        >
+          {/* Icon */}
+          {categoryRow.showIcon && (
+            <div className="size-8 rounded-lg bg-quaternary flex items-center justify-center shrink-0">
+              <HugeIcon icon={Icon} size={16} strokeWidth={1.5} className="text-secondary" />
+            </div>
+          )}
 
-        {/* Arrow indicator */}
-        <div className="shrink-0 text-tertiary">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path
-              d="M6 4L10 8L6 12"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </div>
-      </button>
-
-      {/* Improve button - separate from main button */}
-      {categoryRow.showImproveButton && (
-        <div className="px-2 pb-2">
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation()
-              console.log('Improve:', category.id)
-            }}
-            className={cn(
-              'px-2.5 py-1 rounded-lg',
-              'text-xs font-medium',
-              'bg-brand-primary/10 text-brand-primary',
-              'hover:bg-brand-primary/20',
-              'motion-safe:transition-colors motion-safe:duration-150',
-              'motion-reduce:transition-none',
-              'flex items-center gap-1'
+          {/* Label and progress */}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-sm font-medium text-primary">{category.label}</span>
+              <span className={cn('text-sm font-semibold tabular-nums', colorClass)}>
+                {category.aggregate.current}
+              </span>
+            </div>
+            {categoryRow.showProgressBar && (
+              <ProgressBar
+                value={category.aggregate.current}
+                networkAverage={category.aggregate.networkAverage}
+                showBenchmark={categoryRow.showNetworkBenchmark}
+                size={categoryRow.progressBarSize}
+              />
             )}
-          >
-            <HugeIcon icon={SparklesIcon} size={12} strokeWidth={2} className="text-current" />
-            Improve
-          </button>
+          </div>
+
+          {/* Arrow indicator */}
+          <div className="shrink-0 text-tertiary">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path
+                d="M6 4L10 8L6 12"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </div>
+        </button>
+
+        {/* Inline improve button */}
+        {categoryRow.improveButtonPosition === 'inline' && improveButton}
+      </div>
+
+      {/* Below improve button */}
+      {categoryRow.showImproveButton && categoryRow.improveButtonPosition === 'below' && (
+        <div className="px-2 pb-2">
+          {improveButton}
         </div>
       )}
     </motion.div>
@@ -289,6 +302,28 @@ function SubScoreRow({ item, config, isVisible, index }: SubScoreRowProps) {
     exit: { opacity: 0, x: 15 },
   }
 
+  const improveButton = subScore.showImproveButton && (
+    <button
+      type="button"
+      onClick={(e) => {
+        e.stopPropagation()
+        console.log('Improve sub-score:', item.id)
+      }}
+      className={cn(
+        'px-2 py-0.5 rounded-md',
+        'text-xs font-medium',
+        'bg-brand-primary/10 text-brand-primary',
+        'hover:bg-brand-primary/20',
+        'motion-safe:transition-colors motion-safe:duration-150',
+        'motion-reduce:transition-none',
+        'flex items-center gap-1 shrink-0'
+      )}
+    >
+      <HugeIcon icon={SparklesIcon} size={10} strokeWidth={2} className="text-current" />
+      Improve
+    </button>
+  )
+
   return (
     <motion.div
       variants={animation.enableItemFade ? itemVariants : undefined}
@@ -300,8 +335,17 @@ function SubScoreRow({ item, config, isVisible, index }: SubScoreRowProps) {
         delay: animation.enableItemStagger ? (index * animation.itemStagger) / 1000 : 0,
         ease: EASE_OUT_EXPO,
       }}
-      className={cn('py-2.5 px-2', dividerClasses)}
-      style={{ marginBottom: layout.subScoreGap }}
+      className={cn(
+        'rounded-lg',
+        subScore.hoverEffect && 'hover:bg-secondary/50',
+        'motion-safe:transition-colors motion-safe:duration-150',
+        'motion-reduce:transition-none',
+        dividerClasses
+      )}
+      style={{
+        padding: `${layout.rowPaddingY}px ${layout.rowPaddingX}px`,
+        marginBottom: layout.subScoreGap,
+      }}
     >
       <div className="flex items-center justify-between mb-1">
         <span className={cn('text-secondary', textSizeMap[subScore.textSize])}>{item.label}</span>
@@ -309,27 +353,7 @@ function SubScoreRow({ item, config, isVisible, index }: SubScoreRowProps) {
           <span className={cn('font-semibold tabular-nums', textSizeMap[subScore.textSize], colorClass)}>
             {item.score.current}
           </span>
-          {subScore.showImproveButton && (
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation()
-                console.log('Improve sub-score:', item.id)
-              }}
-              className={cn(
-                'px-2 py-0.5 rounded-md',
-                'text-xs font-medium',
-                'bg-brand-primary/10 text-brand-primary',
-                'hover:bg-brand-primary/20',
-                'motion-safe:transition-colors motion-safe:duration-150',
-                'motion-reduce:transition-none',
-                'flex items-center gap-1'
-              )}
-            >
-              <HugeIcon icon={SparklesIcon} size={10} strokeWidth={2} className="text-current" />
-              Improve
-            </button>
-          )}
+          {subScore.improveButtonPosition === 'inline' && improveButton}
         </div>
       </div>
       {subScore.showProgressBar && (
@@ -339,6 +363,11 @@ function SubScoreRow({ item, config, isVisible, index }: SubScoreRowProps) {
           showBenchmark={subScore.showNetworkBenchmark}
           size={subScore.progressBarSize}
         />
+      )}
+      {subScore.showImproveButton && subScore.improveButtonPosition === 'below' && (
+        <div className="mt-2">
+          {improveButton}
+        </div>
       )}
     </motion.div>
   )
@@ -356,7 +385,7 @@ interface BackButtonProps {
 }
 
 function BackButton({ title, onBack, config, isVisible }: BackButtonProps) {
-  const { backButton, animation, layout } = config
+  const { backButton, animation, layout, separators } = config
 
   const styleClasses = {
     minimal: 'hover:bg-secondary/50',
@@ -369,31 +398,42 @@ function BackButton({ title, onBack, config, isVisible }: BackButtonProps) {
     center: 'justify-center',
   }
 
+  const separatorClasses = backButton.showSeparator
+    ? cn(
+        'border-b',
+        `border-${separators.dividerColor}`,
+        separators.dividerStyle === 'dashed' && 'border-dashed',
+        separators.dividerStyle === 'dotted' && 'border-dotted'
+      )
+    : ''
+
   return (
     <motion.div
       initial={animation.enableItemFade ? { opacity: 0, x: 15 } : false}
       animate={animation.enableItemFade && isVisible ? { opacity: 1, x: 0 } : false}
       exit={animation.enableItemFade ? { opacity: 0, x: 15 } : undefined}
       transition={{ duration: animation.opacityDuration / 1000, ease: EASE_OUT_EXPO }}
-      className={cn('flex items-center', positionClasses[backButton.position])}
-      style={{ paddingBottom: layout.headerPadding }}
+      className={cn(separatorClasses)}
+      style={{ paddingBottom: layout.headerPadding, marginBottom: backButton.showSeparator ? layout.headerPadding : 0 }}
     >
-      <button
-        type="button"
-        onClick={onBack}
-        className={cn(
-          'flex items-center gap-2 px-3 py-2 rounded-lg',
-          'text-secondary',
-          'motion-safe:transition-colors motion-safe:duration-150',
-          'motion-reduce:transition-none',
-          styleClasses[backButton.style]
-        )}
-      >
-        {backButton.showIcon && (
-          <HugeIcon icon={ArrowLeft01Icon} size={16} strokeWidth={2} className="text-current" />
-        )}
-        <span className="text-sm font-medium">{title}</span>
-      </button>
+      <div className={cn('flex items-center', positionClasses[backButton.position])}>
+        <button
+          type="button"
+          onClick={onBack}
+          className={cn(
+            'flex items-center gap-2 px-3 py-2 rounded-lg',
+            'text-secondary',
+            'motion-safe:transition-colors motion-safe:duration-150',
+            'motion-reduce:transition-none',
+            styleClasses[backButton.style]
+          )}
+        >
+          {backButton.showIcon && (
+            <HugeIcon icon={ArrowLeft01Icon} size={16} strokeWidth={2} className="text-current" />
+          )}
+          <span className="text-sm font-medium">{title}</span>
+        </button>
+      </div>
     </motion.div>
   )
 }

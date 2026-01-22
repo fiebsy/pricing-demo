@@ -93,11 +93,17 @@ function transformToV4Config(
   const toBackground = (bg: string | undefined) =>
     bg === 'none' ? undefined : bg as 'primary' | 'secondary' | 'tertiary' | 'quaternary' | undefined
 
+  // Convert 0 to undefined for maxTopHeight (0 = use fixed height mode)
+  const maxTopHeight = config.layout.maxTopHeight && config.layout.maxTopHeight > 0
+    ? config.layout.maxTopHeight
+    : undefined
+
   return {
     layout: {
       triggerWidth: config.layout.triggerWidth,
       triggerHeight: config.layout.triggerHeight,
       panelWidth: config.layout.panelWidth,
+      maxTopHeight,
       maxBottomHeight: calculatedBottomHeight ?? config.layout.maxBottomHeight,
       borderRadius: config.layout.borderRadius,
       topGap: config.layout.topGap,

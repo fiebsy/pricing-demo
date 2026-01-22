@@ -96,6 +96,7 @@ export interface SlidingRatingsConfig {
     showProgressBar: boolean
     showNetworkBenchmark: boolean
     showImproveButton: boolean
+    improveButtonPosition: 'inline' | 'below'
     showIcon: boolean
     progressBarSize: 'sm' | 'md' | 'lg'
     hoverEffect: boolean
@@ -106,8 +107,10 @@ export interface SlidingRatingsConfig {
     showProgressBar: boolean
     showNetworkBenchmark: boolean
     showImproveButton: boolean
+    improveButtonPosition: 'inline' | 'below'
     progressBarSize: 'sm' | 'md' | 'lg'
     textSize: 'xs' | 'sm' | 'md'
+    hoverEffect: boolean
   }
 
   // Back Button Styling
@@ -115,6 +118,7 @@ export interface SlidingRatingsConfig {
     style: 'minimal' | 'pill' | 'ghost'
     showIcon: boolean
     position: 'left' | 'center'
+    showSeparator: boolean
   }
 
   // Animation
@@ -125,6 +129,8 @@ export interface SlidingRatingsConfig {
     categoryGap: number
     subScoreGap: number
     headerPadding: number
+    rowPaddingX: number
+    rowPaddingY: number
   }
 
   // Separators

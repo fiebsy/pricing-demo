@@ -2,8 +2,8 @@
  * SectionTabs Component
  *
  * Horizontal tab navigation for Mind / Voice / Appearance sections.
+ * Uses Button component from prod/base for consistent styling.
  * Supports pill style (with progress wheels) and underline style.
- * Configurable tab sizes and custom labels.
  *
  * @module playground/ratings-panel/components
  */
@@ -12,6 +12,7 @@
 
 import * as React from 'react'
 import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/prod/base/button'
 import { HugeIcon } from '@/components/ui/prod/base/icon'
 import Brain01Icon from '@hugeicons-pro/core-stroke-rounded/Brain01Icon'
 import Mic01Icon from '@hugeicons-pro/core-stroke-rounded/Mic01Icon'
@@ -27,14 +28,15 @@ const sectionIconMap: Record<string, typeof Brain01Icon> = {
   User03Icon,
 }
 
-// Tab size styling maps
-const TAB_SIZE_STYLES: Record<TabSize, { text: string; padding: string; icon: number; gap: string }> = {
-  sm: { text: 'text-sm', padding: 'py-1.5 px-2', icon: 14, gap: 'gap-1.5' },
-  md: { text: 'text-base', padding: 'py-2 px-3', icon: 18, gap: 'gap-2' },
-  lg: { text: 'text-lg', padding: 'py-2.5 px-4', icon: 20, gap: 'gap-2.5' },
-  xl: { text: 'text-xl', padding: 'py-3 px-5', icon: 24, gap: 'gap-3' },
+// Tab size to Button size mapping
+const TAB_SIZE_TO_BUTTON_SIZE: Record<TabSize, 'sm' | 'md' | 'lg' | 'xl'> = {
+  sm: 'sm',
+  md: 'md',
+  lg: 'lg',
+  xl: 'xl',
 }
 
+// Progress wheel multipliers per tab size
 const PILL_SIZE_MULTIPLIERS: Record<TabSize, number> = {
   sm: 0.8,
   md: 1,
@@ -65,7 +67,7 @@ export function SectionTabs({
     : sections.filter((s) => s.sectionId !== 'appearance')
 
   const isUnderline = config.style === 'underline'
-  const sizeStyles = TAB_SIZE_STYLES[config.tabSize || 'md']
+  const buttonSize = TAB_SIZE_TO_BUTTON_SIZE[config.tabSize || 'md']
   const pillMultiplier = PILL_SIZE_MULTIPLIERS[config.tabSize || 'md']
 
   // Get custom label for a section
@@ -108,43 +110,30 @@ export function SectionTabs({
         const label = getLabel(section)
 
         if (isUnderline) {
-          // Underline style tab with configurable size
+          // Underline style - use tertiary button with iconLeading
           return (
-            <button
-              key={section.sectionId}
-              type="button"
-              onClick={() => onSectionChange(section.sectionId as SectionType)}
-              className={cn(
-                'group relative flex items-center',
-                sizeStyles.padding,
-                sizeStyles.gap,
-                'motion-safe:transition-colors motion-safe:duration-150',
-                'motion-reduce:transition-none',
-                isActive ? 'text-brand-primary' : 'text-secondary hover:text-primary'
-              )}
-            >
-              {/* Icon */}
-              <HugeIcon
-                icon={Icon}
-                size={sizeStyles.icon}
-                strokeWidth={1.5}
-                className="text-current"
-              />
-
-              {/* Label */}
-              <span className={cn(sizeStyles.text, 'font-medium')}>{label}</span>
-
-              {/* Score (inline for underline style) */}
-              {config.showOverallScore && (
-                <span
-                  className={cn(
-                    'text-sm font-semibold tabular-nums',
-                    getScoreColorClass(section.aggregate.current)
-                  )}
-                >
-                  {section.aggregate.current}
-                </span>
-              )}
+            <div key={section.sectionId} className="relative">
+              <Button
+                variant="tertiary"
+                size={buttonSize}
+                iconLeading={Icon}
+                onClick={() => onSectionChange(section.sectionId as SectionType)}
+                className={cn(
+                  isActive && 'text-brand-primary hover:text-brand-primary [&_[data-icon]]:text-brand-primary'
+                )}
+              >
+                {label}
+                {config.showOverallScore && (
+                  <span
+                    className={cn(
+                      'ml-1 text-sm font-semibold tabular-nums',
+                      getScoreColorClass(section.aggregate.current)
+                    )}
+                  >
+                    {section.aggregate.current}
+                  </span>
+                )}
+              </Button>
 
               {/* Underline indicator */}
               <span
@@ -158,54 +147,50 @@ export function SectionTabs({
                 )}
                 style={{ height: config.underlineHeight }}
               />
-            </button>
+            </div>
           )
         }
 
-        // Pill style tab (default) with size scaling
+        // Pill style - use secondary button when active, tertiary when inactive
+        // With progress wheel as custom leading element
         const scaledWheelSize = Math.round(config.progressWheelSize * pillMultiplier)
         const scaledStrokeWidth = Math.round(config.progressStrokeWidth * pillMultiplier * 10) / 10
 
         return (
-          <button
+          <Button
             key={section.sectionId}
-            type="button"
+            variant={isActive ? 'secondary' : 'tertiary'}
+            size={buttonSize}
+            roundness="squircle"
             onClick={() => onSectionChange(section.sectionId as SectionType)}
             className={cn(
-              'group flex items-center rounded-lg',
-              sizeStyles.padding,
-              sizeStyles.gap,
-              'motion-safe:transition-all motion-safe:duration-150',
-              'motion-reduce:transition-none',
-              isActive ? `bg-${config.activeBackground}` : 'hover:bg-secondary/50'
+              isActive && 'ring-brand-primary/20'
             )}
+            iconLeading={
+              <ProgressWheel
+                value={section.aggregate.current}
+                size={scaledWheelSize}
+                strokeWidth={scaledStrokeWidth}
+                isActive={isActive}
+              >
+                <HugeIcon
+                  icon={Icon}
+                  size={scaledWheelSize * 0.5}
+                  strokeWidth={1.5}
+                  className={cn(isActive ? 'text-brand-primary' : 'text-secondary')}
+                />
+              </ProgressWheel>
+            }
           >
-            {/* Progress wheel with icon */}
-            <ProgressWheel
-              value={section.aggregate.current}
-              size={scaledWheelSize}
-              strokeWidth={scaledStrokeWidth}
-              isActive={isActive}
-            >
-              <HugeIcon
-                icon={Icon}
-                size={scaledWheelSize * 0.5}
-                strokeWidth={1.5}
-                className={cn(isActive ? 'text-brand-primary' : 'text-secondary')}
-              />
-            </ProgressWheel>
-
-            {/* Label */}
             <span
               className={cn(
-                sizeStyles.text,
                 'font-semibold',
                 isActive ? 'text-brand-primary' : 'text-primary'
               )}
             >
               {label}
             </span>
-          </button>
+          </Button>
         )
       })}
     </div>

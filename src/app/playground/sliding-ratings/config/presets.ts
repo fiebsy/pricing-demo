@@ -20,7 +20,7 @@ export const DEFAULT_SLIDING_RATINGS_CONFIG: SlidingRatingsConfig = {
     border: true,
     borderColor: 'primary',
     borderRadius: 16,
-    padding: 16,
+    padding: 8,
     shine: 'shine-2',
     shineIntensity: '-subtle',
     shadow: 'lg',
@@ -32,6 +32,7 @@ export const DEFAULT_SLIDING_RATINGS_CONFIG: SlidingRatingsConfig = {
     showProgressBar: true,
     showNetworkBenchmark: true,
     showImproveButton: true,
+    improveButtonPosition: 'inline',
     showIcon: true,
     progressBarSize: 'md',
     hoverEffect: true,
@@ -41,9 +42,11 @@ export const DEFAULT_SLIDING_RATINGS_CONFIG: SlidingRatingsConfig = {
   subScore: {
     showProgressBar: true,
     showNetworkBenchmark: true,
-    showImproveButton: false,
+    showImproveButton: true,
+    improveButtonPosition: 'inline',
     progressBarSize: 'sm',
     textSize: 'sm',
+    hoverEffect: true,
   },
 
   // Back Button Styling
@@ -51,6 +54,7 @@ export const DEFAULT_SLIDING_RATINGS_CONFIG: SlidingRatingsConfig = {
     style: 'minimal',
     showIcon: true,
     position: 'left',
+    showSeparator: true,
   },
 
   // Animation
@@ -76,6 +80,8 @@ export const DEFAULT_SLIDING_RATINGS_CONFIG: SlidingRatingsConfig = {
     categoryGap: 0,
     subScoreGap: 0,
     headerPadding: 12,
+    rowPaddingX: 8,
+    rowPaddingY: 12,
   },
 
   // Separators
@@ -95,106 +101,9 @@ export const SLIDING_RATINGS_PRESETS: SlidingRatingsPreset[] = [
   {
     id: 'default',
     name: 'Default',
-    description: 'Standard sliding panel with subtle shine',
+    description: 'Standard sliding panel configuration',
     category: 'default',
     data: DEFAULT_SLIDING_RATINGS_CONFIG,
-  },
-  {
-    id: 'minimal',
-    name: 'Minimal',
-    description: 'Clean, no effects',
-    category: 'minimal',
-    data: {
-      ...DEFAULT_SLIDING_RATINGS_CONFIG,
-      panel: {
-        background: 'primary',
-        showBackground: true,
-        border: true,
-        borderColor: 'secondary',
-        borderRadius: 12,
-        padding: 12,
-        shine: 'none',
-        shineIntensity: '',
-        shadow: 'none',
-        width: 340,
-      },
-      categoryRow: {
-        ...DEFAULT_SLIDING_RATINGS_CONFIG.categoryRow,
-        showImproveButton: false,
-        hoverEffect: false,
-      },
-      animation: {
-        ...DEFAULT_SLIDING_RATINGS_CONFIG.animation,
-        slideDuration: 200,
-        panelExitScale: 1,
-        panelEnterScale: 1,
-        enableItemFade: false,
-        enableCrossfade: false,
-      },
-    },
-  },
-  {
-    id: 'elevated',
-    name: 'Elevated',
-    description: 'Premium look with depth and shadow',
-    category: 'enhanced',
-    data: {
-      ...DEFAULT_SLIDING_RATINGS_CONFIG,
-      panel: {
-        background: 'secondary',
-        showBackground: true,
-        border: false,
-        borderColor: 'primary',
-        borderRadius: 24,
-        padding: 20,
-        shine: 'shine-2',
-        shineIntensity: '',
-        shadow: 'lg',
-        width: 380,
-      },
-      animation: {
-        ...DEFAULT_SLIDING_RATINGS_CONFIG.animation,
-        slideDuration: 350,
-        panelExitScale: 0.9,
-        panelEnterScale: 0.9,
-        enableItemStagger: true,
-        itemStagger: 40,
-      },
-    },
-  },
-  {
-    id: 'pop-layout',
-    name: 'Pop Layout',
-    description: 'Uses popLayout mode for transitions',
-    category: 'enhanced',
-    data: {
-      ...DEFAULT_SLIDING_RATINGS_CONFIG,
-      animation: {
-        ...DEFAULT_SLIDING_RATINGS_CONFIG.animation,
-        panelTransitionMode: 'popLayout',
-        slideDuration: 250,
-        panelExitScale: 0.95,
-        panelEnterScale: 0.95,
-        panelScaleOrigin: 'center',
-      },
-    },
-  },
-  {
-    id: 'fast',
-    name: 'Fast',
-    description: 'Quick, snappy transitions',
-    category: 'custom',
-    data: {
-      ...DEFAULT_SLIDING_RATINGS_CONFIG,
-      animation: {
-        ...DEFAULT_SLIDING_RATINGS_CONFIG.animation,
-        slideDuration: 150,
-        heightDuration: 150,
-        opacityDuration: 100,
-        panelExitScale: 0.95,
-        panelEnterScale: 0.95,
-      },
-    },
   },
 ]
 

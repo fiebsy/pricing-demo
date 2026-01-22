@@ -41,6 +41,7 @@ export const DEFAULT_CONFIG: QuestionCommandMenuConfig = {
     triggerWidth: 320,
     triggerHeight: 44,
     panelWidth: 420,
+    maxTopHeight: 0, // 0 = use fixed height mode
     maxBottomHeight: 340,
     borderRadius: 20,
     topGap: 8,

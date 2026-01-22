@@ -44,8 +44,20 @@ export function buildTopSection(state: PlaygroundState): Section {
         title: 'Size',
         controls: [
           {
+            id: 'config.layout.maxTopHeight',
+            label: 'Max Height (Scrollable)',
+            description: 'Set to enable scrollable content in top slot',
+            type: 'slider',
+            value: state.config.layout.maxTopHeight ?? 0,
+            min: 0,
+            max: 400,
+            step: 20,
+            formatLabel: (v: number) => v === 0 ? 'Off' : `${v}px`,
+          },
+          {
             id: 'config.topSlot.height',
-            label: 'Height',
+            label: 'Fixed Height',
+            description: 'Used when Max Height is off',
             type: 'slider',
             value: state.config.topSlot.height ?? 48,
             min: 32,
