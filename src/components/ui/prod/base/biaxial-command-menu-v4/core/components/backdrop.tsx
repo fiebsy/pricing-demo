@@ -2,7 +2,8 @@
  * Biaxial Expand V4 - Backdrop Component
  *
  * Visual backdrop layer with support for size and clip-path animation modes.
- * Automatically positions and sizes based on slot dimensions from context.
+ * This is the visual "card" that expands - all styling (background, shadow,
+ * shine) lives here.
  */
 
 'use client'
@@ -17,19 +18,49 @@ import { useBiaxialExpand } from '../context'
 import { EASING_EXPO_OUT } from '../constants'
 import type { BackdropProps } from '../types'
 
+/**
+ * Calculate backdrop clip-path for unified model.
+ * Matches V3's getBackdropClipPath() logic.
+ */
+function getBackdropClipPath(
+  expanded: boolean,
+  panelWidth: number,
+  panelHeight: number,
+  triggerWidth: number,
+  triggerHeight: number,
+  borderRadius: number,
+  backdropTopOffset: number
+): string {
+  if (expanded) {
+    return `inset(0 0 0 0 round ${borderRadius}px)`
+  }
+
+  // Collapsed: show only trigger area, accounting for top offset
+  const sideInset = (panelWidth - triggerWidth) / 2
+  const topInset = backdropTopOffset
+  const bottomInset = panelHeight + backdropTopOffset - triggerHeight
+
+  return `inset(${topInset}px ${sideInset}px ${bottomInset}px ${sideInset}px round ${borderRadius}px)`
+}
+
 export const Backdrop: React.FC<BackdropProps> = ({ className }) => {
   const {
     expanded,
+    hovered,
     config,
     dimensions,
     timing,
-    totalExpandedHeight,
-    clipPaths,
   } = useBiaxialExpand()
 
   const { appearance, animation, layout } = config
-  const popupClasses = getPopupClasses(appearance)
-  const gradientStyles = getGradientStyles(appearance)
+
+  // When collapsed and hovered, use quaternary background
+  const effectiveAppearance = !expanded && hovered
+    ? { ...appearance, background: 'quaternary' as const }
+    : appearance
+
+  const popupClasses = getPopupClasses(effectiveAppearance)
+  const gradientStyles = getGradientStyles(effectiveAppearance)
 
   const duration = timing.backdropDuration
   const delay = animation.backdropDelay
@@ -39,12 +70,26 @@ export const Backdrop: React.FC<BackdropProps> = ({ className }) => {
     config.topSlot.enabled ? dimensions.topHeight + (layout.topGap ?? 0) : 0
   )
 
+  // Total panel height (trigger + gap + bottom)
+  const panelHeight = layout.triggerHeight + layout.bottomGap + dimensions.bottomHeight
+
   if (animation.backdropMode === 'clip-path') {
     // Clip-path mode: backdrop is always full size, revealed via clip-path
+    const clipPath = getBackdropClipPath(
+      expanded,
+      layout.panelWidth,
+      panelHeight,
+      layout.triggerWidth,
+      layout.triggerHeight,
+      layout.borderRadius,
+      backdropTopOffset
+    )
+
     return (
       <div
         className={cn(
           'absolute motion-reduce:transition-none',
+          'transition-colors duration-150',
           popupClasses,
           className
         )}
@@ -55,10 +100,10 @@ export const Backdrop: React.FC<BackdropProps> = ({ className }) => {
           left: '50%',
           marginLeft: -(layout.panelWidth / 2),
           width: layout.panelWidth,
-          height: totalExpandedHeight + backdropTopOffset,
+          height: panelHeight + backdropTopOffset,
           borderRadius: layout.borderRadius,
-          clipPath: clipPaths.backdrop,
-          transition: `clip-path ${duration}ms ${EASING_EXPO_OUT} ${delay}ms`,
+          clipPath,
+          transition: `clip-path ${duration}ms ${EASING_EXPO_OUT} ${delay}ms, background-color 150ms ease-out`,
           pointerEvents: 'none',
         }}
       />
@@ -68,6 +113,9 @@ export const Backdrop: React.FC<BackdropProps> = ({ className }) => {
   // Size mode (default): backdrop animates dimensions
   const backdropWidth = expanded ? layout.panelWidth : layout.triggerWidth
   const backdropMarginLeft = -(backdropWidth / 2)
+  const backdropHeight = expanded
+    ? panelHeight + backdropTopOffset
+    : layout.triggerHeight
 
   return (
     <div
@@ -83,15 +131,14 @@ export const Backdrop: React.FC<BackdropProps> = ({ className }) => {
         left: '50%',
         marginLeft: backdropMarginLeft,
         width: backdropWidth,
-        height: expanded
-          ? totalExpandedHeight + backdropTopOffset
-          : layout.triggerHeight,
+        height: backdropHeight,
         borderRadius: layout.borderRadius,
         transition: `
           top ${duration}ms ${EASING_EXPO_OUT} ${delay}ms,
           width ${duration}ms ${EASING_EXPO_OUT} ${delay}ms,
           height ${duration}ms ${EASING_EXPO_OUT} ${delay}ms,
-          margin-left ${duration}ms ${EASING_EXPO_OUT} ${delay}ms
+          margin-left ${duration}ms ${EASING_EXPO_OUT} ${delay}ms,
+          background-color 150ms ease-out
         `,
         pointerEvents: 'none',
       }}

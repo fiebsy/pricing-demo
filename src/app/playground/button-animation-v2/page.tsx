@@ -156,6 +156,10 @@ interface PlaygroundConfig {
   entryDistance: number
   exitDuration: number
 
+  // Terminal Animation (when child becomes active)
+  terminalDuration: number
+  terminalScale: number
+
   // Stacking Behavior
   offsetTarget: OffsetTarget
   peekOffset: number
@@ -192,6 +196,10 @@ const DEFAULT_PLAYGROUND_CONFIG: PlaygroundConfig = {
   stagger: DEFAULT_ANIMATION_CONFIG.stagger * 1000, // ms
   entryDistance: DEFAULT_ANIMATION_CONFIG.entryDistance,
   exitDuration: DEFAULT_ANIMATION_CONFIG.exitDuration * 1000, // ms
+
+  // Terminal Animation (when child becomes active)
+  terminalDuration: DEFAULT_ANIMATION_CONFIG.terminalDuration * 1000, // ms
+  terminalScale: DEFAULT_ANIMATION_CONFIG.terminalScale,
 
   // Stacking Behavior
   offsetTarget: DEFAULT_STYLE_CONFIG.offsetTarget,
@@ -395,6 +403,31 @@ function createPanelConfig(config: PlaygroundConfig): UnifiedControlPanelConfig 
             ],
           },
           {
+            title: 'Active Selection',
+            controls: [
+              {
+                id: 'terminalDuration',
+                type: 'slider',
+                label: 'Pulse Duration',
+                value: config.terminalDuration,
+                min: 100,
+                max: 500,
+                step: 25,
+                formatLabel: (v: number) => `${v}ms`,
+              },
+              {
+                id: 'terminalScale',
+                type: 'slider',
+                label: 'Pulse Scale',
+                value: config.terminalScale,
+                min: 1.0,
+                max: 1.15,
+                step: 0.01,
+                formatLabel: (v: number) => `${v.toFixed(2)}`,
+              },
+            ],
+          },
+          {
             title: 'Style',
             controls: [
               {
@@ -557,6 +590,8 @@ export default function ButtonAnimationV2Playground() {
       stagger: config.stagger / 1000,
       entryDistance: config.entryDistance,
       exitDuration: config.exitDuration / 1000,
+      terminalDuration: config.terminalDuration / 1000,
+      terminalScale: config.terminalScale,
     }),
     [config]
   )

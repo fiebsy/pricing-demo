@@ -25,3 +25,9 @@ export type {
   UseModalHandlersOptions,
   UseModalHandlersReturn,
 } from './use-modal-handlers'
+
+export { useStatusBarState } from './use-status-bar-state'
+export type {
+  UseStatusBarStateOptions,
+  UseStatusBarStateReturn,
+} from './use-status-bar-state'

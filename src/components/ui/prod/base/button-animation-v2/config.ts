@@ -38,6 +38,9 @@ export const DEFAULT_ANIMATION_CONFIG: AnimationConfig = {
   entryDistance: 8,
   entryOrder: 'sequential',
   staggerDirection: 'forward',
+  // Terminal (active child) animation
+  terminalDuration: 0.25,
+  terminalScale: 1.04,
 }
 
 // ============================================================================

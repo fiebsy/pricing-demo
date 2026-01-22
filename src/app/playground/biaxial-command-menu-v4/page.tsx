@@ -1,7 +1,8 @@
 /**
  * Biaxial Command Menu V4 Playground
  *
- * Demonstrates the composable slot-based architecture.
+ * Demonstrates the composable slot-based architecture with UNIFIED animation model.
+ * Trigger lives INSIDE Content for proper clip-path reveal (matching V3).
  */
 
 'use client'
@@ -15,7 +16,6 @@ import Settings01Icon from '@hugeicons-pro/core-stroke-rounded/Settings01Icon'
 import Home01Icon from '@hugeicons-pro/core-stroke-rounded/Home01Icon'
 import UserIcon from '@hugeicons-pro/core-stroke-rounded/UserIcon'
 import File01Icon from '@hugeicons-pro/core-stroke-rounded/File01Icon'
-import FavouriteIcon from '@hugeicons-pro/core-stroke-rounded/FavouriteIcon'
 
 import {
   BiaxialExpandV4,
@@ -121,10 +121,11 @@ const DEFAULT_CONFIG: Partial<BiaxialExpandConfig> = {
   },
   bottomSlot: {
     enabled: true,
-    background: 'none',
-    borderRadius: 0,
-    inset: 0,
-    borderWidth: 0,
+    background: 'secondary',
+    borderRadius: 14,
+    inset: 4,
+    borderWidth: 1,
+    borderColor: 'primary',
   },
 }
 
@@ -155,7 +156,7 @@ function DemoSection({
 }
 
 // ============================================================================
-// DEMO 1: DEFAULT
+// DEMO 1: DEFAULT (V3 PARITY)
 // ============================================================================
 
 function DefaultDemo() {
@@ -167,17 +168,21 @@ function DefaultDemo() {
 
   return (
     <BiaxialExpandV4.Root config={DEFAULT_CONFIG}>
+      {/* Backdrop - visual layer */}
       <BiaxialExpandV4.Backdrop />
 
-      <BiaxialExpandV4.Trigger>
-        <BiaxialExpandV4.SearchInput
-          placeholder="Search commands..."
-          value={filter}
-          onValueChange={setFilter}
-        />
-      </BiaxialExpandV4.Trigger>
-
+      {/* Content - UNIFIED container with clip-path animation */}
       <BiaxialExpandV4.Content>
+        {/* Trigger inside Content for unified animation */}
+        <BiaxialExpandV4.Trigger>
+          <BiaxialExpandV4.SearchInput
+            placeholder="Search commands..."
+            value={filter}
+            onValueChange={setFilter}
+          />
+        </BiaxialExpandV4.Trigger>
+
+        {/* Bottom content with fade */}
         <BiaxialExpandV4.ContentWrapper>
           <BiaxialExpandV4.BottomSlot>
             <BiaxialExpandV4.MenuContent
@@ -213,10 +218,10 @@ function WithTopSectionDemo() {
     topSlot: {
       enabled: true,
       height: 48,
-      background: 'none',
+      background: 'secondary',
       borderRadius: 14,
       inset: 4,
-      borderWidth: 0,
+      borderWidth: 1,
       borderColor: 'primary',
       durationOffset: -100,
     },
@@ -224,6 +229,7 @@ function WithTopSectionDemo() {
 
   return (
     <BiaxialExpandV4.Root config={topSectionConfig}>
+      {/* Top section expands upward (separate from main content) */}
       <BiaxialExpandV4.TopSlot>
         <BiaxialExpandV4.FilterBar
           options={[
@@ -238,15 +244,15 @@ function WithTopSectionDemo() {
 
       <BiaxialExpandV4.Backdrop />
 
-      <BiaxialExpandV4.Trigger>
-        <BiaxialExpandV4.SearchInput
-          placeholder="Search commands..."
-          value={filter}
-          onValueChange={setFilter}
-        />
-      </BiaxialExpandV4.Trigger>
-
       <BiaxialExpandV4.Content>
+        <BiaxialExpandV4.Trigger>
+          <BiaxialExpandV4.SearchInput
+            placeholder="Search commands..."
+            value={filter}
+            onValueChange={setFilter}
+          />
+        </BiaxialExpandV4.Trigger>
+
         <BiaxialExpandV4.ContentWrapper>
           <BiaxialExpandV4.BottomSlot>
             <BiaxialExpandV4.MenuContent
@@ -274,14 +280,14 @@ function ActionButtonDemo() {
     <BiaxialExpandV4.Root config={DEFAULT_CONFIG}>
       <BiaxialExpandV4.Backdrop />
 
-      <BiaxialExpandV4.Trigger>
-        <BiaxialExpandV4.ActionButton
-          icon={Add01Icon}
-          label="Quick Actions"
-        />
-      </BiaxialExpandV4.Trigger>
-
       <BiaxialExpandV4.Content>
+        <BiaxialExpandV4.Trigger>
+          <BiaxialExpandV4.ActionButton
+            icon={Add01Icon}
+            label="Quick Actions"
+          />
+        </BiaxialExpandV4.Trigger>
+
         <BiaxialExpandV4.ContentWrapper>
           <BiaxialExpandV4.BottomSlot>
             <BiaxialExpandV4.MenuContent
@@ -390,11 +396,11 @@ function CustomContentDemo() {
     <BiaxialExpandV4.Root config={customConfig}>
       <BiaxialExpandV4.Backdrop />
 
-      <BiaxialExpandV4.Trigger>
-        <CustomTrigger />
-      </BiaxialExpandV4.Trigger>
-
       <BiaxialExpandV4.Content>
+        <BiaxialExpandV4.Trigger>
+          <CustomTrigger />
+        </BiaxialExpandV4.Trigger>
+
         <BiaxialExpandV4.ContentWrapper>
           <BiaxialExpandV4.BottomSlot>
             <CustomBottomContent />
@@ -419,7 +425,7 @@ export default function BiaxialCommandMenuV4Playground() {
             Biaxial Command Menu V4
           </h1>
           <p className="text-tertiary mt-2">
-            Composable slot-based architecture with flexible content areas
+            Composable slot-based architecture with unified clip-path animation (V3 parity)
           </p>
         </div>
 
@@ -427,7 +433,7 @@ export default function BiaxialCommandMenuV4Playground() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <DemoSection
             title="Default (V3 Parity)"
-            description="Search input with command menu"
+            description="Search input with command menu - unified clip-path reveal"
           >
             <DefaultDemo />
           </DemoSection>
@@ -457,26 +463,33 @@ export default function BiaxialCommandMenuV4Playground() {
         {/* API Reference */}
         <div className="mt-16 p-8 rounded-2xl bg-secondary border border-primary">
           <h2 className="text-lg font-semibold text-primary mb-4">
-            API Reference
+            V4 Architecture (Unified Model)
           </h2>
 
           <div className="space-y-6 text-sm">
             <div>
-              <h3 className="font-medium text-primary mb-2">Slot Components</h3>
-              <ul className="list-disc list-inside text-tertiary space-y-1">
-                <li>
-                  <code className="text-secondary">TopSlot</code> - Expands
-                  upward from trigger
-                </li>
-                <li>
-                  <code className="text-secondary">Trigger</code> - The anchor
-                  element
-                </li>
-                <li>
-                  <code className="text-secondary">BottomSlot</code> - Expands
-                  downward from trigger
-                </li>
-              </ul>
+              <h3 className="font-medium text-primary mb-2">Component Structure</h3>
+              <pre className="text-xs text-tertiary bg-tertiary p-4 rounded-lg overflow-x-auto">
+{`<BiaxialExpandV4.Root>
+  <BiaxialExpandV4.TopSlot />      {/* Optional - expands upward */}
+  <BiaxialExpandV4.Backdrop />     {/* Visual layer */}
+  <BiaxialExpandV4.Content>        {/* UNIFIED clip-path container */}
+    <BiaxialExpandV4.Trigger />    {/* INSIDE Content */}
+    <BiaxialExpandV4.ContentWrapper>
+      <BiaxialExpandV4.BottomSlot />
+    </BiaxialExpandV4.ContentWrapper>
+  </BiaxialExpandV4.Content>
+</BiaxialExpandV4.Root>`}
+              </pre>
+            </div>
+
+            <div>
+              <h3 className="font-medium text-primary mb-2">Key Difference from Old V4</h3>
+              <p className="text-tertiary">
+                Trigger is now <strong>INSIDE</strong> Content, not outside. This enables the
+                unified clip-path animation where trigger and menu expand together as one
+                rectangle, matching V3's smooth reveal behavior.
+              </p>
             </div>
 
             <div>
@@ -485,20 +498,16 @@ export default function BiaxialCommandMenuV4Playground() {
               </h3>
               <ul className="list-disc list-inside text-tertiary space-y-1">
                 <li>
-                  <code className="text-secondary">SearchInput</code> - Search
-                  trigger (default)
+                  <code className="text-secondary">SearchInput</code> - Search trigger (default)
                 </li>
                 <li>
-                  <code className="text-secondary">ActionButton</code> - Button
-                  trigger
+                  <code className="text-secondary">ActionButton</code> - Button trigger
                 </li>
                 <li>
-                  <code className="text-secondary">FilterBar</code> - Top slot
-                  filters
+                  <code className="text-secondary">FilterBar</code> - Top slot filters
                 </li>
                 <li>
-                  <code className="text-secondary">MenuContent</code> - Command
-                  menu list
+                  <code className="text-secondary">MenuContent</code> - Command menu list
                 </li>
               </ul>
             </div>

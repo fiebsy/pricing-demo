@@ -184,6 +184,8 @@ export interface BiaxialExpandContextValue {
   // State
   expanded: boolean
   setExpanded: (expanded: boolean) => void
+  hovered: boolean
+  setHovered: (hovered: boolean) => void
 
   // Config
   config: BiaxialExpandConfig
@@ -204,10 +206,6 @@ export interface BiaxialExpandContextValue {
 
   // Calculated values
   totalExpandedHeight: number
-  clipPaths: {
-    content: string
-    backdrop: string
-  }
 
   // Animation timing
   timing: {

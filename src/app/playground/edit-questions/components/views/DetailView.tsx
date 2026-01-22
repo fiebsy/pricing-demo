@@ -15,8 +15,8 @@ import { cn } from '@/lib/utils'
 import { HugeIcon } from '@/components/ui/prod/base/icon'
 import Delete01Icon from '@hugeicons-pro/core-stroke-rounded/Delete01Icon'
 
-import { QuestionInput } from '../QuestionInput'
-import { AnswerPreview } from '../AnswerPreview'
+import { QuestionInput } from '../questions/QuestionInput'
+import { AnswerPreview } from '../answers/AnswerPreview'
 import type { Question, AnswerState, AnswerPosition } from '../../types'
 
 // =============================================================================

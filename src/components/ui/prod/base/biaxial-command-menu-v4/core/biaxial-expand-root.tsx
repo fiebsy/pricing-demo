@@ -6,7 +6,11 @@
  * - Expanded/collapsed state
  * - Dimension tracking for all slots
  * - Animation timing calculations
- * - Clip-path generation
+ *
+ * Uses the UNIFIED model from V3 where:
+ * - Trigger and bottom content live in one clipped container
+ * - Backdrop expands to cover both areas
+ * - Clip-path animation reveals content smoothly
  */
 
 'use client'
@@ -23,7 +27,6 @@ import { cn } from '@/lib/utils'
 import { BiaxialExpandProvider } from './context'
 import { DEFAULT_BIAXIAL_EXPAND_CONFIG } from './constants'
 import { deepMerge } from './utils'
-import { getContentClipPath, getBackdropClipPath } from './utils'
 import type {
   BiaxialExpandRootProps,
   BiaxialExpandConfig,
@@ -47,10 +50,10 @@ export const BiaxialExpandRoot: React.FC<BiaxialExpandRootProps> = ({
 
   // State
   const [internalExpanded, setInternalExpanded] = useState(false)
+  const [hovered, setHovered] = useState(false)
   const expanded = controlledExpanded ?? internalExpanded
 
-  // Slot dimension state
-  // Only use topHeight if the top slot is actually enabled
+  // Slot dimension state - initialize with config values
   const [dimensions, setDimensions] = useState<SlotDimensions>({
     topHeight: config.topSlot.enabled ? (config.topSlot.height ?? 48) : 0,
     triggerHeight: config.layout.triggerHeight,
@@ -110,30 +113,11 @@ export const BiaxialExpandRoot: React.FC<BiaxialExpandRootProps> = ({
     }
   }, [expanded, setExpanded])
 
-  // Calculate total expanded height
+  // Calculate total expanded height (for backdrop)
   const totalExpandedHeight = useMemo(() => {
     const { triggerHeight, bottomGap } = config.layout
     return triggerHeight + bottomGap + dimensions.bottomHeight
   }, [config.layout, dimensions.bottomHeight])
-
-  // Calculate clip paths
-  const clipPaths = useMemo(() => {
-    return {
-      content: getContentClipPath(
-        expanded,
-        dimensions,
-        config.layout,
-        config.layout.borderRadius
-      ),
-      backdrop: getBackdropClipPath(
-        expanded,
-        dimensions,
-        config.layout,
-        config.layout.borderRadius,
-        config.layout.backdropTopOffset
-      ),
-    }
-  }, [expanded, dimensions, config.layout])
 
   // Calculate timing functions
   const timing = useMemo(() => {
@@ -164,11 +148,13 @@ export const BiaxialExpandRoot: React.FC<BiaxialExpandRootProps> = ({
     }
   }, [config, expanded])
 
-  // Build context value
+  // Build context value (no clipPaths - components calculate their own)
   const contextValue = useMemo<BiaxialExpandContextValue>(
     () => ({
       expanded,
       setExpanded,
+      hovered,
+      setHovered,
       config,
       dimensions,
       refs: {
@@ -179,17 +165,16 @@ export const BiaxialExpandRoot: React.FC<BiaxialExpandRootProps> = ({
       },
       setSlotHeight,
       totalExpandedHeight,
-      clipPaths,
       timing,
     }),
     [
       expanded,
       setExpanded,
+      hovered,
       config,
       dimensions,
       setSlotHeight,
       totalExpandedHeight,
-      clipPaths,
       timing,
     ]
   )

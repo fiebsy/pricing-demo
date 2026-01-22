@@ -2,7 +2,9 @@
  * Biaxial Expand V4 - Trigger Slot Component
  *
  * Container for the trigger element (search input, button, etc.).
- * This is the "anchor" that stays visible in both collapsed and expanded states.
+ * Lives INSIDE the ContentLayer - positioned at top, animates width.
+ *
+ * Matches V3's InputTrigger positioning behavior.
  */
 
 'use client'
@@ -20,12 +22,12 @@ export const TriggerSlot: React.FC<SlotProps> = ({
 }) => {
   const {
     expanded,
+    setHovered,
     config,
     timing,
     refs,
   } = useBiaxialExpand()
 
-  const slotConfig = { ...config.triggerSlot, ...slotConfigOverride }
   const duration = timing.duration
 
   const {
@@ -33,6 +35,10 @@ export const TriggerSlot: React.FC<SlotProps> = ({
     triggerWidth,
     triggerHeight,
   } = config.layout
+
+  // When collapsed, trigger is centered. When expanded, full width.
+  const currentWidth = expanded ? panelWidth : triggerWidth
+  const leftOffset = expanded ? 0 : (panelWidth - triggerWidth) / 2
 
   return (
     <div
@@ -45,17 +51,18 @@ export const TriggerSlot: React.FC<SlotProps> = ({
       style={{
         zIndex: 12,
         top: 0,
-        left: '50%',
-        marginLeft: expanded ? -(panelWidth / 2) : -(triggerWidth / 2),
-        width: expanded ? panelWidth : triggerWidth,
+        left: leftOffset,
+        width: currentWidth,
         height: triggerHeight,
         pointerEvents: 'auto',
-        transition: `margin-left ${duration}ms ${EASING_EXPO_OUT}, width ${duration}ms ${EASING_EXPO_OUT}`,
+        transition: `left ${duration}ms ${EASING_EXPO_OUT}, width ${duration}ms ${EASING_EXPO_OUT}`,
       }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
     >
       {children}
     </div>
   )
 }
 
-TriggerSlot.displayName = 'BiaxialExpandV4.TriggerSlot'
+TriggerSlot.displayName = 'BiaxialExpandV4.Trigger'

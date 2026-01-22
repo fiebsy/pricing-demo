@@ -194,7 +194,7 @@ export function FilterMenuMotion({
 
   return (
     <BaseMenu.Root open={isOpen} onOpenChange={handleOpenChange} modal={false}>
-      <BaseMenu.Trigger render={<span className="outline-none focus:outline-none" />}>
+      <BaseMenu.Trigger nativeButton={false} render={<span className="outline-none focus:outline-none" />}>
         {isValidElement(resolvedTrigger)
           ? cloneElement(resolvedTrigger as React.ReactElement<{ isActive?: boolean }>, {
               isActive: isOpen,

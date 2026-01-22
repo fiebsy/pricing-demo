@@ -3,12 +3,14 @@
  *
  * Container for content that expands DOWNWARD from the trigger.
  * Can contain menu items, cards, forms, or any custom content.
+ *
+ * Supports optional clip-path animation for "grow from origin" effect.
  */
 
 'use client'
 
 import * as React from 'react'
-import { useEffect, useRef } from 'react'
+import { useEffect } from 'react'
 import { cn } from '@/lib/utils'
 import { useBiaxialExpand } from '../context'
 import { getBackgroundClass, getBorderColorVar } from '../utils'
@@ -26,22 +28,15 @@ export const BottomSlot: React.FC<SlotProps> = ({
     config,
     setSlotHeight,
     timing,
-    dimensions,
   } = useBiaxialExpand()
 
-  const contentRef = useRef<HTMLDivElement>(null)
   const slotConfig = { ...config.bottomSlot, ...slotConfigOverride }
 
-  // Measure content height
+  // Set height from config (removing children dependency prevents shrinking cascade)
+  // The height is capped at maxBottomHeight - actual content scrolling is handled internally
   useEffect(() => {
-    if (contentRef.current) {
-      const height = Math.min(
-        contentRef.current.scrollHeight,
-        config.layout.maxBottomHeight
-      )
-      setSlotHeight('bottom', height)
-    }
-  }, [config.layout.maxBottomHeight, setSlotHeight, children])
+    setSlotHeight('bottom', config.layout.maxBottomHeight)
+  }, [config.layout.maxBottomHeight, setSlotHeight])
 
   // If slot is disabled, don't render
   if (!slotConfig.enabled) {
@@ -51,6 +46,7 @@ export const BottomSlot: React.FC<SlotProps> = ({
   const duration = timing.slotDuration('bottom')
   const delay = timing.slotDelay('bottom')
 
+  // Optional clip-path animation for "grow from origin" effect
   const clipPath = config.animation.animateSlotContainers
     ? getSlotContainerClipPath(expanded, config.animation.expandOrigin)
     : 'inset(0 0 0 0)'
@@ -59,7 +55,6 @@ export const BottomSlot: React.FC<SlotProps> = ({
 
   return (
     <div
-      ref={contentRef}
       className={cn(
         'absolute overflow-hidden',
         config.appearance.squircle && 'corner-squircle',

@@ -80,6 +80,10 @@ export interface AnimationConfig {
   entryOrder: EntryOrder
   /** Stagger direction */
   staggerDirection: StaggerDirection
+  /** Duration of terminal (active child) pulse animation (seconds) */
+  terminalDuration: number
+  /** Scale factor for terminal pulse (e.g., 1.04 = 4% larger) */
+  terminalScale: number
 }
 
 // ============================================================================

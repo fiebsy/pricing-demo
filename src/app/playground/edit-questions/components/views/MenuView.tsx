@@ -16,8 +16,8 @@ import { HugeIcon } from '@/components/ui/prod/base/icon'
 import CheckmarkCircle02Icon from '@hugeicons-pro/core-stroke-rounded/CheckmarkCircle02Icon'
 import AlertCircleIcon from '@hugeicons-pro/core-stroke-rounded/AlertCircleIcon'
 
-import { QuestionRow } from '../QuestionInputRow'
-import { QuestionInput } from '../QuestionInput'
+import { QuestionRow } from '../questions/QuestionInputRow'
+import { QuestionInput } from '../questions/QuestionInput'
 import type { Question } from '../../types'
 
 // =============================================================================

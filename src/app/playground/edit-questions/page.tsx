@@ -28,6 +28,7 @@ import {
   createOptionsPanel,
 } from './panels'
 import { EditQuestionsModal, StatCard, StatusBar } from './components'
+import { useStatusBarState } from './hooks'
 
 type UnifiedControlPanelConfig = UnifiedControlPanelProps['config']
 
@@ -40,6 +41,12 @@ export default function EditQuestionsPlayground() {
   const [activePresetId, setActivePresetId] = useState<string | null>('default')
   const [modalOpen, setModalOpen] = useState(false)
   const [questions, setQuestions] = useState<Question[]>(INITIAL_QUESTIONS)
+
+  // StatusBar state management
+  const statusBar = useStatusBarState({
+    uploadDuration: 10000, // 10 second upload simulation
+    notificationTimeout: 0, // No auto-dismiss - user must click to dismiss
+  })
 
   // Panel configuration
   const panelConfig = useMemo<UnifiedControlPanelConfig>(
@@ -101,6 +108,40 @@ export default function EditQuestionsPlayground() {
     const pending = questions.filter((q) => q.status === 'pending').length
     return { answered, orphaned, pending, total: questions.length }
   }, [questions])
+
+  // Handle revision flow completion - trigger StatusBar updates
+  const handleRevisionComplete = useCallback(() => {
+    // Start the upload simulation in StatusBar
+    statusBar.startUpload()
+
+    // Increment composite score (simulated)
+    statusBar.incrementScore(Math.floor(Math.random() * 200) + 100)
+
+    // Add upload notification after a short delay
+    setTimeout(() => {
+      statusBar.incrementFilesUploaded(1)
+      statusBar.addNotification('upload_complete', 'Added new content to memory')
+    }, 10500) // After 10s upload completes
+
+    // Update confidence and add notification after upload
+    setTimeout(() => {
+      const improved = Math.floor(Math.random() * 3) + 1
+      const total = stats.total
+      const newConfidence = Math.min(95, statusBar.state.confidence.value + Math.floor(Math.random() * 15) + 5)
+
+      statusBar.updateConfidence(newConfidence, improved, total)
+      statusBar.addNotification(
+        'confidence_change',
+        `${improved} of ${total} questions improved confidence`,
+        { questionsImproved: improved, totalQuestions: total }
+      )
+    }, 11000)
+
+    // Add regeneration notification
+    setTimeout(() => {
+      statusBar.addNotification('regeneration', 'Answers regenerated with new context')
+    }, 11500)
+  }, [statusBar, stats.total])
 
   return (
     <div className="min-h-screen bg-primary">
@@ -198,12 +239,14 @@ export default function EditQuestionsPlayground() {
         questions={questions}
         onQuestionsChange={setQuestions}
         config={config}
+        onRevisionComplete={handleRevisionComplete}
       />
 
       {/* Fixed Status Bar */}
       <StatusBar
-        filesUploaded={0}
-        updatesCount={stats.answered}
+        state={statusBar.state}
+        onDismissNotification={statusBar.dismissNotification}
+        onClearNotifications={statusBar.clearNotifications}
       />
     </div>
   )

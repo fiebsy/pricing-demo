@@ -1,8 +1,12 @@
 /**
  * Biaxial Expand V4 - Content Layer Component
  *
- * Wrapper for the trigger and bottom content with clip-path animation.
- * This layer handles the main biaxial reveal animation.
+ * UNIFIED container for trigger + bottom content with clip-path animation.
+ * This matches V3's architecture where everything expands from a single origin.
+ *
+ * The clip-path reveals:
+ * - Collapsed: Only the trigger area (centered)
+ * - Expanded: Full panel including bottom content
  */
 
 'use client'
@@ -13,10 +17,33 @@ import { useBiaxialExpand } from '../context'
 import { EASING_EXPO_OUT } from '../constants'
 
 export interface ContentLayerProps {
-  /** Child content (TriggerSlot and BottomSlot) */
+  /** Child content (TriggerSlot + BottomSlot) */
   children: React.ReactNode
   /** Additional className */
   className?: string
+}
+
+/**
+ * Calculate clip-path for unified biaxial animation.
+ * Matches V3's getClipPath() logic.
+ */
+function getUnifiedClipPath(
+  expanded: boolean,
+  panelWidth: number,
+  panelHeight: number,
+  triggerWidth: number,
+  triggerHeight: number,
+  borderRadius: number
+): string {
+  if (expanded) {
+    return `inset(0 0 0 0 round ${borderRadius}px)`
+  }
+
+  // Collapsed: show only trigger area centered
+  const sideInset = (panelWidth - triggerWidth) / 2
+  const bottomInset = panelHeight - triggerHeight
+
+  return `inset(0 ${sideInset}px ${bottomInset}px ${sideInset}px round ${borderRadius}px)`
 }
 
 export const ContentLayer: React.FC<ContentLayerProps> = ({
@@ -28,29 +55,39 @@ export const ContentLayer: React.FC<ContentLayerProps> = ({
     config,
     timing,
     dimensions,
+    totalExpandedHeight,
   } = useBiaxialExpand()
 
   const { layout } = config
   const duration = timing.duration
 
-  // Position below the trigger
-  const topOffset = layout.triggerHeight + (layout.bottomGap ?? 12)
-  const contentHeight = dimensions.bottomHeight
+  // Total height = trigger + bottomGap + bottomContent
+  const panelHeight = layout.triggerHeight + layout.bottomGap + dimensions.bottomHeight
+
+  // Calculate clip-path like V3
+  const clipPath = getUnifiedClipPath(
+    expanded,
+    layout.panelWidth,
+    panelHeight,
+    layout.triggerWidth,
+    layout.triggerHeight,
+    layout.borderRadius
+  )
 
   return (
     <div
-      className={cn('motion-reduce:transition-none', className)}
+      className={cn('absolute motion-reduce:transition-none', className)}
       style={{
-        position: 'absolute',
         zIndex: 11,
-        top: topOffset,
+        // Start at top: 0 like V3 (unified origin)
+        top: 0,
         left: '50%',
         marginLeft: -(layout.panelWidth / 2),
         width: layout.panelWidth,
-        height: expanded ? contentHeight : 0,
-        overflow: 'hidden',
-        opacity: expanded ? 1 : 0,
-        transition: `height ${duration}ms ${EASING_EXPO_OUT}, opacity ${duration * 0.5}ms ${expanded ? 'ease-out' : 'ease-in'}`,
+        height: panelHeight,
+        // Clip-path animation (the key to V3's smooth reveal)
+        clipPath,
+        transition: `clip-path ${duration}ms ${EASING_EXPO_OUT}, height ${duration}ms ${EASING_EXPO_OUT}`,
         pointerEvents: expanded ? 'auto' : 'none',
       }}
     >
@@ -59,4 +96,4 @@ export const ContentLayer: React.FC<ContentLayerProps> = ({
   )
 }
 
-ContentLayer.displayName = 'BiaxialExpandV4.ContentLayer'
+ContentLayer.displayName = 'BiaxialExpandV4.Content'

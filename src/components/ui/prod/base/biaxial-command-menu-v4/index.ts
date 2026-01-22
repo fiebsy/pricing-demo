@@ -1,20 +1,24 @@
 /**
  * Biaxial Expand V4
  *
- * A composable, slot-based expand system with biaxial animations.
- * IMPORTANT: Only the Backdrop should have visual styling (background, border, shadow).
- * Trigger and slots should be transparent - the backdrop provides the visual card.
+ * A composable, slot-based expand system with unified clip-path animations.
+ * Matches V3's smooth reveal behavior while enabling flexible slot composition.
+ *
+ * ARCHITECTURE: Unified Model
+ * - Trigger lives INSIDE Content for proper clip-path reveal
+ * - Backdrop provides visual styling (background, shadow, shine)
+ * - TopSlot expands upward (separate from main content)
  *
  * @example Basic usage with search input
  * ```tsx
  * <BiaxialExpandV4.Root>
  *   <BiaxialExpandV4.Backdrop />
  *
- *   <BiaxialExpandV4.Trigger>
- *     <BiaxialExpandV4.SearchInput placeholder="Search..." />
- *   </BiaxialExpandV4.Trigger>
- *
  *   <BiaxialExpandV4.Content>
+ *     <BiaxialExpandV4.Trigger>
+ *       <BiaxialExpandV4.SearchInput placeholder="Search..." />
+ *     </BiaxialExpandV4.Trigger>
+ *
  *     <BiaxialExpandV4.ContentWrapper>
  *       <BiaxialExpandV4.BottomSlot>
  *         <BiaxialExpandV4.MenuContent groups={groups} />
@@ -33,11 +37,11 @@
  *
  *   <BiaxialExpandV4.Backdrop />
  *
- *   <BiaxialExpandV4.Trigger>
- *     <BiaxialExpandV4.SearchInput placeholder="Search..." />
- *   </BiaxialExpandV4.Trigger>
- *
  *   <BiaxialExpandV4.Content>
+ *     <BiaxialExpandV4.Trigger>
+ *       <BiaxialExpandV4.SearchInput placeholder="Search..." />
+ *     </BiaxialExpandV4.Trigger>
+ *
  *     <BiaxialExpandV4.ContentWrapper>
  *       <BiaxialExpandV4.BottomSlot>
  *         <BiaxialExpandV4.MenuContent groups={groups} />

@@ -6,44 +6,46 @@
  * @module playground/edit-questions/components
  */
 
-// Core components
-export { QuestionsList } from './QuestionsList'
-export type { QuestionsListProps } from './QuestionsList'
+// Question components
+export { QuestionsList } from './questions'
+export type { QuestionsListProps } from './questions'
 
-export { QuestionInput } from './QuestionInput'
-export type { QuestionInputProps } from './QuestionInput'
+export { QuestionInput } from './questions'
+export type { QuestionInputProps } from './questions'
 
-export { QuestionRow, QuestionInputRow, QuestionInputList } from './QuestionInputRow'
-export type { QuestionRowProps, QuestionInputRowProps, QuestionInputListProps } from './QuestionInputRow'
+export { QuestionRow, QuestionInputRow, QuestionInputList } from './questions'
+export type { QuestionRowProps, QuestionInputRowProps, QuestionInputListProps } from './questions'
 
-export { AnswerPreview } from './AnswerPreview'
-export type { AnswerPreviewProps } from './AnswerPreview'
-
-export { ProcessingMeter, useSimulatedProgress } from './ProcessingMeter'
-export type { ProcessingMeterProps } from './ProcessingMeter'
-
-export { BottomToolbar } from './BottomToolbar'
-export type { BottomToolbarProps } from './BottomToolbar'
-
-// Re-export types from types.ts for backward compatibility
-export type { AnswerState, ProcessingState, ToolbarStatus, Notification } from '../types'
+// Answer components
+export { AnswerPreview } from './answers'
+export type { AnswerPreviewProps } from './answers'
 
 // Modal components
-export { EditQuestionsModal } from './EditQuestionsModal'
-export type { EditQuestionsModalProps } from './EditQuestionsModal'
+export { ProcessingMeter, useSimulatedProgress } from './modal'
+export type { ProcessingMeterProps } from './modal'
 
-export { RevisionFlowModal } from './RevisionFlowModal'
-export type { RevisionFlowModalProps } from './RevisionFlowModal'
+export { EditQuestionsModal } from './modal'
+export type { EditQuestionsModalProps } from './modal'
+
+export { RevisionFlowModal } from './modal'
+export type { RevisionFlowModalProps } from './modal'
+
+// Toolbar components
+export { BottomToolbar } from './toolbar'
+export type { BottomToolbarProps } from './toolbar'
+
+// Re-export types from types for backward compatibility
+export type { AnswerState, ProcessingState, ToolbarStatus, Notification } from '../types'
 
 // Flow components
-export { QuickFixFlow } from './QuickFixFlow'
-export type { QuickFixFlowProps } from './QuickFixFlow'
+export { QuickFixFlow } from './flows'
+export type { QuickFixFlowProps } from './flows'
 
-export { AddToMindFlow } from './AddToMindFlow'
-export type { AddToMindFlowProps } from './AddToMindFlow'
+export { AddToMindFlow } from './flows'
+export type { AddToMindFlowProps } from './flows'
 
-export { ManualFixFlow } from './ManualFixFlow'
-export type { ManualFixFlowProps } from './ManualFixFlow'
+export { ManualFixFlow } from './flows'
+export type { ManualFixFlowProps } from './flows'
 
 // View components
 export { MenuView, DetailView } from './views'
@@ -52,3 +54,11 @@ export type { MenuViewProps, DetailViewProps } from './views'
 // Playground components
 export { StatCard, StatusBar } from './playground'
 export type { StatCardProps, StatusBarProps } from './playground'
+
+export { UploadIndicator, CompositeScore, ConfidenceWheel, NotificationBadge } from './playground'
+export type {
+  UploadIndicatorProps,
+  CompositeScoreProps,
+  ConfidenceWheelProps,
+  NotificationBadgeProps,
+} from './playground'

@@ -11,6 +11,7 @@
 
 'use client'
 
+import { useState } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 
 import {
@@ -176,6 +177,7 @@ export function StackLevel({
       {/* CHILDREN of active item */}
       {activeItem?.children && activeItem.children.length > 0 && (
         <ChildrenLevel
+          key={`children-${activeItem.id}`}
           items={activeItem.children}
           parentId={activeItem.id}
           parentLevelIndices={[
@@ -208,6 +210,11 @@ function ChildrenLevel({
   const { level } = useLevelContext()
   const { activePath, animationConfig, styleConfig } = useStackContext()
   const shouldReduceMotion = useReducedMotion() ?? false
+
+  // Generate a unique ID per mount instance to ensure AnimatePresence
+  // treats re-entering children as new entries after collapse/expand cycles
+  // Using useState initializer (runs only on mount) instead of useId (position-based)
+  const [mountId] = useState(() => Math.random().toString(36).slice(2))
 
   const nextLevel = level + 1
   const activeId = activePath[nextLevel]
@@ -246,7 +253,6 @@ function ChildrenLevel({
 
           const isAnchored = isActive && hasActiveChild
           // Terminal item = the deepest active item (just clicked, no children expanded)
-          // It shouldn't animate - just instantly show as active
           const isTerminal = isActive && !hasActiveChild
 
           const delay = hasActiveAtThisLevel
@@ -266,19 +272,29 @@ function ChildrenLevel({
               ? styleConfig.peekOffset * itemDepth
               : undefined
 
-          // Terminal items skip all animation - they just stay in place
-          const skipAnimation = isTerminal || shouldReduceMotion
+          // Only skip animation for reduced motion preference
+          const skipAnimation = shouldReduceMotion
 
           // Child gap - apply margin between visible children
           const isLastVisibleChild = index === items.length - 1 || (hasActiveAtThisLevel && isActive)
           const childGapMargin = isLastVisibleChild ? 0 : styleConfig.childGap
 
-          // Disable layout animation for terminal and anchored items
-          const layoutMode = isAnchored || isTerminal ? false : 'position'
+          // Enable layout animation for terminal items so they smoothly reposition
+          // when siblings exit. Disable for anchored items (they use absolute positioning).
+          const layoutMode = isAnchored ? false : 'position'
+
+          // Terminal items are already visible, so they get a different animation:
+          // - No initial offset (they're already in position)
+          // - Subtle scale pulse to indicate activation
+          // Using tween with keyframes (spring only supports 2 keyframes)
+          const terminalTransition = {
+            duration: animationConfig.terminalDuration,
+            ease: [0.25, 0.1, 0.25, 1] as const, // cubic-bezier for smooth pulse
+          }
 
           return (
             <motion.div
-              key={item.id}
+              key={`${mountId}-${item.id}-${isTerminal ? 'active' : 'idle'}`}
               layout={layoutMode}
               className={isAnchored ? 'absolute top-0 inline-flex' : 'inline-flex'}
               style={{
@@ -287,10 +303,22 @@ function ChildrenLevel({
                 marginRight: !isAnchored ? childGapMargin : undefined,
                 zIndex: isAnchored ? getAnchoredZIndex(itemDepth) : ACTIVE_Z_INDEX,
               }}
-              initial={skipAnimation ? false : { opacity: 0, ...entryOffset }}
+              initial={
+                skipAnimation
+                  ? false
+                  : isTerminal
+                  ? { scale: 1, opacity: 1 } // Already visible
+                  : { opacity: 0, ...entryOffset }
+              }
               animate={
                 skipAnimation
-                  ? undefined // No animate prop = no animation
+                  ? undefined
+                  : isTerminal
+                  ? {
+                      scale: [1, animationConfig.terminalScale, 1], // Subtle pulse when becoming active
+                      opacity: 1,
+                      transition: terminalTransition,
+                    }
                   : {
                       opacity: 1,
                       x: 0,
@@ -317,6 +345,7 @@ function ChildrenLevel({
       {/* Recursive children */}
       {activeItem?.children && activeItem.children.length > 0 && (
         <ChildrenLevel
+          key={`children-${activeItem.id}`}
           items={activeItem.children}
           parentId={activeItem.id}
           parentLevelIndices={[...parentLevelIndices, items.findIndex((i) => i.id === activeId)]}
