@@ -150,6 +150,16 @@ export interface RatingsConfig {
     animationDuration: number
   }
 
+  // Panel Animation (for drill-down transitions)
+  animation: {
+    slideOffset: number
+    stripWidth: number
+    autoSyncSlideStrip: boolean
+    slideDuration: number
+    panelExitScale: number
+    panelEnterScale: number
+  }
+
   // Data
   data: {
     activeSection: SectionType

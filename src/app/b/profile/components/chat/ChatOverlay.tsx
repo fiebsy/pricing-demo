@@ -70,9 +70,10 @@ export function ChatOverlay({ state, onStateChange, className }: ChatOverlayProp
       // Add user message
       addUserMessage(content)
 
-      // Expand to full view on first message
-      if (state !== 'expanded') {
-        onStateChange('expanded')
+      // Move to default state if collapsed (shows messages in 45% blur zone)
+      // Only explicit expand button triggers full expansion
+      if (state === 'collapsed') {
+        onStateChange('default')
       }
 
       // Add empty assistant message (streaming)
@@ -97,6 +98,12 @@ export function ChatOverlay({ state, onStateChange, className }: ChatOverlayProp
   )
 
   const isExpanded = state === 'expanded'
+  const showMessages = state !== 'collapsed'
+
+  // Height for messages area based on state
+  // Default: ~45% of viewport, Expanded: full viewport
+  const containerHeight = isExpanded ? '100vh' : state === 'default' ? '45vh' : 'auto'
+  const messagesMaxHeight = isExpanded ? 'calc(100vh - 120px)' : 'calc(45vh - 120px)'
 
   return (
     <>
@@ -110,13 +117,13 @@ export function ChatOverlay({ state, onStateChange, className }: ChatOverlayProp
           className
         )}
         style={{
-          height: isExpanded ? '100vh' : 'auto',
-          pointerEvents: isExpanded ? 'auto' : 'none',
+          height: containerHeight,
+          pointerEvents: showMessages ? 'auto' : 'none',
         }}
       >
       {/* Messages area - grows from bottom, fades at top */}
       <AnimatePresence>
-        {isExpanded && (
+        {showMessages && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -133,11 +140,13 @@ export function ChatOverlay({ state, onStateChange, className }: ChatOverlayProp
             />
 
             {/* Messages - snapped to bottom */}
-            <div className="relative z-0 max-w-[800px] w-full mx-auto">
+            <div
+              className="relative z-0 max-w-[800px] w-full mx-auto overflow-y-auto"
+              style={{ maxHeight: messagesMaxHeight }}
+            >
               <MessageList
                 messages={messages}
                 isTyping={isTyping}
-                className="max-h-[calc(100vh-120px)] overflow-y-auto"
               />
             </div>
           </motion.div>

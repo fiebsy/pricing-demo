@@ -87,7 +87,28 @@ export default function RatingsPanelPlayground() {
 
     // Clear preset when manually changing values
     setActivePresetId(null)
-    setConfig((prev) => setNestedValue(prev, controlId, processedValue))
+
+    // Auto-sync slideOffset and stripWidth when enabled
+    setConfig((prev) => {
+      let updated = setNestedValue(prev, controlId, processedValue)
+
+      // If auto-sync is enabled and we're changing slideOffset or stripWidth
+      if (prev.animation.autoSyncSlideStrip) {
+        const SYNC_RATIO = 4 // stripWidth = slideOffset * 4
+
+        if (controlId === 'animation.slideOffset') {
+          const newSlideOffset = value as number
+          const syncedStripWidth = newSlideOffset * SYNC_RATIO
+          updated = setNestedValue(updated, 'animation.stripWidth', syncedStripWidth)
+        } else if (controlId === 'animation.stripWidth') {
+          const newStripWidth = value as number
+          const syncedSlideOffset = newStripWidth / SYNC_RATIO
+          updated = setNestedValue(updated, 'animation.slideOffset', syncedSlideOffset)
+        }
+      }
+
+      return updated
+    })
   }, [])
 
   // Handle preset selection

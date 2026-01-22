@@ -83,6 +83,16 @@ export const DEFAULT_RATINGS_CONFIG: RatingsConfig = {
     animationDuration: 150,
   },
 
+  // Panel Animation
+  animation: {
+    slideOffset: 50,
+    stripWidth: 200,
+    autoSyncSlideStrip: true,
+    slideDuration: 300,
+    panelExitScale: 0.86,
+    panelEnterScale: 0.86,
+  },
+
   // Data
   data: {
     activeSection: 'mind',

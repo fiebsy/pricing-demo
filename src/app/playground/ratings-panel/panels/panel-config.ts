@@ -516,6 +516,91 @@ function buildSubScoresSection(config: RatingsConfig): Section {
 }
 
 // =============================================================================
+// ANIMATION SECTION
+// =============================================================================
+
+function buildAnimationSection(config: RatingsConfig): Section {
+  return {
+    id: 'animation',
+    label: 'Animation',
+    title: 'Panel Animation',
+    groups: [
+      {
+        title: 'Slide & Strip (Auto-Sync)',
+        controls: [
+          {
+            id: 'animation.autoSyncSlideStrip',
+            type: 'toggle',
+            label: 'Auto-Sync Slide ↔ Strip',
+            value: config.animation.autoSyncSlideStrip,
+          },
+          {
+            id: 'animation.slideOffset',
+            type: 'slider',
+            label: 'Slide Offset',
+            value: config.animation.slideOffset,
+            min: 0,
+            max: 200,
+            step: 1,
+            formatLabel: (v: number) => `${v}px`,
+          },
+          {
+            id: 'animation.stripWidth',
+            type: 'slider',
+            label: 'Strip Width',
+            value: config.animation.stripWidth,
+            min: 0,
+            max: 400,
+            step: 1,
+            formatLabel: (v: number) => `${v}px`,
+          },
+        ],
+      },
+      {
+        title: 'Timing',
+        controls: [
+          {
+            id: 'animation.slideDuration',
+            type: 'slider',
+            label: 'Slide Duration',
+            value: config.animation.slideDuration,
+            min: 100,
+            max: 600,
+            step: 10,
+            formatLabel: (v: number) => `${v}ms`,
+          },
+        ],
+      },
+      {
+        title: 'Scale',
+        controls: [
+          {
+            id: 'animation.panelExitScale',
+            type: 'slider',
+            label: 'Exit Scale',
+            value: config.animation.panelExitScale,
+            min: 0.5,
+            max: 1,
+            step: 0.01,
+            formatLabel: (v: number) => `${(v * 100).toFixed(0)}%`,
+          },
+          {
+            id: 'animation.panelEnterScale',
+            type: 'slider',
+            label: 'Enter Scale',
+            value: config.animation.panelEnterScale,
+            min: 0.5,
+            max: 1,
+            step: 0.01,
+            formatLabel: (v: number) => `${(v * 100).toFixed(0)}%`,
+          },
+        ],
+      },
+    ],
+  }
+}
+
+// =============================================================================
 // BUILD FULL PANEL CONFIG
 // =============================================================================
 
@@ -538,6 +623,7 @@ export function buildRatingsPanelConfig(
       buildSeparatorsSection(config),
       buildCategoriesSection(config),
       buildSubScoresSection(config),
+      buildAnimationSection(config),
     ],
     defaultActiveTab: 'panel',
     position: {

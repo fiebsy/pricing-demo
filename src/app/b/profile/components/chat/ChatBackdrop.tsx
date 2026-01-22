@@ -6,7 +6,7 @@
  *
  * Visual States:
  * - collapsed: No visible blur (opacity 0)
- * - default: ~30% coverage from bottom with soft fade
+ * - default: Configurable coverage from bottom (default 45%)
  * - expanded: Full coverage with soft top edge, clickable to close
  *
  * Performance: S-Tier - only opacity animates, blur value stays static.
@@ -17,6 +17,7 @@
 'use client'
 
 import * as React from 'react'
+import { useMemo } from 'react'
 import { motion } from 'motion/react'
 import { cn } from '@/lib/utils'
 import type { ChatBackdropProps, ChatOverlayState } from '../../types'
@@ -37,29 +38,89 @@ const backdropTransition = {
 }
 
 // =============================================================================
-// MASK PATTERNS
+// MASK GENERATION
 // =============================================================================
 
+interface BlurHeightConfig {
+  /** Height coverage for default state (0-100, percentage of viewport) */
+  default: number
+  /** Height coverage for expanded state (0-100, percentage of viewport) */
+  expanded: number
+  /** How soft the fade edge is (0-100, higher = softer fade) */
+  fadeEdge?: number
+}
+
+const DEFAULT_BLUR_HEIGHT: BlurHeightConfig = {
+  default: 45,
+  expanded: 100,
+  fadeEdge: 30,
+}
+
 /**
- * Radial gradient masks per state.
- * Creates soft-edged blur zones without animating the blur itself.
+ * Generates a radial gradient mask for the given height percentage.
+ * The blur fades from solid at the bottom to transparent at the specified height.
+ *
+ * @param heightPercent - How high the blur extends (0-100)
+ * @param fadeEdge - How soft the fade is (0-100)
  */
-const maskPatterns: Record<ChatOverlayState, string> = {
-  // No mask needed when hidden
-  collapsed: 'radial-gradient(ellipse 80% 40% at 50% 100%, black 0%, transparent 70%)',
-  // Partial coverage from bottom-center (~30%)
-  default: 'radial-gradient(ellipse 80% 40% at 50% 100%, black 0%, transparent 70%)',
-  // Full coverage with soft top edge
-  expanded: 'radial-gradient(ellipse 120% 100% at 50% 100%, black 0%, black 60%, transparent 100%)',
+function generateMask(heightPercent: number, fadeEdge: number = 30): string {
+  if (heightPercent <= 0) {
+    return 'none'
+  }
+
+  // For partial coverage, use an ellipse positioned at bottom center
+  // The ellipse height controls how far up the blur extends
+  // fadeEdge controls how gradual the transition is
+
+  if (heightPercent >= 100) {
+    // Full coverage with soft top edge
+    return `radial-gradient(ellipse 150% 120% at 50% 100%, black 0%, black 70%, transparent 100%)`
+  }
+
+  // Calculate ellipse dimensions based on desired height
+  // Using a wide ellipse (150% width) for natural spread
+  const ellipseHeight = heightPercent * 1.2 // Slight overshoot for better coverage
+  const fadeStart = 100 - fadeEdge // Where the fade begins (as % of gradient)
+
+  return `radial-gradient(ellipse 150% ${ellipseHeight}% at 50% 100%, black 0%, black ${fadeStart}%, transparent 100%)`
 }
 
 // =============================================================================
 // COMPONENT
 // =============================================================================
 
-export function ChatBackdrop({ state, onClose, className }: ChatBackdropProps) {
+export interface ChatBackdropExtendedProps extends ChatBackdropProps {
+  /** Configure blur height per state */
+  blurHeight?: Partial<BlurHeightConfig>
+}
+
+export function ChatBackdrop({
+  state,
+  onClose,
+  className,
+  blurHeight,
+}: ChatBackdropExtendedProps) {
   const isVisible = state !== 'collapsed'
   const isClickable = state === 'expanded'
+
+  // Merge with defaults
+  const config = useMemo(
+    () => ({
+      ...DEFAULT_BLUR_HEIGHT,
+      ...blurHeight,
+    }),
+    [blurHeight]
+  )
+
+  // Generate masks based on config
+  const maskPatterns = useMemo(
+    () => ({
+      collapsed: generateMask(config.default, config.fadeEdge), // Same as default for smooth transition
+      default: generateMask(config.default, config.fadeEdge),
+      expanded: generateMask(config.expanded, config.fadeEdge),
+    }),
+    [config]
+  )
 
   return (
     <motion.div
