@@ -81,8 +81,10 @@ export interface AnimationConfig {
   slotContainerDelay: number
   /** Slot container duration offset (ms) */
   slotContainerDurationOffset: number
-  /** Expansion origin */
+  /** Expansion origin for bottom slot */
   expandOrigin: ExpandOrigin
+  /** Expansion origin for top slot (bottom = expands up, top = expands down) */
+  topExpandOrigin: ExpandOrigin
 }
 
 // ============================================================================
@@ -258,6 +260,26 @@ export interface TopSlotConfig extends SlotConfig {
 
 export type BottomSectionContentType = 'questions' | 'filters' | 'buttons' | 'custom'
 
+/** Button variant for action buttons */
+export type ActionButtonVariant = 'primary' | 'secondary' | 'tertiary' | 'shine'
+
+/** Available icons for action buttons */
+export type ActionButtonIcon = 'check' | 'edit' | 'sparkle' | 'close' | 'refresh' | 'send' | 'none'
+
+/** Configuration for a single action button */
+export interface ActionButtonConfig {
+  /** Button ID */
+  id: string
+  /** Button label */
+  label: string
+  /** Icon to show */
+  icon: ActionButtonIcon
+  /** Button variant */
+  variant: ActionButtonVariant
+  /** Whether button is enabled */
+  enabled: boolean
+}
+
 export interface BottomSlotConfig extends SlotConfig {
   /** Content type for the bottom section */
   contentType: BottomSectionContentType
@@ -271,6 +293,8 @@ export interface BottomSlotConfig extends SlotConfig {
   scrollPaddingBottom: number
   /** Shine effect */
   shine?: ShineOption
+  /** Button configurations (when contentType is 'buttons') */
+  buttons?: ActionButtonConfig[]
 }
 
 // ============================================================================

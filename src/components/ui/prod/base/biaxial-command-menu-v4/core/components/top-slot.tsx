@@ -62,8 +62,10 @@ export const TopSlot: React.FC<SlotProps> = ({
   const outerClipPath = getTopSectionClipPath(expanded)
 
   // Inner container uses clip-path for compound "offset" effect
-  // When using maxTopHeight, use 'top' origin so content grows downward (away from trigger)
-  const innerOrigin = useMaxHeight ? 'top' : 'bottom'
+  // Use topExpandOrigin from config, with sensible defaults
+  // 'bottom' = content expands upward (away from trigger)
+  // 'top' = content expands downward (toward trigger)
+  const innerOrigin = config.animation.topExpandOrigin ?? 'bottom'
   const innerClipPath = config.animation.animateSlotContainers
     ? getSlotContainerClipPath(expanded, innerOrigin)
     : 'inset(0 0 0 0)'

@@ -34,6 +34,7 @@ export const DEFAULT_CONFIG: QuestionCommandMenuConfig = {
     slotContainerDelay: 0,
     slotContainerDurationOffset: 100,
     expandOrigin: 'top',
+    topExpandOrigin: 'bottom', // bottom = expands upward (away from trigger)
   },
 
   // Layout
@@ -120,6 +121,12 @@ export const DEFAULT_CONFIG: QuestionCommandMenuConfig = {
     scrollPaddingTop: 0,
     scrollPaddingBottom: 16,
     shine: 'none',
+    buttons: [
+      { id: 'btn1', label: 'Approve', icon: 'check', variant: 'primary', enabled: true },
+      { id: 'btn2', label: 'Edit', icon: 'edit', variant: 'secondary', enabled: true },
+      { id: 'btn3', label: 'Regenerate', icon: 'sparkle', variant: 'tertiary', enabled: true },
+      { id: 'btn4', label: 'Cancel', icon: 'close', variant: 'tertiary', enabled: false },
+    ],
   },
 
   // Items

@@ -101,8 +101,10 @@ export interface AnimationConfig {
   slotContainerDelay: number
   /** Slot container duration offset (ms) */
   slotContainerDurationOffset: number
-  /** Expansion origin */
+  /** Expansion origin for bottom slot content */
   expandOrigin: ExpandOrigin
+  /** Expansion origin for top slot content (default: 'bottom' = expands upward) */
+  topExpandOrigin?: ExpandOrigin
 }
 
 // ============================================================================

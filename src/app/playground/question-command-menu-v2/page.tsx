@@ -123,6 +123,7 @@ function transformToV4Config(
       slotContainerDelay: config.animation.slotContainerDelay,
       slotContainerDurationOffset: config.animation.slotContainerDurationOffset,
       expandOrigin: config.animation.expandOrigin,
+      topExpandOrigin: config.animation.topExpandOrigin,
     },
     appearance: {
       borderRadius: config.appearance.borderRadius,
@@ -264,7 +265,12 @@ function Preview({ config }: PreviewProps) {
   const renderBottomContent = () => {
     switch (bottomContentType) {
       case 'buttons':
-        return <ButtonsContent onSelect={handleButtonsSelect} />
+        return (
+          <ButtonsContent
+            buttons={config.bottomSlot.buttons}
+            onSelect={handleButtonsSelect}
+          />
+        )
       case 'filters':
         return (
           <div className="flex h-full items-center justify-center px-4">

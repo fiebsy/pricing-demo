@@ -46,43 +46,64 @@ interface BlurHeightConfig {
   default: number
   /** Height coverage for expanded state (0-100, percentage of viewport) */
   expanded: number
-  /** How soft the fade edge is (0-100, higher = softer fade) */
+  /** How soft the fade edge is (0-100, higher = softer/more gradual fade) */
   fadeEdge?: number
 }
 
 const DEFAULT_BLUR_HEIGHT: BlurHeightConfig = {
   default: 45,
   expanded: 100,
-  fadeEdge: 30,
+  fadeEdge: 40,
 }
 
 /**
- * Generates a radial gradient mask for the given height percentage.
- * The blur fades from solid at the bottom to transparent at the specified height.
+ * Generates a radial gradient mask with soft multi-stop fade.
+ * Creates a natural feathered edge that fades smoothly on all sides.
  *
  * @param heightPercent - How high the blur extends (0-100)
- * @param fadeEdge - How soft the fade is (0-100)
+ * @param fadeEdge - How soft the fade is (0-100, higher = more gradual)
  */
-function generateMask(heightPercent: number, fadeEdge: number = 30): string {
+function generateMask(heightPercent: number, fadeEdge: number = 40): string {
   if (heightPercent <= 0) {
     return 'none'
   }
 
-  // For partial coverage, use an ellipse positioned at bottom center
-  // The ellipse height controls how far up the blur extends
-  // fadeEdge controls how gradual the transition is
+  // Use very wide ellipse to avoid hard edges on left/right
+  // Height controls how far up the blur extends
+  const ellipseWidth = 300 // Extra wide to fade smoothly at horizontal edges
+  const ellipseHeight = heightPercent * 2 // Double for smooth vertical fade
 
   if (heightPercent >= 100) {
-    // Full coverage with soft top edge
-    return `radial-gradient(ellipse 150% 120% at 50% 100%, black 0%, black 70%, transparent 100%)`
+    // Full coverage - still use radial for soft edges at top corners
+    return `radial-gradient(
+      ellipse ${ellipseWidth}% 200% at 50% 100%,
+      black 0%,
+      black 40%,
+      rgba(0,0,0,0.9) 50%,
+      rgba(0,0,0,0.7) 60%,
+      rgba(0,0,0,0.4) 75%,
+      rgba(0,0,0,0.1) 90%,
+      transparent 100%
+    )`
   }
 
-  // Calculate ellipse dimensions based on desired height
-  // Using a wide ellipse (150% width) for natural spread
-  const ellipseHeight = heightPercent * 1.2 // Slight overshoot for better coverage
-  const fadeStart = 100 - fadeEdge // Where the fade begins (as % of gradient)
+  // Calculate fade stops based on fadeEdge
+  // Higher fadeEdge = earlier fade start = more gradual transition
+  const solidEnd = Math.max(0, 50 - fadeEdge) // Where solid black ends
+  const fadeStart = solidEnd + 10
+  const fadeMid = fadeStart + 15
+  const fadeEnd = Math.min(100, fadeMid + 20)
 
-  return `radial-gradient(ellipse 150% ${ellipseHeight}% at 50% 100%, black 0%, black ${fadeStart}%, transparent 100%)`
+  // Multi-stop gradient for smooth, natural fade on all edges
+  return `radial-gradient(
+    ellipse ${ellipseWidth}% ${ellipseHeight}% at 50% 100%,
+    black 0%,
+    black ${solidEnd}%,
+    rgba(0,0,0,0.8) ${fadeStart}%,
+    rgba(0,0,0,0.5) ${fadeMid}%,
+    rgba(0,0,0,0.2) ${fadeEnd}%,
+    transparent 100%
+  )`
 }
 
 // =============================================================================

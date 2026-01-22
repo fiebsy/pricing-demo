@@ -9,4 +9,4 @@ export {
   SAMPLE_QUESTIONS,
 } from './question-content'
 export { FilterTabs, type FilterTabsProps, type FilterTabOption } from './filter-tabs'
-export { ButtonsContent, type ButtonsContentProps, type ButtonOption } from './buttons-content'
+export { ButtonsContent, type ButtonsContentProps } from './buttons-content'

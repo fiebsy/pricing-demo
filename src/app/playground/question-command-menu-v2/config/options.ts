@@ -159,6 +159,27 @@ export const BOTTOM_SECTION_CONTENT_OPTIONS = [
 ] as const
 
 // ============================================================================
+// ACTION BUTTON OPTIONS
+// ============================================================================
+
+export const ACTION_BUTTON_ICON_OPTIONS = [
+  { label: 'None', value: 'none' },
+  { label: 'Check', value: 'check' },
+  { label: 'Edit', value: 'edit' },
+  { label: 'Sparkle', value: 'sparkle' },
+  { label: 'Close', value: 'close' },
+  { label: 'Refresh', value: 'refresh' },
+  { label: 'Send', value: 'send' },
+] as const
+
+export const ACTION_BUTTON_VARIANT_OPTIONS = [
+  { label: 'Primary', value: 'primary' },
+  { label: 'Secondary', value: 'secondary' },
+  { label: 'Tertiary', value: 'tertiary' },
+  { label: 'Shine', value: 'shine' },
+] as const
+
+// ============================================================================
 // ICON OPTIONS (for button configuration)
 // ============================================================================
 

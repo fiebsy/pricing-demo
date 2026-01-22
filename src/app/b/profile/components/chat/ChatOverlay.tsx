@@ -100,10 +100,9 @@ export function ChatOverlay({ state, onStateChange, className }: ChatOverlayProp
   const isExpanded = state === 'expanded'
   const showMessages = state !== 'collapsed'
 
-  // Height for messages area based on state
-  // Default: ~45% of viewport, Expanded: full viewport
-  const containerHeight = isExpanded ? '100vh' : state === 'default' ? '45vh' : 'auto'
-  const messagesMaxHeight = isExpanded ? 'calc(100vh - 120px)' : 'calc(45vh - 120px)'
+  // Messages scroll area constrained by state, but container is always full height
+  // This prevents hard visual edges - the blur mask handles the fade
+  const messagesMaxHeight = isExpanded ? 'calc(100vh - 120px)' : 'calc(45vh - 80px)'
 
   return (
     <>
@@ -112,16 +111,15 @@ export function ChatOverlay({ state, onStateChange, className }: ChatOverlayProp
 
       <div
         className={cn(
-          'fixed bottom-0 left-0 right-0 z-50',
-          'flex flex-col',
+          'fixed inset-0 z-50',
+          'flex flex-col justify-end',
           className
         )}
         style={{
-          height: containerHeight,
-          pointerEvents: showMessages ? 'auto' : 'none',
+          pointerEvents: 'none', // Allow clicks through to backdrop
         }}
       >
-      {/* Messages area - grows from bottom, fades at top */}
+      {/* Messages area - positioned above input */}
       <AnimatePresence>
         {showMessages && (
           <motion.div
@@ -129,19 +127,12 @@ export function ChatOverlay({ state, onStateChange, className }: ChatOverlayProp
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={messagesTransition}
-            className="relative flex-1 flex flex-col justify-end overflow-hidden"
+            className="relative flex flex-col justify-end"
+            style={{ pointerEvents: 'auto' }}
           >
-            {/* Top fade gradient */}
+            {/* Messages - snapped to bottom, scrollable */}
             <div
-              className={cn(
-                'pointer-events-none absolute inset-x-0 top-0 h-40 z-10',
-                'bg-gradient-to-b from-primary via-primary/80 to-transparent'
-              )}
-            />
-
-            {/* Messages - snapped to bottom */}
-            <div
-              className="relative z-0 max-w-[800px] w-full mx-auto overflow-y-auto"
+              className="relative max-w-[800px] w-full mx-auto overflow-y-auto"
               style={{ maxHeight: messagesMaxHeight }}
             >
               <MessageList

@@ -90,9 +90,18 @@ export function buildAnimationSection(state: PlaygroundState): Section {
           },
           {
             id: 'config.animation.expandOrigin',
-            label: 'Expand Origin',
+            label: 'Bottom Origin',
+            description: 'Direction bottom slot content animates',
             type: 'select',
             value: state.config.animation.expandOrigin,
+            options: [...EXPAND_ORIGIN_OPTIONS],
+          },
+          {
+            id: 'config.animation.topExpandOrigin',
+            label: 'Top Origin',
+            description: 'Direction top slot content animates',
+            type: 'select',
+            value: state.config.animation.topExpandOrigin,
             options: [...EXPAND_ORIGIN_OPTIONS],
           },
           {

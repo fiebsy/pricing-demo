@@ -2,16 +2,57 @@
  * Question Command Menu - Bottom Section Config
  */
 
-import type { Section } from '@/components/ui/prod/base/control-panel'
+import type { Section, ControlGroup } from '@/components/ui/prod/base/control-panel'
 import type { PlaygroundState } from '../config/types'
 import {
   BACKGROUND_OPTIONS,
   BORDER_COLOR_OPTIONS,
   SHINE_OPTIONS,
   BOTTOM_SECTION_CONTENT_OPTIONS,
+  ACTION_BUTTON_ICON_OPTIONS,
+  ACTION_BUTTON_VARIANT_OPTIONS,
 } from '../config/options'
 
+function buildButtonGroups(state: PlaygroundState): ControlGroup[] {
+  const buttons = state.config.bottomSlot.buttons ?? []
+
+  return buttons.map((button, index) => ({
+    title: `Button ${index + 1}`,
+    controls: [
+      {
+        id: `config.bottomSlot.buttons.${index}.enabled`,
+        label: 'Enabled',
+        type: 'toggle' as const,
+        value: button.enabled,
+      },
+      {
+        id: `config.bottomSlot.buttons.${index}.label`,
+        label: 'Label',
+        type: 'text' as const,
+        value: button.label,
+      },
+      {
+        id: `config.bottomSlot.buttons.${index}.icon`,
+        label: 'Icon',
+        type: 'select' as const,
+        value: button.icon,
+        options: [...ACTION_BUTTON_ICON_OPTIONS],
+      },
+      {
+        id: `config.bottomSlot.buttons.${index}.variant`,
+        label: 'Variant',
+        type: 'select' as const,
+        value: button.variant,
+        options: [...ACTION_BUTTON_VARIANT_OPTIONS],
+      },
+    ],
+  }))
+}
+
 export function buildBottomSection(state: PlaygroundState): Section {
+  const isButtonsMode = state.config.bottomSlot.contentType === 'buttons'
+  const buttonGroups = isButtonsMode ? buildButtonGroups(state) : []
+
   return {
     id: 'bottom',
     label: 'Bottom',
@@ -40,6 +81,8 @@ export function buildBottomSection(state: PlaygroundState): Section {
           },
         ],
       },
+      // Include button config groups when in buttons mode
+      ...buttonGroups,
       {
         title: 'Size',
         controls: [

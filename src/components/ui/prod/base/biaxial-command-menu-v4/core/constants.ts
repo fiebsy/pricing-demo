@@ -29,6 +29,7 @@ export const DEFAULT_ANIMATION_CONFIG: AnimationConfig = {
   slotContainerDelay: 0,
   slotContainerDurationOffset: 100,
   expandOrigin: 'top',
+  topExpandOrigin: 'bottom', // Default: expands upward (away from trigger)
 }
 
 // ============================================================================
