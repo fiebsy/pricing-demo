@@ -2,7 +2,11 @@
  * Biaxial Expand V4 - Top Slot Component
  *
  * Container for content that expands UPWARD from the trigger.
- * Can contain filter buttons, breadcrumbs, tabs, or any custom content.
+ * Can contain filter buttons, breadcrumbs, tabs, scrollable menus, or any custom content.
+ *
+ * Supports two height modes:
+ * - Fixed: Use `topSlot.height` for simple content (filters, tabs)
+ * - Dynamic: Use `layout.maxTopHeight` for scrollable content (menus, lists)
  */
 
 'use client'
@@ -32,15 +36,18 @@ export const TopSlot: React.FC<SlotProps> = ({
   const contentRef = useRef<HTMLDivElement>(null)
   const slotConfig = { ...config.topSlot, ...slotConfigOverride }
 
-  // Measure content height
+  // Determine height mode:
+  // - If maxTopHeight is set, use it (enables scrollable content like BottomSlot)
+  // - Otherwise, use fixed height from slotConfig or auto-measure
+  const useMaxHeight = config.layout.maxTopHeight !== undefined
+  const effectiveHeight = useMaxHeight
+    ? config.layout.maxTopHeight!
+    : (slotConfig.height ?? 48)
+
+  // Set height for dimension tracking
   useEffect(() => {
-    if (slotConfig.height) {
-      setSlotHeight('top', slotConfig.height)
-    } else if (contentRef.current) {
-      const height = contentRef.current.offsetHeight
-      setSlotHeight('top', height)
-    }
-  }, [slotConfig.height, setSlotHeight, children])
+    setSlotHeight('top', effectiveHeight)
+  }, [effectiveHeight, setSlotHeight])
 
   // If slot is disabled, don't render
   if (!slotConfig.enabled) {
@@ -55,11 +62,13 @@ export const TopSlot: React.FC<SlotProps> = ({
   const outerClipPath = getTopSectionClipPath(expanded)
 
   // Inner container uses clip-path for compound "offset" effect
+  // When using maxTopHeight, use 'top' origin so content grows downward (away from trigger)
+  const innerOrigin = useMaxHeight ? 'top' : 'bottom'
   const innerClipPath = config.animation.animateSlotContainers
-    ? getSlotContainerClipPath(expanded, 'bottom') // Bottom origin = expands downward (toward trigger)
+    ? getSlotContainerClipPath(expanded, innerOrigin)
     : 'inset(0 0 0 0)'
 
-  const totalHeight = (slotConfig.height ?? 48) + (config.layout.topGap ?? 0)
+  const totalHeight = effectiveHeight + (config.layout.topGap ?? 0)
 
   return (
     <div

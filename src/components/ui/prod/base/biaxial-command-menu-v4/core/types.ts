@@ -135,6 +135,8 @@ export interface LayoutConfig {
   triggerHeight: number
   /** Width of expanded panel */
   panelWidth: number
+  /** Maximum height for top content (enables scrollable content in top slot) */
+  maxTopHeight?: number
   /** Maximum height for bottom content */
   maxBottomHeight: number
   /** Border radius for the entire component */

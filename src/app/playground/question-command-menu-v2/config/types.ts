@@ -96,6 +96,8 @@ export interface LayoutConfig {
   triggerHeight: number
   /** Width of expanded panel */
   panelWidth: number
+  /** Maximum height for top content (enables scrollable content in top slot) */
+  maxTopHeight?: number
   /** Maximum height for bottom content */
   maxBottomHeight: number
   /** Border radius for the entire component */
@@ -158,17 +160,48 @@ export interface SlotConfig {
 // TRIGGER CONFIG (Enhanced for buttons inside input)
 // ============================================================================
 
+/**
+ * Button variant matching the proper Button component
+ * - primary: Brand solid with inner gradient border
+ * - secondary: Outlined with skeuomorphic shadow
+ * - tertiary: Minimal, no background
+ * - shine: Subtle with shine gradient effect
+ * - ghost: Legacy - maps to tertiary
+ * - outline: Legacy - maps to secondary
+ * - solid: Legacy - maps to primary
+ */
+export type TriggerButtonVariant =
+  | 'primary'
+  | 'secondary'
+  | 'tertiary'
+  | 'shine'
+  // Legacy variants (for backward compat)
+  | 'ghost'
+  | 'outline'
+  | 'solid'
+
+/**
+ * Button element type
+ * - icon: Icon only button
+ * - text: Text only button
+ * - icon-text: Icon + text button
+ * - indicator: Non-interactive icon (e.g., arrow for navigation hint)
+ */
+export type TriggerButtonType = 'icon' | 'text' | 'icon-text' | 'indicator'
+
 export interface TriggerButtonConfig {
   /** Button position */
   position: 'left' | 'right'
   /** Show this button */
   enabled: boolean
   /** Button type */
-  type: 'icon' | 'text' | 'icon-text'
-  /** Button variant */
-  variant: 'ghost' | 'outline' | 'solid'
+  type: TriggerButtonType
+  /** Button variant (ignored for indicator type) */
+  variant: TriggerButtonVariant
   /** Size */
   size: 'sm' | 'md'
+  /** Roundness - default, pill, or squircle */
+  roundness?: 'default' | 'pill' | 'squircle'
   /** Text label (if type includes text) */
   label?: string
   /** Icon name (if type includes icon) */
@@ -209,6 +242,14 @@ export interface TopSlotConfig extends SlotConfig {
   shine?: ShineOption
   /** Bottom offset (gap above trigger) */
   bottomOffset?: number
+  /** Show overflow gradient (when using scrollable content) */
+  overflowGradient?: boolean
+  /** Overflow gradient height */
+  overflowGradientHeight?: number
+  /** Scroll padding top */
+  scrollPaddingTop?: number
+  /** Scroll padding bottom */
+  scrollPaddingBottom?: number
 }
 
 // ============================================================================

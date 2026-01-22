@@ -3,6 +3,7 @@
  *
  * Enhanced trigger component that supports action buttons inside the input.
  * Based on BiaxialExpandV4.SearchInput with additional button slots.
+ * Uses proper Button component with shine, squircle support.
  */
 
 'use client'
@@ -11,13 +12,14 @@ import * as React from 'react'
 import { forwardRef, useCallback } from 'react'
 import { cn } from '@/lib/utils'
 import { HugeIcon } from '@/components/ui/prod/base/icon'
+import { Button } from '@/components/ui/prod/base/button'
+import type { ButtonVariant, ButtonRoundness } from '@/components/ui/prod/base/button/types'
 import { useBiaxialExpand } from '@/components/ui/prod/base/biaxial-command-menu-v4'
-import type { TriggerConfig, TriggerButtonConfig } from '../config/types'
+import type { TriggerConfig, TriggerButtonConfig, TriggerButtonVariant } from '../config/types'
 
 // Icons
 import Search01Icon from '@hugeicons-pro/core-stroke-rounded/Search01Icon'
 import Add01Icon from '@hugeicons-pro/core-stroke-rounded/Add01Icon'
-// Sent01Icon doesn't exist - using ArrowUp01Icon for send
 import Tick01Icon from '@hugeicons-pro/core-stroke-rounded/Tick01Icon'
 import Cancel01Icon from '@hugeicons-pro/core-stroke-rounded/Cancel01Icon'
 import RefreshIcon from '@hugeicons-pro/core-stroke-rounded/RefreshIcon'
@@ -27,6 +29,7 @@ import Delete01Icon from '@hugeicons-pro/core-stroke-rounded/Delete01Icon'
 import SparklesIcon from '@hugeicons-pro/core-stroke-rounded/SparklesIcon'
 import ArrowRight01Icon from '@hugeicons-pro/core-stroke-rounded/ArrowRight01Icon'
 import ArrowUp01Icon from '@hugeicons-pro/core-stroke-rounded/ArrowUp01Icon'
+import SentIcon from '@hugeicons-pro/core-stroke-rounded/SentIcon'
 
 // ============================================================================
 // ICON MAP
@@ -35,7 +38,7 @@ import ArrowUp01Icon from '@hugeicons-pro/core-stroke-rounded/ArrowUp01Icon'
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   search: Search01Icon,
   add: Add01Icon,
-  send: ArrowUp01Icon,
+  send: SentIcon,
   check: Tick01Icon,
   close: Cancel01Icon,
   refresh: RefreshIcon,
@@ -45,6 +48,26 @@ const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   sparkle: SparklesIcon,
   'arrow-right': ArrowRight01Icon,
   'arrow-up': ArrowUp01Icon,
+}
+
+// ============================================================================
+// VARIANT MAPPING
+// ============================================================================
+
+/**
+ * Map our config variants to proper Button variants
+ */
+function mapVariant(variant: TriggerButtonVariant): ButtonVariant {
+  switch (variant) {
+    case 'ghost':
+      return 'tertiary'
+    case 'outline':
+      return 'secondary'
+    case 'solid':
+      return 'primary'
+    default:
+      return variant as ButtonVariant
+  }
 }
 
 // ============================================================================
@@ -71,7 +94,35 @@ export interface InputWithButtonsProps {
 }
 
 // ============================================================================
-// ACTION BUTTON COMPONENT
+// INDICATOR ICON (non-interactive)
+// ============================================================================
+
+interface IndicatorIconProps {
+  config: TriggerButtonConfig
+}
+
+const IndicatorIcon: React.FC<IndicatorIconProps> = ({ config }) => {
+  const IconComponent = config.icon ? ICON_MAP[config.icon] : ArrowRight01Icon
+
+  return (
+    <span
+      className={cn(
+        'shrink-0 flex items-center justify-center',
+        'text-quaternary',
+        config.className
+      )}
+    >
+      <HugeIcon
+        icon={IconComponent}
+        size={config.size === 'sm' ? 16 : 18}
+        strokeWidth={1.5}
+      />
+    </span>
+  )
+}
+
+// ============================================================================
+// ACTION BUTTON COMPONENT (using proper Button)
 // ============================================================================
 
 interface ActionButtonProps {
@@ -82,46 +133,32 @@ interface ActionButtonProps {
 const ActionButton: React.FC<ActionButtonProps> = ({ config, onClick }) => {
   if (!config.enabled) return null
 
-  const IconComponent = config.icon ? ICON_MAP[config.icon] : null
-  const showIcon = config.type === 'icon' || config.type === 'icon-text'
+  // Indicator is non-interactive
+  if (config.type === 'indicator') {
+    return <IndicatorIcon config={config} />
+  }
+
+  const IconComponent = config.icon ? ICON_MAP[config.icon] : undefined
+  const showIcon = (config.type === 'icon' || config.type === 'icon-text') && IconComponent
   const showLabel = config.type === 'text' || config.type === 'icon-text'
 
-  const sizeClasses = config.size === 'sm'
-    ? 'h-7 min-w-7 px-2 text-xs'
-    : 'h-8 min-w-8 px-3 text-sm'
-
-  const variantClasses = {
-    ghost: 'bg-transparent hover:bg-tertiary text-tertiary hover:text-secondary',
-    outline: 'bg-transparent border border-primary hover:bg-tertiary text-tertiary hover:text-secondary',
-    solid: 'bg-brand-solid hover:bg-brand-solid-hover text-on-brand',
-  }[config.variant]
+  const buttonVariant = mapVariant(config.variant)
+  const buttonRoundness: ButtonRoundness = config.roundness ?? 'squircle'
 
   return (
-    <button
-      type="button"
+    <Button
+      variant={buttonVariant}
+      size={config.size}
+      roundness={buttonRoundness}
+      iconLeading={showIcon ? <HugeIcon icon={IconComponent} size={16} /> : undefined}
       onClick={(e) => {
         e.stopPropagation()
         onClick?.()
       }}
-      className={cn(
-        'shrink-0 flex items-center justify-center gap-1.5',
-        'rounded-lg font-medium',
-        'transition-colors duration-150',
-        sizeClasses,
-        variantClasses,
-        config.className
-      )}
+      className={config.className}
     >
-      {showIcon && IconComponent && (
-        <HugeIcon
-          icon={IconComponent}
-          size={config.size === 'sm' ? 14 : 16}
-        />
-      )}
-      {showLabel && config.label && (
-        <span>{config.label}</span>
-      )}
-    </button>
+      {showLabel && config.label ? config.label : undefined}
+    </Button>
   )
 }
 

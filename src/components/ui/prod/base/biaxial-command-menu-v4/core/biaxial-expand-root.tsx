@@ -54,8 +54,13 @@ export const BiaxialExpandRoot: React.FC<BiaxialExpandRootProps> = ({
   const expanded = controlledExpanded ?? internalExpanded
 
   // Slot dimension state - initialize with config values
+  // topHeight: use maxTopHeight if set (for scrollable content), otherwise use fixed height
+  const initialTopHeight = config.topSlot.enabled
+    ? (config.layout.maxTopHeight ?? config.topSlot.height ?? 48)
+    : 0
+
   const [dimensions, setDimensions] = useState<SlotDimensions>({
-    topHeight: config.topSlot.enabled ? (config.topSlot.height ?? 48) : 0,
+    topHeight: initialTopHeight,
     triggerHeight: config.layout.triggerHeight,
     bottomHeight: config.layout.maxBottomHeight,
     panelWidth: config.layout.panelWidth,

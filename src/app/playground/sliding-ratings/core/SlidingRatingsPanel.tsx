@@ -305,9 +305,32 @@ function SubScoreRow({ item, config, isVisible, index }: SubScoreRowProps) {
     >
       <div className="flex items-center justify-between mb-1">
         <span className={cn('text-secondary', textSizeMap[subScore.textSize])}>{item.label}</span>
-        <span className={cn('font-semibold tabular-nums', textSizeMap[subScore.textSize], colorClass)}>
-          {item.score.current}
-        </span>
+        <div className="flex items-center gap-2">
+          <span className={cn('font-semibold tabular-nums', textSizeMap[subScore.textSize], colorClass)}>
+            {item.score.current}
+          </span>
+          {subScore.showImproveButton && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation()
+                console.log('Improve sub-score:', item.id)
+              }}
+              className={cn(
+                'px-2 py-0.5 rounded-md',
+                'text-xs font-medium',
+                'bg-brand-primary/10 text-brand-primary',
+                'hover:bg-brand-primary/20',
+                'motion-safe:transition-colors motion-safe:duration-150',
+                'motion-reduce:transition-none',
+                'flex items-center gap-1'
+              )}
+            >
+              <HugeIcon icon={SparklesIcon} size={10} strokeWidth={2} className="text-current" />
+              Improve
+            </button>
+          )}
+        </div>
       </div>
       {subScore.showProgressBar && (
         <ProgressBar

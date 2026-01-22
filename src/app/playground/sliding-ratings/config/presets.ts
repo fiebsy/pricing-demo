@@ -41,6 +41,7 @@ export const DEFAULT_SLIDING_RATINGS_CONFIG: SlidingRatingsConfig = {
   subScore: {
     showProgressBar: true,
     showNetworkBenchmark: true,
+    showImproveButton: false,
     progressBarSize: 'sm',
     textSize: 'sm',
   },

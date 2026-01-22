@@ -207,6 +207,12 @@ function buildSubScoreSection(config: SlidingRatingsConfig): Section {
             label: 'Show Benchmark',
             value: config.subScore.showNetworkBenchmark,
           },
+          {
+            id: 'subScore.showImproveButton',
+            type: 'toggle',
+            label: 'Show Improve Button',
+            value: config.subScore.showImproveButton,
+          },
         ],
       },
       {

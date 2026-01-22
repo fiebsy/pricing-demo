@@ -39,6 +39,7 @@ export const DEFAULT_LAYOUT_CONFIG: LayoutConfig = {
   triggerWidth: 240,
   triggerHeight: 40,
   panelWidth: 340,
+  maxTopHeight: undefined, // When set, enables scrollable content in top slot
   maxBottomHeight: 380,
   borderRadius: 18,
   topGap: 0,

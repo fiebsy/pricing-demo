@@ -114,17 +114,25 @@ export const BUTTON_TYPE_OPTIONS = [
   { label: 'Icon Only', value: 'icon' },
   { label: 'Text Only', value: 'text' },
   { label: 'Icon + Text', value: 'icon-text' },
+  { label: 'Indicator (non-interactive)', value: 'indicator' },
 ] as const
 
 export const BUTTON_VARIANT_OPTIONS = [
-  { label: 'Ghost', value: 'ghost' },
-  { label: 'Outline', value: 'outline' },
-  { label: 'Solid', value: 'solid' },
+  { label: 'Primary (Solid Brand)', value: 'primary' },
+  { label: 'Secondary (Outlined)', value: 'secondary' },
+  { label: 'Tertiary (Minimal)', value: 'tertiary' },
+  { label: 'Shine (Gradient)', value: 'shine' },
 ] as const
 
 export const BUTTON_SIZE_OPTIONS = [
   { label: 'Small', value: 'sm' },
   { label: 'Medium', value: 'md' },
+] as const
+
+export const BUTTON_ROUNDNESS_OPTIONS = [
+  { label: 'Default (rounded-xl)', value: 'default' },
+  { label: 'Pill (fully round)', value: 'pill' },
+  { label: 'Squircle', value: 'squircle' },
 ] as const
 
 // ============================================================================

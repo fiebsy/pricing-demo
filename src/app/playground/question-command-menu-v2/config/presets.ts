@@ -95,8 +95,9 @@ export const DEFAULT_CONFIG: QuestionCommandMenuConfig = {
         position: 'right',
         enabled: true,
         type: 'icon',
-        variant: 'solid',
+        variant: 'primary',
         size: 'sm',
+        roundness: 'squircle',
         icon: 'send',
       },
     ],
@@ -229,7 +230,7 @@ const WITH_ACTION_BUTTONS_PRESET: QuestionCommandMenuPreset = {
   id: 'with-action-buttons',
   name: 'With Action Buttons',
   category: 'custom',
-  description: 'Multiple action buttons inside trigger',
+  description: 'Multiple action buttons with shine variant',
   data: {
     ...DEFAULT_CONFIG,
     trigger: {
@@ -239,16 +240,18 @@ const WITH_ACTION_BUTTONS_PRESET: QuestionCommandMenuPreset = {
           position: 'left',
           enabled: true,
           type: 'icon',
-          variant: 'ghost',
+          variant: 'shine',
           size: 'sm',
+          roundness: 'squircle',
           icon: 'sparkle',
         },
         {
           position: 'right',
           enabled: true,
           type: 'icon-text',
-          variant: 'solid',
+          variant: 'primary',
           size: 'sm',
+          roundness: 'squircle',
           icon: 'send',
           label: 'Submit',
         },
@@ -290,19 +293,45 @@ const QUESTION_REVIEW_PRESET: QuestionCommandMenuPreset = {
           position: 'right',
           enabled: true,
           type: 'icon',
-          variant: 'ghost',
+          variant: 'secondary',
           size: 'sm',
+          roundness: 'squircle',
           icon: 'refresh',
         },
         {
           position: 'right',
           enabled: true,
           type: 'icon',
-          variant: 'solid',
+          variant: 'primary',
           size: 'sm',
+          roundness: 'squircle',
           icon: 'add',
         },
       ],
+    },
+  },
+}
+
+const WITH_INDICATOR_PRESET: QuestionCommandMenuPreset = {
+  id: 'with-indicator',
+  name: 'With Indicator',
+  category: 'custom',
+  description: 'Arrow indicator for navigation hint',
+  data: {
+    ...DEFAULT_CONFIG,
+    trigger: {
+      ...DEFAULT_CONFIG.trigger,
+      buttons: [
+        {
+          position: 'right',
+          enabled: true,
+          type: 'indicator',
+          variant: 'tertiary',
+          size: 'sm',
+          icon: 'arrow-right',
+        },
+      ],
+      showKeyboardHint: false,
     },
   },
 }
@@ -317,6 +346,7 @@ export const PRESETS: Preset<PlaygroundState>[] = [
   { ...ELEVATED_PRESET, data: { config: ELEVATED_PRESET.data } },
   { ...WITH_ACTION_BUTTONS_PRESET, data: { config: WITH_ACTION_BUTTONS_PRESET.data } },
   { ...QUESTION_REVIEW_PRESET, data: { config: QUESTION_REVIEW_PRESET.data } },
+  { ...WITH_INDICATOR_PRESET, data: { config: WITH_INDICATOR_PRESET.data } },
 ]
 
 export const DEFAULT_STATE: PlaygroundState = {

@@ -105,6 +105,7 @@ export interface SlidingRatingsConfig {
   subScore: {
     showProgressBar: boolean
     showNetworkBenchmark: boolean
+    showImproveButton: boolean
     progressBarSize: 'sm' | 'md' | 'lg'
     textSize: 'xs' | 'sm' | 'md'
   }
