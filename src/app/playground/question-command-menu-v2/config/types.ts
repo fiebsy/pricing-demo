@@ -233,7 +233,7 @@ export interface TriggerConfig extends SlotConfig {
 // TOP SECTION CONFIG
 // ============================================================================
 
-export type TopSectionContentType = 'filters' | 'breadcrumbs' | 'tabs' | 'custom'
+export type TopSectionContentType = 'filters' | 'questions' | 'breadcrumbs' | 'tabs' | 'custom'
 
 export interface TopSlotConfig extends SlotConfig {
   /** Content type for the top section */

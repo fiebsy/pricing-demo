@@ -141,6 +141,7 @@ export const BUTTON_ROUNDNESS_OPTIONS = [
 
 export const TOP_SECTION_CONTENT_OPTIONS = [
   { label: 'Filters', value: 'filters' },
+  { label: 'Questions (Scrollable)', value: 'questions' },
   { label: 'Breadcrumbs', value: 'breadcrumbs' },
   { label: 'Tabs', value: 'tabs' },
   { label: 'Custom', value: 'custom' },

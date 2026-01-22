@@ -169,6 +169,9 @@ function Preview({ config }: PreviewProps) {
   const [filter, setFilter] = useState('')
   const [activeTab, setActiveTab] = useState('all')
 
+  // Check if top slot should show questions (scrollable content)
+  const showQuestionsInTop = config.topSlot.contentType === 'questions'
+
   // Filter groups and calculate dynamic height (like V3)
   const filteredGroups = useMemo(
     () => filterQuestionGroups(SAMPLE_QUESTIONS, filter),
@@ -208,20 +211,40 @@ function Preview({ config }: PreviewProps) {
     console.log('[QuestionCommandMenu] Button clicked:', index, buttonConfig.icon)
   }, [])
 
+  // Create a slot config for top slot questions (using top slot scroll settings)
+  const topSlotAsBottomConfig = useMemo(() => ({
+    ...config.bottomSlot,
+    overflowGradient: config.topSlot.overflowGradient ?? true,
+    overflowGradientHeight: config.topSlot.overflowGradientHeight ?? 24,
+    scrollPaddingTop: config.topSlot.scrollPaddingTop ?? 8,
+    scrollPaddingBottom: config.topSlot.scrollPaddingBottom ?? 8,
+  }), [config.bottomSlot, config.topSlot])
+
   return (
     <BiaxialExpandV4.Root config={v4Config}>
       {/* Top Slot */}
       {config.topSlot.enabled && (
         <BiaxialExpandV4.TopSlot>
-          <FilterTabs
-            value={activeTab}
-            onChange={setActiveTab}
-            options={[
-              { id: 'recent', label: 'Recent' },
-              { id: 'starred', label: 'Starred' },
-              { id: 'all', label: 'All' },
-            ]}
-          />
+          {showQuestionsInTop ? (
+            <QuestionContent
+              groups={SAMPLE_QUESTIONS}
+              filter={filter}
+              onSelect={handleSelect}
+              itemsConfig={config.items}
+              bottomSlotConfig={topSlotAsBottomConfig}
+              emptyMessage={config.emptyStateMessage}
+            />
+          ) : (
+            <FilterTabs
+              value={activeTab}
+              onChange={setActiveTab}
+              options={[
+                { id: 'recent', label: 'Recent' },
+                { id: 'starred', label: 'Starred' },
+                { id: 'all', label: 'All' },
+              ]}
+            />
+          )}
         </BiaxialExpandV4.TopSlot>
       )}
 
@@ -241,17 +264,31 @@ function Preview({ config }: PreviewProps) {
           />
         </BiaxialExpandV4.Trigger>
 
-        {/* Bottom Content */}
+        {/* Bottom Content - show filters when questions are in top */}
         <BiaxialExpandV4.ContentWrapper>
           <BiaxialExpandV4.BottomSlot>
-            <QuestionContent
-              groups={SAMPLE_QUESTIONS}
-              filter={filter}
-              onSelect={handleSelect}
-              itemsConfig={config.items}
-              bottomSlotConfig={config.bottomSlot}
-              emptyMessage={config.emptyStateMessage}
-            />
+            {showQuestionsInTop ? (
+              <div className="flex h-full items-center justify-center px-4">
+                <FilterTabs
+                  value={activeTab}
+                  onChange={setActiveTab}
+                  options={[
+                    { id: 'recent', label: 'Recent' },
+                    { id: 'starred', label: 'Starred' },
+                    { id: 'all', label: 'All' },
+                  ]}
+                />
+              </div>
+            ) : (
+              <QuestionContent
+                groups={SAMPLE_QUESTIONS}
+                filter={filter}
+                onSelect={handleSelect}
+                itemsConfig={config.items}
+                bottomSlotConfig={config.bottomSlot}
+                emptyMessage={config.emptyStateMessage}
+              />
+            )}
           </BiaxialExpandV4.BottomSlot>
         </BiaxialExpandV4.ContentWrapper>
       </BiaxialExpandV4.Content>
