@@ -128,7 +128,8 @@ export interface SlidingRatingsConfig {
   layout: {
     categoryGap: number
     subScoreGap: number
-    headerPadding: number
+    headerPaddingX: number
+    headerPaddingY: number
     rowPaddingX: number
     rowPaddingY: number
   }

@@ -107,6 +107,7 @@ export const DEFAULT_CONFIG: QuestionCommandMenuConfig = {
   // Bottom Slot
   bottomSlot: {
     enabled: true,
+    contentType: 'questions',
     delayOffset: 0,
     durationOffset: 100,
     background: 'secondary',

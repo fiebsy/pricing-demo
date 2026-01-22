@@ -79,7 +79,8 @@ export const DEFAULT_SLIDING_RATINGS_CONFIG: SlidingRatingsConfig = {
   layout: {
     categoryGap: 0,
     subScoreGap: 0,
-    headerPadding: 12,
+    headerPaddingX: 8,
+    headerPaddingY: 12,
     rowPaddingX: 8,
     rowPaddingY: 12,
   },

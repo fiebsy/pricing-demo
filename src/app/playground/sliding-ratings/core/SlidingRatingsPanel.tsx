@@ -414,9 +414,12 @@ function BackButton({ title, onBack, config, isVisible }: BackButtonProps) {
       exit={animation.enableItemFade ? { opacity: 0, x: 15 } : undefined}
       transition={{ duration: animation.opacityDuration / 1000, ease: EASE_OUT_EXPO }}
       className={cn(separatorClasses)}
-      style={{ paddingBottom: layout.headerPadding, marginBottom: backButton.showSeparator ? layout.headerPadding : 0 }}
+      style={{
+        padding: `${layout.headerPaddingY}px ${layout.headerPaddingX}px`,
+        marginBottom: backButton.showSeparator ? layout.headerPaddingY : 0,
+      }}
     >
-      <div className={cn('flex items-center', positionClasses[backButton.position])}>
+      <div className={cn('flex items-center w-full', positionClasses[backButton.position])}>
         <button
           type="button"
           onClick={onBack}

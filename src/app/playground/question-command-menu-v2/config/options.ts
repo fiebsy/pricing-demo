@@ -148,6 +148,17 @@ export const TOP_SECTION_CONTENT_OPTIONS = [
 ] as const
 
 // ============================================================================
+// BOTTOM SECTION OPTIONS
+// ============================================================================
+
+export const BOTTOM_SECTION_CONTENT_OPTIONS = [
+  { label: 'Questions (Scrollable)', value: 'questions' },
+  { label: 'Filters', value: 'filters' },
+  { label: 'Buttons', value: 'buttons' },
+  { label: 'Custom', value: 'custom' },
+] as const
+
+// ============================================================================
 // ICON OPTIONS (for button configuration)
 // ============================================================================
 

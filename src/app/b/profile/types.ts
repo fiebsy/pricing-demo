@@ -292,8 +292,9 @@ export interface ChatMessage {
 // =============================================================================
 
 export interface ChatBackdropProps {
-  visible: boolean
-  onClose: () => void
+  state: ChatOverlayState
+  onClose?: () => void
+  className?: string
 }
 
 export interface MessageBubbleProps {

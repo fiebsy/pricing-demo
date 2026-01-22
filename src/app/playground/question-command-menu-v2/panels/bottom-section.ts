@@ -8,6 +8,7 @@ import {
   BACKGROUND_OPTIONS,
   BORDER_COLOR_OPTIONS,
   SHINE_OPTIONS,
+  BOTTOM_SECTION_CONTENT_OPTIONS,
 } from '../config/options'
 
 export function buildBottomSection(state: PlaygroundState): Section {
@@ -28,6 +29,18 @@ export function buildBottomSection(state: PlaygroundState): Section {
         ],
       },
       {
+        title: 'Content',
+        controls: [
+          {
+            id: 'config.bottomSlot.contentType',
+            label: 'Content Type',
+            type: 'select',
+            value: state.config.bottomSlot.contentType ?? 'questions',
+            options: [...BOTTOM_SECTION_CONTENT_OPTIONS],
+          },
+        ],
+      },
+      {
         title: 'Size',
         controls: [
           {
@@ -35,7 +48,7 @@ export function buildBottomSection(state: PlaygroundState): Section {
             label: 'Max Height',
             type: 'slider',
             value: state.config.layout.maxBottomHeight,
-            min: 200,
+            min: 48,
             max: 600,
             step: 20,
             formatLabel: (v: number) => `${v}px`,

@@ -511,6 +511,31 @@ function buildLayoutSection(config: SlidingRatingsConfig): Section {
     title: 'Layout Settings',
     groups: [
       {
+        title: 'Header Padding',
+        controls: [
+          {
+            id: 'layout.headerPaddingX',
+            type: 'slider',
+            label: 'Horizontal',
+            value: config.layout.headerPaddingX,
+            min: 0,
+            max: 24,
+            step: 2,
+            formatLabel: (v: number) => `${v}px`,
+          },
+          {
+            id: 'layout.headerPaddingY',
+            type: 'slider',
+            label: 'Vertical',
+            value: config.layout.headerPaddingY,
+            min: 0,
+            max: 24,
+            step: 2,
+            formatLabel: (v: number) => `${v}px`,
+          },
+        ],
+      },
+      {
         title: 'Row Padding',
         controls: [
           {
@@ -536,7 +561,7 @@ function buildLayoutSection(config: SlidingRatingsConfig): Section {
         ],
       },
       {
-        title: 'Spacing',
+        title: 'Gaps',
         controls: [
           {
             id: 'layout.categoryGap',
@@ -555,16 +580,6 @@ function buildLayoutSection(config: SlidingRatingsConfig): Section {
             value: config.layout.subScoreGap,
             min: 0,
             max: 12,
-            step: 2,
-            formatLabel: (v: number) => `${v}px`,
-          },
-          {
-            id: 'layout.headerPadding',
-            type: 'slider',
-            label: 'Header Padding',
-            value: config.layout.headerPadding,
-            min: 0,
-            max: 24,
             step: 2,
             formatLabel: (v: number) => `${v}px`,
           },

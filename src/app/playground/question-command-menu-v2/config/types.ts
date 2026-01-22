@@ -256,7 +256,11 @@ export interface TopSlotConfig extends SlotConfig {
 // BOTTOM SECTION CONFIG
 // ============================================================================
 
+export type BottomSectionContentType = 'questions' | 'filters' | 'buttons' | 'custom'
+
 export interface BottomSlotConfig extends SlotConfig {
+  /** Content type for the bottom section */
+  contentType: BottomSectionContentType
   /** Show overflow gradient */
   overflowGradient: boolean
   /** Overflow gradient height */

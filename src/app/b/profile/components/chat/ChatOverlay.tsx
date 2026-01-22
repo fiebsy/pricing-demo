@@ -20,6 +20,7 @@ import { cn } from '@/lib/utils'
 
 import { MessageList } from './MessageList'
 import { ChatInput } from './ChatInput'
+import { ChatBackdrop } from './ChatBackdrop'
 import { useChatMessages, useSimulatedResponse } from '../../hooks'
 import type { ChatOverlayProps } from '../../types'
 
@@ -98,17 +99,21 @@ export function ChatOverlay({ state, onStateChange, className }: ChatOverlayProp
   const isExpanded = state === 'expanded'
 
   return (
-    <div
-      className={cn(
-        'fixed bottom-0 left-0 right-0 z-50',
-        'flex flex-col',
-        className
-      )}
-      style={{
-        height: isExpanded ? '100vh' : 'auto',
-        pointerEvents: isExpanded ? 'auto' : 'none',
-      }}
-    >
+    <>
+      {/* Radial blur backdrop - renders behind chat content */}
+      <ChatBackdrop state={state} onClose={handleClose} />
+
+      <div
+        className={cn(
+          'fixed bottom-0 left-0 right-0 z-50',
+          'flex flex-col',
+          className
+        )}
+        style={{
+          height: isExpanded ? '100vh' : 'auto',
+          pointerEvents: isExpanded ? 'auto' : 'none',
+        }}
+      >
       {/* Messages area - grows from bottom, fades at top */}
       <AnimatePresence>
         {isExpanded && (
@@ -154,5 +159,6 @@ export function ChatOverlay({ state, onStateChange, className }: ChatOverlayProp
         />
       </div>
     </div>
+    </>
   )
 }

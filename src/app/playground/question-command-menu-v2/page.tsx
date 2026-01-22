@@ -33,6 +33,7 @@ import { buildPanelConfig, updateNestedValue } from './panels/panel-config'
 import { InputWithButtons } from './variants/input-with-buttons'
 import { QuestionContent, SAMPLE_QUESTIONS } from './variants/question-content'
 import { FilterTabs } from './variants/filter-tabs'
+import { ButtonsContent } from './variants/buttons-content'
 import type { QuestionGroup } from './config/types'
 
 // ============================================================================
@@ -169,8 +170,9 @@ function Preview({ config }: PreviewProps) {
   const [filter, setFilter] = useState('')
   const [activeTab, setActiveTab] = useState('all')
 
-  // Check if top slot should show questions (scrollable content)
-  const showQuestionsInTop = config.topSlot.contentType === 'questions'
+  // Content type flags
+  const topContentType = config.topSlot.contentType
+  const bottomContentType = config.bottomSlot.contentType ?? 'questions'
 
   // Filter groups and calculate dynamic height (like V3)
   const filteredGroups = useMemo(
@@ -178,25 +180,28 @@ function Preview({ config }: PreviewProps) {
     [filter]
   )
 
-  const dynamicBottomHeight = useMemo(
-    () =>
-      calculateDynamicHeight(
-        filteredGroups,
-        config.items.height,
-        config.items.gap,
-        config.bottomSlot.scrollPaddingTop,
-        config.bottomSlot.scrollPaddingBottom,
-        config.layout.maxBottomHeight
-      ),
-    [
+  // Only calculate dynamic height if bottom shows questions
+  const dynamicBottomHeight = useMemo(() => {
+    if (bottomContentType !== 'questions') {
+      return config.layout.maxBottomHeight
+    }
+    return calculateDynamicHeight(
       filteredGroups,
       config.items.height,
       config.items.gap,
       config.bottomSlot.scrollPaddingTop,
       config.bottomSlot.scrollPaddingBottom,
-      config.layout.maxBottomHeight,
-    ]
-  )
+      config.layout.maxBottomHeight
+    )
+  }, [
+    bottomContentType,
+    filteredGroups,
+    config.items.height,
+    config.items.gap,
+    config.bottomSlot.scrollPaddingTop,
+    config.bottomSlot.scrollPaddingBottom,
+    config.layout.maxBottomHeight,
+  ])
 
   const v4Config = useMemo(
     () => transformToV4Config(config, dynamicBottomHeight),
@@ -211,6 +216,10 @@ function Preview({ config }: PreviewProps) {
     console.log('[QuestionCommandMenu] Button clicked:', index, buttonConfig.icon)
   }, [])
 
+  const handleButtonsSelect = useCallback((buttonId: string) => {
+    console.log('[QuestionCommandMenu] Action button:', buttonId)
+  }, [])
+
   // Create a slot config for top slot questions (using top slot scroll settings)
   const topSlotAsBottomConfig = useMemo(() => ({
     ...config.bottomSlot,
@@ -220,21 +229,45 @@ function Preview({ config }: PreviewProps) {
     scrollPaddingBottom: config.topSlot.scrollPaddingBottom ?? 8,
   }), [config.bottomSlot, config.topSlot])
 
-  return (
-    <BiaxialExpandV4.Root config={v4Config}>
-      {/* Top Slot */}
-      {config.topSlot.enabled && (
-        <BiaxialExpandV4.TopSlot>
-          {showQuestionsInTop ? (
-            <QuestionContent
-              groups={SAMPLE_QUESTIONS}
-              filter={filter}
-              onSelect={handleSelect}
-              itemsConfig={config.items}
-              bottomSlotConfig={topSlotAsBottomConfig}
-              emptyMessage={config.emptyStateMessage}
-            />
-          ) : (
+  // Render top slot content based on content type
+  const renderTopContent = () => {
+    switch (topContentType) {
+      case 'questions':
+        return (
+          <QuestionContent
+            groups={SAMPLE_QUESTIONS}
+            filter={filter}
+            onSelect={handleSelect}
+            itemsConfig={config.items}
+            bottomSlotConfig={topSlotAsBottomConfig}
+            emptyMessage={config.emptyStateMessage}
+          />
+        )
+      case 'filters':
+      case 'tabs':
+      default:
+        return (
+          <FilterTabs
+            value={activeTab}
+            onChange={setActiveTab}
+            options={[
+              { id: 'recent', label: 'Recent' },
+              { id: 'starred', label: 'Starred' },
+              { id: 'all', label: 'All' },
+            ]}
+          />
+        )
+    }
+  }
+
+  // Render bottom slot content based on content type
+  const renderBottomContent = () => {
+    switch (bottomContentType) {
+      case 'buttons':
+        return <ButtonsContent onSelect={handleButtonsSelect} />
+      case 'filters':
+        return (
+          <div className="flex h-full items-center justify-center px-4">
             <FilterTabs
               value={activeTab}
               onChange={setActiveTab}
@@ -244,7 +277,29 @@ function Preview({ config }: PreviewProps) {
                 { id: 'all', label: 'All' },
               ]}
             />
-          )}
+          </div>
+        )
+      case 'questions':
+      default:
+        return (
+          <QuestionContent
+            groups={SAMPLE_QUESTIONS}
+            filter={filter}
+            onSelect={handleSelect}
+            itemsConfig={config.items}
+            bottomSlotConfig={config.bottomSlot}
+            emptyMessage={config.emptyStateMessage}
+          />
+        )
+    }
+  }
+
+  return (
+    <BiaxialExpandV4.Root config={v4Config}>
+      {/* Top Slot */}
+      {config.topSlot.enabled && (
+        <BiaxialExpandV4.TopSlot>
+          {renderTopContent()}
         </BiaxialExpandV4.TopSlot>
       )}
 
@@ -264,31 +319,10 @@ function Preview({ config }: PreviewProps) {
           />
         </BiaxialExpandV4.Trigger>
 
-        {/* Bottom Content - show filters when questions are in top */}
+        {/* Bottom Content */}
         <BiaxialExpandV4.ContentWrapper>
           <BiaxialExpandV4.BottomSlot>
-            {showQuestionsInTop ? (
-              <div className="flex h-full items-center justify-center px-4">
-                <FilterTabs
-                  value={activeTab}
-                  onChange={setActiveTab}
-                  options={[
-                    { id: 'recent', label: 'Recent' },
-                    { id: 'starred', label: 'Starred' },
-                    { id: 'all', label: 'All' },
-                  ]}
-                />
-              </div>
-            ) : (
-              <QuestionContent
-                groups={SAMPLE_QUESTIONS}
-                filter={filter}
-                onSelect={handleSelect}
-                itemsConfig={config.items}
-                bottomSlotConfig={config.bottomSlot}
-                emptyMessage={config.emptyStateMessage}
-              />
-            )}
+            {renderBottomContent()}
           </BiaxialExpandV4.BottomSlot>
         </BiaxialExpandV4.ContentWrapper>
       </BiaxialExpandV4.Content>
