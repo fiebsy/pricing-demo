@@ -277,6 +277,10 @@
   background-color: var(--background-color-success-solid);
 }
 
+@utility bg-success-solid_hover {
+  background-color: var(--background-color-success-solid_hover);
+}
+
 /* Inverted backgrounds - dark in light mode, light in dark mode */
 @utility bg-inverted-primary {
   background-color: var(--background-color-inverted-primary);

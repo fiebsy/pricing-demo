@@ -5,6 +5,7 @@ import type { ButtonRoundness, ButtonSize, ButtonVariant } from './types'
  * Note: Roundness (rounded-*, corner-squircle) is handled by roundnessStyles
  */
 export const sizeStyles: Record<ButtonSize, string> = {
+  xs: 'gap-0.5 px-2 py-1.5 text-xs font-semibold',
   sm: 'gap-1 px-3 py-2 text-sm font-semibold',
   md: 'gap-1 px-3.5 py-2.5 text-sm font-semibold',
   lg: 'gap-1.5 px-4 py-2.5 text-md font-semibold',
@@ -25,12 +26,14 @@ export const roundnessStyles: Record<ButtonRoundness, string> = {
 
 /**
  * Icon-only button sizes (square)
+ * Note: Must explicitly set px-* to override the px-* values from sizeStyles
  */
 export const iconOnlySizeStyles: Record<ButtonSize, string> = {
-  sm: 'p-2',
-  md: 'p-2.5',
-  lg: 'p-3',
-  xl: 'p-3.5',
+  xs: 'px-1.5 py-1.5',
+  sm: 'px-2 py-2',
+  md: 'px-2.5 py-2.5',
+  lg: 'px-3 py-3',
+  xl: 'px-3.5 py-3.5',
 }
 
 /**
@@ -133,6 +136,35 @@ export const variantStyles: Record<ButtonVariant, string> = {
     '[&_[data-text]]:underline [&_[data-text]]:decoration-transparent [&_[data-text]]:underline-offset-2',
     'hover:[&_[data-text]]:decoration-current',
     '[&_[data-icon]]:text-fg-error-secondary hover:[&_[data-icon]]:text-fg-error-primary',
+  ].join(' '),
+
+  // Primary success - success solid with inner gradient border
+  'primary-success': [
+    'bg-success-solid text-white shadow-xs-skeumorphic ring-1 ring-transparent ring-inset outline-success',
+    // Inner border gradient (skeuomorphic effect)
+    'before:absolute before:inset-px before:border before:border-white/12 before:mask-b-from-0% before:corner-squircle',
+    'hover:bg-success-solid_hover',
+    'data-[pressed]:bg-success-solid_hover data-[pressed]:scale-[0.98]',
+    'data-[disabled]:bg-disabled data-[disabled]:text-fg-disabled data-[disabled]:shadow-xs data-[disabled]:ring-disabled_subtle',
+    '[&_[data-icon]]:text-white hover:[&_[data-icon]]:text-white',
+  ].join(' '),
+
+  // Secondary success - outlined success
+  'secondary-success': [
+    'bg-primary text-success-primary shadow-xs-skeumorphic ring-1 ring-success_subtle ring-inset outline-success',
+    'hover:bg-success-primary hover:text-success-primary_hover',
+    'data-[pressed]:bg-success-primary data-[pressed]:scale-[0.98]',
+    'data-[disabled]:bg-primary data-[disabled]:shadow-xs data-[disabled]:ring-disabled_subtle data-[disabled]:text-fg-disabled',
+    '[&_[data-icon]]:text-fg-success-secondary hover:[&_[data-icon]]:text-fg-success-primary',
+  ].join(' '),
+
+  // Tertiary success - text success
+  'tertiary-success': [
+    'text-success-primary outline-success',
+    'hover:bg-success-primary hover:text-success-primary_hover',
+    'data-[pressed]:bg-success-primary data-[pressed]:scale-[0.98]',
+    'data-[disabled]:text-fg-disabled',
+    '[&_[data-icon]]:text-fg-success-secondary hover:[&_[data-icon]]:text-fg-success-primary',
   ].join(' '),
 }
 

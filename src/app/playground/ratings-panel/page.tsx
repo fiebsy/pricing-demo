@@ -61,6 +61,7 @@ export default function RatingsPanelPlayground() {
   // UI state
   const [activeSection, setActiveSection] = useState<SectionType>('mind')
   const [expandedCategory, setExpandedCategory] = useState<CategoryType | null>(null)
+  const [selectedSubScore, setSelectedSubScore] = useState<string | null>(null)
 
   // Build panel configuration
   const panelConfig = useMemo(
@@ -124,6 +125,11 @@ export default function RatingsPanelPlayground() {
     if (presetConfig.data.expandedCategory !== undefined) {
       setExpandedCategory(presetConfig.data.expandedCategory)
     }
+    if (presetConfig.data.selectedSubScore !== undefined) {
+      setSelectedSubScore(presetConfig.data.selectedSubScore)
+    } else {
+      setSelectedSubScore(null)
+    }
   }, [])
 
   // Handle reset
@@ -132,6 +138,7 @@ export default function RatingsPanelPlayground() {
     setActivePresetId('default')
     setActiveSection('mind')
     setExpandedCategory(null)
+    setSelectedSubScore(null)
   }, [])
 
   // Get config for copy button
@@ -142,14 +149,16 @@ export default function RatingsPanelPlayground() {
       data: {
         activeSection,
         expandedCategory,
+        selectedSubScore,
       },
     }
-  }, [config, activeSection, expandedCategory])
+  }, [config, activeSection, expandedCategory, selectedSubScore])
 
   // Section change handler
   const handleSectionChange = useCallback((section: SectionType) => {
     setActiveSection(section)
     setExpandedCategory(null)
+    setSelectedSubScore(null)
     // Update config to reflect the change
     setConfig((prev) => ({
       ...prev,
@@ -168,6 +177,19 @@ export default function RatingsPanelPlayground() {
       // If collapseOthersOnExpand is true, or if there's no prev,
       // just expand the clicked category (others will be hidden automatically)
       return category
+    })
+    // Reset selected sub-score when changing category
+    setSelectedSubScore(null)
+  }, [])
+
+  // Sub-score selection handler
+  const handleSubScoreSelect = useCallback((subScoreId: string) => {
+    setSelectedSubScore((prev) => {
+      // If clicking the same sub-score, deselect it
+      if (prev === subScoreId) {
+        return null
+      }
+      return subScoreId
     })
   }, [])
 
@@ -237,9 +259,11 @@ export default function RatingsPanelPlayground() {
                 config={config}
                 activeSection={activeSection}
                 expandedCategory={expandedCategory}
+                selectedSubScore={selectedSubScore}
                 onSectionChange={handleSectionChange}
                 onCategoryToggle={handleCategoryToggle}
                 onImproveCategory={handleImproveCategory}
+                onSubScoreSelect={handleSubScoreSelect}
               />
             </div>
           </div>

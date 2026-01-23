@@ -34,9 +34,10 @@ export const BottomSlot: React.FC<SlotProps> = ({
 
   // Set height from config (removing children dependency prevents shrinking cascade)
   // The height is capped at maxBottomHeight - actual content scrolling is handled internally
+  // IMPORTANT: Set height to 0 when disabled so ContentWrapper collapses properly
   useEffect(() => {
-    setSlotHeight('bottom', config.layout.maxBottomHeight)
-  }, [config.layout.maxBottomHeight, setSlotHeight])
+    setSlotHeight('bottom', slotConfig.enabled ? config.layout.maxBottomHeight : 0)
+  }, [config.layout.maxBottomHeight, slotConfig.enabled, setSlotHeight])
 
   // If slot is disabled, don't render
   if (!slotConfig.enabled) {

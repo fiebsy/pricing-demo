@@ -1,11 +1,8 @@
 /**
  * MessageBubble Component
  *
- * Chat bubble for user and assistant messages.
- * Uses asymmetric corner radius (iOS-style).
- *
- * User: right-aligned, rounded-tr-md
- * Assistant: left-aligned, rounded-tl-md
+ * Chat bubble with frosted glass/blur background effect.
+ * Supports configurable blur, opacity, corners, and shine effects.
  *
  * @module b/profile/components/chat
  */
@@ -18,7 +15,21 @@ import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/prod/base/badge'
 import { HugeIcon } from '@/components/ui/prod/base/icon'
 import Tick01Icon from '@hugeicons-pro/core-stroke-rounded/Tick01Icon'
-import type { MessageBubbleProps } from '../../types'
+import type { ChatMessage } from '../../types'
+import type { SemanticBgColor, ShineStyle } from '@/app/playground/radial-blur/config/types'
+
+// =============================================================================
+// COLOR MAPPING
+// =============================================================================
+
+const bgColorMap: Record<SemanticBgColor, string> = {
+  'primary': 'var(--color-bg-primary)',
+  'secondary': 'var(--color-bg-secondary)',
+  'tertiary': 'var(--color-bg-tertiary)',
+  'quaternary': 'var(--color-bg-quaternary)',
+  'brand-primary': 'var(--color-bg-brand-solid)',
+  'brand-secondary': 'var(--color-bg-brand-secondary)',
+}
 
 // =============================================================================
 // ANIMATION CONFIG
@@ -49,13 +60,73 @@ function getConfidenceBadgeColor(confidence: number): 'success' | 'warning' | 'e
 }
 
 // =============================================================================
+// TYPES
+// =============================================================================
+
+export interface MessageBubbleProps {
+  message: ChatMessage
+  /** Blur amount for bubble background (px) */
+  blurAmount?: number
+  /** Assistant bubble background color */
+  bubbleBgColor?: SemanticBgColor
+  /** Assistant bubble opacity (0-100) */
+  bubbleOpacity?: number
+  /** User bubble background color */
+  userBubbleBgColor?: SemanticBgColor
+  /** User bubble opacity (0-100) */
+  userBubbleOpacity?: number
+  /** Border radius in pixels */
+  borderRadius?: number
+  /** Use asymmetric corners (iOS-style) */
+  useAsymmetricCorners?: boolean
+  /** Use squircle corner-shape */
+  useSquircle?: boolean
+  /** Shine effect style */
+  shineStyle?: ShineStyle
+  className?: string
+}
+
+// =============================================================================
 // COMPONENT
 // =============================================================================
 
-export function MessageBubble({ message, className }: MessageBubbleProps) {
+export function MessageBubble({
+  message,
+  blurAmount = 12,
+  bubbleBgColor = 'primary',
+  bubbleOpacity = 70,
+  userBubbleBgColor = 'brand-primary',
+  userBubbleOpacity = 20,
+  borderRadius = 32,
+  useAsymmetricCorners = false,
+  useSquircle = true,
+  shineStyle = 'shine-3',
+  className,
+}: MessageBubbleProps) {
   const isUser = message.role === 'user'
   const isStreaming = message.status === 'streaming'
   const isComplete = message.status === 'complete'
+
+  const bgColor = isUser ? userBubbleBgColor : bubbleBgColor
+  const opacity = isUser ? userBubbleOpacity : bubbleOpacity
+
+  // Build corner radius style
+  let cornerRadiusStyle: string
+  if (useAsymmetricCorners) {
+    // iOS-style with one smaller corner
+    const smallRadius = Math.max(4, borderRadius * 0.25)
+    cornerRadiusStyle = isUser
+      ? `${borderRadius}px ${smallRadius}px ${borderRadius}px ${borderRadius}px`
+      : `${smallRadius}px ${borderRadius}px ${borderRadius}px ${borderRadius}px`
+  } else {
+    // Uniform radius on all corners
+    cornerRadiusStyle = `${borderRadius}px`
+  }
+
+  // Get shine box-shadow from CSS variable
+  const shineBoxShadow = shineStyle !== 'none'
+    ? `var(--${shineStyle})`
+    : undefined
 
   return (
     <motion.div
@@ -70,44 +141,55 @@ export function MessageBubble({ message, className }: MessageBubbleProps) {
     >
       <div
         className={cn(
-          'max-w-[75%] px-4 py-3 border',
-          // Asymmetric corners (iOS style)
-          isUser
-            ? 'rounded-2xl rounded-tr-md bg-tertiary/20 border-tertiary/30'
-            : 'rounded-2xl rounded-tl-md bg-brand-primary/5 border-brand-primary/20',
-          // Streaming state pulse
-          isStreaming && 'animate-pulse'
+          'relative max-w-[75%] px-4 py-3',
+          useSquircle && 'corner-squircle'
         )}
+        style={{ borderRadius: cornerRadiusStyle }}
       >
-        {/* Message content */}
-        <p
+        {/* Background layer with opacity */}
+        <div
           className={cn(
-            'text-sm leading-relaxed',
-            isUser ? 'text-primary' : 'text-secondary'
+            'absolute inset-0',
+            useSquircle && 'corner-squircle',
+            // Streaming state pulse on background only
+            isStreaming && 'animate-pulse'
           )}
-        >
-          {message.content}
-          {/* Streaming cursor */}
-          {isStreaming && (
-            <span className="inline-block w-0.5 h-4 ml-0.5 bg-brand-primary animate-pulse" />
-          )}
-        </p>
+          style={{
+            borderRadius: cornerRadiusStyle,
+            backdropFilter: `blur(${blurAmount}px)`,
+            WebkitBackdropFilter: `blur(${blurAmount}px)`,
+            backgroundColor: bgColorMap[bgColor],
+            opacity: opacity / 100,
+            boxShadow: shineBoxShadow,
+          }}
+        />
+        {/* Content layer */}
+        <div className="relative z-10">
+          {/* Message content */}
+          <p className="text-sm leading-relaxed text-primary">
+            {message.content}
+            {/* Streaming cursor */}
+            {isStreaming && (
+              <span className="inline-block w-0.5 h-4 ml-0.5 bg-brand-primary animate-pulse" />
+            )}
+          </p>
 
-        {/* Confidence badge (assistant only, when complete) */}
-        {!isUser && isComplete && message.confidence !== undefined && (
-          <div className="mt-2">
-            <Badge
-              size="xs"
-              shape="squircle"
-              color={getConfidenceBadgeColor(message.confidence)}
-              iconLeading={
-                <HugeIcon icon={Tick01Icon} size={12} color="current" />
-              }
-            >
-              {Math.round(message.confidence * 100)}% confidence
-            </Badge>
-          </div>
-        )}
+          {/* Confidence badge (assistant only, when complete) */}
+          {!isUser && isComplete && message.confidence !== undefined && (
+            <div className="mt-2">
+              <Badge
+                size="xs"
+                shape="squircle"
+                color={getConfidenceBadgeColor(message.confidence)}
+                iconLeading={
+                  <HugeIcon icon={Tick01Icon} size={12} color="current" />
+                }
+              >
+                {Math.round(message.confidence * 100)}% confidence
+              </Badge>
+            </div>
+          )}
+        </div>
       </div>
     </motion.div>
   )

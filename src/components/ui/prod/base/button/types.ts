@@ -3,7 +3,7 @@ import type { ComponentPropsWithoutRef, FC, ReactNode } from 'react'
 /**
  * Button size variants
  */
-export type ButtonSize = 'sm' | 'md' | 'lg' | 'xl'
+export type ButtonSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl'
 
 /**
  * Button roundness variants
@@ -28,6 +28,9 @@ export type ButtonVariant =
   | 'secondary-destructive'
   | 'tertiary-destructive'
   | 'link-destructive'
+  | 'primary-success'
+  | 'secondary-success'
+  | 'tertiary-success'
 
 /**
  * Icon prop type - can be a component, element, or HugeIcon array

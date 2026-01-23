@@ -82,6 +82,8 @@ export interface AnimatedLineConfig {
   cornerRadius: number
   lineDuration: number
   staggerDelay: number
+  rowHeight: number
+  firstRowMultiplier: number
 }
 
 // =============================================================================
@@ -148,6 +150,7 @@ export interface RatingsConfig {
     badge: BadgeConfig
     staggerDelay: number
     animationDuration: number
+    collapseOthersOnSelect: boolean
   }
 
   // Panel Animation (for drill-down transitions)
@@ -164,6 +167,7 @@ export interface RatingsConfig {
   data: {
     activeSection: SectionType
     expandedCategory: CategoryType | null
+    selectedSubScore: string | null
   }
 }
 

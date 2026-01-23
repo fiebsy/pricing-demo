@@ -23,6 +23,8 @@ export interface SubScoreProps {
   config: RatingsConfig['subScores']
   categoriesConfig: RatingsConfig['categories']
   isExpanded: boolean
+  isSelected: boolean
+  onSelect: () => void
   className?: string
 }
 
@@ -32,6 +34,8 @@ export function SubScore({
   config,
   categoriesConfig,
   isExpanded,
+  isSelected,
+  onSelect,
   className,
 }: SubScoreProps) {
   const colorClass = getScoreColorClass(item.score.current)
@@ -64,9 +68,14 @@ export function SubScore({
   const renderAnimatedLine = () => {
     if (!showAnimatedLine || !isExpanded) return null
 
-    const lineHeight = 32 // Height of sub-score item
+    // Use config values with fallbacks for backwards compatibility
+    const rowHeight = lineConfig.rowHeight ?? 40
+    const firstRowMultiplier = lineConfig.firstRowMultiplier ?? 0.5
+
     const svgWidth = lineConfig.cornerRadius
-    const svgHeight = index === 0 ? lineHeight * 0.6 : lineHeight
+    const svgHeight = index === 0
+      ? rowHeight * firstRowMultiplier
+      : rowHeight
 
     return (
       <svg
@@ -105,18 +114,34 @@ export function SubScore({
     )
   }
 
+  const isClickable = config.collapseOthersOnSelect
+
   return (
     <div
+      role={isClickable ? 'button' : undefined}
+      tabIndex={isClickable ? 0 : undefined}
+      onClick={isClickable ? onSelect : undefined}
+      onKeyDown={isClickable ? (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          onSelect()
+        }
+      } : undefined}
       className={cn(
         'relative flex items-center gap-3 py-2',
-        // Stagger animation on appear
-        'opacity-0 translate-y-[-8px]',
-        'motion-safe:animate-[fadeSlideIn_150ms_ease-out_forwards]',
-        'motion-reduce:opacity-100 motion-reduce:translate-y-0',
+        // Stagger animation on appear (only when not using collapse mode, which handles its own animations)
+        !isClickable && 'opacity-0 translate-y-[-8px]',
+        !isClickable && 'motion-safe:animate-[fadeSlideIn_150ms_ease-out_forwards]',
+        !isClickable && 'motion-reduce:opacity-100 motion-reduce:translate-y-0',
+        // Clickable styles
+        isClickable && 'cursor-pointer rounded-lg -mx-2 px-2 hover:bg-secondary/50',
+        isClickable && 'motion-safe:transition-colors motion-safe:duration-150',
+        // Selected state
+        isSelected && 'bg-brand-primary/10 hover:bg-brand-primary/15',
         className
       )}
       style={{
-        animationDelay: `${index * staggerDelay}ms`,
+        animationDelay: !isClickable ? `${index * staggerDelay}ms` : undefined,
         paddingLeft: showAnimatedLine ? `${lineConfig.cornerRadius + 4}px` : undefined,
       }}
     >

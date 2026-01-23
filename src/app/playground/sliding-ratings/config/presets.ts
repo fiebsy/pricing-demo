@@ -20,7 +20,8 @@ export const DEFAULT_SLIDING_RATINGS_CONFIG: SlidingRatingsConfig = {
     border: true,
     borderColor: 'primary',
     borderRadius: 16,
-    padding: 8,
+    useSquircle: true,
+    padding: 0,
     shine: 'shine-2',
     shineIntensity: '-subtle',
     shadow: 'lg',
@@ -52,24 +53,35 @@ export const DEFAULT_SLIDING_RATINGS_CONFIG: SlidingRatingsConfig = {
   // Back Button Styling
   backButton: {
     style: 'minimal',
-    showIcon: true,
+    contentType: 'icon-text',
     position: 'left',
     showSeparator: true,
+    useButton: true,
+    shineStyle: 'shine-1',
+    animateDirection: 'left',
+  },
+
+  // Improve Button Styling
+  improveButton: {
+    contentType: 'icon-text',
+    useButton: true,
+    shineStyle: 'shine-1',
   },
 
   // Animation
   animation: {
     panelTransitionMode: 'slide',
     slideDuration: 300,
-    slideOffset: 50,
-    stripWidth: 200,
-    panelExitScale: 0.86,
-    panelEnterScale: 0.86,
+    slideOffset: 34,
+    stripWidth: 295,
+    autoSyncSlideSettings: true,
+    panelExitScale: 0.7,
+    panelEnterScale: 0.7,
     panelScaleOrigin: 'top-left',
     animateHeight: true,
     heightDuration: 300,
     enableItemFade: true,
-    opacityDuration: 225,
+    opacityDuration: 175,
     enableItemStagger: false,
     itemStagger: 30,
     enableCrossfade: true,
@@ -80,8 +92,8 @@ export const DEFAULT_SLIDING_RATINGS_CONFIG: SlidingRatingsConfig = {
     categoryGap: 0,
     subScoreGap: 0,
     headerPaddingX: 8,
-    headerPaddingY: 12,
-    rowPaddingX: 8,
+    headerPaddingY: 4,
+    rowPaddingX: 12,
     rowPaddingY: 12,
   },
 

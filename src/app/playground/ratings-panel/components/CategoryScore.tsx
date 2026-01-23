@@ -10,6 +10,7 @@
 'use client'
 
 import * as React from 'react'
+import { motion, AnimatePresence } from 'motion/react'
 import { Collapsible } from '@base-ui/react/collapsible'
 import { cn } from '@/lib/utils'
 import { HugeIcon } from '@/components/ui/prod/base/icon'
@@ -64,8 +65,10 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
 export interface CategoryScoreProps {
   category: CategoryScoreData
   isExpanded: boolean
+  selectedSubScore: string | null
   onToggle: () => void
   onImprove: () => void
+  onSubScoreSelect: (subScoreId: string) => void
   categoriesConfig: RatingsConfig['categories']
   subScoresConfig: RatingsConfig['subScores']
   separatorsConfig: RatingsConfig['separators']
@@ -75,8 +78,10 @@ export interface CategoryScoreProps {
 export function CategoryScore({
   category,
   isExpanded,
+  selectedSubScore,
   onToggle,
   onImprove,
+  onSubScoreSelect,
   categoriesConfig,
   subScoresConfig,
   separatorsConfig,
@@ -183,16 +188,56 @@ export function CategoryScore({
         )}
       >
         <div className="pl-11 pr-2 pb-3">
-          {category.subScores.map((subScore, index) => (
-            <SubScore
-              key={subScore.id}
-              item={subScore}
-              index={index}
-              config={subScoresConfig}
-              categoriesConfig={categoriesConfig}
-              isExpanded={isExpanded}
-            />
-          ))}
+          <AnimatePresence mode="sync" initial={false}>
+            {category.subScores.map((subScore, index) => {
+              const isSelected = selectedSubScore === subScore.id
+              const shouldHide = subScoresConfig.collapseOthersOnSelect &&
+                                 selectedSubScore !== null &&
+                                 !isSelected
+
+              if (shouldHide) {
+                return null
+              }
+
+              return (
+                <motion.div
+                  key={subScore.id}
+                  initial={{ opacity: 0, height: 0, y: -8 }}
+                  animate={{
+                    opacity: 1,
+                    height: 'auto',
+                    y: 0,
+                    transition: {
+                      height: { duration: 0.25, ease: [0.16, 1, 0.3, 1] },
+                      opacity: { duration: 0.2, ease: 'easeOut' },
+                      y: { duration: 0.25, ease: [0.16, 1, 0.3, 1] },
+                    },
+                  }}
+                  exit={{
+                    opacity: 0,
+                    height: 0,
+                    y: -8,
+                    transition: {
+                      height: { duration: 0.2, ease: [0.4, 0, 1, 1] },
+                      opacity: { duration: 0.15, ease: 'easeIn' },
+                      y: { duration: 0.15, ease: 'easeIn' },
+                    },
+                  }}
+                  className="overflow-hidden"
+                >
+                  <SubScore
+                    item={subScore}
+                    index={isSelected ? 0 : index}
+                    config={subScoresConfig}
+                    categoriesConfig={categoriesConfig}
+                    isExpanded={isExpanded}
+                    isSelected={isSelected}
+                    onSelect={() => onSubScoreSelect(subScore.id)}
+                  />
+                </motion.div>
+              )
+            })}
+          </AnimatePresence>
         </div>
       </Collapsible.Panel>
     </Collapsible.Root>

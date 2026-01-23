@@ -39,6 +39,21 @@ export interface CategoryData {
 
 export type PanelTransitionMode = 'slide' | 'popLayout'
 
+export type ButtonContentType = 'text-only' | 'icon-only' | 'icon-text'
+
+export type ShineStyle =
+  | 'none'
+  | 'shine-0'
+  | 'shine-0-subtle'
+  | 'shine-1'
+  | 'shine-1-subtle'
+  | 'shine-2'
+  | 'shine-2-subtle'
+  | 'shine-3'
+  | 'shine-3-subtle'
+  | 'shine-brand'
+  | 'shine-brand-subtle'
+
 export type ScaleOrigin =
   | 'top-left'
   | 'top'
@@ -56,6 +71,7 @@ export interface AnimationConfig {
   slideDuration: number
   slideOffset: number
   stripWidth: number
+  autoSyncSlideSettings: boolean
   panelExitScale: number
   panelEnterScale: number
   panelScaleOrigin: ScaleOrigin
@@ -84,6 +100,7 @@ export interface SlidingRatingsConfig {
     border: boolean
     borderColor: string
     borderRadius: number
+    useSquircle: boolean
     padding: number
     shine: string
     shineIntensity: string
@@ -116,9 +133,19 @@ export interface SlidingRatingsConfig {
   // Back Button Styling
   backButton: {
     style: 'minimal' | 'pill' | 'ghost'
-    showIcon: boolean
+    contentType: ButtonContentType
     position: 'left' | 'center'
     showSeparator: boolean
+    useButton: boolean
+    shineStyle: ShineStyle
+    animateDirection: 'left' | 'right' | 'none'
+  }
+
+  // Improve Button Styling
+  improveButton: {
+    contentType: ButtonContentType
+    useButton: boolean
+    shineStyle: ShineStyle
   }
 
   // Animation

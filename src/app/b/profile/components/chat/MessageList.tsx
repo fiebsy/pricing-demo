@@ -1,7 +1,7 @@
 /**
  * MessageList Component
  *
- * Scrollable container for chat messages.
+ * Scrollable container for chat messages with fading edges.
  * Auto-scrolls to bottom on new messages.
  *
  * @module b/profile/components/chat
@@ -12,23 +12,75 @@
 import * as React from 'react'
 import { useRef, useEffect } from 'react'
 import { cn } from '@/lib/utils'
+import { FadingScrollArea } from '@/app/playground/radial-blur/core/FadingScrollArea'
 import { MessageBubble } from './MessageBubble'
 import { TypingIndicator } from './TypingIndicator'
-import type { MessageListProps } from '../../types'
+import type { ChatMessage } from '../../types'
+import type { SemanticBgColor, ShineStyle } from '@/app/playground/radial-blur/config/types'
+
+// =============================================================================
+// TYPES
+// =============================================================================
+
+export interface MessageListProps {
+  messages: ChatMessage[]
+  isTyping: boolean
+  /** Blur amount for bubble background (px) */
+  blurAmount?: number
+  /** Assistant bubble background color */
+  bubbleBgColor?: SemanticBgColor
+  /** Assistant bubble opacity (0-100) */
+  bubbleOpacity?: number
+  /** User bubble background color */
+  userBubbleBgColor?: SemanticBgColor
+  /** User bubble opacity (0-100) */
+  userBubbleOpacity?: number
+  /** Height of the fade zone at top in pixels */
+  fadeTopHeight?: number
+  /** Height of the fade zone at bottom in pixels */
+  fadeBottomHeight?: number
+  /** Border radius in pixels */
+  borderRadius?: number
+  /** Use asymmetric corners (iOS-style) */
+  useAsymmetricCorners?: boolean
+  /** Use squircle corner-shape */
+  useSquircle?: boolean
+  /** Shine effect style */
+  shineStyle?: ShineStyle
+  /** Max height of scroll area */
+  maxHeight?: string
+  /** Bottom offset for scrollbar (px) */
+  scrollbarBottomOffset?: number
+  className?: string
+}
 
 // =============================================================================
 // COMPONENT
 // =============================================================================
 
-export function MessageList({ messages, isTyping, className }: MessageListProps) {
+export function MessageList({
+  messages,
+  isTyping,
+  blurAmount = 12,
+  bubbleBgColor = 'primary',
+  bubbleOpacity = 70,
+  userBubbleBgColor = 'brand-primary',
+  userBubbleOpacity = 20,
+  fadeTopHeight = 100,
+  fadeBottomHeight = 80,
+  borderRadius = 32,
+  useAsymmetricCorners = false,
+  useSquircle = true,
+  shineStyle = 'shine-3',
+  maxHeight,
+  scrollbarBottomOffset = 0,
+  className,
+}: MessageListProps) {
   const bottomRef = useRef<HTMLDivElement>(null)
-  const containerRef = useRef<HTMLDivElement>(null)
 
-  // Auto-scroll to bottom on new messages or typing state change
+  // Auto-scroll to bottom on new messages
   useEffect(() => {
-    if (containerRef.current) {
-      containerRef.current.scrollTop = containerRef.current.scrollHeight
-    }
+    bottomRef.current?.scrollIntoView({ behavior: 'instant' })
   }, [messages, isTyping])
 
   // Don't render if no messages
@@ -37,20 +89,33 @@ export function MessageList({ messages, isTyping, className }: MessageListProps)
   }
 
   return (
-    <div
-      ref={containerRef}
-      className={cn(
-        'flex flex-col justify-end',
-        className
-      )}
+    <FadingScrollArea
+      maxHeight={maxHeight}
+      fadeTopHeight={fadeTopHeight}
+      fadeBottomHeight={fadeBottomHeight}
+      scrollbarBottomOffset={scrollbarBottomOffset}
+      alignBottom
+      className={cn('h-full', className)}
     >
       <div className="py-4 space-y-3">
         {messages.map((message) => (
-          <MessageBubble key={message.id} message={message} />
+          <MessageBubble
+            key={message.id}
+            message={message}
+            blurAmount={blurAmount}
+            bubbleBgColor={bubbleBgColor}
+            bubbleOpacity={bubbleOpacity}
+            userBubbleBgColor={userBubbleBgColor}
+            userBubbleOpacity={userBubbleOpacity}
+            borderRadius={borderRadius}
+            useAsymmetricCorners={useAsymmetricCorners}
+            useSquircle={useSquircle}
+            shineStyle={shineStyle}
+          />
         ))}
         {isTyping && <TypingIndicator />}
         <div ref={bottomRef} />
       </div>
-    </div>
+    </FadingScrollArea>
   )
 }

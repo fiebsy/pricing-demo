@@ -393,6 +393,17 @@ function buildSubScoresSection(config: RatingsConfig): Section {
     title: 'Sub-Score Display',
     groups: [
       {
+        title: 'Behavior',
+        controls: [
+          {
+            id: 'subScores.collapseOthersOnSelect',
+            type: 'toggle',
+            label: 'Collapse Others on Select',
+            value: config.subScores.collapseOthersOnSelect,
+          },
+        ],
+      },
+      {
         title: 'Animated Line',
         controls: [
           {
@@ -427,6 +438,26 @@ function buildSubScoresSection(config: RatingsConfig): Section {
             max: 16,
             step: 2,
             formatLabel: (v: number) => `${v}px`,
+          },
+          {
+            id: 'subScores.animatedLine.rowHeight',
+            type: 'slider',
+            label: 'Row Height',
+            value: config.subScores.animatedLine.rowHeight,
+            min: 24,
+            max: 56,
+            step: 2,
+            formatLabel: (v: number) => `${v}px`,
+          },
+          {
+            id: 'subScores.animatedLine.firstRowMultiplier',
+            type: 'slider',
+            label: 'First Row Multiplier',
+            value: config.subScores.animatedLine.firstRowMultiplier,
+            min: 0.2,
+            max: 1,
+            step: 0.05,
+            formatLabel: (v: number) => `${(v * 100).toFixed(0)}%`,
           },
         ],
       },

@@ -125,3 +125,37 @@ export const BACK_BUTTON_POSITION_OPTIONS = [
   { label: 'Left', value: 'left' },
   { label: 'Center', value: 'center' },
 ] as const
+
+// =============================================================================
+// BUTTON CONTENT OPTIONS
+// =============================================================================
+
+export const BUTTON_CONTENT_TYPE_OPTIONS = [
+  { label: 'Text Only', value: 'text-only' },
+  { label: 'Icon Only', value: 'icon-only' },
+  { label: 'Icon + Text', value: 'icon-text' },
+] as const
+
+export const ANIMATE_DIRECTION_OPTIONS = [
+  { label: 'None', value: 'none' },
+  { label: 'Left', value: 'left' },
+  { label: 'Right', value: 'right' },
+] as const
+
+// =============================================================================
+// SHINE STYLE OPTIONS (Full)
+// =============================================================================
+
+export const SHINE_STYLE_OPTIONS = [
+  { label: 'None', value: 'none' },
+  { label: 'Shine 0', value: 'shine-0' },
+  { label: 'Shine 0 Subtle', value: 'shine-0-subtle' },
+  { label: 'Shine 1', value: 'shine-1' },
+  { label: 'Shine 1 Subtle', value: 'shine-1-subtle' },
+  { label: 'Shine 2', value: 'shine-2' },
+  { label: 'Shine 2 Subtle', value: 'shine-2-subtle' },
+  { label: 'Shine 3', value: 'shine-3' },
+  { label: 'Shine 3 Subtle', value: 'shine-3-subtle' },
+  { label: 'Brand', value: 'shine-brand' },
+  { label: 'Brand Subtle', value: 'shine-brand-subtle' },
+] as const

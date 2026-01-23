@@ -22,6 +22,7 @@ import { MessageList } from './MessageList'
 import { ChatInput } from './ChatInput'
 import { ChatBackdrop } from './ChatBackdrop'
 import { useChatMessages, useSimulatedResponse } from '../../hooks'
+import { DEFAULT_CHAT_CONFIG } from '../../config'
 import type { ChatOverlayProps } from '../../types'
 
 // =============================================================================
@@ -107,7 +108,12 @@ export function ChatOverlay({ state, onStateChange, className }: ChatOverlayProp
   return (
     <>
       {/* Radial blur backdrop - renders behind chat content */}
-      <ChatBackdrop state={state} onClose={handleClose} />
+      <ChatBackdrop
+        state={state}
+        onClose={handleClose}
+        blurHeight={DEFAULT_CHAT_CONFIG.height}
+        blurStyle={DEFAULT_CHAT_CONFIG.style}
+      />
 
       <div
         className={cn(
@@ -127,17 +133,32 @@ export function ChatOverlay({ state, onStateChange, className }: ChatOverlayProp
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={messagesTransition}
-            className="relative flex flex-col justify-end"
-            style={{ pointerEvents: 'auto' }}
+            className="relative flex justify-center"
           >
-            {/* Messages - snapped to bottom, scrollable */}
+            {/* Messages - snapped to bottom, scrollable, pointer events only on content */}
             <div
-              className="relative max-w-[800px] w-full mx-auto overflow-y-auto"
-              style={{ maxHeight: messagesMaxHeight }}
+              className="relative"
+              style={{
+                width: `${DEFAULT_CHAT_CONFIG.maxWidth}px`,
+                maxWidth: '100%',
+                pointerEvents: 'auto',
+              }}
             >
               <MessageList
                 messages={messages}
                 isTyping={isTyping}
+                maxHeight={messagesMaxHeight}
+                blurAmount={DEFAULT_CHAT_CONFIG.messages.bubbleBlur}
+                bubbleBgColor={DEFAULT_CHAT_CONFIG.messages.bubbleBgColor}
+                bubbleOpacity={DEFAULT_CHAT_CONFIG.messages.bubbleOpacity}
+                userBubbleBgColor={DEFAULT_CHAT_CONFIG.messages.userBubbleBgColor}
+                userBubbleOpacity={DEFAULT_CHAT_CONFIG.messages.userBubbleOpacity}
+                fadeTopHeight={DEFAULT_CHAT_CONFIG.messages.fadeTopHeight}
+                fadeBottomHeight={DEFAULT_CHAT_CONFIG.messages.fadeBottomHeight}
+                borderRadius={DEFAULT_CHAT_CONFIG.messages.borderRadius}
+                useAsymmetricCorners={DEFAULT_CHAT_CONFIG.messages.useAsymmetricCorners}
+                useSquircle={DEFAULT_CHAT_CONFIG.messages.useSquircle}
+                shineStyle={DEFAULT_CHAT_CONFIG.messages.shineStyle}
               />
             </div>
           </motion.div>
@@ -145,18 +166,24 @@ export function ChatOverlay({ state, onStateChange, className }: ChatOverlayProp
       </AnimatePresence>
 
       {/* Input area - always at bottom, same component in all states */}
-      <div
-        className="max-w-[800px] w-full mx-auto"
-        style={{ pointerEvents: 'auto' }}
-      >
-        <ChatInput
-          onSend={handleSend}
-          onFocus={handleInputFocus}
-          disabled={isTyping}
-          state={state}
-          onClose={handleClose}
-          onExpand={handleExpand}
-        />
+      <div className="flex justify-center">
+        <div
+          style={{
+            width: `${DEFAULT_CHAT_CONFIG.maxWidth}px`,
+            maxWidth: '100%',
+            pointerEvents: 'auto',
+          }}
+        >
+          <ChatInput
+            onSend={handleSend}
+            onFocus={handleInputFocus}
+            disabled={isTyping}
+            state={state}
+            onClose={handleClose}
+            onExpand={handleExpand}
+            inputStyle={DEFAULT_CHAT_CONFIG.input}
+          />
+        </div>
       </div>
     </div>
     </>

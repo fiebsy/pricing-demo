@@ -216,9 +216,11 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         )}
 
         {/* Leading icon */}
-        <span className={cn('transition-inherit-all', isLoading && !showTextWhileLoading && 'invisible')}>
-          {renderIcon(iconLeading, 'leading')}
-        </span>
+        {iconLeading && (
+          <span className={cn('transition-inherit-all', isLoading && !showTextWhileLoading && 'invisible')}>
+            {renderIcon(iconLeading, 'leading')}
+          </span>
+        )}
 
         {/* Inline loading spinner (when showing text) */}
         {isLoading && showTextWhileLoading && <LoadingSpinner />}
@@ -237,9 +239,11 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         )}
 
         {/* Trailing icon */}
-        <span className={cn('transition-inherit-all', isLoading && !showTextWhileLoading && 'invisible')}>
-          {renderIcon(iconTrailing, 'trailing')}
-        </span>
+        {iconTrailing && (
+          <span className={cn('transition-inherit-all', isLoading && !showTextWhileLoading && 'invisible')}>
+            {renderIcon(iconTrailing, 'trailing')}
+          </span>
+        )}
       </BaseButton>
     )
   }

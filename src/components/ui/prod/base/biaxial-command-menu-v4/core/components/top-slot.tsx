@@ -45,9 +45,10 @@ export const TopSlot: React.FC<SlotProps> = ({
     : (slotConfig.height ?? 48)
 
   // Set height for dimension tracking
+  // IMPORTANT: Set height to 0 when disabled so the layout collapses properly
   useEffect(() => {
-    setSlotHeight('top', effectiveHeight)
-  }, [effectiveHeight, setSlotHeight])
+    setSlotHeight('top', slotConfig.enabled ? effectiveHeight : 0)
+  }, [effectiveHeight, slotConfig.enabled, setSlotHeight])
 
   // If slot is disabled, don't render
   if (!slotConfig.enabled) {
@@ -94,6 +95,8 @@ export const TopSlot: React.FC<SlotProps> = ({
           'absolute overflow-hidden',
           config.appearance.squircle && 'corner-squircle',
           getBackgroundClass(slotConfig.background ?? 'secondary'),
+          // Apply shine effect if configured (and not 'none')
+          slotConfig.shine && slotConfig.shine !== 'none' && slotConfig.shine,
           className
         )}
         style={{

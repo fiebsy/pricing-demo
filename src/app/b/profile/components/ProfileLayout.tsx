@@ -40,20 +40,32 @@ export function ProfileLayout({
         <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50">{header}</div>
       )}
 
-      {/* Main content grid */}
-      <div
-        className={cn(
-          'grid gap-6 p-6 pt-16',
-          'max-w-6xl mx-auto',
-          // Responsive grid
-          'grid-cols-1 lg:grid-cols-[280px_1fr]'
-        )}
-      >
-        {/* Sidebar (Confidence Panel) */}
-        <aside className="lg:sticky lg:top-6 lg:self-start">{sidebar}</aside>
+      {/* Layout container - centers content with sidebar offset */}
+      <div className="relative pt-16 px-6">
+        {/* Mobile sidebar - shows above main content on smaller screens */}
+        <aside className="lg:hidden mb-6 max-w-xl mx-auto">
+          {sidebar}
+        </aside>
 
-        {/* Main content */}
-        <main className="flex flex-col gap-6">{main}</main>
+        {/* Centered main content */}
+        <main className="max-w-xl mx-auto flex flex-col gap-6">
+          {main}
+        </main>
+
+        {/* Desktop sidebar - positioned to left of centered content, clamped to viewport */}
+        <aside
+          className={cn(
+            'hidden lg:block',
+            'fixed top-20',
+            // Position relative to viewport, clamped to stay on screen
+            // max-w-xl = 36rem = 576px, sidebar = 280px, gap = 24px
+            // Uses max() to ensure minimum 16px from left edge
+            'left-[max(1rem,calc(50%-288px-280px-1.5rem))]',
+            'w-[280px]'
+          )}
+        >
+          {sidebar}
+        </aside>
       </div>
 
       {/* Footer (Chat Overlay) */}

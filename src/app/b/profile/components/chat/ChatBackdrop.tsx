@@ -62,15 +62,18 @@ const DEFAULT_BLUR_HEIGHT: BlurHeightConfig = {
  *
  * @param heightPercent - How high the blur extends (0-100)
  * @param fadeEdge - How soft the fade is (0-100, higher = more gradual)
+ * @param ellipseWidth - Width of the ellipse (100-500)
  */
-function generateMask(heightPercent: number, fadeEdge: number = 40): string {
+function generateMask(
+  heightPercent: number,
+  fadeEdge: number = 40,
+  ellipseWidth: number = 500
+): string {
   if (heightPercent <= 0) {
     return 'none'
   }
 
-  // Use very wide ellipse to avoid hard edges on left/right
   // Height controls how far up the blur extends
-  const ellipseWidth = 300 // Extra wide to fade smoothly at horizontal edges
   const ellipseHeight = heightPercent * 2 // Double for smooth vertical fade
 
   if (heightPercent >= 100) {
@@ -110,9 +113,26 @@ function generateMask(heightPercent: number, fadeEdge: number = 40): string {
 // COMPONENT
 // =============================================================================
 
+export interface BlurStyleConfig {
+  /** Blur intensity in pixels */
+  blurAmount?: number
+  /** Background overlay opacity (0-100) */
+  overlayOpacity?: number
+  /** Ellipse width multiplier (100-500) */
+  ellipseWidth?: number
+}
+
 export interface ChatBackdropExtendedProps extends ChatBackdropProps {
   /** Configure blur height per state */
   blurHeight?: Partial<BlurHeightConfig>
+  /** Configure blur style */
+  blurStyle?: BlurStyleConfig
+}
+
+const DEFAULT_BLUR_STYLE: Required<BlurStyleConfig> = {
+  blurAmount: 20,
+  overlayOpacity: 50,
+  ellipseWidth: 500,
 }
 
 export function ChatBackdrop({
@@ -120,12 +140,13 @@ export function ChatBackdrop({
   onClose,
   className,
   blurHeight,
+  blurStyle,
 }: ChatBackdropExtendedProps) {
   const isVisible = state !== 'collapsed'
-  const isClickable = state === 'expanded'
+  const isClickable = state !== 'collapsed' // Allow click to close in both default and expanded states
 
   // Merge with defaults
-  const config = useMemo(
+  const heightConfig = useMemo(
     () => ({
       ...DEFAULT_BLUR_HEIGHT,
       ...blurHeight,
@@ -133,14 +154,22 @@ export function ChatBackdrop({
     [blurHeight]
   )
 
+  const styleConfig = useMemo(
+    () => ({
+      ...DEFAULT_BLUR_STYLE,
+      ...blurStyle,
+    }),
+    [blurStyle]
+  )
+
   // Generate masks based on config
   const maskPatterns = useMemo(
     () => ({
-      collapsed: generateMask(config.default, config.fadeEdge), // Same as default for smooth transition
-      default: generateMask(config.default, config.fadeEdge),
-      expanded: generateMask(config.expanded, config.fadeEdge),
+      collapsed: generateMask(heightConfig.default, heightConfig.fadeEdge, styleConfig.ellipseWidth),
+      default: generateMask(heightConfig.default, heightConfig.fadeEdge, styleConfig.ellipseWidth),
+      expanded: generateMask(heightConfig.expanded, heightConfig.fadeEdge, styleConfig.ellipseWidth),
     }),
-    [config]
+    [heightConfig, styleConfig.ellipseWidth]
   )
 
   return (
@@ -151,12 +180,14 @@ export function ChatBackdrop({
       transition={backdropTransition}
       className={cn(
         'fixed inset-0 z-40',
-        'backdrop-blur-md bg-black/20',
         isClickable ? 'cursor-pointer' : 'pointer-events-none',
         'motion-reduce:transition-none',
         className
       )}
       style={{
+        backdropFilter: `blur(${styleConfig.blurAmount}px)`,
+        WebkitBackdropFilter: `blur(${styleConfig.blurAmount}px)`,
+        backgroundColor: `rgba(0, 0, 0, ${styleConfig.overlayOpacity / 100})`,
         WebkitMaskImage: maskPatterns[state],
         maskImage: maskPatterns[state],
         visibility: isVisible ? 'visible' : 'hidden',

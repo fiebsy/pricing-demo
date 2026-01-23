@@ -22,6 +22,9 @@ import {
   IMPROVE_BUTTON_POSITION_OPTIONS,
   BACK_BUTTON_STYLE_OPTIONS,
   BACK_BUTTON_POSITION_OPTIONS,
+  BUTTON_CONTENT_TYPE_OPTIONS,
+  ANIMATE_DIRECTION_OPTIONS,
+  SHINE_STYLE_OPTIONS,
 } from '../config/options'
 
 // =============================================================================
@@ -98,6 +101,12 @@ function buildPanelSection(config: SlidingRatingsConfig): Section {
             max: 32,
             step: 4,
             formatLabel: (v: number) => `${v}px`,
+          },
+          {
+            id: 'panel.useSquircle',
+            type: 'toggle',
+            label: 'Corner Squircle',
+            value: config.panel.useSquircle,
           },
         ],
       },
@@ -286,10 +295,11 @@ function buildBackButtonSection(config: SlidingRatingsConfig): Section {
             options: [...BACK_BUTTON_STYLE_OPTIONS],
           },
           {
-            id: 'backButton.showIcon',
-            type: 'toggle',
-            label: 'Show Icon',
-            value: config.backButton.showIcon,
+            id: 'backButton.contentType',
+            type: 'select',
+            label: 'Content Type',
+            value: config.backButton.contentType,
+            options: [...BUTTON_CONTENT_TYPE_OPTIONS],
           },
           {
             id: 'backButton.position',
@@ -303,6 +313,71 @@ function buildBackButtonSection(config: SlidingRatingsConfig): Section {
             type: 'toggle',
             label: 'Show Separator',
             value: config.backButton.showSeparator,
+          },
+        ],
+      },
+      {
+        title: 'Button Options',
+        controls: [
+          {
+            id: 'backButton.useButton',
+            type: 'toggle',
+            label: 'Use Button Component',
+            value: config.backButton.useButton,
+          },
+          {
+            id: 'backButton.shineStyle',
+            type: 'select',
+            label: 'Shine Style',
+            value: config.backButton.shineStyle,
+            options: [...SHINE_STYLE_OPTIONS],
+          },
+          {
+            id: 'backButton.animateDirection',
+            type: 'select',
+            label: 'Animate Direction',
+            value: config.backButton.animateDirection,
+            options: [...ANIMATE_DIRECTION_OPTIONS],
+          },
+        ],
+      },
+    ],
+  }
+}
+
+function buildImproveButtonSection(config: SlidingRatingsConfig): Section {
+  return {
+    id: 'improveButton',
+    label: 'Improve Button',
+    title: 'Improve Button Styling',
+    groups: [
+      {
+        title: 'Content',
+        controls: [
+          {
+            id: 'improveButton.contentType',
+            type: 'select',
+            label: 'Content Type',
+            value: config.improveButton.contentType,
+            options: [...BUTTON_CONTENT_TYPE_OPTIONS],
+          },
+        ],
+      },
+      {
+        title: 'Button Options',
+        controls: [
+          {
+            id: 'improveButton.useButton',
+            type: 'toggle',
+            label: 'Use Button Component',
+            value: config.improveButton.useButton,
+          },
+          {
+            id: 'improveButton.shineStyle',
+            type: 'select',
+            label: 'Shine Style',
+            value: config.improveButton.shineStyle,
+            options: [...SHINE_STYLE_OPTIONS],
           },
         ],
       },
@@ -337,24 +412,31 @@ function buildAnimationSection(config: SlidingRatingsConfig): Section {
             formatLabel: (v: number) => `${v}ms`,
           },
           {
-            id: 'animation.slideOffset',
-            type: 'slider',
-            label: 'Slide Offset',
-            value: config.animation.slideOffset,
-            min: 30,
-            max: 70,
-            step: 5,
-            formatLabel: (v: number) => `${v}%`,
+            id: 'animation.autoSyncSlideSettings',
+            type: 'toggle',
+            label: 'Auto-Sync Offset & Width',
+            value: config.animation.autoSyncSlideSettings,
           },
           {
             id: 'animation.stripWidth',
             type: 'slider',
             label: 'Strip Width',
             value: config.animation.stripWidth,
-            min: 150,
+            min: 140,
             max: 300,
-            step: 25,
+            step: 5,
             formatLabel: (v: number) => `${v}%`,
+          },
+          {
+            id: 'animation.slideOffset',
+            type: 'slider',
+            label: 'Slide Offset',
+            value: config.animation.slideOffset,
+            min: 25,
+            max: 75,
+            step: 1,
+            formatLabel: (v: number) => `${v}%`,
+            disabled: config.animation.autoSyncSlideSettings,
           },
         ],
       },
@@ -408,6 +490,7 @@ function buildAnimationSection(config: SlidingRatingsConfig): Section {
             max: 600,
             step: 50,
             formatLabel: (v: number) => `${v}ms`,
+            disabled: config.animation.autoSyncSlideSettings,
           },
         ],
       },
@@ -605,6 +688,7 @@ export function buildSlidingRatingsPanelConfig(
       buildCategorySection(config),
       buildSubScoreSection(config),
       buildBackButtonSection(config),
+      buildImproveButtonSection(config),
       buildSeparatorsSection(config),
       buildLayoutSection(config),
     ],

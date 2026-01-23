@@ -35,6 +35,8 @@ export interface SlotConfig {
   durationOffset?: number
   /** Background option */
   background?: BackgroundOption
+  /** Shine effect class (e.g., 'shine-2-subtle', 'none') */
+  shine?: string
   /** Border radius override */
   borderRadius?: number
   /** Inset from container edges */

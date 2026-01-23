@@ -37,8 +37,7 @@ export function ConfidencePanel({
   return (
     <aside
       className={cn(
-        'flex flex-col gap-4 p-4',
-        'bg-primary border border-primary rounded-2xl',
+        'flex flex-col gap-4',
         className
       )}
     >

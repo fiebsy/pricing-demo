@@ -68,12 +68,47 @@ export default function SlidingRatingsPlayground() {
     [config, activePresetId]
   )
 
+  // Calculate synced slideOffset from stripWidth
+  const calculateSyncedOffset = useCallback((stripWidth: number): number => {
+    // Formula: slideOffset = 100 / (stripWidth / 100) = 10000 / stripWidth
+    // e.g., stripWidth 200% → slideOffset 50%
+    // e.g., stripWidth 150% → slideOffset ~67%
+    // e.g., stripWidth 300% → slideOffset ~33%
+    return Math.round(10000 / stripWidth)
+  }, [])
+
   // Handle control changes
   const handleControlChange = useCallback((event: ControlChangeEvent) => {
     const { controlId, value } = event
     setActivePresetId(null)
-    setConfig((prev) => setNestedValue(prev, controlId, value))
-  }, [])
+
+    setConfig((prev) => {
+      let updated = setNestedValue(prev, controlId, value)
+
+      // Auto-sync logic for slide settings
+      const autoSync = updated.animation.autoSyncSlideSettings
+
+      // Sync slideOffset from stripWidth
+      if (controlId === 'animation.stripWidth' && autoSync) {
+        const syncedOffset = calculateSyncedOffset(value as number)
+        updated = setNestedValue(updated, 'animation.slideOffset', syncedOffset)
+      }
+
+      // Sync heightDuration with slideDuration
+      if (controlId === 'animation.slideDuration' && autoSync) {
+        updated = setNestedValue(updated, 'animation.heightDuration', value as number)
+      }
+
+      // When autoSync is turned on, sync all values immediately
+      if (controlId === 'animation.autoSyncSlideSettings' && value === true) {
+        const syncedOffset = calculateSyncedOffset(updated.animation.stripWidth)
+        updated = setNestedValue(updated, 'animation.slideOffset', syncedOffset)
+        updated = setNestedValue(updated, 'animation.heightDuration', updated.animation.slideDuration)
+      }
+
+      return updated
+    })
+  }, [calculateSyncedOffset])
 
   // Handle preset selection
   const handlePresetChange = useCallback((presetId: string) => {

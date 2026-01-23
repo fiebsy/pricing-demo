@@ -29,7 +29,8 @@ import ChartLineData01Icon from '@hugeicons-pro/core-stroke-rounded/ChartLineDat
 import ArrowLeft01Icon from '@hugeicons-pro/core-stroke-rounded/ArrowLeft01Icon'
 import SparklesIcon from '@hugeicons-pro/core-stroke-rounded/SparklesIcon'
 
-import type { SlidingRatingsConfig, CategoryData, CategoryId, AnimationConfig, ScaleOrigin } from '../config/types'
+import type { SlidingRatingsConfig, CategoryData, CategoryId, AnimationConfig, ScaleOrigin, ButtonContentType, ShineStyle } from '../config/types'
+import { Button } from '@/components/ui/prod/base/button'
 import { getScoreColorClass, getScoreBgClass } from '../config/mock-data'
 
 // =============================================================================
@@ -70,6 +71,10 @@ function buildPanelClasses(config: SlidingRatingsConfig['panel']): string {
 
   if (config.border) {
     classes.push('border', `border-${config.borderColor}`)
+  }
+
+  if (config.useSquircle) {
+    classes.push('corner-squircle')
   }
 
   if (config.shine !== 'none') {
@@ -147,7 +152,7 @@ interface CategoryRowProps {
 function CategoryRow({ category, config, onClick, isVisible, index }: CategoryRowProps) {
   const Icon = ICON_MAP[category.icon] || Briefcase01Icon
   const colorClass = getScoreColorClass(category.aggregate.current)
-  const { categoryRow, animation, separators, layout } = config
+  const { categoryRow, animation, separators, layout, improveButton: improveButtonConfig } = config
 
   const dividerClasses = separators.showCategoryDividers
     ? cn(
@@ -165,26 +170,48 @@ function CategoryRow({ category, config, onClick, isVisible, index }: CategoryRo
     exit: { opacity: 0, x: -15 },
   }
 
+  // Improve button config
+  const showImproveIcon = improveButtonConfig.contentType === 'icon-only' || improveButtonConfig.contentType === 'icon-text'
+  const showImproveText = improveButtonConfig.contentType === 'text-only' || improveButtonConfig.contentType === 'icon-text'
+  const improveShineClass = getShineClass(improveButtonConfig.shineStyle)
+
+  const handleImproveClick = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    console.log('Improve:', category.id)
+  }
+
   const improveButton = categoryRow.showImproveButton && (
-    <button
-      type="button"
-      onClick={(e) => {
-        e.stopPropagation()
-        console.log('Improve:', category.id)
-      }}
-      className={cn(
-        'px-2.5 py-1 rounded-lg',
-        'text-xs font-medium',
-        'bg-brand-primary/10 text-brand-primary',
-        'hover:bg-brand-primary/20',
-        'motion-safe:transition-colors motion-safe:duration-150',
-        'motion-reduce:transition-none',
-        'flex items-center gap-1 shrink-0'
-      )}
-    >
-      <HugeIcon icon={SparklesIcon} size={12} strokeWidth={2} className="text-current" />
-      Improve
-    </button>
+    improveButtonConfig.useButton ? (
+      <Button
+        variant="tertiary"
+        size="xs"
+        iconLeading={showImproveIcon ? SparklesIcon : undefined}
+        onClick={handleImproveClick}
+        className={cn('shrink-0', improveShineClass)}
+      >
+        {showImproveText ? 'Improve' : undefined}
+      </Button>
+    ) : (
+      <button
+        type="button"
+        onClick={handleImproveClick}
+        className={cn(
+          'px-2.5 py-1 rounded-lg',
+          'text-xs font-medium',
+          'bg-brand-primary/10 text-brand-primary',
+          'hover:bg-brand-primary/20',
+          'motion-safe:transition-colors motion-safe:duration-150',
+          'motion-reduce:transition-none',
+          'flex items-center gap-1 shrink-0',
+          improveShineClass
+        )}
+      >
+        {showImproveIcon && (
+          <HugeIcon icon={SparklesIcon} size={12} strokeWidth={2} className="text-current" />
+        )}
+        {showImproveText && 'Improve'}
+      </button>
+    )
   )
 
   return (
@@ -282,7 +309,7 @@ interface SubScoreRowProps {
 
 function SubScoreRow({ item, config, isVisible, index }: SubScoreRowProps) {
   const colorClass = getScoreColorClass(item.score.current)
-  const { subScore, animation, separators, layout } = config
+  const { subScore, animation, separators, layout, improveButton: improveButtonConfig } = config
 
   const textSizeMap = { xs: 'text-xs', sm: 'text-sm', md: 'text-base' }
 
@@ -302,26 +329,48 @@ function SubScoreRow({ item, config, isVisible, index }: SubScoreRowProps) {
     exit: { opacity: 0, x: 15 },
   }
 
+  // Improve button config
+  const showImproveIcon = improveButtonConfig.contentType === 'icon-only' || improveButtonConfig.contentType === 'icon-text'
+  const showImproveText = improveButtonConfig.contentType === 'text-only' || improveButtonConfig.contentType === 'icon-text'
+  const improveShineClass = getShineClass(improveButtonConfig.shineStyle)
+
+  const handleImproveClick = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    console.log('Improve sub-score:', item.id)
+  }
+
   const improveButton = subScore.showImproveButton && (
-    <button
-      type="button"
-      onClick={(e) => {
-        e.stopPropagation()
-        console.log('Improve sub-score:', item.id)
-      }}
-      className={cn(
-        'px-2 py-0.5 rounded-md',
-        'text-xs font-medium',
-        'bg-brand-primary/10 text-brand-primary',
-        'hover:bg-brand-primary/20',
-        'motion-safe:transition-colors motion-safe:duration-150',
-        'motion-reduce:transition-none',
-        'flex items-center gap-1 shrink-0'
-      )}
-    >
-      <HugeIcon icon={SparklesIcon} size={10} strokeWidth={2} className="text-current" />
-      Improve
-    </button>
+    improveButtonConfig.useButton ? (
+      <Button
+        variant="tertiary"
+        size="xs"
+        iconLeading={showImproveIcon ? SparklesIcon : undefined}
+        onClick={handleImproveClick}
+        className={cn('shrink-0', improveShineClass)}
+      >
+        {showImproveText ? 'Improve' : undefined}
+      </Button>
+    ) : (
+      <button
+        type="button"
+        onClick={handleImproveClick}
+        className={cn(
+          'px-2 py-0.5 rounded-md',
+          'text-xs font-medium',
+          'bg-brand-primary/10 text-brand-primary',
+          'hover:bg-brand-primary/20',
+          'motion-safe:transition-colors motion-safe:duration-150',
+          'motion-reduce:transition-none',
+          'flex items-center gap-1 shrink-0',
+          improveShineClass
+        )}
+      >
+        {showImproveIcon && (
+          <HugeIcon icon={SparklesIcon} size={10} strokeWidth={2} className="text-current" />
+        )}
+        {showImproveText && 'Improve'}
+      </button>
+    )
   )
 
   return (
@@ -384,6 +433,11 @@ interface BackButtonProps {
   isVisible: boolean
 }
 
+function getShineClass(shineStyle: ShineStyle): string {
+  if (shineStyle === 'none') return ''
+  return shineStyle
+}
+
 function BackButton({ title, onBack, config, isVisible }: BackButtonProps) {
   const { backButton, animation, layout, separators } = config
 
@@ -407,11 +461,30 @@ function BackButton({ title, onBack, config, isVisible }: BackButtonProps) {
       )
     : ''
 
+  // Determine animation direction for initial/exit states
+  const animateX = backButton.animateDirection === 'left' ? -15 : backButton.animateDirection === 'right' ? 15 : 0
+
+  // Content based on contentType
+  const showIcon = backButton.contentType === 'icon-only' || backButton.contentType === 'icon-text'
+  const showText = backButton.contentType === 'text-only' || backButton.contentType === 'icon-text'
+
+  const shineClass = getShineClass(backButton.shineStyle)
+
+  // Render button content
+  const buttonContent = (
+    <>
+      {showIcon && (
+        <HugeIcon icon={ArrowLeft01Icon} size={16} strokeWidth={2} className="text-current" />
+      )}
+      {showText && <span className="text-sm font-medium">{title}</span>}
+    </>
+  )
+
   return (
     <motion.div
-      initial={animation.enableItemFade ? { opacity: 0, x: 15 } : false}
+      initial={animation.enableItemFade ? { opacity: 0, x: animateX } : false}
       animate={animation.enableItemFade && isVisible ? { opacity: 1, x: 0 } : false}
-      exit={animation.enableItemFade ? { opacity: 0, x: 15 } : undefined}
+      exit={animation.enableItemFade ? { opacity: 0, x: animateX } : undefined}
       transition={{ duration: animation.opacityDuration / 1000, ease: EASE_OUT_EXPO }}
       className={cn(separatorClasses)}
       style={{
@@ -420,22 +493,33 @@ function BackButton({ title, onBack, config, isVisible }: BackButtonProps) {
       }}
     >
       <div className={cn('flex items-center w-full', positionClasses[backButton.position])}>
-        <button
-          type="button"
-          onClick={onBack}
-          className={cn(
-            'flex items-center gap-2 px-3 py-2 rounded-lg',
-            'text-secondary',
-            'motion-safe:transition-colors motion-safe:duration-150',
-            'motion-reduce:transition-none',
-            styleClasses[backButton.style]
-          )}
-        >
-          {backButton.showIcon && (
-            <HugeIcon icon={ArrowLeft01Icon} size={16} strokeWidth={2} className="text-current" />
-          )}
-          <span className="text-sm font-medium">{title}</span>
-        </button>
+        {backButton.useButton ? (
+          <Button
+            variant="secondary"
+            size="sm"
+            roundness={backButton.style === 'pill' ? 'pill' : 'default'}
+            iconLeading={showIcon ? ArrowLeft01Icon : undefined}
+            onClick={onBack}
+            className={cn(shineClass)}
+          >
+            {showText ? title : undefined}
+          </Button>
+        ) : (
+          <button
+            type="button"
+            onClick={onBack}
+            className={cn(
+              'flex items-center gap-2 px-3 py-2 rounded-lg',
+              'text-secondary',
+              'motion-safe:transition-colors motion-safe:duration-150',
+              'motion-reduce:transition-none',
+              styleClasses[backButton.style],
+              shineClass
+            )}
+          >
+            {buttonContent}
+          </button>
+        )}
       </div>
     </motion.div>
   )
@@ -463,24 +547,27 @@ function useHeightMeasurement(
     }
   }, [])
 
+  // Initial measurement on mount
   useLayoutEffect(() => {
     requestAnimationFrame(() => {
       requestAnimationFrame(() => measurePanels())
     })
   }, [measurePanels])
 
-  useEffect(() => {
-    if (!selectedCategory) return
-    const timeoutId = setTimeout(measurePanels, 50)
-    return () => clearTimeout(timeoutId)
+  // Immediate measurement when selectedCategory changes - must be synchronous
+  // to capture the correct height BEFORE the animation starts
+  useLayoutEffect(() => {
+    measurePanels()
   }, [selectedCategory, measurePanels])
 
+  // ResizeObserver to catch dynamic size changes
+  // Re-run when selectedCategory changes to observe newly mounted panels in popLayout mode
   useEffect(() => {
     const observer = new ResizeObserver(measurePanels)
     if (categoriesRef.current) observer.observe(categoriesRef.current)
     if (subScoresRef.current) observer.observe(subScoresRef.current)
     return () => observer.disconnect()
-  }, [measurePanels])
+  }, [measurePanels, selectedCategory])
 
   return { categoriesRef, subScoresRef, categoriesHeight, subScoresHeight }
 }

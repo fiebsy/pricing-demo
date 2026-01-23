@@ -70,6 +70,8 @@ export const DEFAULT_RATINGS_CONFIG: RatingsConfig = {
       cornerRadius: 8,
       lineDuration: 0.3,
       staggerDelay: 0.05,
+      rowHeight: 40,
+      firstRowMultiplier: 0.5,
     },
     badge: {
       displayMode: 'none',
@@ -81,6 +83,7 @@ export const DEFAULT_RATINGS_CONFIG: RatingsConfig = {
     },
     staggerDelay: 50,
     animationDuration: 150,
+    collapseOthersOnSelect: false,
   },
 
   // Panel Animation
@@ -97,6 +100,7 @@ export const DEFAULT_RATINGS_CONFIG: RatingsConfig = {
   data: {
     activeSection: 'mind',
     expandedCategory: null,
+    selectedSubScore: null,
   },
 }
 
@@ -197,6 +201,8 @@ export const RATINGS_PRESETS: RatingsPreset[] = [
           cornerRadius: 8,
           lineDuration: 0.3,
           staggerDelay: 0.05,
+          rowHeight: 40,
+          firstRowMultiplier: 0.5,
         },
       },
       categories: {
@@ -363,6 +369,8 @@ export const RATINGS_PRESETS: RatingsPreset[] = [
           cornerRadius: 8,
           lineDuration: 0.3,
           staggerDelay: 0.05,
+          rowHeight: 40,
+          firstRowMultiplier: 0.5,
         },
         badge: {
           displayMode: 'delta',
@@ -381,6 +389,50 @@ export const RATINGS_PRESETS: RatingsPreset[] = [
       data: {
         ...DEFAULT_RATINGS_CONFIG.data,
         expandedCategory: 'career',
+        selectedSubScore: null,
+      },
+    },
+  },
+  {
+    id: 'focus-mode',
+    name: 'Focus Mode',
+    description: 'Click sub-scores to focus on one at a time',
+    category: 'enhanced',
+    data: {
+      ...DEFAULT_RATINGS_CONFIG,
+      panel: {
+        ...DEFAULT_RATINGS_CONFIG.panel,
+        background: 'secondary',
+        showBackground: true,
+        shine: 'shine-1',
+        shineIntensity: '-subtle',
+        shadow: 'sm',
+        borderRadius: 20,
+      },
+      subScores: {
+        ...DEFAULT_RATINGS_CONFIG.subScores,
+        showAnimatedLine: true,
+        animatedLine: {
+          enabled: true,
+          color: '--color-border-secondary',
+          strokeWidth: 1,
+          cornerRadius: 8,
+          lineDuration: 0.3,
+          staggerDelay: 0.05,
+          rowHeight: 40,
+          firstRowMultiplier: 0.5,
+        },
+        collapseOthersOnSelect: true,
+      },
+      categories: {
+        ...DEFAULT_RATINGS_CONFIG.categories,
+        expandedByDefault: 'career',
+        collapseOthersOnExpand: true,
+      },
+      data: {
+        ...DEFAULT_RATINGS_CONFIG.data,
+        expandedCategory: 'career',
+        selectedSubScore: null,
       },
     },
   },

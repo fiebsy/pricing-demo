@@ -121,27 +121,7 @@ export function SectionTabs({
   const visibleSections = sections.filter((s) => s.sectionId !== 'appearance')
 
   return (
-    <div className={cn('relative flex items-center gap-3', className)}>
-      {/* Overall Score Badge - top right */}
-      {overallScore && (
-        <div className="absolute -top-2 -right-2">
-          <ProgressWheel
-            value={overallScore.current}
-            size={24}
-            strokeWidth={2}
-            isActive={false}
-          >
-            <span
-              className={cn(
-                'text-[10px] font-bold tabular-nums leading-none',
-                getScoreColorClass(overallScore.current)
-              )}
-            >
-              {overallScore.current}
-            </span>
-          </ProgressWheel>
-        </div>
-      )}
+    <div className={cn('relative flex items-center gap-6', className)}>
 
       {visibleSections.map((section) => {
         const isActive = activeSection === section.sectionId

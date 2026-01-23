@@ -34,6 +34,14 @@
   outline-color: var(--outline-color-error_subtle);
 }
 
+@utility outline-success {
+  outline-color: var(--outline-color-success);
+}
+
+@utility outline-success_subtle {
+  outline-color: var(--outline-color-success_subtle);
+}
+
 /* Brand outline utilities */
 @utility outline-brand {
   outline-color: var(--outline-color-brand);

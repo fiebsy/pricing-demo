@@ -847,10 +847,12 @@
   /* BORDER COLORS */
   --color-border-secondary: var(--color-gray-200);
   --color-border-error_subtle: var(--color-error-300);
+  --color-border-success_subtle: var(--color-success-300);
   --color-border-primary: var(--color-gray-300);
   --color-border-brand: var(--color-brand-500);
   --color-border-disabled: var(--color-gray-300);
   --color-border-error: var(--color-error-500);
+  --color-border-success: var(--color-success-500);
   --color-border-disabled_subtle: var(--color-gray-200);
   --color-border-tertiary: var(--color-gray-100);
   --color-border-brand_alt: var(--color-brand-600);
@@ -893,6 +895,7 @@
   --color-bg-error-solid: var(--color-error-600);
   --color-bg-warning-solid: var(--color-warning-600);
   --color-bg-success-solid: var(--color-success-600);
+  --color-bg-success-solid_hover: var(--color-success-700);
   --color-bg-secondary_hover: var(--color-gray-100);
   --color-bg-primary_hover: var(--color-gray-50);
   --color-bg-disabled: var(--color-gray-100);
@@ -947,6 +950,7 @@
   --color-featured-icon-light-fg-success: var(--color-success-600);
   --color-featured-icon-light-fg-warning: var(--color-warning-600);
   --color-focus-ring-error: var(--color-error-500);
+  --color-focus-ring-success: var(--color-success-500);
   --color-focus-ring: var(--color-brand-500);
   --color-footer-button-fg: var(--color-brand-200);
   --color-footer-button-fg_hover: var(--color-white);
@@ -1003,6 +1007,7 @@
   --background-color-success-primary: var(--color-bg-success-primary);
   --background-color-success-secondary: var(--color-bg-success-secondary);
   --background-color-success-solid: var(--color-bg-success-solid);
+  --background-color-success-solid_hover: var(--color-bg-success-solid_hover);
   --background-color-secondary_p1: var(--color-bg-secondary_p1);
   --background-color-secondary_t1: var(--color-bg-secondary_t1);
   --background-color-secondary_t2: var(--color-bg-secondary_t2);
@@ -1190,6 +1195,8 @@
   --border-color-disabled_subtle: var(--color-border-disabled_subtle);
   --border-color-error: var(--color-border-error);
   --border-color-error_subtle: var(--color-border-error_subtle);
+  --border-color-success: var(--color-border-success);
+  --border-color-success_subtle: var(--color-border-success_subtle);
 
   /* RING PROPERTY COLORS */
   --ring-color-primary: var(--color-border-primary);
@@ -1202,9 +1209,11 @@
   --ring-color-brand-solid: var(--color-bg-brand-solid);
   --ring-color-brand-solid_hover: var(--color-bg-brand-solid_hover);
   --ring-color-error: var(--color-border-error);
+  --ring-color-success: var(--color-border-success);
   --ring-color-disabled_subtle: var(--color-border-disabled_subtle);
   --ring-color-brand_alt: var(--color-border-brand_alt);
   --ring-color-error_subtle: var(--color-border-error_subtle);
+  --ring-color-success_subtle: var(--color-border-success_subtle);
   --ring-color-bg-brand-solid: var(--color-bg-brand-solid);
 
   /* Default ring color - set to primary so ring-1, ring-2, etc. default to ring-primary */
@@ -1220,9 +1229,11 @@
   --outline-color-brand-solid: var(--color-bg-brand-solid);
   --outline-color-brand-solid_hover: var(--color-bg-brand-solid_hover);
   --outline-color-error: var(--color-border-error);
+  --outline-color-success: var(--color-border-success);
   --outline-color-disabled_subtle: var(--color-border-disabled_subtle);
   --outline-color-brand_alt: var(--color-border-brand_alt);
   --outline-color-error_subtle: var(--color-border-error_subtle);
+  --outline-color-success_subtle: var(--color-border-success_subtle);
 }
 
 @layer base {
@@ -1470,10 +1481,12 @@
     /* BORDER COLORS */
     --color-border-secondary: var(--color-gray-800);
     --color-border-error_subtle: var(--color-error-500);
+    --color-border-success_subtle: var(--color-success-500);
     --color-border-primary: var(--color-gray-700);
     --color-border-brand: var(--color-brand-400);
     --color-border-disabled: var(--color-gray-700);
     --color-border-error: var(--color-error-400);
+    --color-border-success: var(--color-success-400);
     --color-border-disabled_subtle: var(--color-gray-800);
     --color-border-tertiary: var(--color-gray-800);
     --color-border-brand_alt: var(--color-gray-700);
@@ -1516,6 +1529,7 @@
     --color-bg-error-solid: var(--color-error-600);
     --color-bg-warning-solid: var(--color-warning-600);
     --color-bg-success-solid: var(--color-success-600);
+    --color-bg-success-solid_hover: var(--color-success-500);
     --color-bg-secondary_hover: var(--color-gray-800);
     --color-bg-primary_hover: var(--color-gray-800);
     --color-bg-disabled: var(--color-gray-800);
@@ -1574,6 +1588,7 @@
     --color-featured-icon-light-fg-success: var(--color-success-200);
     --color-featured-icon-light-fg-warning: var(--color-warning-200);
     --color-focus-ring-error: var(--color-error-500);
+    --color-focus-ring-success: var(--color-success-500);
     --color-focus-ring: var(--color-brand-500);
     --color-footer-button-fg: var(--color-gray-300);
     --color-footer-button-fg_hover: var(--color-gray-100);
@@ -1711,9 +1726,11 @@
     --ring-color-brand-solid: var(--color-bg-brand-solid);
     --ring-color-brand-solid_hover: var(--color-bg-brand-solid_hover);
     --ring-color-error: var(--color-border-error);
+    --ring-color-success: var(--color-border-success);
     --ring-color-disabled_subtle: var(--color-border-disabled_subtle);
     --ring-color-brand_alt: var(--color-border-brand_alt);
     --ring-color-error_subtle: var(--color-border-error_subtle);
+    --ring-color-success_subtle: var(--color-border-success_subtle);
 
     /* OUTLINE PROPERTY COLORS */
     --outline-color-brand: var(--color-border-brand);
@@ -1725,8 +1742,10 @@
     --outline-color-brand-solid: var(--color-bg-brand-solid);
     --outline-color-brand-solid_hover: var(--color-bg-brand-solid_hover);
     --outline-color-error: var(--color-border-error);
+    --outline-color-success: var(--color-border-success);
     --outline-color-disabled_subtle: var(--color-border-disabled_subtle);
     --outline-color-brand_alt: var(--color-border-brand_alt);
     --outline-color-error_subtle: var(--color-border-error_subtle);
+    --outline-color-success_subtle: var(--color-border-success_subtle);
   }
 }

@@ -78,9 +78,11 @@ export interface RatingsPanelProps {
   config: RatingsConfig
   activeSection: SectionType
   expandedCategory: CategoryType | null
+  selectedSubScore: string | null
   onSectionChange: (section: SectionType) => void
   onCategoryToggle: (category: CategoryType) => void
   onImproveCategory: (category: CategoryType, section: SectionType) => void
+  onSubScoreSelect: (subScoreId: string) => void
   className?: string
 }
 
@@ -89,9 +91,11 @@ export function RatingsPanel({
   config,
   activeSection,
   expandedCategory,
+  selectedSubScore,
   onSectionChange,
   onCategoryToggle,
   onImproveCategory,
+  onSubScoreSelect,
   className,
 }: RatingsPanelProps) {
   // Find the active section data
@@ -141,8 +145,10 @@ export function RatingsPanel({
                 key={category.categoryId}
                 category={category}
                 isExpanded={isExpanded}
+                selectedSubScore={selectedSubScore}
                 onToggle={() => onCategoryToggle(category.categoryId)}
                 onImprove={() => onImproveCategory(category.categoryId, activeSection)}
+                onSubScoreSelect={onSubScoreSelect}
                 categoriesConfig={config.categories}
                 subScoresConfig={config.subScores}
                 separatorsConfig={config.separators}

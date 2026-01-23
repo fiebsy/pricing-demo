@@ -105,6 +105,7 @@ export const GAP_CLASSES: Record<GapSize, string> = {
  * Ensures consistent chip heights regardless of content.
  */
 export const SIZE_HEIGHT_CLASSES: Record<ButtonSize, string> = {
+  xs: 'h-8',
   sm: 'h-9',
   md: 'h-10',
   lg: 'h-11',

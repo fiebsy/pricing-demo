@@ -38,6 +38,14 @@
     --tw-ring-color: var(--ring-color-error_subtle);
 }
 
+@utility ring-success {
+    --tw-ring-color: var(--color-focus-ring-success);
+}
+
+@utility ring-success_subtle {
+    --tw-ring-color: var(--ring-color-success_subtle);
+}
+
 /* Brand ring utilities */
 @utility ring-brand-primary {
     --tw-ring-color: var(--ring-color-brand-primary);
