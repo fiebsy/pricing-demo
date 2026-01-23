@@ -115,8 +115,8 @@ export function useSimulatedResponse(): UseSimulatedResponseReturn {
       abortRef.current = false
       setIsTyping(true)
 
-      // "Thinking" delay (300-500ms)
-      const thinkingDelay = 300 + Math.random() * 200
+      // "Thinking" delay (50-100ms)
+      const thinkingDelay = 50 + Math.random() * 50
       await new Promise((resolve) => setTimeout(resolve, thinkingDelay))
 
       if (abortRef.current) {
@@ -138,8 +138,8 @@ export function useSimulatedResponse(): UseSimulatedResponseReturn {
         currentContent += responseText[i]
         onChunk(currentContent)
 
-        // Variable delay for natural feel (20-40ms)
-        const charDelay = 20 + Math.random() * 20
+        // Variable delay for natural feel (5-10ms)
+        const charDelay = 5 + Math.random() * 5
         await new Promise((resolve) => setTimeout(resolve, charDelay))
       }
 

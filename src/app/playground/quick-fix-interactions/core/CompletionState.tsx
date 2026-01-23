@@ -10,6 +10,7 @@
 import * as React from 'react'
 import { cn } from '@/lib/utils'
 import { HugeIcon } from '@/components/ui/prod/base/icon'
+import { Button } from '@/components/ui/prod/base/button'
 import Tick01Icon from '@hugeicons-pro/core-stroke-rounded/Tick01Icon'
 import CheckmarkCircle01Icon from '@hugeicons-pro/core-stroke-rounded/CheckmarkCircle01Icon'
 import ArrowRight01Icon from '@hugeicons-pro/core-stroke-rounded/ArrowRight01Icon'
@@ -64,19 +65,12 @@ export function CompletionState({
   config,
   className,
 }: CompletionStateProps) {
-  // Button size classes
-  const buttonSizeClasses = {
-    sm: 'px-4 py-2 text-sm',
-    md: 'px-6 py-2.5 text-sm',
-    lg: 'px-8 py-3 text-base',
-  }
-
-  // Button style classes
-  const buttonStyleClasses = {
-    solid: 'bg-brand-solid text-white hover:bg-brand-solid-hover',
-    outline: 'border-2 border-brand-primary text-brand-primary hover:bg-brand-primary/10',
-    ghost: 'text-brand-primary hover:bg-brand-primary/10',
-  }
+  // Map config button style to Prod Button variant
+  const buttonVariantMap = {
+    solid: 'primary',
+    outline: 'secondary',
+    ghost: 'tertiary',
+  } as const
 
   return (
     <div className={cn('flex flex-col items-center justify-center text-center py-8', className)}>
@@ -124,18 +118,14 @@ export function CompletionState({
       </ul>
 
       {/* CTA button */}
-      <button
-        type="button"
+      <Button
+        variant={buttonVariantMap[config.buttonStyle]}
+        size={config.buttonSize}
+        roundness="default"
         onClick={onContinue}
-        className={cn(
-          'rounded-xl font-medium',
-          'motion-safe:transition-colors motion-safe:duration-150',
-          buttonSizeClasses[config.buttonSize],
-          buttonStyleClasses[config.buttonStyle]
-        )}
       >
         Generate New Answer
-      </button>
+      </Button>
     </div>
   )
 }

@@ -13,6 +13,14 @@ export { CHAT_MODE_PRESET, CHAT_INLINE_EDIT_PRESET, CHAT_INLINE_EDIT_V2_PRESET }
 export { ADD_QUESTION_PRESET, QUESTION_MODE_PRESET } from './question-mode'
 export { createPreset, deepMerge, COMMON_BUTTONS } from './helpers'
 
+// Re-export flow configs
+export {
+  DEFAULT_FLOW_CONFIGS,
+  FLOW_CONFIGS_WITH_EMPTY_CHAT,
+  MINIMAL_FLOW_CONFIGS,
+  SINGLE_BUTTON_FLOW_CONFIGS,
+} from './flow-configs'
+
 // Import for aggregation
 import { DEFAULT_PRESET, DEFAULT_CONFIG } from './default'
 import { CHAT_MODE_PRESET, CHAT_INLINE_EDIT_PRESET, CHAT_INLINE_EDIT_V2_PRESET } from './chat-mode'

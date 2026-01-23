@@ -8,6 +8,7 @@ import type { TriggerConfig, TriggerDisplayConfig } from './trigger'
 import type { ContentInstance, ContentConfigs, ShineOption, BackgroundOption } from './content'
 import type { SlotsConfig } from './slots'
 import type { TriggerMode } from './state'
+import type { FlowConfigs } from './flow'
 
 // =============================================================================
 // ANIMATION CONFIG
@@ -103,6 +104,9 @@ export interface QuestionCommandMenuV4Config {
   // Behavior
   placeholder: string
   defaultMode: TriggerMode
+
+  // Flow state overrides
+  flowConfigs?: FlowConfigs
 
   // Debug
   debug?: boolean

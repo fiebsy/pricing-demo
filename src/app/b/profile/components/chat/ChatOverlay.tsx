@@ -103,7 +103,7 @@ export function ChatOverlay({ state, onStateChange, className }: ChatOverlayProp
 
   // Messages scroll area constrained by state, but container is always full height
   // This prevents hard visual edges - the blur mask handles the fade
-  const messagesMaxHeight = isExpanded ? 'calc(100vh - 120px)' : 'calc(45vh - 80px)'
+  const messagesMaxHeight = isExpanded ? 'calc(100vh - 120px)' : 'calc(55vh - 80px)'
 
   return (
     <>
@@ -118,74 +118,77 @@ export function ChatOverlay({ state, onStateChange, className }: ChatOverlayProp
       <div
         className={cn(
           'fixed inset-0 z-50',
-          'flex flex-col justify-end',
           className
         )}
         style={{
           pointerEvents: 'none', // Allow clicks through to backdrop
         }}
       >
-      {/* Messages area - positioned above input */}
-      <AnimatePresence>
-        {showMessages && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={messagesTransition}
-            className="relative flex justify-center"
-          >
-            {/* Messages - snapped to bottom, scrollable, pointer events only on content */}
-            <div
-              className="relative"
+        {/* Messages area - positioned at bottom, extends upward */}
+        <AnimatePresence>
+          {showMessages && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={messagesTransition}
+              className="absolute bottom-0 left-0 right-0 flex justify-center"
               style={{
-                width: `${DEFAULT_CHAT_CONFIG.maxWidth}px`,
-                maxWidth: '100%',
-                pointerEvents: 'auto',
+                height: messagesMaxHeight,
+                pointerEvents: 'none',
               }}
             >
-              <MessageList
-                messages={messages}
-                isTyping={isTyping}
-                maxHeight={messagesMaxHeight}
-                blurAmount={DEFAULT_CHAT_CONFIG.messages.bubbleBlur}
-                bubbleBgColor={DEFAULT_CHAT_CONFIG.messages.bubbleBgColor}
-                bubbleOpacity={DEFAULT_CHAT_CONFIG.messages.bubbleOpacity}
-                userBubbleBgColor={DEFAULT_CHAT_CONFIG.messages.userBubbleBgColor}
-                userBubbleOpacity={DEFAULT_CHAT_CONFIG.messages.userBubbleOpacity}
-                fadeTopHeight={DEFAULT_CHAT_CONFIG.messages.fadeTopHeight}
-                fadeBottomHeight={DEFAULT_CHAT_CONFIG.messages.fadeBottomHeight}
-                borderRadius={DEFAULT_CHAT_CONFIG.messages.borderRadius}
-                useAsymmetricCorners={DEFAULT_CHAT_CONFIG.messages.useAsymmetricCorners}
-                useSquircle={DEFAULT_CHAT_CONFIG.messages.useSquircle}
-                shineStyle={DEFAULT_CHAT_CONFIG.messages.shineStyle}
-              />
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+              <div
+                className="relative h-full"
+                style={{
+                  width: `${DEFAULT_CHAT_CONFIG.maxWidth}px`,
+                  maxWidth: '100%',
+                  pointerEvents: 'auto',
+                }}
+              >
+                <MessageList
+                  messages={messages}
+                  isTyping={isTyping}
+                  maxHeight={messagesMaxHeight}
+                  blurAmount={DEFAULT_CHAT_CONFIG.messages.bubbleBlur}
+                  bubbleBgColor={DEFAULT_CHAT_CONFIG.messages.bubbleBgColor}
+                  bubbleOpacity={DEFAULT_CHAT_CONFIG.messages.bubbleOpacity}
+                  userBubbleBgColor={DEFAULT_CHAT_CONFIG.messages.userBubbleBgColor}
+                  userBubbleOpacity={DEFAULT_CHAT_CONFIG.messages.userBubbleOpacity}
+                  fadeTopHeight={DEFAULT_CHAT_CONFIG.messages.fadeTopHeight}
+                  fadeBottomHeight={DEFAULT_CHAT_CONFIG.messages.fadeBottomHeight}
+                  borderRadius={DEFAULT_CHAT_CONFIG.messages.borderRadius}
+                  useAsymmetricCorners={DEFAULT_CHAT_CONFIG.messages.useAsymmetricCorners}
+                  useSquircle={DEFAULT_CHAT_CONFIG.messages.useSquircle}
+                  shineStyle={DEFAULT_CHAT_CONFIG.messages.shineStyle}
+                  inputHeight={DEFAULT_CHAT_CONFIG.messages.inputHeight}
+                />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-      {/* Input area - always at bottom, same component in all states */}
-      <div className="flex justify-center">
-        <div
-          style={{
-            width: `${DEFAULT_CHAT_CONFIG.maxWidth}px`,
-            maxWidth: '100%',
-            pointerEvents: 'auto',
-          }}
-        >
-          <ChatInput
-            onSend={handleSend}
-            onFocus={handleInputFocus}
-            disabled={isTyping}
-            state={state}
-            onClose={handleClose}
-            onExpand={handleExpand}
-            inputStyle={DEFAULT_CHAT_CONFIG.input}
-          />
+        {/* Input area - fixed at bottom, overlays messages */}
+        <div className="absolute bottom-6 left-0 right-0 flex justify-center">
+          <div
+            style={{
+              width: `${DEFAULT_CHAT_CONFIG.maxWidth}px`,
+              maxWidth: '100%',
+              pointerEvents: 'auto',
+            }}
+          >
+            <ChatInput
+              onSend={handleSend}
+              onFocus={handleInputFocus}
+              disabled={isTyping}
+              state={state}
+              onClose={handleClose}
+              onExpand={handleExpand}
+              inputStyle={DEFAULT_CHAT_CONFIG.input}
+            />
+          </div>
         </div>
       </div>
-    </div>
     </>
   )
 }

@@ -17,6 +17,8 @@ import type {
   SlotPosition,
   ContentTypeId,
   UnifiedSlotConfig,
+  FlowState,
+  FlowStateId,
 } from '../types'
 import { triggerReducer } from './reducer'
 import { INITIAL_STATE } from './initial'
@@ -31,6 +33,12 @@ export interface V4ContextValue {
 
   // State (raw)
   state: TriggerFullState
+
+  // Flow state
+  flowState: FlowState
+  flowStateId: FlowStateId
+  storedQuestion: string | null
+  storedResponse: string | null
 
   // Derived state
   isExpanded: boolean
@@ -74,6 +82,14 @@ export interface V4ContextValue {
 
   setMode: (mode: TriggerMode) => void
   reset: () => void
+
+  // Flow actions
+  startAdding: () => void
+  submitQuestion: () => void
+  receiveResponse: (response: string) => void
+  startEditing: () => void
+  cancelEditing: () => void
+  deleteQuestion: () => void
 }
 
 // =============================================================================
@@ -122,6 +138,12 @@ export function V4Provider({ config, initialMode, children }: V4ProviderProps) {
   const isEditing = state.editing
   const hasSavedValue = state.savedValue !== null
   const isInputActive = state.expanded && (state.mode === 'input' || state.editing)
+
+  // Flow state
+  const flowState = state.flowState
+  const flowStateId = state.flowState.type
+  const storedQuestion = state.storedQuestion
+  const storedResponse = state.storedResponse
 
   // ---------------------------------------------------------------------------
   // Config helpers
@@ -249,6 +271,31 @@ export function V4Provider({ config, initialMode, children }: V4ProviderProps) {
     dispatch({ type: 'RESET' })
   }, [])
 
+  // Flow actions
+  const startAdding = useCallback(() => {
+    dispatch({ type: 'START_ADDING' })
+  }, [])
+
+  const submitQuestion = useCallback(() => {
+    dispatch({ type: 'SUBMIT_QUESTION' })
+  }, [])
+
+  const receiveResponse = useCallback((response: string) => {
+    dispatch({ type: 'RECEIVE_RESPONSE', response })
+  }, [])
+
+  const startEditing = useCallback(() => {
+    dispatch({ type: 'START_EDITING' })
+  }, [])
+
+  const cancelEditing = useCallback(() => {
+    dispatch({ type: 'CANCEL_EDITING' })
+  }, [])
+
+  const deleteQuestion = useCallback(() => {
+    dispatch({ type: 'DELETE_QUESTION' })
+  }, [])
+
   // ---------------------------------------------------------------------------
   // Value
   // ---------------------------------------------------------------------------
@@ -259,6 +306,12 @@ export function V4Provider({ config, initialMode, children }: V4ProviderProps) {
 
       // State
       state,
+
+      // Flow state
+      flowState,
+      flowStateId,
+      storedQuestion,
+      storedResponse,
 
       // Derived
       isExpanded,
@@ -296,10 +349,22 @@ export function V4Provider({ config, initialMode, children }: V4ProviderProps) {
       toggleBottomSlot,
       setMode,
       reset,
+
+      // Flow actions
+      startAdding,
+      submitQuestion,
+      receiveResponse,
+      startEditing,
+      cancelEditing,
+      deleteQuestion,
     }),
     [
       config,
       state,
+      flowState,
+      flowStateId,
+      storedQuestion,
+      storedResponse,
       isExpanded,
       isEditing,
       hasSavedValue,
@@ -331,6 +396,12 @@ export function V4Provider({ config, initialMode, children }: V4ProviderProps) {
       toggleBottomSlot,
       setMode,
       reset,
+      startAdding,
+      submitQuestion,
+      receiveResponse,
+      startEditing,
+      cancelEditing,
+      deleteQuestion,
     ]
   )
 

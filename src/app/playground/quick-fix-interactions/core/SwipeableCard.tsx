@@ -131,7 +131,8 @@ export function SwipeableCard({
     return `scale(${scale}) translateY(${y}px)`
   }
 
-  const opacity = position >= cardConfig.visibleCards ? 0 : 1 - position * 0.2
+  // Only reduce opacity for cards at position 2+ (keeps incoming card at full opacity)
+  const opacity = position >= cardConfig.visibleCards ? 0 : position <= 1 ? 1 : 1 - (position - 1) * 0.2
 
   if (!isActive && position >= cardConfig.visibleCards) return null
 
@@ -158,7 +159,7 @@ export function SwipeableCard({
         cardConfig.fontSize,
         cardConfig.fontWeight,
         `text-${cardConfig.textColor}`,
-        'motion-safe:transition-all',
+        'motion-safe:transition-transform',
         isActive && 'cursor-grab active:cursor-grabbing',
         className
       )}

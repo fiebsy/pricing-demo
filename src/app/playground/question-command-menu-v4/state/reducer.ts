@@ -219,6 +219,85 @@ export function triggerReducer(
       }
 
     // -------------------------------------------------------------------------
+    // Flow State Actions
+    // -------------------------------------------------------------------------
+    case 'START_ADDING': {
+      // Enter adding state: expand, open top slot (for typing), close bottom slot
+      return {
+        ...state,
+        flowState: { type: 'adding', isTyping: false },
+        expanded: true,
+        view: 'expanded',
+        topSlotOpen: false, // Default: hide top slot during typing (can be overridden via flowConfigs)
+        bottomSlotOpen: false, // Hide bottom slot while typing
+        inputValue: '', // Clear input for new question
+      }
+    }
+
+    case 'SUBMIT_QUESTION': {
+      // Submit: store question, enter processing state
+      return {
+        ...state,
+        flowState: { type: 'processing' },
+        storedQuestion: state.inputValue,
+        topSlotOpen: true, // Show top slot for chat/response area
+        bottomSlotOpen: true, // Show bottom slot for loading buttons
+      }
+    }
+
+    case 'RECEIVE_RESPONSE': {
+      // Response received: store response, enter response state
+      return {
+        ...state,
+        flowState: { type: 'response' },
+        storedResponse: action.response,
+        topSlotOpen: true, // Show response in top slot
+        bottomSlotOpen: true, // Show action buttons
+      }
+    }
+
+    case 'START_EDITING': {
+      // Edit mode: load stored question into input
+      return {
+        ...state,
+        flowState: { type: 'editing', originalValue: state.storedQuestion ?? '' },
+        inputValue: state.storedQuestion ?? '',
+        editing: true,
+        topSlotOpen: true, // Keep response visible
+        bottomSlotOpen: true, // Show cancel/update buttons
+      }
+    }
+
+    case 'CANCEL_EDITING': {
+      // Revert to response state
+      return {
+        ...state,
+        flowState: { type: 'response' },
+        inputValue: state.storedQuestion ?? '',
+        editing: false,
+        topSlotOpen: true,
+        bottomSlotOpen: true,
+      }
+    }
+
+    case 'DELETE_QUESTION': {
+      // Reset to idle, clear all stored values
+      return {
+        ...state,
+        flowState: { type: 'idle' },
+        storedQuestion: null,
+        storedResponse: null,
+        inputValue: '',
+        savedValue: null,
+        expanded: false,
+        view: 'collapsed',
+        topSlotOpen: false,
+        bottomSlotOpen: false,
+        editing: false,
+      }
+    }
+
+    // -------------------------------------------------------------------------
     // Reset
     // -------------------------------------------------------------------------
     case 'RESET':
@@ -263,4 +342,12 @@ export const actions = {
 
   setMode: (mode: TriggerMode): TriggerAction => ({ type: 'SET_MODE', mode }),
   reset: (): TriggerAction => ({ type: 'RESET' }),
+
+  // Flow actions
+  startAdding: (): TriggerAction => ({ type: 'START_ADDING' }),
+  submitQuestion: (): TriggerAction => ({ type: 'SUBMIT_QUESTION' }),
+  receiveResponse: (response: string): TriggerAction => ({ type: 'RECEIVE_RESPONSE', response }),
+  startEditing: (): TriggerAction => ({ type: 'START_EDITING' }),
+  cancelEditing: (): TriggerAction => ({ type: 'CANCEL_EDITING' }),
+  deleteQuestion: (): TriggerAction => ({ type: 'DELETE_QUESTION' }),
 }

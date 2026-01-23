@@ -14,7 +14,7 @@ import { useRef, useEffect } from 'react'
 import { cn } from '@/lib/utils'
 import { FadingScrollArea } from '@/app/playground/radial-blur/core/FadingScrollArea'
 import { MessageBubble } from './MessageBubble'
-import { TypingIndicator } from './TypingIndicator'
+import { ConfidenceSignal } from './ConfidenceSignal'
 import type { ChatMessage } from '../../types'
 import type { SemanticBgColor, ShineStyle } from '@/app/playground/radial-blur/config/types'
 
@@ -51,6 +51,8 @@ export interface MessageListProps {
   maxHeight?: string
   /** Bottom offset for scrollbar (px) */
   scrollbarBottomOffset?: number
+  /** Extra bottom padding for input overlay (px) - allows messages to scroll behind input */
+  inputHeight?: number
   className?: string
 }
 
@@ -74,6 +76,7 @@ export function MessageList({
   shineStyle = 'shine-3',
   maxHeight,
   scrollbarBottomOffset = 0,
+  inputHeight = 0,
   className,
 }: MessageListProps) {
   const bottomRef = useRef<HTMLDivElement>(null)
@@ -88,16 +91,25 @@ export function MessageList({
     return null
   }
 
+  // Use inputHeight for scrollbar offset if provided, otherwise fall back to explicit scrollbarBottomOffset
+  const effectiveScrollbarOffset = inputHeight > 0 ? inputHeight : scrollbarBottomOffset
+
   return (
     <FadingScrollArea
       maxHeight={maxHeight}
       fadeTopHeight={fadeTopHeight}
       fadeBottomHeight={fadeBottomHeight}
-      scrollbarBottomOffset={scrollbarBottomOffset}
+      scrollbarBottomOffset={effectiveScrollbarOffset}
       alignBottom
       className={cn('h-full', className)}
     >
-      <div className="py-4 space-y-3">
+      <div
+        className="space-y-3"
+        style={{
+          paddingTop: 16,
+          paddingBottom: inputHeight > 0 ? inputHeight + 16 : 16,
+        }}
+      >
         {messages.map((message) => (
           <MessageBubble
             key={message.id}
@@ -113,7 +125,6 @@ export function MessageList({
             shineStyle={shineStyle}
           />
         ))}
-        {isTyping && <TypingIndicator />}
         <div ref={bottomRef} />
       </div>
     </FadingScrollArea>

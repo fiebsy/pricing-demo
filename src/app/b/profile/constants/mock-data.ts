@@ -17,12 +17,7 @@ export const MOCK_PROFILE: ProfileData = {
   id: 'profile-1',
   name: 'Squirtle Kid',
   avatarUrl: '/skwircle-kid.png',
-  bio: `Welcome to my profile! I'm a design engineer passionate about creating
-delightful user experiences through thoughtful UI design and clean code.
-I believe in the power of iteration and user feedback to craft products
-that truly resonate with people. When I'm not coding, you'll find me
-exploring new design trends, playing video games, or mentoring
-aspiring developers.`,
+  bio: `Design engineer crafting user experiences through thoughtful UI and clean code. Always iterating, always learning.`,
   questions: [
     {
       id: 'q1',

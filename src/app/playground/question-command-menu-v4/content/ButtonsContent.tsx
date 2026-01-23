@@ -10,7 +10,8 @@ import * as React from 'react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/prod/base/button'
 import { useV4Context } from '../state'
-import type { ActionButtonConfig, ActionButtonIcon, SlotPosition } from '../types'
+import { useFlowConfig } from '../hooks'
+import type { ActionButtonIcon, SlotPosition } from '../types'
 
 // Icons
 import Tick02Icon from '@hugeicons-pro/core-stroke-rounded/Tick02Icon'
@@ -54,9 +55,9 @@ export const ButtonsContent: React.FC<ButtonsContentProps> = ({
   className,
 }) => {
   const { config } = useV4Context()
+  const { effectiveButtons } = useFlowConfig()
   const buttonsConfig = config.contentConfigs.buttons
   const {
-    buttons,
     direction,
     gap = 8,
     size = 'sm',
@@ -71,8 +72,8 @@ export const ButtonsContent: React.FC<ButtonsContentProps> = ({
     onSelect?.(buttonId)
   }
 
-  // Filter to only enabled buttons
-  const enabledButtons = buttons.filter((btn) => btn.enabled)
+  // Filter to only enabled buttons (using effective buttons with flow overrides)
+  const enabledButtons = effectiveButtons.filter((btn) => btn.enabled)
 
   if (enabledButtons.length === 0) {
     return (
@@ -100,7 +101,7 @@ export const ButtonsContent: React.FC<ButtonsContentProps> = ({
       }}
     >
       {enabledButtons.map((button) => {
-        const IconComponent = ICON_MAP[button.icon]
+        const IconComponent = button.isLoading ? undefined : ICON_MAP[button.icon]
 
         return (
           <Button
@@ -111,6 +112,8 @@ export const ButtonsContent: React.FC<ButtonsContentProps> = ({
             iconLeading={IconComponent}
             onClick={() => handleClick(button.id)}
             className={isHorizontal ? 'flex-1' : 'w-full'}
+            disabled={button.isLoading}
+            isLoading={button.isLoading}
           >
             {button.label}
           </Button>

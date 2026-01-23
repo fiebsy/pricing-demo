@@ -3,7 +3,10 @@
  *
  * Unified state machine following the reducer pattern from edit-questions.
  * Consolidates all trigger, slot, and filter state into a single source of truth.
+ * Includes flow state machine for question lifecycle management.
  */
+
+import type { FlowState } from './flow'
 
 // =============================================================================
 // TRIGGER MODE
@@ -80,6 +83,14 @@ export interface TriggerFullState {
   topSlotOpen: boolean
   /** Whether bottom slot content is visible */
   bottomSlotOpen: boolean
+
+  // --- Flow State ---
+  /** Current flow state in the question lifecycle */
+  flowState: FlowState
+  /** Committed question that has an AI response */
+  storedQuestion: string | null
+  /** AI response for the stored question */
+  storedResponse: string | null
 }
 
 // =============================================================================
@@ -125,6 +136,14 @@ export type TriggerAction =
 
   // Mode switching
   | { type: 'SET_MODE'; mode: TriggerMode }
+
+  // Flow state actions
+  | { type: 'START_ADDING' }
+  | { type: 'SUBMIT_QUESTION' }
+  | { type: 'RECEIVE_RESPONSE'; response: string }
+  | { type: 'START_EDITING' }
+  | { type: 'CANCEL_EDITING' }
+  | { type: 'DELETE_QUESTION' }
 
   // Full reset
   | { type: 'RESET' }

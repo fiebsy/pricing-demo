@@ -91,6 +91,8 @@ export interface ActionButtonConfig {
   icon: ActionButtonIcon
   variant: ActionButtonVariant
   enabled: boolean
+  /** Whether button shows loading spinner (from flow state override) */
+  isLoading?: boolean
 }
 
 export interface ButtonsConfig {

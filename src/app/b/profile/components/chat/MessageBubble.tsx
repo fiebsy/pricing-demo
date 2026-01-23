@@ -13,8 +13,10 @@ import * as React from 'react'
 import { motion } from 'motion/react'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/prod/base/badge'
+import { Button } from '@/components/ui/prod/base/button'
 import { HugeIcon } from '@/components/ui/prod/base/icon'
 import Tick01Icon from '@hugeicons-pro/core-stroke-rounded/Tick01Icon'
+import { ConfidenceSignal } from './ConfidenceSignal'
 import type { ChatMessage } from '../../types'
 import type { SemanticBgColor, ShineStyle } from '@/app/playground/radial-blur/config/types'
 
@@ -139,57 +141,76 @@ export function MessageBubble({
         className
       )}
     >
-      <div
-        className={cn(
-          'relative max-w-[75%] px-4 py-3',
-          useSquircle && 'corner-squircle'
-        )}
-        style={{ borderRadius: cornerRadiusStyle }}
-      >
-        {/* Background layer with opacity */}
+      <div className="flex flex-col items-start max-w-[75%]">
+        {/* Message bubble */}
         <div
           className={cn(
-            'absolute inset-0',
-            useSquircle && 'corner-squircle',
-            // Streaming state pulse on background only
-            isStreaming && 'animate-pulse'
+            'relative px-4 py-3',
+            useSquircle && 'corner-squircle'
           )}
-          style={{
-            borderRadius: cornerRadiusStyle,
-            backdropFilter: `blur(${blurAmount}px)`,
-            WebkitBackdropFilter: `blur(${blurAmount}px)`,
-            backgroundColor: bgColorMap[bgColor],
-            opacity: opacity / 100,
-            boxShadow: shineBoxShadow,
-          }}
-        />
-        {/* Content layer */}
-        <div className="relative z-10">
-          {/* Message content */}
-          <p className="text-sm leading-relaxed text-primary">
-            {message.content}
-            {/* Streaming cursor */}
-            {isStreaming && (
-              <span className="inline-block w-0.5 h-4 ml-0.5 bg-brand-primary animate-pulse" />
+          style={{ borderRadius: cornerRadiusStyle }}
+        >
+          {/* Background layer with opacity */}
+          <div
+            className={cn(
+              'absolute inset-0',
+              useSquircle && 'corner-squircle',
+              // Streaming state pulse on background only
+              isStreaming && 'animate-pulse'
             )}
-          </p>
+            style={{
+              borderRadius: cornerRadiusStyle,
+              backdropFilter: `blur(${blurAmount}px)`,
+              WebkitBackdropFilter: `blur(${blurAmount}px)`,
+              backgroundColor: bgColorMap[bgColor],
+              opacity: opacity / 100,
+              boxShadow: shineBoxShadow,
+            }}
+          />
+          {/* Content layer */}
+          <div className="relative z-10">
+            {/* Message content */}
+            <p className="text-sm leading-relaxed text-primary">
+              {message.content}
+              {/* Streaming cursor */}
+              {isStreaming && (
+                <span className="inline-block w-0.5 h-4 ml-0.5 bg-brand-primary animate-pulse" />
+              )}
+            </p>
 
-          {/* Confidence badge (assistant only, when complete) */}
-          {!isUser && isComplete && message.confidence !== undefined && (
-            <div className="mt-2">
-              <Badge
-                size="xs"
-                shape="squircle"
-                color={getConfidenceBadgeColor(message.confidence)}
-                iconLeading={
-                  <HugeIcon icon={Tick01Icon} size={12} color="current" />
-                }
-              >
-                {Math.round(message.confidence * 100)}% confidence
-              </Badge>
-            </div>
-          )}
+            {/* Confidence indicator (assistant only, when complete) */}
+            {!isUser && isComplete && message.confidence !== undefined && (
+              <div className="mt-2 flex items-center gap-2">
+                {/* Wi-Fi signal strength */}
+                <ConfidenceSignal confidence={message.confidence} size="sm" />
+                {/* Badge with percentage */}
+                <Badge
+                  size="xs"
+                  shape="squircle"
+                  color={getConfidenceBadgeColor(message.confidence)}
+                  iconLeading={
+                    <HugeIcon icon={Tick01Icon} size={12} color="current" />
+                  }
+                >
+                  {Math.round(message.confidence * 100)}% confidence
+                </Badge>
+              </div>
+            )}
+          </div>
         </div>
+
+        {/* Add confidence button - outside bubble (assistant only, when complete) */}
+        {!isUser && isComplete && (
+          <div className="mt-2 ml-1">
+            <Button
+              variant="primary"
+              size="xs"
+              onClick={() => console.log('Add confidence clicked')}
+            >
+              Improve answer
+            </Button>
+          </div>
+        )}
       </div>
     </motion.div>
   )

@@ -31,6 +31,11 @@ export const INITIAL_STATE: TriggerFullState = {
   // Slot State
   topSlotOpen: false,
   bottomSlotOpen: false,
+
+  // Flow State
+  flowState: { type: 'idle' },
+  storedQuestion: null,
+  storedResponse: null,
 }
 
 // =============================================================================

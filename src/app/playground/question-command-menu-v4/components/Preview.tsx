@@ -188,23 +188,24 @@ function InnerPreview({
 
   const handleButtonClick = useCallback(
     (index: number, buttonConfig: TriggerButtonConfig) => {
-      console.log('[QuestionCommandMenuV4] Trigger button clicked:', index, buttonConfig.icon)
-      // If this is the send button and we have text, send it
-      if (buttonConfig.icon === 'send' && state.inputValue.trim() && onChatSend) {
+      console.log('[QuestionCommandMenuV4] Trigger button clicked:', index, buttonConfig.icon, buttonConfig.action)
+      // If this is a send/submit button and we have text, send it
+      const isSubmitButton = buttonConfig.icon === 'send' || buttonConfig.action === 'submit'
+      if (isSubmitButton && state.inputValue.trim() && onChatSend) {
         onChatSend(state.inputValue.trim())
-        setInput('')
+        // Don't clear input - keep the question visible for editing
       }
     },
-    [state.inputValue, onChatSend, setInput]
+    [state.inputValue, onChatSend]
   )
 
   const handleEnter = useCallback(() => {
     // Send on Enter if we have text and a chat handler
     if (state.inputValue.trim() && onChatSend) {
       onChatSend(state.inputValue.trim())
-      setInput('')
+      // Don't clear input - keep the question visible for editing
     }
-  }, [state.inputValue, onChatSend, setInput])
+  }, [state.inputValue, onChatSend])
 
   const handleButtonsSelect = useCallback((buttonId: string) => {
     console.log('[QuestionCommandMenuV4] Action button:', buttonId)
@@ -302,6 +303,8 @@ export interface PreviewProps {
   onChatSend?: (message: string) => void
   onChatRegenerate?: (messageId: string) => void
   onQuestionSave?: (question: string) => void
+  /** Skip creating provider (use when already inside a V4Provider) */
+  skipProvider?: boolean
 }
 
 export function Preview({
@@ -313,18 +316,27 @@ export function Preview({
   onChatSend,
   onChatRegenerate,
   onQuestionSave,
+  skipProvider = false,
 }: PreviewProps) {
+  const inner = (
+    <InnerPreview
+      questionGroups={questionGroups}
+      chatMessages={chatMessages}
+      isChatTyping={isChatTyping}
+      suggestions={suggestions}
+      onChatSend={onChatSend}
+      onChatRegenerate={onChatRegenerate}
+      onQuestionSave={onQuestionSave}
+    />
+  )
+
+  if (skipProvider) {
+    return inner
+  }
+
   return (
     <V4Provider config={config}>
-      <InnerPreview
-        questionGroups={questionGroups}
-        chatMessages={chatMessages}
-        isChatTyping={isChatTyping}
-        suggestions={suggestions}
-        onChatSend={onChatSend}
-        onChatRegenerate={onChatRegenerate}
-        onQuestionSave={onQuestionSave}
-      />
+      {inner}
     </V4Provider>
   )
 }

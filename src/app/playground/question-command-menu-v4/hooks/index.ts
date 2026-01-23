@@ -15,3 +15,5 @@ export {
   useTriggerDisplayText,
   useTriggerHandlers,
 } from './use-trigger'
+export { useFlowConfig } from './use-flow-config'
+export type { EffectiveSlotConfig, UseFlowConfigReturn } from './use-flow-config'

@@ -9,7 +9,7 @@
 
 import * as React from 'react'
 import { useV4Context } from '../state'
-import { useSlotHeight } from '../hooks'
+import { useSlotHeight, useFlowConfig } from '../hooks'
 import { ContentRenderer } from './ContentRenderer'
 import type { SlotPosition, QuestionGroup, ChatMessage, SuggestionItem } from '../types'
 
@@ -54,22 +54,40 @@ export const UniversalSlot: React.FC<UniversalSlotProps> = ({
   onChatRegenerate,
 }) => {
   const { getContentForSlot, getSlotConfig } = useV4Context()
+  const { getEffectiveSlotEnabled, getEffectiveSlotConfig } = useFlowConfig()
 
   const slotConfig = getSlotConfig(position)
+  const effectiveSlotConfig = getEffectiveSlotConfig(position)
   const content = getContentForSlot(position)
 
   // Calculate dynamic height based on content
   const calculatedHeight = useSlotHeight(position, questionGroups, chatMessages, isChatTyping, suggestions)
 
+  // Use effective enabled state (base config + flow state override)
+  const isEnabled = getEffectiveSlotEnabled(position)
+
   // Early return if slot is disabled or has no content
-  if (!slotConfig.enabled || !content) {
+  if (!isEnabled || !content) {
     return null
   }
 
-  // Determine the final height
-  const height = slotConfig.heightMode === 'fixed'
-    ? slotConfig.fixedHeight ?? 48
-    : calculatedHeight
+  // Determine the final height (use effective min/max heights if specified)
+  const effectiveMinHeight = effectiveSlotConfig.minHeight ?? slotConfig.minHeight
+  const effectiveMaxHeight = effectiveSlotConfig.maxHeight ?? slotConfig.maxHeight
+
+  let height: number
+  if (slotConfig.heightMode === 'fixed') {
+    height = slotConfig.fixedHeight ?? 48
+  } else {
+    // Apply effective min/max constraints
+    height = calculatedHeight
+    if (effectiveMinHeight !== undefined) {
+      height = Math.max(height, effectiveMinHeight)
+    }
+    if (effectiveMaxHeight !== undefined) {
+      height = Math.min(height, effectiveMaxHeight)
+    }
+  }
 
   return (
     <ContentRenderer

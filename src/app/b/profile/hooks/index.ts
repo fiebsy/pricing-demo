@@ -18,3 +18,5 @@ export type { UseChatMessagesReturn } from './useChatMessages'
 
 export { useSimulatedResponse } from './useSimulatedResponse'
 export type { UseSimulatedResponseReturn } from './useSimulatedResponse'
+
+export { useAuth } from './useAuth'

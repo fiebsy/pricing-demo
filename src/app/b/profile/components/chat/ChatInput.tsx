@@ -279,7 +279,7 @@ export function ChatInput({
       {/* Input field */}
       <div
         className={cn(
-          'relative flex items-center gap-2 p-2',
+          'relative flex flex-col gap-2 p-3',
           useSquircle && 'corner-squircle',
           showFocusRing && 'focus-within:ring-2 focus-within:ring-brand-primary/20',
           'motion-safe:transition-all motion-safe:duration-150',
@@ -306,7 +306,7 @@ export function ChatInput({
             boxShadow: shineBoxShadow,
           }}
         />
-        {/* Content layer */}
+        {/* Text input - top row */}
         <input
           type="text"
           value={inputValue}
@@ -317,45 +317,47 @@ export function ChatInput({
           placeholder="Ask anything..."
           disabled={disabled}
           className={cn(
-            'relative z-10 flex-1 bg-transparent outline-none',
+            'relative z-10 w-full bg-transparent outline-none',
             'text-sm text-primary placeholder:text-tertiary',
-            'px-2',
+            'px-1 py-1',
             disabled && 'opacity-50 cursor-not-allowed'
           )}
         />
 
-        {/* Icon buttons container */}
-        <div
-          className="relative z-10 flex items-center"
-          style={{ gap: `${iconButtonGap}px` }}
-        >
-          {/* Mic button */}
-          <IconButton
-            icon={Mic01Icon}
-            tooltip={showTooltips ? 'Voice input' : undefined}
-            disabled={disabled}
-            iconSize={iconSize}
-            buttonSize={iconButtonSize}
-            buttonRadius={iconButtonRadius}
-            hoverShineStyle={hoverShineBoxShadow}
-            useButtonUtility={useButtonUtility}
-          />
+        {/* Buttons row - bottom */}
+        <div className="relative z-10 flex items-center justify-end">
+          <div
+            className="flex items-center"
+            style={{ gap: `${iconButtonGap}px` }}
+          >
+            {/* Mic button */}
+            <IconButton
+              icon={Mic01Icon}
+              tooltip={showTooltips ? 'Voice input' : undefined}
+              disabled={disabled}
+              iconSize={iconSize}
+              buttonSize={iconButtonSize}
+              buttonRadius={iconButtonRadius}
+              hoverShineStyle={hoverShineBoxShadow}
+              useButtonUtility={useButtonUtility}
+            />
 
-          {/* Send button */}
-          <IconButton
-            icon={ArrowUp02Icon}
-            tooltip={showTooltips ? 'Send message' : undefined}
-            disabled={!canSend}
-            iconSize={iconSize}
-            buttonSize={iconButtonSize}
-            buttonRadius={iconButtonRadius}
-            hoverShineStyle={hoverShineBoxShadow}
-            useButtonUtility={useButtonUtility}
-            variant="send"
-            bgColor={bgColorMap[sendButtonBgColor]}
-            opacity={canSend ? sendButtonOpacity / 100 : 0.5}
-            type="submit"
-          />
+            {/* Send button */}
+            <IconButton
+              icon={ArrowUp02Icon}
+              tooltip={showTooltips ? 'Send message' : undefined}
+              disabled={!canSend}
+              iconSize={iconSize}
+              buttonSize={iconButtonSize}
+              buttonRadius={iconButtonRadius}
+              hoverShineStyle={hoverShineBoxShadow}
+              useButtonUtility={useButtonUtility}
+              variant="send"
+              bgColor={bgColorMap[sendButtonBgColor]}
+              opacity={canSend ? sendButtonOpacity / 100 : 0.5}
+              type="submit"
+            />
+          </div>
         </div>
 
         {/* Control buttons - absolute positioned outside input, vertically centered */}

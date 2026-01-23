@@ -83,6 +83,8 @@ export interface MessageStyleConfig {
   useSquircle: boolean
   /** Shine effect style */
   shineStyle: ShineStyle
+  /** Height of input field for overlay padding - allows messages to scroll behind input (px) */
+  inputHeight?: number
 }
 
 // =============================================================================

@@ -14,6 +14,22 @@ export type {
   DerivedTriggerState,
 } from './state'
 
+// Flow types
+export type {
+  FlowState,
+  FlowStateId,
+  FlowSlotOverride,
+  FlowButtonOverride,
+  FlowStateConfig,
+  FlowConfigs,
+} from './flow'
+
+export {
+  getFlowStateId,
+  isInputtingState,
+  hasStoredContent,
+} from './flow'
+
 // Trigger types
 export type {
   ButtonVisibility,

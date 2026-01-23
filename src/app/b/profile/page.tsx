@@ -20,8 +20,9 @@ import {
   ChatOverlay,
   RevisionModal,
   UpdatesIsland,
+  LoginModal,
 } from './components'
-import { useProfileScores, useRevisionFlow, useChatOverlay } from './hooks'
+import { useProfileScores, useRevisionFlow, useChatOverlay, useAuth } from './hooks'
 import { MOCK_PROFILE, MOCK_UPDATES } from './constants'
 import type { ProfileQuestion, CategoryType, SectionType } from './types'
 
@@ -30,6 +31,15 @@ import type { ProfileQuestion, CategoryType, SectionType } from './types'
 // =============================================================================
 
 export default function ProfilePage() {
+  // Auth hook
+  const {
+    isAuthenticated,
+    isLoading: authLoading,
+    showLoginModal,
+    signIn,
+    closeLoginModal,
+  } = useAuth()
+
   // Hooks
   const {
     scores,
@@ -114,6 +124,13 @@ export default function ProfilePage() {
         targetSection={modalState.targetSection}
         onClose={closeModal}
         onComplete={completeFlow}
+      />
+
+      {/* Login Modal */}
+      <LoginModal
+        isOpen={showLoginModal}
+        onClose={closeLoginModal}
+        onSignIn={signIn}
       />
     </>
   )

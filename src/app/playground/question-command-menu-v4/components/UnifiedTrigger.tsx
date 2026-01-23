@@ -128,6 +128,15 @@ export const UnifiedTrigger: React.FC<UnifiedTriggerProps> = ({
 
   // Handle Enter key
   const handleEnter = useCallback(() => {
+    // Check if there's a send button - if so, call onEnter (for chat flow)
+    const hasSendButton = triggerConfig.buttons?.some(
+      (btn) => btn.icon === 'send' || btn.action === 'submit'
+    )
+    if (hasSendButton) {
+      onEnter?.()
+      return
+    }
+
     // If in expanded state with a save/edit button, trigger save
     const hasSaveButton = triggerConfig.buttons?.some(
       (btn) => btn.icon === 'check' || btn.label === 'Save' || btn.label === 'Edit'
