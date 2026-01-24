@@ -15,12 +15,18 @@ import { useState, useCallback, useRef, useMemo } from 'react'
 // TYPES
 // =============================================================================
 
+export interface SimulateResponseOptions {
+  /** Force high confidence (88%+) regardless of message content */
+  forceHighConfidence?: boolean
+}
+
 export interface UseSimulatedResponseReturn {
   isTyping: boolean
   simulateResponse: (
     userMessage: string,
     onChunk: (content: string) => void,
-    onComplete: (confidence: number) => void
+    onComplete: (confidence: number) => void,
+    options?: SimulateResponseOptions
   ) => Promise<void>
   cancelResponse: () => void
 }
@@ -153,7 +159,8 @@ export function useSimulatedResponse(): UseSimulatedResponseReturn {
     async (
       userMessage: string,
       onChunk: (content: string) => void,
-      onComplete: (confidence: number) => void
+      onComplete: (confidence: number) => void,
+      options?: SimulateResponseOptions
     ): Promise<void> => {
       abortRef.current = false
       setIsTyping(true)
@@ -187,7 +194,9 @@ export function useSimulatedResponse(): UseSimulatedResponseReturn {
       }
 
       setIsTyping(false)
-      onComplete(getRandomConfidence(isLowConfidence))
+      // If forceHighConfidence is set, always return high confidence (post-improvement)
+      const shouldUseLowConfidence = options?.forceHighConfidence ? false : isLowConfidence
+      onComplete(getRandomConfidence(shouldUseLowConfidence))
     },
     []
   )

@@ -14,14 +14,14 @@
 'use client'
 
 import * as React from 'react'
-import { useCallback, useImperativeHandle, forwardRef } from 'react'
+import { useCallback, useImperativeHandle, forwardRef, useMemo } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { cn } from '@/lib/utils'
 
 import { MessageList } from './MessageList'
 import { ChatInput } from './ChatInput'
 import { ChatBackdrop } from './ChatBackdrop'
-import { useChatMessages, useSimulatedResponse } from '../../hooks'
+import { useChatMessages, useSimulatedResponse, type SimulateResponseOptions } from '../../hooks'
 import { DEFAULT_CHAT_CONFIG } from '../../config'
 import type { ChatOverlayProps } from '../../types'
 
@@ -30,7 +30,7 @@ import type { ChatOverlayProps } from '../../types'
 // =============================================================================
 
 export interface ChatOverlayRef {
-  sendMessage: (content: string) => Promise<void>
+  sendMessage: (content: string, options?: SimulateResponseOptions) => Promise<void>
 }
 
 // =============================================================================
@@ -83,7 +83,7 @@ export const ChatOverlay = forwardRef<ChatOverlayRef, ChatOverlayProps>(
   }, [onStateChange])
 
   const handleSend = useCallback(
-    async (content: string) => {
+    async (content: string, options?: SimulateResponseOptions) => {
       // Add user message
       addUserMessage(content)
 
@@ -117,7 +117,8 @@ export const ChatOverlay = forwardRef<ChatOverlayRef, ChatOverlayProps>(
             confidence,
             timestamp: new Date(),
           })
-        }
+        },
+        options
       )
     },
     [
@@ -136,6 +137,31 @@ export const ChatOverlay = forwardRef<ChatOverlayRef, ChatOverlayProps>(
   useImperativeHandle(ref, () => ({
     sendMessage: handleSend,
   }), [handleSend])
+
+  // Wrap onImproveAnswer to include the preceding user message content
+  const handleImproveAnswer = useCallback(
+    (assistantMessage: { id: string }) => {
+      if (!onImproveAnswer) return
+
+      // Find the assistant message index
+      const assistantIndex = messages.findIndex((m) => m.id === assistantMessage.id)
+      if (assistantIndex === -1) return
+
+      // Find the preceding user message (should be immediately before)
+      let userMessageContent = ''
+      for (let i = assistantIndex - 1; i >= 0; i--) {
+        if (messages[i].role === 'user') {
+          userMessageContent = messages[i].content
+          break
+        }
+      }
+
+      // Get the full assistant message
+      const fullAssistantMessage = messages[assistantIndex]
+      onImproveAnswer(fullAssistantMessage, userMessageContent)
+    },
+    [onImproveAnswer, messages]
+  )
 
   const isExpanded = state === 'expanded'
   const showMessages = state !== 'collapsed'
@@ -201,7 +227,7 @@ export const ChatOverlay = forwardRef<ChatOverlayRef, ChatOverlayProps>(
                   useSquircle={DEFAULT_CHAT_CONFIG.messages.useSquircle}
                   shineStyle={DEFAULT_CHAT_CONFIG.messages.shineStyle}
                   inputHeight={DEFAULT_CHAT_CONFIG.messages.inputHeight}
-                  onImproveAnswer={onImproveAnswer}
+                  onImproveAnswer={handleImproveAnswer}
                 />
               </div>
             </motion.div>

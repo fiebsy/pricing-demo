@@ -369,7 +369,9 @@ export function ChatInput({
             style={{
               right: `-${controlButtonsOffsetX}px`,
               transform: 'translateY(-50%) translateX(100%)',
+              pointerEvents: 'auto',
             }}
+            onMouseDown={(e) => e.preventDefault()}
           >
             {controlContainerEnabled ? (
               /* Styled container for control buttons */

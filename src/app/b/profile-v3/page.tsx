@@ -244,15 +244,17 @@ function ProfileV3Content() {
 
   // Handle improve answer from chat - uses the active question's linked category
   const handleImproveAnswer = useCallback(
-    (message: ChatMessage) => {
+    (message: ChatMessage, userMessageContent: string) => {
       // Use the active question's linked category, or default to the lowest-scoring category
       const category = highlightState.activeQuestion?.linkedCategory
         || (Object.entries(scores.categories)
             .sort(([, a], [, b]) => a.aggregate.current - b.aggregate.current)[0][0] as CategoryType)
 
       // Store the question text to resubmit after flow completes
-      if (highlightState.activeQuestion) {
-        setQuestionToResubmit(highlightState.activeQuestion.text)
+      // Prefer the active question text, fall back to the user's original message
+      const textToResubmit = highlightState.activeQuestion?.text || userMessageContent
+      if (textToResubmit) {
+        setQuestionToResubmit(textToResubmit)
       }
 
       // Store the current confidence for comparison after improvement
@@ -291,7 +293,8 @@ function ProfileV3Content() {
       if (questionToResubmit) {
         // Small delay to let the modal close animation complete
         setTimeout(() => {
-          chatRef.current?.sendMessage(questionToResubmit)
+          // Force high confidence since user just improved their answer
+          chatRef.current?.sendMessage(questionToResubmit, { forceHighConfidence: true })
         }, 300)
         setQuestionToResubmit(null)
       }
