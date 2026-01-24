@@ -108,7 +108,8 @@ export const Backdrop: React.FC<BackdropProps> = ({ className }) => {
           height: panelHeight + backdropTopOffset,
           borderRadius: layout.borderRadius,
           clipPath,
-          transition: `clip-path ${duration}ms ${EASING_EXPO_OUT} ${delay}ms, background-color 150ms ease-out`,
+          boxShadow: expanded ? '0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 12px 24px -8px rgba(0, 0, 0, 0.3)' : 'none',
+          transition: `clip-path ${duration}ms ${EASING_EXPO_OUT} ${delay}ms, background-color 150ms ease-out, box-shadow ${duration}ms ${EASING_EXPO_OUT} ${delay}ms`,
           pointerEvents: 'none',
         }}
       />
@@ -138,11 +139,13 @@ export const Backdrop: React.FC<BackdropProps> = ({ className }) => {
         width: backdropWidth,
         height: backdropHeight,
         borderRadius: layout.borderRadius,
+        boxShadow: expanded ? '0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 12px 24px -8px rgba(0, 0, 0, 0.3)' : 'none',
         transition: `
           top ${duration}ms ${EASING_EXPO_OUT} ${delay}ms,
           width ${duration}ms ${EASING_EXPO_OUT} ${delay}ms,
           height ${duration}ms ${EASING_EXPO_OUT} ${delay}ms,
           margin-left ${duration}ms ${EASING_EXPO_OUT} ${delay}ms,
+          box-shadow ${duration}ms ${EASING_EXPO_OUT} ${delay}ms,
           background-color 150ms ease-out
         `,
         pointerEvents: 'none',

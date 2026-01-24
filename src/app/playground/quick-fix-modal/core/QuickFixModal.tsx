@@ -99,6 +99,13 @@ export function QuickFixModal({
   }
 
   const handleFlowComplete = () => {
+    // If onCompleteAction is 'close', skip the redundant 'complete' view
+    // and close the modal directly (the flow already showed CompletionState)
+    if (integration?.onCompleteAction === 'close') {
+      onComplete?.()
+      handleClose()
+      return
+    }
     setCurrentView('complete')
   }
 

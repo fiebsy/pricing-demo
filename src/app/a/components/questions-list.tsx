@@ -36,10 +36,10 @@ export function QuestionsList({ questions, onChange }: QuestionsListProps) {
     <div className="flex flex-col gap-4">
       {/* Header */}
       <div className="ml-3.5 flex items-center gap-2">
-        <span className="text-sm font-medium text-[var(--color-gray-900)]">
+        <span className="text-sm font-medium text-primary">
           Pinned Questions
         </span>
-        <span className="text-xs text-[var(--color-gray-500)]">
+        <span className="text-xs text-tertiary">
           Max {MAX_QUESTIONS} questions
         </span>
       </div>
@@ -62,9 +62,9 @@ export function QuestionsList({ questions, onChange }: QuestionsListProps) {
             onClick={handleAdd}
             className={cn(
               'flex w-fit cursor-pointer items-center gap-2',
-              'rounded-xl bg-[var(--color-gray-900)]/5 px-3 py-2.5',
-              'text-sm text-[var(--color-gray-600)]',
-              'hover:bg-[var(--color-gray-900)]/10',
+              'rounded-xl bg-tertiary px-3 py-2.5',
+              'text-sm text-secondary',
+              'hover:bg-quaternary',
               'transition-colors'
             )}
           >
@@ -153,8 +153,7 @@ function QuestionItem({
             )}
           >
             <svg
-              className="size-3.5 text-[var(--color-gray-500)] transition-opacity duration-200"
-              style={{ opacity: 0.4 }}
+              className="size-3.5 text-tertiary opacity-40 transition-opacity duration-200 hover:opacity-100"
               xmlns="http://www.w3.org/2000/svg"
               width="24"
               height="24"

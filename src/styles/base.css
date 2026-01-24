@@ -38,10 +38,12 @@ body {
 }
 
 /* Prevent horizontal scrollbar from appearing during off-screen animations
-   (e.g., Tinder-style card swipes that translateX beyond viewport) */
+   (e.g., Tinder-style card swipes that translateX beyond viewport)
+   Note: Explicitly setting overflow-y ensures vertical scroll works when overflow-x is hidden */
 html,
 body {
   overflow-x: hidden;
+  overflow-y: auto;
 }
 
 /* Explicit color-scheme for theme modes - helps browser optimize */

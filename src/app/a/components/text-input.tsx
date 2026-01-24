@@ -3,26 +3,25 @@
 import { cn } from '@/lib/utils'
 import type { TextInputProps } from '../types'
 
-// Shared input styles matching Delphi's design
+// Shared input styles matching questions list surface
 export const inputStyles = cn(
   // Base styles
-  'flex w-full text-[15px] text-[var(--color-gray-900)]',
-  'placeholder:text-[var(--color-gray-400)] placeholder:transition-colors placeholder:duration-200',
-  'hover:placeholder:text-[var(--color-gray-500)]',
-  'focus:placeholder:text-[var(--color-gray-500)]',
-  // Background
-  'bg-[#fcfaf9]',
+  'flex w-full text-[15px] text-primary',
+  'placeholder:text-quaternary placeholder:transition-colors placeholder:duration-200',
+  'hover:placeholder:text-tertiary',
+  'focus:placeholder:text-tertiary',
+  // Background - matches questions list cards
+  'bg-tertiary',
   // Border radius
-  'rounded-[14px]',
-  // Shadow - the key visual element
-  'shadow-[inset_0_2px_2px_0_rgba(255,255,255,1),0_0_0_1px_rgba(0,0,0,0.05),0_2px_2px_0_rgba(0,0,0,0.05)]',
-  // Focus shadow with ring
-  'focus:shadow-[inset_0_2px_2px_0_rgba(255,255,255,1),0_0_0_2px_var(--color-gray-300),0_2px_2px_0_rgba(0,0,0,0.05)]',
+  'rounded-2xl',
+  // No shadows, just simple surface
+  // Focus ring
+  'ring-0 focus:ring-2 focus:ring-brand-primary/30',
   // Reset browser defaults
-  'border-0 outline-none ring-0',
-  'focus:border-0 focus:outline-none focus:ring-0',
+  'border-0 outline-none',
+  'focus:border-0 focus:outline-none',
   // Transition
-  'transition-shadow duration-200',
+  'transition-all duration-200',
   // Disabled state
   'disabled:cursor-not-allowed disabled:opacity-50'
 )
@@ -84,14 +83,14 @@ export function DisabledNameField({ name }: { name: string }) {
     <div
       className={cn(
         'flex h-10 w-full items-center px-4 py-2.5',
-        'text-[15px] text-[var(--color-gray-900)]/50',
-        'bg-[var(--color-gray-900)]/5',
+        'text-[15px] text-primary/50',
+        'bg-tertiary',
         'rounded-[14px]',
         'cursor-default pointer-events-none'
       )}
     >
       <span className="flex-1 truncate">{name}</span>
-      <div className="flex shrink-0 items-center gap-1.5 text-[var(--color-gray-500)] pointer-events-auto">
+      <div className="flex shrink-0 items-center gap-1.5 text-tertiary pointer-events-auto">
         {/* Lock icon */}
         <svg
           className="size-3.5"

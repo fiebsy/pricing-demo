@@ -14,6 +14,10 @@ interface EditProfileFormProps {
   initialData: ProfileFormData
   onSave?: (data: ProfileFormData) => void
   onCancel?: () => void
+  /** Optional slot to inject a custom questions component */
+  questionsSlot?: React.ReactNode
+  /** Focus mode - dims other sections to highlight questions */
+  focusMode?: boolean
 }
 
 /**
@@ -23,7 +27,11 @@ export function EditProfileForm({
   initialData,
   onSave,
   onCancel,
+  questionsSlot,
+  focusMode = false,
 }: EditProfileFormProps) {
+  // Style for dimmed sections in focus mode
+  const dimmedStyle = focusMode ? 'opacity-30 transition-opacity duration-300' : 'transition-opacity duration-300'
   const [formData, setFormData] = useState<ProfileFormData>(initialData)
   const [isDirty, setIsDirty] = useState(false)
 
@@ -43,7 +51,7 @@ export function EditProfileForm({
   return (
     <div className="relative z-10">
       {/* Header actions - Cancel/Save buttons */}
-      <div className="absolute right-0 top-0">
+      <div className="absolute right-0 top-0 z-20">
         <div
           className="flex items-center gap-3"
           style={{
@@ -62,11 +70,11 @@ export function EditProfileForm({
               'rounded-full',
               'text-base font-[450]',
               'backdrop-blur-sm',
-              'bg-[var(--color-gray-900)]/10',
-              'text-[var(--color-gray-900)]/90',
-              'hover:text-[var(--color-gray-900)]',
-              'hover:bg-[var(--color-gray-900)]/15',
-              'active:bg-[var(--color-gray-900)]/15',
+              'bg-tertiary',
+              'text-primary/90',
+              'hover:text-primary',
+              'hover:bg-quaternary',
+              'active:bg-quaternary',
               'transition-colors',
               'border border-transparent'
             )}
@@ -83,10 +91,10 @@ export function EditProfileForm({
               'rounded-full',
               'text-base font-[450]',
               'backdrop-blur-sm',
-              'bg-blue-500',
+              'bg-brand-solid',
               'text-white',
-              'hover:bg-blue-600',
-              'active:bg-blue-600',
+              'hover:bg-brand-solid-hover',
+              'active:bg-brand-solid-hover',
               'transition-colors',
               'border border-transparent'
             )}
@@ -97,13 +105,15 @@ export function EditProfileForm({
       </div>
 
       {/* Profile image */}
-      <ProfileImage
-        src="/skwircle-kid.png"
-        alt={`${formData.name}'s profile`}
-        onUpload={(file) => {
-          console.log('Upload file:', file.name)
-        }}
-      />
+      <div className={dimmedStyle}>
+        <ProfileImage
+          src="/feebs-avatar-500.png"
+          alt={`${formData.name}'s profile`}
+          onUpload={(file) => {
+            console.log('Upload file:', file.name)
+          }}
+        />
+      </div>
 
       {/* Form */}
       <form
@@ -112,11 +122,14 @@ export function EditProfileForm({
         onSubmit={handleSubmit}
       >
         {/* Name (disabled) */}
-        <FormField label="Name" animationDelay={0}>
-          <DisabledNameField name={formData.name} />
-        </FormField>
+        <div className={dimmedStyle}>
+          <FormField label="Name" animationDelay={0}>
+            <DisabledNameField name={formData.name} />
+          </FormField>
+        </div>
 
         {/* Organization */}
+        <div className={dimmedStyle}>
         <FormField label="Organization" optional animationDelay={60}>
           <div className="flex gap-2">
             <div className="relative flex-1">
@@ -164,20 +177,23 @@ export function EditProfileForm({
             </div>
           </div>
         </FormField>
+        </div>
 
         {/* Headline */}
-        <FormField label="Headline" optional animationDelay={120}>
-          <TextInput
-            value={formData.headline}
-            onChange={(value) => updateField('headline', value)}
-            placeholder="e.g. Building the future of AI"
-            maxLength={60}
-          />
-        </FormField>
+        <div className={dimmedStyle}>
+          <FormField label="Headline" optional animationDelay={120}>
+            <TextInput
+              value={formData.headline}
+              onChange={(value) => updateField('headline', value)}
+              placeholder="e.g. Building the future of AI"
+              maxLength={60}
+            />
+          </FormField>
+        </div>
 
         {/* Bio */}
         <div
-          className="flex flex-col gap-2 animate-in fade-in slide-in-from-bottom-4"
+          className={cn("flex flex-col gap-2 animate-in fade-in slide-in-from-bottom-4", dimmedStyle)}
           style={{
             animationDelay: '180ms',
             animationDuration: '500ms',
@@ -187,7 +203,7 @@ export function EditProfileForm({
         >
           <div className="flex items-center justify-between">
             <div className="flex items-baseline gap-2">
-              <label className="ml-4 text-sm font-medium text-[var(--color-gray-900)]">
+              <label className="ml-4 text-sm font-medium text-primary">
                 Bio
               </label>
             </div>
@@ -222,15 +238,17 @@ export function EditProfileForm({
             animationFillMode: 'backwards',
           }}
         >
-          <QuestionsList
-            questions={formData.questions}
-            onChange={(questions) => updateField('questions', questions)}
-          />
+          {questionsSlot || (
+            <QuestionsList
+              questions={formData.questions}
+              onChange={(questions) => updateField('questions', questions)}
+            />
+          )}
         </div>
 
         {/* Social Links */}
         <div
-          className="animate-in fade-in slide-in-from-bottom-4"
+          className={cn("animate-in fade-in slide-in-from-bottom-4", dimmedStyle)}
           style={{
             animationDelay: '240ms',
             animationDuration: '500ms',
@@ -246,7 +264,7 @@ export function EditProfileForm({
 
         {/* Divider */}
         <hr
-          className="mx-6 animate-in fade-in slide-in-from-bottom-4 border-[var(--color-gray-200)]"
+          className={cn("mx-6 animate-in fade-in slide-in-from-bottom-4 border-secondary", dimmedStyle)}
           style={{
             animationDelay: '360ms',
             animationDuration: '500ms',

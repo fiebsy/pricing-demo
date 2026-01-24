@@ -5,11 +5,13 @@
  * for a single question flow instance.
  */
 
-import { useCallback, useState } from 'react'
+import { useCallback, useState, useEffect, useRef } from 'react'
 import { useV4Context } from '../../question-command-menu-v4/state'
 import type { ChatMessage, Question } from '../types'
 
 interface UseQuestionFlowOptions {
+  /** Initial question data (for pre-populated questions) */
+  initialQuestion?: Question
   /** Callback when question state updates */
   onUpdate?: (question: Partial<Question>) => void
   /** Callback when question is deleted */
@@ -29,10 +31,27 @@ interface UseQuestionFlowReturn {
 }
 
 export function useQuestionFlow(options: UseQuestionFlowOptions = {}): UseQuestionFlowReturn {
-  const { onUpdate, onDelete, typeSpeed = 15, typeDelay = 500 } = options
+  const { initialQuestion, onUpdate, onDelete, typeSpeed = 15, typeDelay = 500 } = options
 
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([])
+  // Initialize chat messages from initial question if provided
+  const getInitialMessages = (): ChatMessage[] => {
+    if (initialQuestion?.text && initialQuestion?.response) {
+      return [
+        { id: 'user-initial', role: 'user', content: initialQuestion.text },
+        {
+          id: 'assistant-initial',
+          role: 'assistant',
+          content: initialQuestion.response,
+          confidence: initialQuestion.confidence ?? 0.85,
+        },
+      ]
+    }
+    return []
+  }
+
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>(getInitialMessages)
   const [isChatTyping, setIsChatTyping] = useState(false)
+  const hasInitialized = useRef(false)
 
   const {
     flowStateId,
@@ -40,7 +59,22 @@ export function useQuestionFlow(options: UseQuestionFlowOptions = {}): UseQuesti
     submitQuestion,
     receiveResponse,
     deleteQuestion,
+    setInput,
   } = useV4Context()
+
+  // Initialize flow state for pre-populated questions
+  useEffect(() => {
+    if (!hasInitialized.current && initialQuestion?.text && initialQuestion?.response) {
+      hasInitialized.current = true
+      // Set input to the question text
+      setInput(initialQuestion.text)
+      // Transition to response state
+      submitQuestion(initialQuestion.confidence ?? 0.85)
+      setTimeout(() => {
+        receiveResponse(initialQuestion.response!)
+      }, 0)
+    }
+  }, [initialQuestion, setInput, submitQuestion, receiveResponse])
 
   const handleChatSend = useCallback(
     (message: string) => {

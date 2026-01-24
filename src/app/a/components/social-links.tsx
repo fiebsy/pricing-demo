@@ -29,7 +29,7 @@ export function SocialLinks({ links, onChange }: SocialLinksProps) {
 
   return (
     <div className="flex flex-col gap-3">
-      <h3 className="ml-3.5 text-sm font-medium text-[var(--color-gray-900)]">
+      <h3 className="ml-3.5 text-sm font-medium text-primary">
         Social Links
       </h3>
       <div className="flex flex-col gap-2">
@@ -48,9 +48,9 @@ export function SocialLinks({ links, onChange }: SocialLinksProps) {
           onClick={handleAdd}
           className={cn(
             'flex w-fit cursor-pointer items-center gap-2',
-            'rounded-xl bg-[var(--color-gray-900)]/5 px-3 py-2.5',
-            'text-sm text-[var(--color-gray-600)]',
-            'hover:bg-[var(--color-gray-900)]/10',
+            'rounded-xl bg-tertiary px-3 py-2.5',
+            'text-sm text-secondary',
+            'hover:bg-quaternary',
             'transition-colors'
           )}
         >
@@ -159,11 +159,11 @@ function SocialLinkItem({
             )}
             style={{ left: '2.5rem' }}
           >
-            <span className="text-[var(--color-gray-900)]/50">
+            <span className="text-primary/50">
               {parsed.domain}
               {parsed.path && '/'}
             </span>
-            <span className="text-[var(--color-gray-900)]">{parsed.path}</span>
+            <span className="text-primary">{parsed.path}</span>
           </div>
         )}
 
@@ -176,7 +176,8 @@ function SocialLinkItem({
           className={cn(
             inputStyles,
             'h-10 w-full px-4 py-2.5',
-            '[field-sizing:content]'
+            '[field-sizing:content]',
+            'caret-primary'
           )}
           style={{
             paddingLeft: '2.5rem',
@@ -184,7 +185,6 @@ function SocialLinkItem({
             minWidth: '260px',
             fontSize: '14px',
             transition: 'color 200ms',
-            caretColor: 'var(--color-gray-900)',
             color: hasValue ? 'transparent' : 'inherit',
           }}
         />
@@ -200,8 +200,7 @@ function SocialLinkItem({
           )}
         >
           <svg
-            className="size-3.5 text-[var(--color-gray-500)] transition-opacity duration-200"
-            style={{ opacity: 0.4 }}
+            className="size-3.5 text-tertiary opacity-40 transition-opacity duration-200 hover:opacity-100"
             xmlns="http://www.w3.org/2000/svg"
             width="24"
             height="24"
@@ -224,7 +223,7 @@ function SocialLinkItem({
 function LinkedInIcon() {
   return (
     <svg
-      className="size-4 text-[var(--color-gray-500)]"
+      className="size-4 text-tertiary"
       xmlns="http://www.w3.org/2000/svg"
       width="24"
       height="24"
@@ -242,7 +241,7 @@ function LinkedInIcon() {
 function GlobeIcon() {
   return (
     <svg
-      className="size-4 text-[var(--color-gray-500)]"
+      className="size-4 text-tertiary"
       xmlns="http://www.w3.org/2000/svg"
       width="24"
       height="24"

@@ -42,6 +42,8 @@ export interface UnifiedTriggerProps {
   onEnter?: () => void
   onSave?: (question: string) => void
   maxWords?: number
+  /** Whether this question is currently regenerating */
+  isRegenerating?: boolean
   className?: string
 }
 
@@ -57,6 +59,7 @@ export const UnifiedTrigger: React.FC<UnifiedTriggerProps> = ({
   onEnter,
   onSave,
   maxWords = 15,
+  isRegenerating = false,
   className,
 }) => {
   const { expanded, setExpanded } = useBiaxialExpand()
@@ -175,6 +178,7 @@ export const UnifiedTrigger: React.FC<UnifiedTriggerProps> = ({
         onClick={expanded ? undefined : handleExpandOnly}
         savedValue={storedQuestion ?? ''}
         onButtonClick={handleButtonClick}
+        isRegenerating={isRegenerating}
         className={className}
       />
     )

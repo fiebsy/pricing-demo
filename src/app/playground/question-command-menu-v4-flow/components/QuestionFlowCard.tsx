@@ -31,6 +31,7 @@ function CardContent({ question, onUpdate, onDelete }: CardContentProps) {
   const { config } = useV4Context()
 
   const { chatMessages, isChatTyping, handleChatSend, handleDelete } = useQuestionFlow({
+    initialQuestion: question,
     onUpdate: (partial) => {
       if (question && onUpdate) {
         onUpdate({ ...question, ...partial })
@@ -56,20 +57,42 @@ function CardContent({ question, onUpdate, onDelete }: CardContentProps) {
 // QUESTION FLOW CARD
 // ============================================================================
 
+// Default layout values
+const DEFAULT_TRIGGER_WIDTH = 360
+const DEFAULT_PANEL_WIDTH = 480
+
 export function QuestionFlowCard({
   question,
+  layout,
   onUpdate,
   onDelete,
   isActive = true,
   className,
 }: QuestionFlowCardProps) {
+  // Check if this is an empty "add question" state
+  const isAddMode = !question?.text && !question?.response
+
+  // Extract layout values with defaults
+  const triggerWidth = layout?.triggerWidth ?? DEFAULT_TRIGGER_WIDTH
+  const panelWidth = layout?.panelWidth ?? DEFAULT_PANEL_WIDTH
+
   // Merge flow config into base config
   const config = useMemo(
     () => ({
       ...FLOW_DEFAULT_CONFIG,
       flowConfigs: QUESTION_FLOW_CONFIG,
+      layout: {
+        ...FLOW_DEFAULT_CONFIG.layout,
+        triggerWidth,
+        panelWidth,
+      },
+      appearance: {
+        ...FLOW_DEFAULT_CONFIG.appearance,
+        // Use primary background for collapsed "add question" state
+        collapsedBackground: isAddMode ? ('primary' as const) : undefined,
+      },
     }),
-    []
+    [isAddMode, triggerWidth, panelWidth]
   )
 
   return (

@@ -12,6 +12,8 @@ import { cn } from '@/lib/utils'
 import { useBiaxialExpand } from '@/components/ui/prod/base/biaxial-command-menu-v4'
 import { HugeIcon } from '@/components/ui/prod/base/icon'
 import Alert02Icon from '@hugeicons-pro/core-stroke-rounded/Alert02Icon'
+import CheckmarkCircle02Icon from '@hugeicons-pro/core-stroke-rounded/CheckmarkCircle02Icon'
+import Loading03Icon from '@hugeicons-pro/core-stroke-rounded/Loading03Icon'
 import { useV4Context } from '../state'
 import { useFlowConfig, useVisibleButtons } from '../hooks'
 import { ActionButton } from './TriggerButtons'
@@ -30,6 +32,8 @@ export interface TriggerDisplayProps {
   savedValue?: string
   /** Callback when a trigger button is clicked */
   onButtonClick?: (buttonIndex: number, buttonConfig: TriggerButtonConfig) => void
+  /** Whether this question is currently regenerating */
+  isRegenerating?: boolean
   className?: string
 }
 
@@ -54,17 +58,30 @@ export const TriggerDisplay: React.FC<TriggerDisplayProps> = ({
   onClick,
   savedValue: savedValueProp,
   onButtonClick,
+  isRegenerating = false,
   className,
 }) => {
   const { expanded, timing } = useBiaxialExpand()
   const { state, hasSavedValue, storedConfidence } = useV4Context()
   const { effectiveTriggerButtons, flowStateId } = useFlowConfig()
 
-  // Show caution icon when collapsed, in response state, and has low confidence
-  const showCautionIcon = !expanded &&
-    flowStateId === 'response' &&
-    storedConfidence !== null &&
-    storedConfidence <= 0.1
+  // Determine which status icon to show when collapsed and in response state
+  const isCollapsedResponse = !expanded && flowStateId === 'response'
+  const hasLowConfidence = storedConfidence !== null && storedConfidence <= 0.1
+
+  // Determine icon type: 'loading' | 'caution' | 'check' | null
+  // Priority: loading > caution > check (default for any response)
+  let statusIconType: 'loading' | 'caution' | 'check' | null = null
+  if (isCollapsedResponse) {
+    if (isRegenerating) {
+      statusIconType = 'loading'
+    } else if (hasLowConfidence) {
+      statusIconType = 'caution'
+    } else {
+      // Default to check for any response (good confidence or null confidence)
+      statusIconType = 'check'
+    }
+  }
 
   // Use prop value if provided, otherwise fall back to context
   const effectiveSavedValue = savedValueProp ?? state.savedValue
@@ -110,13 +127,30 @@ export const TriggerDisplay: React.FC<TriggerDisplayProps> = ({
         paddingBottom: triggerConfig.paddingBottom,
       }}
     >
-      {/* Caution icon - shown when collapsed with low confidence */}
-      {showCautionIcon && (
+      {/* Status icon - single container prevents layout shift */}
+      {statusIconType && (
         <div
-          className="shrink-0 text-error-primary"
-          aria-label="Low confidence warning"
+          className={cn(
+            'shrink-0 w-4 h-4 flex items-center justify-center',
+            statusIconType === 'loading' && 'text-tertiary animate-spin',
+            statusIconType === 'caution' && 'text-error-primary',
+            statusIconType === 'check' && 'text-success-primary'
+          )}
+          aria-label={
+            statusIconType === 'loading' ? 'Regenerating' :
+            statusIconType === 'caution' ? 'Low confidence warning' :
+            'Good confidence'
+          }
         >
-          <HugeIcon icon={Alert02Icon} size={16} strokeWidth={2} />
+          <HugeIcon
+            icon={
+              statusIconType === 'loading' ? Loading03Icon :
+              statusIconType === 'caution' ? Alert02Icon :
+              CheckmarkCircle02Icon
+            }
+            size={16}
+            strokeWidth={2}
+          />
         </div>
       )}
 

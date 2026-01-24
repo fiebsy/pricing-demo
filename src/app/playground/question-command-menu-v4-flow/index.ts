@@ -29,6 +29,7 @@ export type {
   Question,
   QuestionFlowCardProps,
   QuestionsListProps,
+  QuestionFlowLayout,
   UseQuestionFlowReturn,
   ChatMessage,
 } from './types'

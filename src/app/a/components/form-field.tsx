@@ -27,11 +27,11 @@ export function FormField({
       }}
     >
       <div className="flex items-baseline gap-2">
-        <label className="ml-3.5 text-sm font-medium text-[var(--color-gray-900)]">
+        <label className="ml-3.5 text-sm font-medium text-primary">
           {label}
         </label>
         {optional && (
-          <span className="text-xs text-[var(--color-gray-500)]">Optional</span>
+          <span className="text-xs text-tertiary">Optional</span>
         )}
       </div>
       {children}

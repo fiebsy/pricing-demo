@@ -10,6 +10,16 @@ import type { ChatMessage } from '../question-command-menu-v4/types'
 export type { ChatMessage }
 
 /**
+ * Layout configuration for question flow components
+ */
+export interface QuestionFlowLayout {
+  /** Width of the trigger when collapsed */
+  triggerWidth?: number
+  /** Width of the expanded panel */
+  panelWidth?: number
+}
+
+/**
  * Individual question in a multi-question list
  */
 export interface Question {
@@ -26,14 +36,14 @@ export interface Question {
 export interface QuestionFlowCardProps {
   /** Initial question data (for hydrating existing questions) */
   question?: Question
+  /** Layout configuration */
+  layout?: QuestionFlowLayout
   /** Callback when question state changes */
   onUpdate?: (question: Question) => void
   /** Callback when question is deleted */
   onDelete?: () => void
   /** Whether this card is currently active/selected */
   isActive?: boolean
-  /** Custom placeholder text */
-  placeholder?: string
   /** Optional className for the wrapper */
   className?: string
 }
@@ -42,8 +52,12 @@ export interface QuestionFlowCardProps {
  * Props for the questions list component
  */
 export interface QuestionsListProps {
-  /** Maximum number of questions allowed */
-  maxQuestions?: number
+  /** Number of question slots (default: 5) */
+  questionCount?: number
+  /** Initial questions to populate (will fill remaining slots with empty) */
+  initialQuestions?: Partial<Question>[]
+  /** Layout configuration passed to each card */
+  layout?: QuestionFlowLayout
   /** Callback when questions change */
   onChange?: (questions: Question[]) => void
   /** Optional className */

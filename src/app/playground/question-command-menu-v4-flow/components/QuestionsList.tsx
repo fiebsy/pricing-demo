@@ -1,13 +1,13 @@
 /**
  * QuestionsList
  *
- * Renders a vertical stack of QuestionFlowCard components.
+ * Renders a fixed vertical stack of QuestionFlowCard components.
  * Each question has its own independent flow state.
  */
 
 'use client'
 
-import { useCallback, useState } from 'react'
+import { useCallback, useState, useEffect, useRef, useMemo } from 'react'
 import { cn } from '@/lib/utils'
 
 import { QuestionFlowCard } from './QuestionFlowCard'
@@ -27,93 +27,81 @@ function createEmptyQuestion(): Question {
   }
 }
 
+function createInitialQuestions(
+  count: number,
+  initialData?: Partial<Question>[]
+): Question[] {
+  return Array.from({ length: count }, (_, i) => {
+    const initial = initialData?.[i]
+    if (initial?.text) {
+      return {
+        ...createEmptyQuestion(),
+        ...initial,
+        // If there's text but no response, set status to response with a mock
+        status: initial.response ? 'response' : 'response',
+        response: initial.response ?? `This is a pre-filled response for: "${initial.text}"`,
+        confidence: initial.confidence ?? 0.85,
+      } as Question
+    }
+    return createEmptyQuestion()
+  })
+}
+
 // ============================================================================
 // QUESTIONS LIST
 // ============================================================================
 
+const DEFAULT_QUESTION_COUNT = 5
+
 export function QuestionsList({
-  maxQuestions = 10,
+  questionCount = DEFAULT_QUESTION_COUNT,
+  initialQuestions,
+  layout,
   onChange,
   className,
 }: QuestionsListProps) {
-  const [questions, setQuestions] = useState<Question[]>([createEmptyQuestion()])
+  const [questions, setQuestions] = useState<Question[]>(() =>
+    createInitialQuestions(questionCount, initialQuestions)
+  )
+  const isFirstRender = useRef(true)
+
+  // Notify parent of changes (skip initial render)
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false
+      return
+    }
+    onChange?.(questions)
+  }, [questions, onChange])
 
   const handleQuestionUpdate = useCallback(
     (id: string, updated: Question) => {
-      setQuestions((prev) => {
-        const next = prev.map((q) => (q.id === id ? updated : q))
-        onChange?.(next)
-        return next
-      })
+      setQuestions((prev) => prev.map((q) => (q.id === id ? updated : q)))
     },
-    [onChange]
+    []
   )
 
   const handleQuestionDelete = useCallback(
     (id: string) => {
-      setQuestions((prev) => {
-        // If this is the last question, reset it instead of removing
-        if (prev.length === 1) {
-          const reset = [createEmptyQuestion()]
-          onChange?.(reset)
-          return reset
-        }
-        const next = prev.filter((q) => q.id !== id)
-        onChange?.(next)
-        return next
-      })
+      // Reset the question to empty state instead of removing
+      setQuestions((prev) =>
+        prev.map((q) => (q.id === id ? createEmptyQuestion() : q))
+      )
     },
-    [onChange]
+    []
   )
 
-  const handleAddQuestion = useCallback(() => {
-    if (questions.length >= maxQuestions) return
-
-    setQuestions((prev) => {
-      const next = [...prev, createEmptyQuestion()]
-      onChange?.(next)
-      return next
-    })
-  }, [questions.length, maxQuestions, onChange])
-
   return (
-    <div className={cn('flex flex-col gap-4', className)}>
-      {/* Question Cards */}
+    <div className={cn('flex flex-col gap-3', className)}>
       {questions.map((question, index) => (
-        <div key={question.id} className="relative">
-          {/* Question number badge */}
-          <div className="absolute -left-8 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-quaternary flex items-center justify-center">
-            <span className="text-xs font-medium text-tertiary">{index + 1}</span>
-          </div>
-
-          <QuestionFlowCard
-            question={question}
-            onUpdate={(updated) => handleQuestionUpdate(question.id, updated)}
-            onDelete={() => handleQuestionDelete(question.id)}
-          />
-        </div>
+        <QuestionFlowCard
+          key={question.id}
+          question={question}
+          layout={layout}
+          onUpdate={(updated) => handleQuestionUpdate(question.id, updated)}
+          onDelete={() => handleQuestionDelete(question.id)}
+        />
       ))}
-
-      {/* Add Question Button */}
-      {questions.length < maxQuestions && (
-        <button
-          onClick={handleAddQuestion}
-          className={cn(
-            'w-full py-3 px-4 rounded-xl',
-            'border-2 border-dashed border-tertiary',
-            'text-sm font-medium text-tertiary',
-            'hover:border-secondary hover:text-secondary hover:bg-quaternary/30',
-            'transition-all duration-200'
-          )}
-        >
-          + Add another question
-        </button>
-      )}
-
-      {/* Question count indicator */}
-      <div className="text-center text-xs text-quaternary">
-        {questions.length} of {maxQuestions} questions
-      </div>
     </div>
   )
 }

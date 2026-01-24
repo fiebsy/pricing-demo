@@ -4,7 +4,7 @@
  * Simulated login flow for profile walkthrough.
  * Two-step flow: Choose Google or Email, then sign in.
  *
- * @module b/profile/components
+ * @module a/components
  */
 
 'use client'
@@ -14,7 +14,6 @@ import { useState, useCallback } from 'react'
 import { Dialog } from '@base-ui/react/dialog'
 import { cn } from '@/lib/utils'
 import { HugeIcon } from '@/components/ui/prod/base/icon'
-import { Button } from '@/components/ui/prod/base/button'
 import Cancel01Icon from '@hugeicons-pro/core-stroke-rounded/Cancel01Icon'
 import ArrowRight02Icon from '@hugeicons-pro/core-stroke-rounded/ArrowRight02Icon'
 import Mail01Icon from '@hugeicons-pro/core-stroke-rounded/Mail01Icon'
@@ -328,7 +327,7 @@ export function LoginModal({ isOpen, onClose, onSignIn }: LoginModalProps) {
       <Dialog.Portal>
         <Dialog.Backdrop
           className={cn(
-            'fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm',
+            'fixed inset-0 bg-black/60 backdrop-blur-sm',
             'motion-safe:transition-opacity motion-safe:duration-200',
             'motion-reduce:transition-none',
             'data-[starting-style]:opacity-0',
@@ -337,7 +336,7 @@ export function LoginModal({ isOpen, onClose, onSignIn }: LoginModalProps) {
         />
         <Dialog.Popup
           className={cn(
-            'fixed top-1/2 left-1/2 z-[60] -translate-x-1/2 -translate-y-1/2',
+            'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2',
             'w-full max-w-md',
             'bg-neutral-900 rounded-3xl shadow-2xl',
             'p-6',
