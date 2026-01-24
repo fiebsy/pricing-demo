@@ -21,6 +21,9 @@ import RefreshIcon from '@hugeicons-pro/core-stroke-rounded/RefreshIcon'
 import VolumeHighIcon from '@hugeicons-pro/core-stroke-rounded/VolumeHighIcon'
 import Tick01Icon from '@hugeicons-pro/core-stroke-rounded/Tick01Icon'
 
+// Badge component
+import { Badge } from '@/components/ui/prod/base/badge'
+
 // =============================================================================
 // TYPES
 // =============================================================================
@@ -192,26 +195,16 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message, config, onAction
           maxWidth: `${config.message.maxWidth}%`,
         }}
       >
-        {!isUser && (
-          <div className="flex items-center gap-1.5 mb-1">
-            <HugeIcon
-              icon={SparklesIcon}
-              size={12}
-              className="text-brand-primary"
-            />
-            <span className="text-xs font-medium text-brand-primary">
-              AI Response
-            </span>
-            {message.confidence && (
-              <span className="text-xs text-tertiary">
-                ({Math.round(message.confidence * 100)}% confidence)
-              </span>
-            )}
-          </div>
-        )}
         <p className={cn('text-sm whitespace-pre-wrap', textClass)}>
           {message.content}
         </p>
+        {!isUser && message.confidence !== undefined && message.confidence <= 0.1 && (
+          <div className="mt-2">
+            <Badge color="error" size="xs" shape="squircle">
+              Needs improvement
+            </Badge>
+          </div>
+        )}
         {showActions && (
           <ResponseActions config={config} onAction={(actionId) => onAction?.(message.id, actionId)} />
         )}
@@ -287,55 +280,67 @@ export const ChatContent: React.FC<ChatContentProps> = ({
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Debug mode - set to true to visualize padding
+  const DEBUG_COLORS = false
+
   return (
     <div
       className={cn('w-full h-full overflow-hidden', className)}
-      style={{ height }}
+      style={{
+        height,
+        background: DEBUG_COLORS ? 'rgba(255,0,0,0.2)' : undefined, // RED = outer container
+      }}
     >
       <ScrollArea.Root className="h-full w-full">
         <ScrollArea.Viewport
           ref={viewportRef}
           className="h-full w-full"
+          style={{
+            background: DEBUG_COLORS ? 'rgba(0,255,0,0.2)' : undefined, // GREEN = scroll viewport
+          }}
         >
-          <div
-            className="flex flex-col"
-            style={{
-              paddingTop: chatConfig.container.paddingTop,
-              paddingBottom: chatConfig.container.paddingBottom,
-              paddingLeft: 8,
-              paddingRight: 8,
-            }}
-          >
-            {hasMessages || isTyping ? (
-              <div
-                className="flex flex-col"
-                style={{ gap: chatConfig.message.gap }}
-              >
-                {messages.map((message) => (
-                  <MessageBubble
-                    key={message.id}
-                    message={message}
-                    config={chatConfig}
-                    onAction={handleAction}
+          <ScrollArea.Content>
+            <div
+              className="flex flex-col"
+              style={{
+                paddingTop: chatConfig.container.paddingTop,
+                paddingBottom: chatConfig.container.paddingBottom,
+                paddingLeft: 8,
+                paddingRight: 8,
+                background: DEBUG_COLORS ? 'rgba(0,0,255,0.2)' : undefined, // BLUE = content container
+              }}
+            >
+              {hasMessages || isTyping ? (
+                <div
+                  className="flex flex-col"
+                  style={{ gap: chatConfig.message.gap }}
+                >
+                  {messages.map((message) => (
+                    <MessageBubble
+                      key={message.id}
+                      message={message}
+                      config={chatConfig}
+                      onAction={handleAction}
+                    />
+                  ))}
+                  {isTyping && chatConfig.showTypingIndicator && (
+                    <TypingIndicator config={chatConfig} />
+                  )}
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center gap-2 py-4">
+                  <HugeIcon
+                    icon={SparklesIcon}
+                    size={24}
+                    className="text-quaternary"
                   />
-                ))}
-                {isTyping && chatConfig.showTypingIndicator && (
-                  <TypingIndicator config={chatConfig} />
-                )}
-              </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center gap-2 py-4">
-                <HugeIcon
-                  icon={SparklesIcon}
-                  size={24}
-                  className="text-quaternary"
-                />
-                <p className="text-sm text-tertiary text-center">
-                  {chatConfig.emptyMessage || 'Ask a question to see the AI response here'}
-                </p>
-              </div>
-            )}
-          </div>
+                  <p className="text-sm text-tertiary text-center">
+                    {chatConfig.emptyMessage || 'Ask a question to see the AI response here'}
+                  </p>
+                </div>
+              )}
+            </div>
+          </ScrollArea.Content>
         </ScrollArea.Viewport>
 
         {/* Custom Scrollbar */}

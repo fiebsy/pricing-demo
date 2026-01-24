@@ -170,10 +170,16 @@ export interface BiaxialExpandConfig {
   // Appearance
   appearance: MenuAppearance
 
+  // Collapsed state appearance override (optional)
+  collapsedBackground?: BackgroundOption
+
   // Slot-specific configs
   topSlot: SlotConfig
   triggerSlot: SlotConfig
   bottomSlot: SlotConfig
+
+  // Confidence level for visual feedback (0-1, null/undefined = no feedback)
+  confidenceLevel?: number | null
 
   // Debug
   debug?: boolean

@@ -91,6 +91,8 @@ export interface TriggerFullState {
   storedQuestion: string | null
   /** AI response for the stored question */
   storedResponse: string | null
+  /** Confidence level for the stored question (0-1, null if not set) */
+  storedConfidence: number | null
 }
 
 // =============================================================================
@@ -139,7 +141,7 @@ export type TriggerAction =
 
   // Flow state actions
   | { type: 'START_ADDING' }
-  | { type: 'SUBMIT_QUESTION' }
+  | { type: 'SUBMIT_QUESTION'; confidence?: number }
   | { type: 'RECEIVE_RESPONSE'; response: string }
   | { type: 'START_EDITING' }
   | { type: 'CANCEL_EDITING' }

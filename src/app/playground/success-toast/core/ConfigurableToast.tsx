@@ -12,7 +12,21 @@ import { useEffect, useState } from 'react'
 import { cn } from '@/lib/utils'
 import { HugeIcon } from '@/components/ui/prod/base/icon'
 import CheckmarkCircle01Icon from '@hugeicons-pro/core-stroke-rounded/CheckmarkCircle01Icon'
+import Award01Icon from '@hugeicons-pro/core-stroke-rounded/Award01Icon'
+import SparklesIcon from '@hugeicons-pro/core-stroke-rounded/SparklesIcon'
+import ArrowUp01Icon from '@hugeicons-pro/core-stroke-rounded/ArrowUp01Icon'
 import type { SuccessToastConfig } from '../config/types'
+
+// =============================================================================
+// ICON MAP
+// =============================================================================
+
+const iconMap = {
+  checkmark: CheckmarkCircle01Icon,
+  party: Award01Icon,
+  sparkles: SparklesIcon,
+  'arrow-up': ArrowUp01Icon,
+} as const
 
 // =============================================================================
 // TYPES
@@ -146,7 +160,7 @@ export function ConfigurableToast({
           }}
         >
           <HugeIcon
-            icon={CheckmarkCircle01Icon}
+            icon={iconMap[config.content.iconType || 'checkmark']}
             size={config.icon.iconSize}
             className={`text-${config.icon.iconColor}`}
           />

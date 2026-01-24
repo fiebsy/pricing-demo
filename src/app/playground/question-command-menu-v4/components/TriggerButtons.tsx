@@ -135,8 +135,8 @@ export const ActionButton: React.FC<ActionButtonProps> = ({
 
   // Check if this is an edit/save button (Edit label that becomes Save)
   const isEditSaveButton = config.label === 'Edit'
-  // Check if this is a dedicated save button
-  const isSaveButton = config.icon === 'check' || config.label === 'Save' || isEditSaveButton
+  // Check if this is a dedicated save button (includes Add which triggers submit/save)
+  const isSaveButton = config.icon === 'check' || config.label === 'Save' || config.label === 'Add' || isEditSaveButton
 
   // Determine icon based on save status for save buttons
   let IconComponent = config.icon ? ICON_MAP[config.icon] : undefined
@@ -163,17 +163,15 @@ export const ActionButton: React.FC<ActionButtonProps> = ({
 
   // Determine label based on save status and unsaved changes
   let buttonLabel = config.label
-  if (isEditSaveButton) {
+  if (isSaveButton) {
     if (saveStatus === 'saving') {
-      buttonLabel = 'Saving'
+      buttonLabel = 'Saving...'
     } else if (saveStatus === 'saved') {
       buttonLabel = 'Saved'
-    } else if (hasUnsavedChanges) {
+    } else if (isEditSaveButton && hasUnsavedChanges) {
       buttonLabel = 'Save'
     }
-    // Otherwise keep 'Edit'
-  } else if (isSaveButton && saveStatus === 'saved') {
-    buttonLabel = 'Saved'
+    // Otherwise keep original label (Edit, Save, Add, etc.)
   }
 
   const button = (

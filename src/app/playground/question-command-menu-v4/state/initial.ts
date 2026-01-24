@@ -36,6 +36,7 @@ export const INITIAL_STATE: TriggerFullState = {
   flowState: { type: 'idle' },
   storedQuestion: null,
   storedResponse: null,
+  storedConfidence: null,
 }
 
 // =============================================================================

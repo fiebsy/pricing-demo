@@ -606,3 +606,10 @@
 @utility border-chart-error-muted {
   border-color: var(--border-color-chart-error-muted);
 }
+
+/* Badge color variants */
+@utility badge-blue {
+  background-color: var(--color-blue-50);
+  color: var(--color-blue-700);
+  --tw-ring-color: var(--color-blue-200);
+}

@@ -9,7 +9,7 @@
 
 import { useMemo } from 'react'
 import { useV4Context } from '../state'
-import type { ActionButtonConfig, SlotPosition } from '../types'
+import type { ActionButtonConfig, SlotPosition, TriggerButtonConfig } from '../types'
 import type { FlowStateId, FlowSlotOverride } from '../types/flow'
 
 // =============================================================================
@@ -33,8 +33,10 @@ export interface UseFlowConfigReturn {
   effectiveTopConfig: EffectiveSlotConfig
   /** Effective slot config for bottom */
   effectiveBottomConfig: EffectiveSlotConfig
-  /** Effective buttons with overrides applied */
+  /** Effective bottom slot buttons with overrides applied */
   effectiveButtons: ActionButtonConfig[]
+  /** Effective trigger row buttons with overrides applied */
+  effectiveTriggerButtons: TriggerButtonConfig[]
   /** Effective placeholder text */
   effectivePlaceholder: string
   /** Get effective enabled state for any slot */
@@ -87,11 +89,33 @@ export function useFlowConfig(): UseFlowConfigReturn {
           label: override.label ?? btn.label,
           enabled: override.enabled ?? btn.enabled,
           isLoading: override.isLoading ?? btn.isLoading,
+          disabled: override.disabled ?? btn.disabled,
         }
       })
     }
 
     const effectiveButtons = computeEffectiveButtons()
+
+    // -------------------------------------------------------------------------
+    // Compute effective trigger buttons
+    // -------------------------------------------------------------------------
+    const computeEffectiveTriggerButtons = (): TriggerButtonConfig[] => {
+      const baseButtons = config.trigger.buttons ?? []
+      const triggerOverrides = flowConfig?.triggerButtons ?? []
+
+      return baseButtons.map((btn) => {
+        const override = triggerOverrides.find((o) => o.id === btn.id)
+        if (!override) return btn
+
+        return {
+          ...btn,
+          label: override.label ?? btn.label,
+          enabled: override.enabled ?? btn.enabled,
+        }
+      })
+    }
+
+    const effectiveTriggerButtons = computeEffectiveTriggerButtons()
 
     // -------------------------------------------------------------------------
     // Compute effective placeholder
@@ -116,6 +140,7 @@ export function useFlowConfig(): UseFlowConfigReturn {
       effectiveTopConfig,
       effectiveBottomConfig,
       effectiveButtons,
+      effectiveTriggerButtons,
       effectivePlaceholder,
       getEffectiveSlotEnabled,
       getEffectiveSlotConfig,

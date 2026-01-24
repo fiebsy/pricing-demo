@@ -40,7 +40,7 @@ export interface FlowSlotOverride {
 }
 
 /**
- * Button overrides per state
+ * Button overrides per state (bottom slot action buttons)
  * Use id to match base button, override only what changes
  */
 export interface FlowButtonOverride {
@@ -48,6 +48,17 @@ export interface FlowButtonOverride {
   label?: string
   enabled?: boolean
   isLoading?: boolean
+  disabled?: boolean
+}
+
+/**
+ * Trigger button overrides per state (trigger row buttons)
+ * Use id to match base button, override only what changes
+ */
+export interface FlowTriggerButtonOverride {
+  id: string
+  enabled?: boolean
+  label?: string
 }
 
 // =============================================================================
@@ -64,8 +75,10 @@ export interface FlowStateConfig {
     top?: FlowSlotOverride
     bottom?: FlowSlotOverride
   }
-  /** Button overrides (matched by id) */
+  /** Bottom slot button overrides (matched by id) */
   buttons?: FlowButtonOverride[]
+  /** Trigger row button overrides (matched by id) */
+  triggerButtons?: FlowTriggerButtonOverride[]
   /** Input placeholder text override */
   placeholder?: string
 }

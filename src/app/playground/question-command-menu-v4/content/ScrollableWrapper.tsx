@@ -73,16 +73,18 @@ export const ScrollableWrapper: React.FC<ScrollableWrapperProps> = ({
     <div className={cn('w-full h-full overflow-hidden', className)}>
       <ScrollArea.Root className="h-full w-full" style={{ height }}>
         <ScrollArea.Viewport className="h-full w-full">
-          <div
-            style={{
-              paddingTop: scrollConfig.paddingTop,
-              paddingBottom: scrollConfig.paddingBottom,
-              paddingLeft: 8,
-              paddingRight: 8,
-            }}
-          >
-            {children}
-          </div>
+          <ScrollArea.Content>
+            <div
+              style={{
+                paddingTop: scrollConfig.paddingTop,
+                paddingBottom: scrollConfig.paddingBottom,
+                paddingLeft: 8,
+                paddingRight: 8,
+              }}
+            >
+              {children}
+            </div>
+          </ScrollArea.Content>
         </ScrollArea.Viewport>
 
         {/* Custom Scrollbar */}

@@ -107,6 +107,10 @@ export interface ProfileQuestion {
   id: string
   text: string
   linkedCategory: CategoryType
+  /** AI-generated response for this question */
+  aiResponse?: string | null
+  /** Confidence score for the AI response (0-1 scale) */
+  aiConfidence?: number | null
 }
 
 /**

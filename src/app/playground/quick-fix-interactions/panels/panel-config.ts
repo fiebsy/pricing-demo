@@ -7,7 +7,12 @@
  */
 
 import type { PanelConfig, Section } from '@/components/ui/prod/base/control-panel'
-import type { QuickFixInteractionsConfig, QuickFixPresetMeta } from '../config/types'
+import type {
+  QuickFixInteractionsConfig,
+  QuickFixPresetMeta,
+  SolutionPreset,
+} from '../config/types'
+import { SOLUTION_PRESETS } from '../config/presets'
 import {
   BACKGROUND_OPTIONS,
   BORDER_COLOR_OPTIONS,
@@ -37,13 +42,23 @@ import {
 // MAIN BUILDER
 // =============================================================================
 
+export interface PanelConfigOptions {
+  config: QuickFixInteractionsConfig
+  presets: QuickFixPresetMeta[]
+  activePresetId: string | null
+  /** Currently active solution preset ID (optional) */
+  activeSolutionId?: string | null
+}
+
 export function buildQuickFixPanelConfig(
   config: QuickFixInteractionsConfig,
   presets: QuickFixPresetMeta[],
-  activePresetId: string | null
+  activePresetId: string | null,
+  activeSolutionId?: string | null
 ): PanelConfig {
   return {
     sections: [
+      buildSolutionSection(activeSolutionId || 'standalone'),
       buildPreviewSection(config),
       buildCardSection(config),
       buildSwipeSection(config),
@@ -64,6 +79,35 @@ export function buildQuickFixPanelConfig(
       showCopyButton: true,
     },
     showReset: true,
+  }
+}
+
+// =============================================================================
+// SOLUTION SECTION
+// =============================================================================
+
+function buildSolutionSection(activeSolutionId: string): Section {
+  return {
+    id: 'solution',
+    label: 'Solution',
+    title: 'Solution Preset',
+    groups: [
+      {
+        title: 'Integration Target',
+        controls: [
+          {
+            id: 'solutionPreset',
+            type: 'select',
+            label: 'Solution',
+            value: activeSolutionId,
+            options: SOLUTION_PRESETS.map((p) => ({
+              label: p.name,
+              value: p.id,
+            })),
+          },
+        ],
+      },
+    ],
   }
 }
 

@@ -25,6 +25,7 @@ export interface ProfileV3LayoutProps {
   editPanel: React.ReactNode
   questions: React.ReactNode
   footer?: React.ReactNode
+  onVideoAreaHover?: (isHovered: boolean) => void
   className?: string
 }
 
@@ -38,6 +39,7 @@ export function ProfileV3Layout({
   editPanel,
   questions,
   footer,
+  onVideoAreaHover,
   className,
 }: ProfileV3LayoutProps) {
   return (
@@ -56,12 +58,16 @@ export function ProfileV3Layout({
 
         {/* CENTER - Video (always centered) */}
         <div className="flex justify-center">
-          <div className="relative">
+          <div
+            className="relative"
+            onMouseEnter={() => onVideoAreaHover?.(true)}
+            onMouseLeave={() => onVideoAreaHover?.(false)}
+          >
             {/* Video */}
             {video}
 
             {/* RIGHT - Scorecard (positioned relative to video) */}
-            <aside className="absolute left-full bottom-0 ml-6 w-[280px]">
+            <aside className="absolute left-full top-0 ml-6 w-[240px]">
               {editPanel}
             </aside>
           </div>
@@ -69,7 +75,7 @@ export function ProfileV3Layout({
       </div>
 
       {/* Scrollable questions area - falls off the page */}
-      <div className="h-[calc(100vh-480px)] overflow-y-auto pb-32 pt-12">
+      <div className="h-[calc(100vh-480px)] overflow-y-auto pb-32 pt-12 scrollbar-hide">
         <div className="flex flex-col items-center gap-3">
           {questions}
         </div>

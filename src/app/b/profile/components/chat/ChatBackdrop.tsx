@@ -172,6 +172,24 @@ export function ChatBackdrop({
     [heightConfig, styleConfig.ellipseWidth]
   )
 
+  // Generate radial blur mask centered on chat area
+  // This creates a soft elliptical blur that fades at edges
+  const radialBlurMask = useMemo(() => {
+    const height = state === 'expanded' ? heightConfig.expanded : heightConfig.default
+
+    // Ellipse sized to chat area - narrower width, extends up based on state
+    // Centered at bottom-center of viewport
+    return `radial-gradient(
+      ellipse 45% ${height * 1.8}% at 50% 100%,
+      black 0%,
+      black 30%,
+      rgba(0,0,0,0.8) 50%,
+      rgba(0,0,0,0.5) 70%,
+      rgba(0,0,0,0.2) 85%,
+      transparent 100%
+    )`
+  }, [state, heightConfig])
+
   return (
     <motion.div
       initial="collapsed"
@@ -188,8 +206,8 @@ export function ChatBackdrop({
         backdropFilter: `blur(${styleConfig.blurAmount}px)`,
         WebkitBackdropFilter: `blur(${styleConfig.blurAmount}px)`,
         backgroundColor: `rgba(0, 0, 0, ${styleConfig.overlayOpacity / 100})`,
-        WebkitMaskImage: maskPatterns[state],
-        maskImage: maskPatterns[state],
+        WebkitMaskImage: radialBlurMask,
+        maskImage: radialBlurMask,
         visibility: isVisible ? 'visible' : 'hidden',
       }}
       onClick={isClickable ? onClose : undefined}

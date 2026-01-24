@@ -111,9 +111,13 @@ export const ButtonsContent: React.FC<ButtonsContentProps> = ({
             roundness="squircle"
             iconLeading={IconComponent}
             onClick={() => handleClick(button.id)}
-            className={isHorizontal ? 'flex-1' : 'w-full'}
-            disabled={button.isLoading}
+            className={cn(
+              isHorizontal ? 'flex-1' : 'w-full',
+              button.disabled && 'opacity-50'
+            )}
+            disabled={button.disabled || button.isLoading}
             isLoading={button.isLoading}
+            showTextWhileLoading={button.isLoading}
           >
             {button.label}
           </Button>

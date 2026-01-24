@@ -191,6 +191,7 @@ export const BUTTON_VARIANT_OPTIONS = [
 // =============================================================================
 
 export const PREVIEW_MODE_OPTIONS = [
+  { label: 'Full Flow', value: 'full-flow' },
   { label: 'Card Stack', value: 'card-stack' },
   { label: 'Flow Selector', value: 'flow-selector' },
   { label: 'Completion', value: 'completion' },

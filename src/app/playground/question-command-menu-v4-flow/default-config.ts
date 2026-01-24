@@ -20,13 +20,13 @@ export const FLOW_DEFAULT_CONFIG: QuestionCommandMenuV4Config = {
     slotContainerDurationOffset: 100,
   },
   layout: {
-    triggerWidth: 320,
+    triggerWidth: 360,
     triggerHeight: 44,
-    panelWidth: 400,
+    panelWidth: 480,
     fillWidth: false,
     borderRadius: 20,
-    topGap: 18,
-    bottomGap: 10,
+    topGap: 16,
+    bottomGap: 16,
     backdropTopOffset: 0,
   },
   appearance: {
@@ -51,11 +51,11 @@ export const FLOW_DEFAULT_CONFIG: QuestionCommandMenuV4Config = {
     keyboardHintText: '/',
     cursor: 'text',
     buttons: [
-      // Send button - triggers the AI flow
+      // Send button - shows when typing, triggers submit (disabled by default, flow config controls visibility)
       {
         id: 'send',
         position: 'right',
-        enabled: true,
+        enabled: false,
         type: 'icon',
         variant: 'primary',
         size: 'sm',
@@ -64,16 +64,65 @@ export const FLOW_DEFAULT_CONFIG: QuestionCommandMenuV4Config = {
         showWhen: 'has-value',
         action: 'submit',
       },
-      // Arrow indicator when collapsed
+      // Add button - xs text only (same style as Edit, disabled by default, enabled in adding state)
       {
-        id: 'arrow-collapsed',
+        id: 'add-button',
+        position: 'right',
+        enabled: false,
+        type: 'text',
+        variant: 'primary',
+        size: 'xs',
+        roundness: 'squircle',
+        label: 'Add',
+        showWhen: 'expanded',
+        action: 'submit',
+      },
+      // Edit button - xs text only (disabled by default, enabled in response/editing)
+      {
+        id: 'edit-small',
+        position: 'right',
+        enabled: false,
+        type: 'text',
+        variant: 'tertiary',
+        size: 'xs',
+        roundness: 'squircle',
+        icon: 'delete',
+        showWhen: 'expanded',
+        label: 'Edit',
+      },
+      // Plus indicator when collapsed (for idle/adding states)
+      {
+        id: 'plus-collapsed',
         position: 'right',
         enabled: true,
         type: 'indicator',
         variant: 'tertiary',
         size: 'sm',
+        icon: 'add',
+        showWhen: 'collapsed',
+      },
+      // Arrow indicator when collapsed (for response/editing states)
+      {
+        id: 'arrow-collapsed',
+        position: 'right',
+        enabled: false,
+        type: 'indicator',
+        variant: 'tertiary',
+        size: 'sm',
         icon: 'arrow-right',
         showWhen: 'collapsed',
+      },
+      // Delete button - icon only (disabled by default, enabled in response/editing)
+      {
+        id: 'delete-expanded',
+        position: 'right',
+        enabled: false,
+        type: 'icon',
+        variant: 'tertiary',
+        size: 'sm',
+        roundness: 'squircle',
+        icon: 'delete',
+        showWhen: 'expanded',
       },
     ],
   },
@@ -86,10 +135,10 @@ export const FLOW_DEFAULT_CONFIG: QuestionCommandMenuV4Config = {
   slots: {
     top: {
       enabled: true,
-      heightMode: 'dynamic',
+      heightMode: 'auto',
       fixedHeight: 48,
-      maxHeight: 360,
-      minHeight: 120,
+      maxHeight: 480,
+      minHeight: 0,
       appearance: {
         background: 'secondary',
         shine: 'none',
@@ -115,7 +164,7 @@ export const FLOW_DEFAULT_CONFIG: QuestionCommandMenuV4Config = {
       heightMode: 'auto',
       fixedHeight: 48,
       maxHeight: 100,
-      minHeight: 32,
+      minHeight: 0,
       appearance: {
         background: 'none',
         shine: 'none',
@@ -158,14 +207,35 @@ export const FLOW_DEFAULT_CONFIG: QuestionCommandMenuV4Config = {
       emptyMessage: 'No questions yet. Start typing to add one.',
     },
     buttons: {
-      // Single button for the flow
+      // Base buttons - flow configs override labels/enabled state
       buttons: [
         {
           id: 'btn1',
           label: 'Improve answer',
-          icon: 'sparkle',
+          icon: 'none',
           variant: 'shine',
           enabled: true,
+        },
+        {
+          id: 'btn2',
+          label: 'Update',
+          icon: 'none',
+          variant: 'secondary',
+          enabled: false,
+        },
+        {
+          id: 'btn3',
+          label: 'Regenerate',
+          icon: 'sparkle',
+          variant: 'tertiary',
+          enabled: false,
+        },
+        {
+          id: 'btn4',
+          label: 'Cancel',
+          icon: 'close',
+          variant: 'tertiary',
+          enabled: false,
         },
       ],
       direction: 'horizontal',
@@ -173,15 +243,24 @@ export const FLOW_DEFAULT_CONFIG: QuestionCommandMenuV4Config = {
       size: 'md',
       paddingLeft: 4,
       paddingRight: 4,
-      paddingTop: 4,
+      paddingTop: 0,
       paddingBottom: 4,
     },
     filters: {
-      options: [],
+      options: [
+        { id: 'all', label: 'All', count: 12 },
+        { id: 'pending', label: 'Pending', count: 3 },
+        { id: 'approved', label: 'Approved', count: 7 },
+        { id: 'flagged', label: 'Flagged', count: 2 },
+      ],
       defaultValue: 'all',
     },
     tabs: {
-      options: [],
+      options: [
+        { id: 'recent', label: 'Recent' },
+        { id: 'starred', label: 'Starred' },
+        { id: 'all', label: 'All' },
+      ],
       defaultValue: 'all',
     },
     chat: {
@@ -208,15 +287,19 @@ export const FLOW_DEFAULT_CONFIG: QuestionCommandMenuV4Config = {
         shine: 'none',
       },
       responseActions: {
-        enabled: false,
-        actions: [],
+        enabled: true,
+        actions: [
+          { id: 'copy', enabled: true },
+          { id: 'regenerate', enabled: true },
+          { id: 'speak', enabled: true },
+        ],
       },
-      showTypingIndicator: true,
+      showTypingIndicator: false,
       emptyMessage: 'Ask a question to see the AI response here',
     },
     suggestions: {
       maxWords: 15,
-      showSearch: false,
+      showSearch: true,
       item: {
         height: 48,
         gap: 4,
@@ -225,7 +308,7 @@ export const FLOW_DEFAULT_CONFIG: QuestionCommandMenuV4Config = {
         borderRadius: 12,
         highlightBackground: 'quaternary',
         hoverBackground: 'tertiary',
-        showConfidence: false,
+        showConfidence: true,
       },
       emptyMessage: 'No suggestions available',
     },

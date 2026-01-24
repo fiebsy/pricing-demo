@@ -75,6 +75,8 @@ export interface AppearanceConfig {
   shadow: ShadowOption
   shine: ShineOption
   background: BackgroundOption
+  /** Background color when collapsed (optional, defaults to background) */
+  collapsedBackground?: BackgroundOption
   gradient: GradientOption
   gradientColor: GradientColorOption
   squircle: boolean

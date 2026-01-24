@@ -14,25 +14,69 @@ import { HugeIcon } from '@/components/ui/prod/base/icon'
 import Idea01Icon from '@hugeicons-pro/core-stroke-rounded/Idea01Icon'
 import File02Icon from '@hugeicons-pro/core-stroke-rounded/File02Icon'
 import Mic01Icon from '@hugeicons-pro/core-stroke-rounded/Mic01Icon'
-import type { FlowOptionConfig } from '../config/types'
+import SparklesIcon from '@hugeicons-pro/core-stroke-rounded/SparklesIcon'
+import Brain01Icon from '@hugeicons-pro/core-stroke-rounded/Brain01Icon'
+import Edit01Icon from '@hugeicons-pro/core-stroke-rounded/Edit01Icon'
+import type { FlowOptionConfig, FlowDefinition, FlowId } from '../config/types'
 
 // =============================================================================
 // TYPES
 // =============================================================================
 
-export type FlowType = 'quick-fix' | 'add-to-mind' | 'manual-fix'
+export type FlowType = FlowId
 
 export interface FlowSelectorProps {
   onSelect: (flowType: FlowType) => void
   config: FlowOptionConfig
   selectedFlow?: FlowType | null
   className?: string
+  /** Custom flow definitions. When provided, only enabled flows are shown. */
+  flowDefinitions?: FlowDefinition[]
 }
 
 // =============================================================================
-// FLOW OPTIONS DATA
+// ICON MAPPING
 // =============================================================================
 
+const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
+  Idea01Icon,
+  File02Icon,
+  Mic01Icon,
+  SparklesIcon,
+  Brain01Icon,
+  Edit01Icon,
+}
+
+// =============================================================================
+// DEFAULT FLOW DEFINITIONS
+// =============================================================================
+
+export const DEFAULT_FLOW_DEFINITIONS: FlowDefinition[] = [
+  {
+    id: 'quick-fix',
+    enabled: true,
+    label: 'Quick Fix',
+    description: '10 T/F questions',
+    icon: 'Idea01Icon',
+  },
+  {
+    id: 'add-to-mind',
+    enabled: true,
+    label: 'Add to Mind',
+    description: 'Upload files/links',
+    icon: 'File02Icon',
+    variant: 'generic',
+  },
+  {
+    id: 'manual-fix',
+    enabled: true,
+    label: 'Manual Fix',
+    description: 'Type or speak',
+    icon: 'Mic01Icon',
+  },
+]
+
+// Legacy format for backward compatibility
 const FLOW_OPTIONS: Array<{
   type: FlowType
   label: string
@@ -64,7 +108,12 @@ const FLOW_OPTIONS: Array<{
 // =============================================================================
 
 interface FlowOptionProps {
-  option: (typeof FLOW_OPTIONS)[number]
+  option: {
+    type: FlowType
+    label: string
+    description: string
+    icon: React.ComponentType<{ className?: string }>
+  }
   config: FlowOptionConfig
   isSelected: boolean
   isHovered: boolean
@@ -149,6 +198,31 @@ function FlowOption({
 }
 
 // =============================================================================
+// HELPERS
+// =============================================================================
+
+function getGridCols(count: number): string {
+  if (count === 1) return 'grid-cols-1'
+  if (count === 2) return 'grid-cols-2'
+  return 'grid-cols-3'
+}
+
+function flowDefinitionToOption(def: FlowDefinition): {
+  type: FlowType
+  label: string
+  description: string
+  icon: React.ComponentType<{ className?: string }>
+} {
+  const icon = ICON_MAP[def.icon] || Idea01Icon
+  return {
+    type: def.id,
+    label: def.label,
+    description: def.description,
+    icon,
+  }
+}
+
+// =============================================================================
 // MAIN COMPONENT
 // =============================================================================
 
@@ -157,8 +231,21 @@ export function FlowSelector({
   config,
   selectedFlow,
   className,
+  flowDefinitions,
 }: FlowSelectorProps) {
   const [hoveredFlow, setHoveredFlow] = useState<FlowType | null>(null)
+
+  // Use provided flowDefinitions or fall back to legacy FLOW_OPTIONS
+  const options = flowDefinitions
+    ? flowDefinitions.filter((f) => f.enabled).map(flowDefinitionToOption)
+    : FLOW_OPTIONS.map((opt) => ({
+        type: opt.type,
+        label: opt.label,
+        description: opt.description,
+        icon: opt.icon,
+      }))
+
+  const gridCols = getGridCols(options.length)
 
   return (
     <div className={className}>
@@ -169,10 +256,10 @@ export function FlowSelector({
 
       {/* Options grid */}
       <div
-        className="grid grid-cols-3"
+        className={cn('grid', gridCols)}
         style={{ gap: config.cardGap }}
       >
-        {FLOW_OPTIONS.map((option) => (
+        {options.map((option) => (
           <FlowOption
             key={option.type}
             option={option}

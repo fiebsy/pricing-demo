@@ -13,6 +13,7 @@ import * as React from 'react'
 import { useCallback } from 'react'
 import { useBiaxialExpand } from '@/components/ui/prod/base/biaxial-command-menu-v4'
 import { useV4Context } from '../state'
+import { useFlowConfig } from '../hooks'
 import { TriggerDisplay } from './TriggerDisplay'
 import { TriggerInput } from './TriggerInput'
 import type { TriggerConfig, TriggerDisplayConfig, TriggerButtonConfig } from '../types'
@@ -58,7 +59,7 @@ export const UnifiedTrigger: React.FC<UnifiedTriggerProps> = ({
   maxWords = 15,
   className,
 }) => {
-  const { setExpanded } = useBiaxialExpand()
+  const { expanded, setExpanded } = useBiaxialExpand()
   const {
     state,
     clickTrigger,
@@ -66,7 +67,10 @@ export const UnifiedTrigger: React.FC<UnifiedTriggerProps> = ({
     startSaving,
     saveComplete,
     resetSaveStatus,
+    storedQuestion,
+    startEditing,
   } = useV4Context()
+  const { flowStateId } = useFlowConfig()
 
   // Handle click on display trigger (question/display mode)
   const handleDisplayClick = useCallback(() => {
@@ -112,7 +116,14 @@ export const UnifiedTrigger: React.FC<UnifiedTriggerProps> = ({
   // Handle button clicks - intercept save/edit button
   const handleButtonClick = useCallback(
     (buttonIndex: number, buttonConfig: TriggerButtonConfig) => {
-      // Check if it's a save button (check icon, or Save/Edit label when in editing mode)
+      // Check if it's the Edit button in response state (should trigger editing)
+      const isEditButton = buttonConfig.id === 'edit-small' || buttonConfig.label === 'Edit'
+      if (isEditButton && flowStateId === 'response') {
+        startEditing()
+        return
+      }
+
+      // Check if it's a save button (check icon, or Save label in editing mode)
       const isSaveButton = buttonConfig.icon === 'check' ||
         buttonConfig.label === 'Save' ||
         (buttonConfig.label === 'Edit' && state.inputValue !== state.savedValue)
@@ -123,33 +134,51 @@ export const UnifiedTrigger: React.FC<UnifiedTriggerProps> = ({
       }
       onButtonClick?.(buttonIndex, buttonConfig)
     },
-    [handleSave, onButtonClick, state.inputValue, state.savedValue]
+    [handleSave, onButtonClick, state.inputValue, state.savedValue, flowStateId, startEditing]
   )
 
   // Handle Enter key
   const handleEnter = useCallback(() => {
-    // Check if there's a send button - if so, call onEnter (for chat flow)
-    const hasSendButton = triggerConfig.buttons?.some(
-      (btn) => btn.icon === 'send' || btn.action === 'submit'
-    )
-    if (hasSendButton) {
-      onEnter?.()
+    // If onEnter is provided, call it (for chat/flow mode)
+    // This allows Enter to submit without needing a visible send button
+    if (onEnter) {
+      onEnter()
       return
     }
 
-    // If in expanded state with a save/edit button, trigger save
+    // Otherwise, if there's a save/edit button, trigger save
     const hasSaveButton = triggerConfig.buttons?.some(
       (btn) => btn.icon === 'check' || btn.label === 'Save' || btn.label === 'Edit'
     )
     if (hasSaveButton) {
       handleSave()
-    } else {
-      onEnter?.()
     }
   }, [triggerConfig.buttons, handleSave, onEnter])
 
   // Determine what to render based on mode and state
   const { mode, editing } = state
+
+  // Handle click on response display when collapsed - just expand, don't edit
+  const handleExpandOnly = useCallback(() => {
+    setExpanded(true)
+  }, [setExpanded])
+
+  // Handle flow states for submitted question display
+  // In processing/response states, show read-only display of the submitted question
+  // When collapsed: click expands the panel
+  // When expanded: click does nothing (user must use Edit button to start editing)
+  if (flowStateId === 'processing' || flowStateId === 'response') {
+    return (
+      <TriggerDisplay
+        triggerConfig={triggerConfig}
+        displayConfig={displayConfig}
+        onClick={expanded ? undefined : handleExpandOnly}
+        savedValue={storedQuestion ?? ''}
+        onButtonClick={handleButtonClick}
+        className={className}
+      />
+    )
+  }
 
   // Display mode: always show read-only display
   if (mode === 'display') {
@@ -189,7 +218,7 @@ export const UnifiedTrigger: React.FC<UnifiedTriggerProps> = ({
     )
   }
 
-  // Input mode: always show input
+  // Input mode (including 'adding' and 'editing' flow states): show input
   return (
     <TriggerInput
       placeholder={placeholder}

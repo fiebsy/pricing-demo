@@ -88,6 +88,7 @@ export const ButtonUtility = forwardRef<HTMLButtonElement | HTMLAnchorElement, B
       isDisabled,
       isActive,
       disableHoverWhenActive = true,
+      disableShine = false,
       icon: Icon,
       size = 'sm',
       color = 'secondary',
@@ -165,15 +166,17 @@ export const ButtonUtility = forwardRef<HTMLButtonElement | HTMLAnchorElement, B
           {...linkProps}
         >
           {/* Background layer with shine - fades in on hover, always visible when active */}
-          <div
-            className={cn(
-              'absolute inset-0 -z-10 rounded-[inherit] pointer-events-none transition-opacity duration-150',
-              'bg-secondary shine-1',
-              isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-100',
-              // Lock hover when active and disableHoverWhenActive is true
-              shouldDisableHover && 'group-hover:opacity-100'
-            )}
-          />
+          {!disableShine && (
+            <div
+              className={cn(
+                'absolute inset-0 -z-10 rounded-[inherit] pointer-events-none transition-opacity duration-150',
+                'bg-secondary shine-1',
+                isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-100',
+                // Lock hover when active and disableHoverWhenActive is true
+                shouldDisableHover && 'group-hover:opacity-100'
+              )}
+            />
+          )}
           {iconContent}
         </a>
       )
@@ -208,15 +211,17 @@ export const ButtonUtility = forwardRef<HTMLButtonElement | HTMLAnchorElement, B
         {...buttonProps}
       >
         {/* Background layer with shine - fades in on hover, always visible when active */}
-        <div
-          className={cn(
-            'absolute inset-0 -z-10 rounded-[inherit] pointer-events-none transition-opacity duration-150',
-            'bg-secondary shine-1',
-            isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-100',
-            // Lock hover when active and disableHoverWhenActive is true
-            shouldDisableHover && 'group-hover:opacity-100'
-          )}
-        />
+        {!disableShine && (
+          <div
+            className={cn(
+              'absolute inset-0 -z-10 rounded-[inherit] pointer-events-none transition-opacity duration-150',
+              'bg-secondary shine-1',
+              isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-100',
+              // Lock hover when active and disableHoverWhenActive is true
+              shouldDisableHover && 'group-hover:opacity-100'
+            )}
+          />
+        )}
         {iconContent}
       </BaseButton>
     )

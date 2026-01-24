@@ -36,29 +36,24 @@ export function QuestionCard({
         'group relative text-left w-auto',
         // Card styling - compact bento style with proper padding
         'bg-primary',
-        'rounded-2xl',
+        'rounded-2xl corner-squircle',
         'px-5 py-4',
-        // Subtle border like reference
-        'border border-secondary',
-        // Shadow styling - elevated on hover
-        'shadow-sm',
+        // Shine border
+        'shine-1-subtle',
         // Hover and active states
         'motion-safe:transition-all motion-safe:duration-200',
         'motion-reduce:transition-none',
-        'hover:shadow-md',
         'hover:-translate-y-0.5',
         'active:scale-[0.99] active:translate-y-0',
-        // Focus state
-        'focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2',
+        // Remove focus ring
+        'focus:outline-none',
         // Dimming state
         isDimmed && 'opacity-30',
         // Highlighting state
-        isHighlighted && 'ring-2 ring-brand-primary ring-offset-2 border-transparent',
+        isHighlighted && 'ring-2 ring-brand-primary ring-offset-2',
         className
       )}
     >
-      {/* Inner border highlight (like reference phantom-border) */}
-      <div className="pointer-events-none absolute inset-0 rounded-2xl border border-primary" />
 
       {/* Question text - wraps naturally */}
       <p className="text-sm font-medium text-primary whitespace-nowrap">

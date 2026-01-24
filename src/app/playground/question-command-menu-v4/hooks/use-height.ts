@@ -73,14 +73,42 @@ export function calculateSlotHeight({
     }
 
     case 'chat': {
-      const config = contentConfigs.chat
-      const messageHeight = config.message.paddingY * 2 + 20 // Approximate line height
-      contentHeight = chatMessages.length * (messageHeight + config.message.gap)
-      if (isChatTyping) {
-        contentHeight += 40 // Typing indicator
+      const chatConf = contentConfigs.chat
+      // Calculate height per message
+      const lineHeight = 20
+      const avgCharsPerLine = 45
+
+      let messagesHeight = 0
+      for (const msg of chatMessages) {
+        let msgHeight = chatConf.message.paddingY * 2
+
+        // Estimate text lines based on content length
+        const textLines = Math.max(1, Math.ceil(msg.content.length / avgCharsPerLine))
+        msgHeight += textLines * lineHeight
+
+        // Assistant messages have actions row
+        if (msg.role === 'assistant') {
+          if (chatConf.responseActions?.enabled) {
+            msgHeight += 28 // Actions row
+          }
+        }
+
+        messagesHeight += msgHeight + chatConf.message.gap
       }
-      contentHeight += config.container.paddingTop + config.container.paddingBottom
-      break
+
+      contentHeight = messagesHeight
+      if (isChatTyping) {
+        contentHeight += 44
+      }
+      // Chat has its own container padding - don't add scroll padding later
+      contentHeight += chatConf.container.paddingTop + chatConf.container.paddingBottom
+      // Return early to skip scroll padding addition
+      const min = slotConfig.minHeight ?? 0
+      if (slotConfig.heightMode === 'auto') {
+        return Math.max(min, contentHeight)
+      }
+      const max = slotConfig.maxHeight ?? 400
+      return Math.max(min, Math.min(max, contentHeight))
     }
 
     case 'suggestions': {
@@ -101,10 +129,16 @@ export function calculateSlotHeight({
   // Add scroll padding
   contentHeight += slotConfig.scroll.paddingTop + slotConfig.scroll.paddingBottom
 
-  // Clamp to min/max
+  // Apply constraints based on height mode
   const min = slotConfig.minHeight ?? 48
-  const max = slotConfig.maxHeight ?? 400
 
+  // 'auto' mode: hug content, only apply minHeight (no maxHeight constraint)
+  if (slotConfig.heightMode === 'auto') {
+    return Math.max(min, contentHeight)
+  }
+
+  // 'dynamic' mode: apply both min and max constraints
+  const max = slotConfig.maxHeight ?? 400
   return Math.max(min, Math.min(max, contentHeight))
 }
 

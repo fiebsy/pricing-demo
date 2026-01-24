@@ -52,15 +52,19 @@ export const Backdrop: React.FC<BackdropProps> = ({ className }) => {
     timing,
   } = useBiaxialExpand()
 
-  const { appearance, animation, layout } = config
+  const { appearance, animation, layout, confidenceLevel, collapsedBackground } = config
 
-  // When collapsed and hovered, use quaternary background
-  const effectiveAppearance = !expanded && hovered
-    ? { ...appearance, background: 'quaternary' as const }
+  // When collapsed, use collapsedBackground if set, or quaternary on hover
+  const effectiveAppearance = !expanded
+    ? hovered
+      ? { ...appearance, background: 'quaternary' as const }
+      : collapsedBackground && collapsedBackground !== 'none'
+        ? { ...appearance, background: collapsedBackground as 'primary' | 'secondary' | 'tertiary' | 'quaternary' }
+        : appearance
     : appearance
 
   const popupClasses = getPopupClasses(effectiveAppearance)
-  const gradientStyles = getGradientStyles(effectiveAppearance)
+  const gradientStyles = getGradientStyles(effectiveAppearance, { confidenceLevel })
 
   const duration = timing.backdropDuration
   const delay = animation.backdropDelay
@@ -70,8 +74,9 @@ export const Backdrop: React.FC<BackdropProps> = ({ className }) => {
     config.topSlot.enabled ? dimensions.topHeight + (layout.topGap ?? 0) : 0
   )
 
-  // Total panel height (trigger + gap + bottom)
-  const panelHeight = layout.triggerHeight + layout.bottomGap + dimensions.bottomHeight
+  // Total panel height (trigger + gap + bottom) - only apply gap when bottom slot is enabled
+  const effectiveBottomGap = config.bottomSlot.enabled ? layout.bottomGap : 0
+  const panelHeight = layout.triggerHeight + effectiveBottomGap + dimensions.bottomHeight
 
   if (animation.backdropMode === 'clip-path') {
     // Clip-path mode: backdrop is always full size, revealed via clip-path

@@ -23,10 +23,11 @@ export interface UseProfileScoresReturn {
   setActiveCategory: (category: CategoryType) => void
   toggleSubScore: (subScoreId: string) => void
   scrollToCategory: (category: CategoryType) => void
+  improveCategory: (category: CategoryType) => void
 }
 
 export function useProfileScores(): UseProfileScoresReturn {
-  const [scores] = useState<ProfileScores>(MOCK_SCORES)
+  const [scores, setScores] = useState<ProfileScores>(MOCK_SCORES)
   const [activeCategory, setActiveCategory] = useState<CategoryType>('career')
   const [expandedSubScore, setExpandedSubScore] = useState<string | null>(null)
 
@@ -39,6 +40,42 @@ export function useProfileScores(): UseProfileScoresReturn {
     // Could add smooth scroll behavior here if needed
   }, [])
 
+  const improveCategory = useCallback((category: CategoryType) => {
+    setScores((prev) => {
+      const increment = Math.floor(Math.random() * 3) + 1 // Random 1-3
+      const categoryData = prev.categories[category]
+      const newCategoryScore = Math.min(100, categoryData.aggregate.current + increment)
+
+      // Calculate new overall score (average of all categories)
+      const allCategories = ['career', 'skills', 'growth', 'business', 'voice'] as CategoryType[]
+      const totalScore = allCategories.reduce((sum, cat) => {
+        if (cat === category) {
+          return sum + newCategoryScore
+        }
+        return sum + prev.categories[cat].aggregate.current
+      }, 0)
+      const newOverall = Math.round(totalScore / 5)
+
+      return {
+        ...prev,
+        overall: {
+          ...prev.overall,
+          current: newOverall,
+        },
+        categories: {
+          ...prev.categories,
+          [category]: {
+            ...categoryData,
+            aggregate: {
+              ...categoryData.aggregate,
+              current: newCategoryScore,
+            },
+          },
+        },
+      }
+    })
+  }, [])
+
   return {
     scores,
     activeCategory,
@@ -46,5 +83,6 @@ export function useProfileScores(): UseProfileScoresReturn {
     setActiveCategory,
     toggleSubScore,
     scrollToCategory,
+    improveCategory,
   }
 }

@@ -102,8 +102,8 @@ export const MOCK_SCORES: ProfileScores = {
 
 export const MOCK_PROFILE: ProfileData = {
   id: 'profile-1',
-  name: 'Squirtle Kid',
-  avatarUrl: '/skwircle-kid.png',
+  name: 'Feebs',
+  avatarUrl: '/feebs-avatar-500.png',
   bio: `Design engineer crafting user experiences through thoughtful UI and clean code. Always iterating, always learning.`,
   questions: [
     {

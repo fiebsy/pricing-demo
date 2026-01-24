@@ -57,6 +57,8 @@ export interface SuccessToastConfig {
   content: {
     title: string
     subtitle: string
+    /** Optional icon type override - defaults to 'checkmark' */
+    iconType?: 'checkmark' | 'party' | 'sparkles' | 'arrow-up'
   }
 }
 

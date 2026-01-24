@@ -32,6 +32,8 @@ export interface ButtonUtilityCommonProps {
   isActive?: boolean
   /** When true, disables hover effects while isActive is true. Defaults to true. */
   disableHoverWhenActive?: boolean
+  /** When true, disables the background shine effect on hover */
+  disableShine?: boolean
   /** The size variant of the button */
   size?: ButtonUtilitySize
   /** The color variant of the button */

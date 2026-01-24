@@ -39,6 +39,7 @@ export interface V4ContextValue {
   flowStateId: FlowStateId
   storedQuestion: string | null
   storedResponse: string | null
+  storedConfidence: number | null
 
   // Derived state
   isExpanded: boolean
@@ -85,7 +86,7 @@ export interface V4ContextValue {
 
   // Flow actions
   startAdding: () => void
-  submitQuestion: () => void
+  submitQuestion: (confidence?: number) => void
   receiveResponse: (response: string) => void
   startEditing: () => void
   cancelEditing: () => void
@@ -144,6 +145,7 @@ export function V4Provider({ config, initialMode, children }: V4ProviderProps) {
   const flowStateId = state.flowState.type
   const storedQuestion = state.storedQuestion
   const storedResponse = state.storedResponse
+  const storedConfidence = state.storedConfidence
 
   // ---------------------------------------------------------------------------
   // Config helpers
@@ -276,8 +278,8 @@ export function V4Provider({ config, initialMode, children }: V4ProviderProps) {
     dispatch({ type: 'START_ADDING' })
   }, [])
 
-  const submitQuestion = useCallback(() => {
-    dispatch({ type: 'SUBMIT_QUESTION' })
+  const submitQuestion = useCallback((confidence?: number) => {
+    dispatch({ type: 'SUBMIT_QUESTION', confidence })
   }, [])
 
   const receiveResponse = useCallback((response: string) => {
@@ -312,6 +314,7 @@ export function V4Provider({ config, initialMode, children }: V4ProviderProps) {
       flowStateId,
       storedQuestion,
       storedResponse,
+      storedConfidence,
 
       // Derived
       isExpanded,
@@ -365,6 +368,7 @@ export function V4Provider({ config, initialMode, children }: V4ProviderProps) {
       flowStateId,
       storedQuestion,
       storedResponse,
+      storedConfidence,
       isExpanded,
       isEditing,
       hasSavedValue,

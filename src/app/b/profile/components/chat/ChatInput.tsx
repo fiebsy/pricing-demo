@@ -148,6 +148,7 @@ function IconButton({
 export function ChatInput({
   onSend,
   onFocus,
+  onBlur,
   disabled,
   state = 'collapsed',
   onClose,
@@ -272,7 +273,8 @@ export function ChatInput({
 
   const handleBlur = useCallback(() => {
     setIsFocused(false)
-  }, [])
+    onBlur?.()
+  }, [onBlur])
 
   return (
     <form onSubmit={handleSubmit} className={cn('relative p-4', className)}>

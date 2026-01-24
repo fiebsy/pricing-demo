@@ -9,6 +9,7 @@
 'use client'
 
 import * as React from 'react'
+import NumberFlow from '@number-flow/react'
 import { cn } from '@/lib/utils'
 import { HugeIcon } from '@/components/ui/prod/base/icon'
 import { Button } from '@/components/ui/prod/base/button'
@@ -50,7 +51,7 @@ export function CategoryRow({
     >
       {/* Fill background - width based on score */}
       <div
-        className="absolute inset-y-0 left-0 bg-tertiary/50 rounded-xl corner-squircle shine-1-subtle"
+        className="absolute inset-y-0 left-0 bg-tertiary/50 rounded-xl corner-squircle"
         style={{ width: `${Math.max(0, Math.min(100, score))}%` }}
       />
 
@@ -66,20 +67,32 @@ export function CategoryRow({
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium text-secondary">{label}</span>
-            <div className="relative flex items-center justify-center min-h-[28px]">
-              {/* Score - visible by default, hidden on hover */}
-              <span className="text-sm font-medium text-tertiary tabular-nums group-hover:opacity-0 motion-safe:transition-opacity motion-safe:duration-150">
-                {score}
-              </span>
-              {/* Improve button - hidden by default, visible on hover */}
-              <Button
-                variant="primary"
-                size="xs"
-                onClick={onImprove}
-                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 motion-safe:transition-opacity motion-safe:duration-150"
-              >
-                Add
-              </Button>
+            <div className="relative flex items-center justify-end min-h-[28px]">
+              {/* Score */}
+              <NumberFlow
+                value={score}
+                className="text-sm font-medium text-tertiary tabular-nums"
+              />
+              {/* Improve button - absolute, hidden by default, visible on hover */}
+              <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 opacity-0 group-hover:opacity-100 motion-safe:transition-opacity motion-safe:duration-150">
+                {/* Triangle pointing left */}
+                <svg
+                  className="absolute -left-1.5 top-1/2 -translate-y-1/2 text-[var(--color-gray-700)]"
+                  width="6"
+                  height="10"
+                  viewBox="0 0 6 10"
+                  fill="currentColor"
+                >
+                  <path d="M6 0L6 10L0 5L6 0Z" />
+                </svg>
+                <Button
+                  variant="shine"
+                  size="xs"
+                  onClick={onImprove}
+                >
+                  Improve
+                </Button>
+              </div>
             </div>
           </div>
         </div>

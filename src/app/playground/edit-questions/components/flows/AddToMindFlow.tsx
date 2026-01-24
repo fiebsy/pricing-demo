@@ -13,6 +13,7 @@ import * as React from 'react'
 import { useState, useCallback } from 'react'
 import { cn } from '@/lib/utils'
 import { HugeIcon } from '@/components/ui/prod/base/icon'
+import { Button } from '@/components/ui/prod/base/button'
 import FolderUploadIcon from '@hugeicons-pro/core-stroke-rounded/FolderUploadIcon'
 import Link01Icon from '@hugeicons-pro/core-stroke-rounded/Link01Icon'
 import TextIcon from '@hugeicons-pro/core-stroke-rounded/TextIcon'
@@ -23,8 +24,17 @@ import type { MindContent } from '../../types'
 // TYPES
 // =============================================================================
 
+export interface FlowStyleConfig {
+  shine?: string
+  shineIntensity?: string
+  cornerShape?: 'round' | 'squircle'
+  borderRadius?: number
+  iconCircleSize?: number
+}
+
 export interface AddToMindFlowProps {
   onComplete: (content: MindContent[]) => void
+  styleConfig?: FlowStyleConfig
   className?: string
 }
 
@@ -37,23 +47,41 @@ interface UploadOptionProps {
   label: string
   description: string
   onClick: () => void
+  styleConfig?: FlowStyleConfig
 }
 
-function UploadOption({ icon, label, description, onClick }: UploadOptionProps) {
+function UploadOption({ icon, label, description, onClick, styleConfig }: UploadOptionProps) {
+  const shineClass = styleConfig?.shine && styleConfig.shine !== 'none'
+    ? `${styleConfig.shine}${styleConfig.shineIntensity || ''}`
+    : ''
+  const cornerClass = styleConfig?.cornerShape === 'squircle' ? 'corner-squircle' : ''
+  const iconCircleSize = styleConfig?.iconCircleSize || 40
+
   return (
     <button
       type="button"
       onClick={onClick}
       className={cn(
-        'w-full p-4 rounded-xl text-left',
+        'w-full p-4 text-left',
         'bg-secondary border border-primary',
         'hover:bg-tertiary hover:border-secondary',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary',
-        'motion-safe:transition-all motion-safe:duration-150'
+        'motion-safe:transition-all motion-safe:duration-150',
+        shineClass,
+        cornerClass
       )}
+      style={{
+        borderRadius: styleConfig?.borderRadius || 12,
+      }}
     >
       <div className="flex items-center gap-3">
-        <div className="size-10 rounded-lg bg-brand-primary/10 flex items-center justify-center shrink-0">
+        <div
+          className="rounded-full bg-brand-primary/10 flex items-center justify-center shrink-0"
+          style={{
+            width: iconCircleSize,
+            height: iconCircleSize,
+          }}
+        >
           <HugeIcon icon={icon} size="sm" color="brand" />
         </div>
         <div>
@@ -117,7 +145,7 @@ function ContentItem({ content, onRemove }: ContentItemProps) {
 // MAIN COMPONENT
 // =============================================================================
 
-export function AddToMindFlow({ onComplete, className }: AddToMindFlowProps) {
+export function AddToMindFlow({ onComplete, styleConfig, className }: AddToMindFlowProps) {
   const [content, setContent] = useState<MindContent[]>([])
   const [showLinkInput, setShowLinkInput] = useState(false)
   const [showTextInput, setShowTextInput] = useState(false)
@@ -184,18 +212,21 @@ export function AddToMindFlow({ onComplete, className }: AddToMindFlowProps) {
           label="Upload File"
           description="PDF, DOC, TXT, or images"
           onClick={handleFileUpload}
+          styleConfig={styleConfig}
         />
         <UploadOption
           icon={Link01Icon}
           label="Add Link"
           description="Paste a URL to web content"
           onClick={() => setShowLinkInput(true)}
+          styleConfig={styleConfig}
         />
         <UploadOption
           icon={TextIcon}
           label="Add Text"
           description="Type or paste text directly"
           onClick={() => setShowTextInput(true)}
+          styleConfig={styleConfig}
         />
       </div>
 
@@ -300,20 +331,16 @@ export function AddToMindFlow({ onComplete, className }: AddToMindFlowProps) {
       )}
 
       {/* Complete button */}
-      <button
-        type="button"
+      <Button
+        variant="primary"
+        size="lg"
+        roundness={styleConfig?.cornerShape === 'squircle' ? 'squircle' : 'default'}
         onClick={handleComplete}
         disabled={content.length === 0}
-        className={cn(
-          'w-full px-4 py-3 rounded-xl',
-          'text-sm font-medium text-white',
-          'bg-brand-solid hover:bg-brand-solid-hover',
-          'disabled:opacity-50 disabled:cursor-not-allowed',
-          'motion-safe:transition-colors motion-safe:duration-150'
-        )}
+        className="w-full"
       >
         {content.length === 0 ? 'Add content to continue' : `Process ${content.length} item${content.length === 1 ? '' : 's'}`}
-      </button>
+      </Button>
     </div>
   )
 }

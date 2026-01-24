@@ -2,18 +2,21 @@
  * Question Command Menu V4 - Trigger Display
  *
  * Read-only display state for question mode (idle/saved states).
+ * Also used for "submitted question" state in processing/response flow states.
  */
 
 'use client'
 
 import * as React from 'react'
 import { cn } from '@/lib/utils'
+import { useBiaxialExpand } from '@/components/ui/prod/base/biaxial-command-menu-v4'
 import { HugeIcon } from '@/components/ui/prod/base/icon'
+import Alert02Icon from '@hugeicons-pro/core-stroke-rounded/Alert02Icon'
 import { useV4Context } from '../state'
-import type { TriggerConfig, TriggerDisplayConfig } from '../types'
+import { useFlowConfig, useVisibleButtons } from '../hooks'
+import { ActionButton } from './TriggerButtons'
+import type { TriggerConfig, TriggerDisplayConfig, TriggerButtonConfig } from '../types'
 
-// Icons
-import ArrowRight01Icon from '@hugeicons-pro/core-stroke-rounded/ArrowRight01Icon'
 
 // =============================================================================
 // TYPES
@@ -23,6 +26,10 @@ export interface TriggerDisplayProps {
   triggerConfig: TriggerConfig
   displayConfig?: TriggerDisplayConfig
   onClick?: () => void
+  /** Override the displayed value (instead of reading from context) */
+  savedValue?: string
+  /** Callback when a trigger button is clicked */
+  onButtonClick?: (buttonIndex: number, buttonConfig: TriggerButtonConfig) => void
   className?: string
 }
 
@@ -45,22 +52,43 @@ export const TriggerDisplay: React.FC<TriggerDisplayProps> = ({
   triggerConfig,
   displayConfig = DEFAULT_DISPLAY_CONFIG,
   onClick,
+  savedValue: savedValueProp,
+  onButtonClick,
   className,
 }) => {
-  const { state, hasSavedValue } = useV4Context()
+  const { expanded, timing } = useBiaxialExpand()
+  const { state, hasSavedValue, storedConfidence } = useV4Context()
+  const { effectiveTriggerButtons, flowStateId } = useFlowConfig()
 
-  const displayText = hasSavedValue
-    ? state.savedValue
+  // Show caution icon when collapsed, in response state, and has low confidence
+  const showCautionIcon = !expanded &&
+    flowStateId === 'response' &&
+    storedConfidence !== null &&
+    storedConfidence <= 0.1
+
+  // Use prop value if provided, otherwise fall back to context
+  const effectiveSavedValue = savedValueProp ?? state.savedValue
+  const hasValue = savedValueProp ? savedValueProp.trim().length > 0 : hasSavedValue
+
+  const displayText = hasValue
+    ? effectiveSavedValue
     : displayConfig.addPlaceholderText
 
-  const textColor = hasSavedValue
+  const textColor = hasValue
     ? `text-${displayConfig.savedValueColor}`
     : 'text-tertiary'
 
+  // Get visible buttons for display mode (use 'expanded' showWhen since we're in response state)
+  const rightButtons = useVisibleButtons(effectiveTriggerButtons ?? [], 'right', expanded)
+  const hasFlowButtons = rightButtons.length > 0 && (flowStateId === 'processing' || flowStateId === 'response')
+
+  // Get animation duration
+  const duration = timing.duration
+
   return (
     <div
-      role="button"
-      tabIndex={0}
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
       onClick={onClick}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
@@ -70,7 +98,8 @@ export const TriggerDisplay: React.FC<TriggerDisplayProps> = ({
       }}
       className={cn(
         'flex items-center w-full h-full gap-2',
-        'cursor-pointer select-none',
+        onClick ? 'cursor-pointer' : 'cursor-default',
+        'select-none',
         'transition-colors duration-150',
         className
       )}
@@ -81,6 +110,16 @@ export const TriggerDisplay: React.FC<TriggerDisplayProps> = ({
         paddingBottom: triggerConfig.paddingBottom,
       }}
     >
+      {/* Caution icon - shown when collapsed with low confidence */}
+      {showCautionIcon && (
+        <div
+          className="shrink-0 text-error-primary"
+          aria-label="Low confidence warning"
+        >
+          <HugeIcon icon={Alert02Icon} size={16} strokeWidth={2} />
+        </div>
+      )}
+
       {/* Display text */}
       <span
         className={cn(
@@ -92,12 +131,24 @@ export const TriggerDisplay: React.FC<TriggerDisplayProps> = ({
         {displayText}
       </span>
 
-      {/* Arrow indicator */}
-      {displayConfig.showEditIndicator && (
-        <span className="shrink-0 flex items-center justify-center text-quaternary">
-          <HugeIcon icon={ArrowRight01Icon} size={18} strokeWidth={1.5} />
-        </span>
-      )}
+      {/* Flow-aware buttons (Edit, Delete) in response state */}
+      {hasFlowButtons && rightButtons.map((btn, index) => (
+        <div
+          key={btn.id}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <ActionButton
+            config={btn}
+            onClick={() => onButtonClick?.(index, btn)}
+            expanded={expanded}
+            duration={duration}
+            saveStatus={state.saveStatus}
+            hasUnsavedChanges={false}
+          />
+        </div>
+      ))}
+
+      {/* Arrow indicator - removed, now handled via button config system */}
     </div>
   )
 }

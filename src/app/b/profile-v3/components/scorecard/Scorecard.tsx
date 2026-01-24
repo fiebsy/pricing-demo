@@ -10,13 +10,16 @@
 'use client'
 
 import * as React from 'react'
+import NumberFlow, { NumberFlowGroup } from '@number-flow/react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/prod/base/button'
+import { HugeIcon } from '@/components/ui/prod/base/icon'
 import Briefcase01Icon from '@hugeicons-pro/core-stroke-rounded/Briefcase01Icon'
 import Wrench01Icon from '@hugeicons-pro/core-stroke-rounded/Wrench01Icon'
 import PlantIcon from '@hugeicons-pro/core-stroke-rounded/Plant03Icon'
 import ChartLineData01Icon from '@hugeicons-pro/core-stroke-rounded/ChartLineData01Icon'
 import Mic01Icon from '@hugeicons-pro/core-stroke-rounded/Mic01Icon'
+import ArrowUp01Icon from '@hugeicons-pro/core-stroke-rounded/ArrowUp01Icon'
 import { CategoryRow } from './CategoryRow'
 import type { ProfileScores, CategoryType } from '../../types'
 
@@ -45,6 +48,7 @@ const CATEGORIES: CategoryConfig[] = [
 export interface ScorecardProps {
   scores: ProfileScores
   onImproveCategory: (category: CategoryType) => void
+  onImproveOverall?: () => void
   className?: string
 }
 
@@ -55,6 +59,7 @@ export interface ScorecardProps {
 export function Scorecard({
   scores,
   onImproveCategory,
+  onImproveOverall,
   className,
 }: ScorecardProps) {
   const overallScore = scores.overall.current
@@ -63,57 +68,74 @@ export function Scorecard({
     <div
       className={cn(
         'flex flex-col gap-5',
-        'px-2 pb-2',
         className
       )}
     >
-      {/* Add Confidence Button */}
-      <div className="px-2">
-        <Button variant="primary" size="sm" className="w-full shine-1">
-          Add confidence
-        </Button>
-      </div>
+      {/* Card wrapper */}
+      <div className="flex flex-col gap-3 p-4 bg-secondary rounded-3xl corner-squircle shine-1">
+        {/* Confidence Score Header */}
+        <NumberFlowGroup>
+          <div className="flex flex-col">
+            <span className="text-sm text-secondary opacity-50">
+              Overall strength
+            </span>
+            <div className="flex items-center gap-3 -mt-1">
+              <div className="flex items-baseline">
+                <NumberFlow
+                  value={overallScore}
+                  className="text-5xl font-display font-medium text-primary leading-none"
+                />
+                <span className="text-2xl font-display font-medium text-quaternary leading-none opacity-50">
+                  %
+                </span>
+              </div>
+              {/* Rank Change */}
+              <span className="flex items-center gap-0.5 text-success-primary">
+                <HugeIcon icon={ArrowUp01Icon} size={16} />
+                <span className="text-sm font-medium">3</span>
+              </span>
+            </div>
+          </div>
+        </NumberFlowGroup>
 
-      {/* Confidence Score Header */}
-      <div className="flex flex-col px-2">
-        <div className="flex items-baseline">
-          <span className="text-5xl font-display font-medium text-primary leading-none">
-            {overallScore}
-          </span>
-          <span className="text-2xl font-display font-medium text-quaternary leading-none opacity-50">
-            %
-          </span>
-        </div>
-        <span className="text-sm text-secondary mt-1 opacity-50">
-          Overall confidence
-        </span>
-        {/* Overall health bar */}
-        <div className="relative h-2 w-full mt-2">
-          <div className="h-full w-full rounded-full bg-white/10 overflow-hidden">
+        {/* Overall health bar - stretched to card edges */}
+        <div className="relative h-2 w-[calc(100%+2rem)] -mx-4 -mt-2">
+          <div className="h-full w-full bg-white/10 overflow-hidden">
             <div
-              className="h-full rounded-full bg-gradient-to-r from-[var(--color-chart-3)] to-[var(--color-chart-1)] shine-1"
+              className="h-full bg-gradient-to-r from-[var(--color-chart-3)] to-[var(--color-chart-1)] shine-1"
               style={{ width: `${overallScore}%` }}
             />
           </div>
         </div>
+
+        {/* Category List */}
+        <div className="group/list flex flex-col gap-2">
+          {CATEGORIES.map((config) => {
+            const categoryData = scores.categories[config.id]
+            return (
+              <CategoryRow
+                key={config.id}
+                id={config.id}
+                label={config.label}
+                icon={config.icon}
+                score={categoryData?.aggregate.current || 0}
+                onImprove={() => onImproveCategory(config.id)}
+              />
+            )
+          })}
+        </div>
       </div>
 
-      {/* Category List */}
-      <div className="group/list flex flex-col gap-2">
-        {CATEGORIES.map((config) => {
-          const categoryData = scores.categories[config.id]
-          return (
-            <CategoryRow
-              key={config.id}
-              id={config.id}
-              label={config.label}
-              icon={config.icon}
-              score={categoryData?.aggregate.current || 0}
-              onImprove={() => onImproveCategory(config.id)}
-            />
-          )
-        })}
-      </div>
+      {/* Add Strength Button - outside card */}
+      <Button
+        variant="shine"
+        size="sm"
+        roundness="pill"
+        className="w-full"
+        onClick={onImproveOverall}
+      >
+        Improve strength
+      </Button>
     </div>
   )
 }

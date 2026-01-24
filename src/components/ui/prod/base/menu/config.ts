@@ -198,10 +198,17 @@ export function getPopupClasses(appearance: MenuAppearance): string {
  * Generate inline gradient styles
  * Creates a subtle depth effect by adding a tinted gradient overlay
  */
-export function getGradientStyles(appearance: MenuAppearance): React.CSSProperties {
+export function getGradientStyles(
+  appearance: MenuAppearance,
+  options?: { confidenceLevel?: number | null }
+): React.CSSProperties {
   const merged = { ...DEFAULT_APPEARANCE, ...appearance }
+  const confidenceLevel = options?.confidenceLevel
 
-  if (merged.gradient === 'none') {
+  // Check for low confidence (0 or very low) - apply error gradient
+  const isLowConfidence = confidenceLevel !== null && confidenceLevel !== undefined && confidenceLevel <= 0.1
+
+  if (merged.gradient === 'none' && !isLowConfidence) {
     return {}
   }
 
@@ -214,6 +221,7 @@ export function getGradientStyles(appearance: MenuAppearance): React.CSSProperti
     tertiary: '100, 100, 100',  // Gray
     gray: '100, 116, 139',      // Slate gray
     'gray-light': '148, 163, 184', // Light gray
+    error: '239, 68, 68',       // Red for low confidence
   }
 
   // Opacity values for different intensities
@@ -222,6 +230,15 @@ export function getGradientStyles(appearance: MenuAppearance): React.CSSProperti
     md: 0.06,
     lg: 0.10,
     xl: 0.15,
+  }
+
+  // For low confidence, use error color with subtle gradient
+  if (isLowConfidence) {
+    const errorRgb = colorRgbMap.error
+    // Subtle error gradient from top to bottom
+    return {
+      backgroundImage: `linear-gradient(to bottom, rgba(${errorRgb}, 0.04) 0%, rgba(${errorRgb}, 0.12) 100%)`,
+    }
   }
 
   const intensity = merged.gradient.replace('subtle-depth-', '')

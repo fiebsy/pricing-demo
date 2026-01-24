@@ -37,6 +37,13 @@ body {
   font-kerning: normal;
 }
 
+/* Prevent horizontal scrollbar from appearing during off-screen animations
+   (e.g., Tinder-style card swipes that translateX beyond viewport) */
+html,
+body {
+  overflow-x: hidden;
+}
+
 /* Explicit color-scheme for theme modes - helps browser optimize */
 html:not(.dark-mode) {
   color-scheme: light;

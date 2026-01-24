@@ -12,10 +12,14 @@
 import { useCallback, useMemo, useState } from 'react'
 import { cn } from '@/lib/utils'
 import { Breadcrumbs } from '@/components/ui/deprecated/nav'
+import { Button } from '@/components/ui/prod/base/button'
 import {
   UnifiedControlPanel,
   type ControlChangeEvent,
 } from '@/components/ui/prod/base/control-panel'
+import { HugeIcon } from '@/components/ui/prod/base/icon'
+import ArrowRight01Icon from '@hugeicons-pro/core-stroke-rounded/ArrowRight01Icon'
+import Cancel01Icon from '@hugeicons-pro/core-stroke-rounded/Cancel01Icon'
 
 import type { QuickFixInteractionsConfig } from './config/types'
 import { DEFAULT_QUICK_FIX_CONFIG, QUICK_FIX_PRESETS } from './config/presets'
@@ -31,6 +35,58 @@ import {
 } from './core'
 import type { Notification } from './core/StatusIsland'
 import { SAMPLE_STATEMENTS, MEMORY_BULLETS, SAMPLE_NOTIFICATIONS } from './constants/mock-data'
+import { AddToMindFlow } from '../edit-questions/components/flows/AddToMindFlow'
+import { ManualFixFlow } from '../edit-questions/components/flows/ManualFixFlow'
+import { ConfigurableToast } from '../success-toast/core/ConfigurableToast'
+import type { SuccessToastConfig } from '../success-toast/config/types'
+
+// =============================================================================
+// SUCCESS TOAST CONFIG
+// =============================================================================
+
+const SUCCESS_TOAST_CONFIG: SuccessToastConfig = {
+  container: {
+    paddingTop: 16,
+    paddingBottom: 16,
+    paddingLeft: 16,
+    paddingRight: 16,
+    borderRadius: 32,
+    background: 'secondary',
+    shine: 'shine-1',
+    shineIntensity: '-subtle',
+    cornerShape: 'squircle',
+  },
+  icon: {
+    containerSize: 28,
+    iconSize: 20,
+    containerBackground: 'tertiary',
+    iconColor: 'secondary',
+    containerBorderRadius: 10,
+  },
+  typography: {
+    titleSize: 'text-sm',
+    titleWeight: 'font-medium',
+    titleColor: 'primary',
+    subtitleSize: 'text-xs',
+    subtitleWeight: 'font-normal',
+    subtitleColor: 'tertiary',
+  },
+  progress: {
+    height: 3,
+    background: 'tertiary/20',
+    fillColor: 'brand-primary',
+    borderRadius: 0,
+  },
+  behavior: {
+    duration: 5500,
+    animationDuration: 250,
+    animationDirection: 'right',
+  },
+  content: {
+    title: 'Changes saved',
+    subtitle: 'Your profile has been updated',
+  },
+}
 
 // =============================================================================
 // UTILITY FUNCTIONS
@@ -311,6 +367,172 @@ function IslandPreview({ config }: { config: QuickFixInteractionsConfig }) {
   )
 }
 
+type FlowStep = 'select-method' | 'flow-content' | 'completion'
+
+interface FullFlowPreviewProps {
+  config: QuickFixInteractionsConfig
+  onFlowComplete?: () => void
+}
+
+function FullFlowPreview({ config, onFlowComplete }: FullFlowPreviewProps) {
+  const [step, setStep] = useState<FlowStep>('select-method')
+  const [selectedFlow, setSelectedFlow] = useState<'quick-fix' | 'add-to-mind' | 'manual-fix' | null>(null)
+  const [currentIndex, setCurrentIndex] = useState(0)
+  const [triggerDirection, setTriggerDirection] = useState<'left' | 'right' | null>(null)
+
+  const handleFlowSelect = useCallback((flow: 'quick-fix' | 'add-to-mind' | 'manual-fix') => {
+    setSelectedFlow(flow)
+    // Auto-advance after selection
+    setTimeout(() => {
+      setStep('flow-content')
+    }, 500)
+  }, [])
+
+  const handleSwipe = useCallback((isTrue: boolean) => {
+    setTriggerDirection(null)
+    console.log(`Answered: ${isTrue ? 'True' : 'False'}`)
+
+    if (currentIndex + 1 >= SAMPLE_STATEMENTS.length) {
+      setStep('completion')
+    } else {
+      setCurrentIndex((prev) => prev + 1)
+    }
+  }, [currentIndex])
+
+  const handleButtonSwipe = useCallback((direction: 'left' | 'right') => {
+    setTriggerDirection(direction)
+  }, [])
+
+  const handleFlowComplete = useCallback(() => {
+    setStep('completion')
+  }, [])
+
+  const handleComplete = useCallback(() => {
+    // Notify parent to close modal and show processing state
+    onFlowComplete?.()
+  }, [onFlowComplete])
+
+  const handleRestart = useCallback(() => {
+    setStep('select-method')
+    setSelectedFlow(null)
+    setCurrentIndex(0)
+    setTriggerDirection(null)
+  }, [])
+
+  // Render the appropriate flow content based on selection
+  const renderFlowContent = () => {
+    switch (selectedFlow) {
+      case 'quick-fix':
+        return (
+          <div className="flex flex-col items-center">
+            {/* Progress */}
+            <div className="mb-8 w-full flex justify-center">
+              <ProgressBar
+                current={currentIndex}
+                total={SAMPLE_STATEMENTS.length}
+                config={config.progress}
+              />
+            </div>
+
+            {/* Instructions */}
+            <p className="text-sm text-tertiary mb-6 text-center">
+              Swipe right if true, left if false
+            </p>
+
+            {/* Card stack */}
+            <div
+              className="relative mb-8"
+              style={{
+                width: config.card.width,
+                height: config.card.height,
+              }}
+            >
+              {SAMPLE_STATEMENTS.map((statement, index) => {
+                const position = index - currentIndex
+                if (position < 0) return null
+
+                return (
+                  <SwipeableCard
+                    key={statement.id}
+                    text={statement.text}
+                    isActive={position === 0}
+                    position={position}
+                    onSwipe={handleSwipe}
+                    cardConfig={config.card}
+                    swipeConfig={config.swipe}
+                    triggerDirection={position === 0 ? triggerDirection : null}
+                  />
+                )
+              })}
+            </div>
+
+            {/* Action buttons */}
+            <ActionButtons
+              onSwipe={handleButtonSwipe}
+              config={config.actionButtons}
+            />
+          </div>
+        )
+
+      case 'add-to-mind':
+        return (
+          <AddToMindFlow
+            onComplete={() => handleFlowComplete()}
+            styleConfig={{
+              shine: config.flowOptions.shine,
+              shineIntensity: config.flowOptions.shineIntensity,
+              cornerShape: config.flowOptions.cornerShape,
+              borderRadius: config.flowOptions.cardBorderRadius,
+              iconCircleSize: config.flowOptions.iconCircleSize,
+            }}
+          />
+        )
+
+      case 'manual-fix':
+        return (
+          <ManualFixFlow
+            questionText="How do you typically approach problem-solving in your work?"
+            onComplete={() => handleFlowComplete()}
+            styleConfig={{
+              shine: config.flowOptions.shine,
+              shineIntensity: config.flowOptions.shineIntensity,
+              cornerShape: config.flowOptions.cornerShape,
+              borderRadius: config.flowOptions.cardBorderRadius,
+            }}
+          />
+        )
+
+      default:
+        return null
+    }
+  }
+
+  return (
+    <div className="w-full max-w-md mx-auto">
+      {/* Flow selector step */}
+      {step === 'select-method' && (
+        <FlowSelector
+          onSelect={handleFlowSelect}
+          config={config.flowOptions}
+          selectedFlow={selectedFlow}
+        />
+      )}
+
+      {/* Flow content step (Quick Fix, Add to Mind, or Manual Fix) */}
+      {step === 'flow-content' && renderFlowContent()}
+
+      {/* Completion step */}
+      {step === 'completion' && (
+        <CompletionState
+          onContinue={handleComplete}
+          bullets={MEMORY_BULLETS}
+          config={config.completion}
+        />
+      )}
+    </div>
+  )
+}
+
 function ToastPreview({ config }: { config: QuickFixInteractionsConfig }) {
   const [visible, setVisible] = useState(true)
   const [key, setKey] = useState(0)
@@ -380,6 +602,21 @@ function ToastPreview({ config }: { config: QuickFixInteractionsConfig }) {
 export default function QuickFixInteractionsPlayground() {
   const [config, setConfig] = useState<QuickFixInteractionsConfig>(DEFAULT_QUICK_FIX_CONFIG)
   const [activePresetId, setActivePresetId] = useState<string | null>('default')
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [showToast, setShowToast] = useState(false)
+  const [isProcessing, setIsProcessing] = useState(false)
+
+  // Handle flow completion - close modal, show toast, update island
+  const handleFlowComplete = useCallback(() => {
+    setIsModalOpen(false)
+    setShowToast(true)
+    setIsProcessing(true)
+
+    // Simulate processing completion after toast duration
+    setTimeout(() => {
+      setIsProcessing(false)
+    }, 5500)
+  }, [])
 
   const handleChange = useCallback((event: ControlChangeEvent) => {
     const { controlId, value } = event
@@ -412,6 +649,8 @@ export default function QuickFixInteractionsPlayground() {
   // Render preview based on mode
   const renderPreview = () => {
     switch (config.previewMode) {
+      case 'full-flow':
+        return <FullFlowPreview config={config} />
       case 'card-stack':
         return <CardStackPreview config={config} />
       case 'flow-selector':
@@ -458,14 +697,23 @@ export default function QuickFixInteractionsPlayground() {
             </p>
           </div>
 
-          {/* Mode indicator */}
-          <div className="mb-8">
+          {/* Mode indicator + Preview button */}
+          <div className="mb-8 flex items-center gap-4">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary border border-primary">
               <span className="text-xs text-tertiary">Viewing:</span>
               <span className="text-xs font-medium text-primary capitalize">
                 {config.previewMode.replace('-', ' ')}
               </span>
             </div>
+            <Button
+              variant="secondary"
+              size="sm"
+              roundness="squircle"
+              iconLeading={ArrowRight01Icon}
+              onClick={() => setIsModalOpen(true)}
+            >
+              Preview Flow
+            </Button>
           </div>
 
           {/* Preview container */}
@@ -485,6 +733,68 @@ export default function QuickFixInteractionsPlayground() {
         onPresetChange={handlePresetChange}
         onReset={handleReset}
         getConfigForCopy={() => config}
+      />
+
+      {/* Full Flow Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={() => setIsModalOpen(false)}
+          />
+
+          {/* Modal */}
+          <div className="relative w-full max-w-lg mx-4 bg-primary border border-primary rounded-2xl shadow-2xl overflow-hidden">
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-primary">
+              <h2 className="text-lg font-semibold text-primary">Quick Fix Flow</h2>
+              <button
+                type="button"
+                onClick={() => setIsModalOpen(false)}
+                className="p-2 -mr-2 rounded-lg hover:bg-tertiary motion-safe:transition-colors"
+              >
+                <HugeIcon icon={Cancel01Icon} size={20} className="text-tertiary" />
+              </button>
+            </div>
+
+            {/* Content - overflow-x-hidden prevents scrollbar during card exit animation */}
+            <div className="p-6 max-h-[70vh] overflow-y-auto overflow-x-hidden">
+              <FullFlowPreview config={config} onFlowComplete={handleFlowComplete} />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Toast overlay */}
+      <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50">
+        <ConfigurableToast
+          config={SUCCESS_TOAST_CONFIG}
+          visible={showToast}
+          onDismiss={() => setShowToast(false)}
+        />
+      </div>
+
+      {/* Status Island - always visible, top right */}
+      <StatusIsland
+        config={{ ...config.island, showUpload: false }}
+        position="top-right"
+        compositeScore={12100}
+        confidenceValue={68}
+        confidenceLevel="medium"
+        notifications={
+          isProcessing
+            ? [
+                {
+                  id: 'processing',
+                  type: 'info',
+                  title: 'Processing changes',
+                  subtitle: 'Updating your profile...',
+                  timestamp: new Date(),
+                },
+              ]
+            : []
+        }
       />
     </div>
   )

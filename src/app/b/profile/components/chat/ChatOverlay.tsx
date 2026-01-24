@@ -14,7 +14,7 @@
 'use client'
 
 import * as React from 'react'
-import { useCallback } from 'react'
+import { useCallback, useImperativeHandle, forwardRef } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { cn } from '@/lib/utils'
 
@@ -24,6 +24,14 @@ import { ChatBackdrop } from './ChatBackdrop'
 import { useChatMessages, useSimulatedResponse } from '../../hooks'
 import { DEFAULT_CHAT_CONFIG } from '../../config'
 import type { ChatOverlayProps } from '../../types'
+
+// =============================================================================
+// TYPES
+// =============================================================================
+
+export interface ChatOverlayRef {
+  sendMessage: (content: string) => Promise<void>
+}
 
 // =============================================================================
 // ANIMATION CONFIG
@@ -39,7 +47,8 @@ const messagesTransition = {
 // MAIN COMPONENT
 // =============================================================================
 
-export function ChatOverlay({ state, onStateChange, className }: ChatOverlayProps) {
+export const ChatOverlay = forwardRef<ChatOverlayRef, ChatOverlayProps>(
+  function ChatOverlay({ state, onStateChange, onImproveAnswer, onAnswerComplete, className }, ref) {
   // Hooks
   const {
     messages,
@@ -55,6 +64,13 @@ export function ChatOverlay({ state, onStateChange, className }: ChatOverlayProp
   const handleInputFocus = useCallback(() => {
     if (state === 'collapsed') {
       onStateChange('default')
+    }
+  }, [state, onStateChange])
+
+  const handleInputBlur = useCallback(() => {
+    // Collapse when input loses focus (hides radial blur backdrop)
+    if (state !== 'collapsed') {
+      onStateChange('collapsed')
     }
   }, [state, onStateChange])
 
@@ -80,11 +96,28 @@ export function ChatOverlay({ state, onStateChange, className }: ChatOverlayProp
       // Add empty assistant message (streaming)
       const assistantId = addAssistantMessage()
 
+      // Track accumulated content for onAnswerComplete callback
+      let accumulatedContent = ''
+
       // Simulate streaming response
       await simulateResponse(
         content,
-        (chunk) => updateMessageContent(assistantId, chunk),
-        (confidence) => completeMessage(assistantId, confidence)
+        (chunk) => {
+          accumulatedContent = chunk
+          updateMessageContent(assistantId, chunk)
+        },
+        (confidence) => {
+          completeMessage(assistantId, confidence)
+          // Notify parent when answer completes
+          onAnswerComplete?.({
+            id: assistantId,
+            role: 'assistant',
+            content: accumulatedContent,
+            status: 'complete',
+            confidence,
+            timestamp: new Date(),
+          })
+        }
       )
     },
     [
@@ -95,8 +128,14 @@ export function ChatOverlay({ state, onStateChange, className }: ChatOverlayProp
       updateMessageContent,
       completeMessage,
       simulateResponse,
+      onAnswerComplete,
     ]
   )
+
+  // Expose sendMessage to parent via ref
+  useImperativeHandle(ref, () => ({
+    sendMessage: handleSend,
+  }), [handleSend])
 
   const isExpanded = state === 'expanded'
   const showMessages = state !== 'collapsed'
@@ -107,9 +146,9 @@ export function ChatOverlay({ state, onStateChange, className }: ChatOverlayProp
 
   return (
     <>
-      {/* Radial blur backdrop - renders behind chat content */}
+      {/* Radial blur backdrop - only visible when input is active AND messages exist */}
       <ChatBackdrop
-        state={state}
+        state={messages.length > 0 ? state : 'collapsed'}
         onClose={handleClose}
         blurHeight={DEFAULT_CHAT_CONFIG.height}
         blurStyle={DEFAULT_CHAT_CONFIG.style}
@@ -162,6 +201,7 @@ export function ChatOverlay({ state, onStateChange, className }: ChatOverlayProp
                   useSquircle={DEFAULT_CHAT_CONFIG.messages.useSquircle}
                   shineStyle={DEFAULT_CHAT_CONFIG.messages.shineStyle}
                   inputHeight={DEFAULT_CHAT_CONFIG.messages.inputHeight}
+                  onImproveAnswer={onImproveAnswer}
                 />
               </div>
             </motion.div>
@@ -180,6 +220,7 @@ export function ChatOverlay({ state, onStateChange, className }: ChatOverlayProp
             <ChatInput
               onSend={handleSend}
               onFocus={handleInputFocus}
+              onBlur={handleInputBlur}
               disabled={isTyping}
               state={state}
               onClose={handleClose}
@@ -191,4 +232,4 @@ export function ChatOverlay({ state, onStateChange, className }: ChatOverlayProp
       </div>
     </>
   )
-}
+})

@@ -1,7 +1,7 @@
 /**
- * Flow Testing - Custom Flow Config
+ * Question Flow Configuration
  *
- * Defines how the UI changes at each state in the question lifecycle.
+ * Single button flow - defines how the UI changes at each state.
  *
  * FLOW STATES:
  * ┌─────────┐
@@ -34,12 +34,15 @@
 import type { FlowConfigs } from '../question-command-menu-v4/types'
 
 /**
- * Your custom flow config for single-button UI
+ * Single button flow configuration
  *
- * This config overrides the base config at each state.
- * Only specify what CHANGES - everything else uses base config values.
+ * Features:
+ * - One primary action button ("Improve answer")
+ * - Plus icon when collapsed (idle/adding)
+ * - Arrow icon when collapsed with response
+ * - Edit/Delete buttons in response state
  */
-export const CUSTOM_FLOW_CONFIG: FlowConfigs = {
+export const QUESTION_FLOW_CONFIG: FlowConfigs = {
   // ─────────────────────────────────────────────────────────────────────────
   // IDLE: Menu is collapsed, nothing shown
   // ─────────────────────────────────────────────────────────────────────────
@@ -48,6 +51,14 @@ export const CUSTOM_FLOW_CONFIG: FlowConfigs = {
       top: { enabled: false },
       bottom: { enabled: false },
     },
+    triggerButtons: [
+      { id: 'send', enabled: false },
+      { id: 'add-button', enabled: true },
+      { id: 'edit-small', enabled: false },
+      { id: 'delete-expanded', enabled: false },
+      { id: 'plus-collapsed', enabled: true },
+      { id: 'arrow-collapsed', enabled: false },
+    ],
   },
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -55,9 +66,17 @@ export const CUSTOM_FLOW_CONFIG: FlowConfigs = {
   // ─────────────────────────────────────────────────────────────────────────
   adding: {
     slots: {
-      top: { enabled: false },    // Hide chat area while typing
-      bottom: { enabled: false }, // Hide button while typing
+      top: { enabled: false },
+      bottom: { enabled: false },
     },
+    triggerButtons: [
+      { id: 'send', enabled: false },
+      { id: 'add-button', enabled: true },
+      { id: 'edit-small', enabled: false },
+      { id: 'delete-expanded', enabled: false },
+      { id: 'plus-collapsed', enabled: true },
+      { id: 'arrow-collapsed', enabled: false },
+    ],
     placeholder: 'Type your question...',
   },
 
@@ -66,11 +85,18 @@ export const CUSTOM_FLOW_CONFIG: FlowConfigs = {
   // ─────────────────────────────────────────────────────────────────────────
   processing: {
     slots: {
-      top: { enabled: true, minHeight: 120 },
+      top: { enabled: true },
       bottom: { enabled: true },
     },
     buttons: [
-      { id: 'btn1', label: 'Generating...', isLoading: true, enabled: false },
+      { id: 'btn1', label: 'Generating...', isLoading: false, enabled: true, disabled: true },
+      { id: 'btn2', enabled: false },
+      { id: 'btn3', enabled: false },
+      { id: 'btn4', enabled: false },
+    ],
+    triggerButtons: [
+      { id: 'plus-collapsed', enabled: false },
+      { id: 'arrow-collapsed', enabled: true },
     ],
     placeholder: 'Your question',
   },
@@ -80,11 +106,22 @@ export const CUSTOM_FLOW_CONFIG: FlowConfigs = {
   // ─────────────────────────────────────────────────────────────────────────
   response: {
     slots: {
-      top: { enabled: true, minHeight: 120 },
+      top: { enabled: true },
       bottom: { enabled: true },
     },
     buttons: [
       { id: 'btn1', label: 'Improve answer', enabled: true, isLoading: false },
+      { id: 'btn2', enabled: false },
+      { id: 'btn3', enabled: false },
+      { id: 'btn4', enabled: false },
+    ],
+    triggerButtons: [
+      { id: 'send', enabled: false },
+      { id: 'add-button', enabled: false },
+      { id: 'edit-small', enabled: true },
+      { id: 'delete-expanded', enabled: true },
+      { id: 'plus-collapsed', enabled: false },
+      { id: 'arrow-collapsed', enabled: true },
     ],
   },
 
@@ -94,65 +131,21 @@ export const CUSTOM_FLOW_CONFIG: FlowConfigs = {
   editing: {
     slots: {
       top: { enabled: true },
-      bottom: { enabled: true },
-    },
-    buttons: [
-      { id: 'btn1', label: 'Update', enabled: true, isLoading: false },
-    ],
-    placeholder: 'Edit your question...',
-  },
-}
-
-/**
- * Alternative: Two-button flow config
- * Use this if you want Cancel + Update buttons in editing state
- */
-export const TWO_BUTTON_FLOW_CONFIG: FlowConfigs = {
-  idle: {
-    slots: {
-      top: { enabled: false },
       bottom: { enabled: false },
     },
-  },
-
-  adding: {
-    slots: {
-      top: { enabled: false },
-      bottom: { enabled: false },
-    },
-    placeholder: 'Type your question...',
-  },
-
-  processing: {
-    slots: {
-      top: { enabled: true, minHeight: 120 },
-      bottom: { enabled: true },
-    },
     buttons: [
-      { id: 'btn1', label: 'Generating...', isLoading: true, enabled: false },
-      { id: 'btn2', enabled: false }, // Hide second button
+      { id: 'btn1', label: 'Improve answer', enabled: true, isLoading: false },
+      { id: 'btn2', enabled: false },
+      { id: 'btn3', enabled: false },
+      { id: 'btn4', enabled: false },
     ],
-  },
-
-  response: {
-    slots: {
-      top: { enabled: true, minHeight: 120 },
-      bottom: { enabled: true },
-    },
-    buttons: [
-      { id: 'btn1', label: 'Delete', enabled: true, isLoading: false },
-      { id: 'btn2', label: 'Improve', enabled: true, isLoading: false },
-    ],
-  },
-
-  editing: {
-    slots: {
-      top: { enabled: true },
-      bottom: { enabled: true },
-    },
-    buttons: [
-      { id: 'btn1', label: 'Cancel', enabled: true, isLoading: false },
-      { id: 'btn2', label: 'Update', enabled: true, isLoading: false },
+    triggerButtons: [
+      { id: 'send', enabled: false },
+      { id: 'add-button', enabled: true, label: 'Save' },
+      { id: 'edit-small', enabled: false },
+      { id: 'delete-expanded', enabled: true },
+      { id: 'plus-collapsed', enabled: false },
+      { id: 'arrow-collapsed', enabled: true },
     ],
     placeholder: 'Edit your question...',
   },

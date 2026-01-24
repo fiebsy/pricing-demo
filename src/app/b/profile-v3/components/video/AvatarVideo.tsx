@@ -18,6 +18,7 @@ import { cn } from '@/lib/utils'
 export interface AvatarVideoProps {
   src: string
   playbackRate?: number
+  isHovered?: boolean
   className?: string
 }
 
@@ -28,25 +29,38 @@ export interface AvatarVideoProps {
 export function AvatarVideo({
   src,
   playbackRate = 0.9,
+  isHovered,
   className,
 }: AvatarVideoProps) {
+  const videoRef = React.useRef<HTMLVideoElement>(null)
+
+  // Play video when isHovered becomes true, let it play through
+  React.useEffect(() => {
+    const video = videoRef.current
+    if (!video) return
+
+    if (isHovered) {
+      // Only restart if video has ended
+      if (video.ended) {
+        video.currentTime = 0
+      }
+      video.play()
+    }
+  }, [isHovered])
+
   return (
     <div className={cn('relative', className)}>
       <div className="overflow-hidden rounded-3xl">
         <video
           ref={(el) => {
             if (el) el.playbackRate = playbackRate
+            ;(videoRef as React.MutableRefObject<HTMLVideoElement | null>).current = el
           }}
           src={src}
           autoPlay
           muted
           playsInline
-          onEnded={(e) => e.currentTarget.pause()}
-          onMouseEnter={(e) => {
-            e.currentTarget.currentTime = 0
-            e.currentTarget.play()
-          }}
-          className="h-[360px] w-auto object-cover"
+          className="h-[420px] w-auto object-cover"
         />
       </div>
       {/* Bottom fade gradient */}

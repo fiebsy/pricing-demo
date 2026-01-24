@@ -86,16 +86,16 @@ export function ScoreToast({
   return (
     <div
       className={cn(
-        'fixed bottom-24 left-1/2 -translate-x-1/2',
+        'fixed top-6 right-6',
         'flex items-start gap-3',
         'bg-primary border border-primary rounded-2xl',
         'p-4 pr-10',
         'shadow-lg',
         'max-w-sm w-full mx-4',
-        // Animation
+        // Animation - slide in from right
         isVisible && !isExiting
-          ? 'opacity-100 translate-y-0'
-          : 'opacity-0 translate-y-4',
+          ? 'opacity-100 translate-x-0'
+          : 'opacity-0 translate-x-8',
         'motion-safe:transition-all motion-safe:duration-200 motion-safe:ease-[cubic-bezier(.2,.8,.2,1)]',
         'motion-reduce:transition-none',
         className

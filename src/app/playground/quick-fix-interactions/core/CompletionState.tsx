@@ -124,7 +124,7 @@ export function CompletionState({
         roundness="default"
         onClick={onContinue}
       >
-        Generate New Answer
+        {config.buttonText || 'Done'}
       </Button>
     </div>
   )

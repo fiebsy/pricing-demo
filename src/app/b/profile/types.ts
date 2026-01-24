@@ -243,6 +243,10 @@ export interface BioSectionProps {
 export interface ChatOverlayProps {
   state: ChatOverlayState
   onStateChange: (state: ChatOverlayState) => void
+  /** Callback when "Improve answer" button is clicked on a message */
+  onImproveAnswer?: (message: ChatMessage) => void
+  /** Callback when an assistant answer completes (for tracking confidence changes) */
+  onAnswerComplete?: (message: ChatMessage) => void
   className?: string
 }
 
@@ -311,6 +315,7 @@ export interface MessageListProps {
 export interface ChatInputProps {
   onSend: (content: string) => void
   onFocus?: () => void
+  onBlur?: () => void
   disabled?: boolean
   className?: string
 }

@@ -78,8 +78,14 @@ export const UniversalSlot: React.FC<UniversalSlotProps> = ({
   let height: number
   if (slotConfig.heightMode === 'fixed') {
     height = slotConfig.fixedHeight ?? 48
+  } else if (slotConfig.heightMode === 'auto') {
+    // 'auto' mode: hug content, only apply minHeight (no maxHeight constraint)
+    height = calculatedHeight
+    if (effectiveMinHeight !== undefined) {
+      height = Math.max(height, effectiveMinHeight)
+    }
   } else {
-    // Apply effective min/max constraints
+    // 'dynamic' mode: apply both min and max constraints
     height = calculatedHeight
     if (effectiveMinHeight !== undefined) {
       height = Math.max(height, effectiveMinHeight)

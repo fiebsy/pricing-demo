@@ -12,6 +12,7 @@ import * as React from 'react'
 import { useState, useCallback } from 'react'
 import { cn } from '@/lib/utils'
 import { HugeIcon } from '@/components/ui/prod/base/icon'
+import { Button } from '@/components/ui/prod/base/button'
 import Mic01Icon from '@hugeicons-pro/core-stroke-rounded/Mic01Icon'
 import MicOff01Icon from '@hugeicons-pro/core-stroke-rounded/MicOff01Icon'
 import StarIcon from '@hugeicons-pro/core-stroke-rounded/StarIcon'
@@ -20,9 +21,17 @@ import StarIcon from '@hugeicons-pro/core-stroke-rounded/StarIcon'
 // TYPES
 // =============================================================================
 
+export interface FlowStyleConfig {
+  shine?: string
+  shineIntensity?: string
+  cornerShape?: 'round' | 'squircle'
+  borderRadius?: number
+}
+
 export interface ManualFixFlowProps {
   questionText: string
   onComplete: (answer: string) => void
+  styleConfig?: FlowStyleConfig
   className?: string
 }
 
@@ -30,9 +39,16 @@ export interface ManualFixFlowProps {
 // MAIN COMPONENT
 // =============================================================================
 
-export function ManualFixFlow({ questionText, onComplete, className }: ManualFixFlowProps) {
+export function ManualFixFlow({ questionText, onComplete, styleConfig, className }: ManualFixFlowProps) {
   const [inputValue, setInputValue] = useState('')
   const [isRecording, setIsRecording] = useState(false)
+
+  // Build style classes
+  const shineClass = styleConfig?.shine && styleConfig.shine !== 'none'
+    ? `${styleConfig.shine}${styleConfig.shineIntensity || ''}`
+    : ''
+  const cornerClass = styleConfig?.cornerShape === 'squircle' ? 'corner-squircle' : ''
+  const borderRadius = styleConfig?.borderRadius || 12
 
   // Toggle voice recording (simulated)
   const handleToggleRecording = useCallback(() => {
@@ -73,7 +89,14 @@ export function ManualFixFlow({ questionText, onComplete, className }: ManualFix
   return (
     <div className={cn('flex flex-col', className)}>
       {/* Question reference */}
-      <div className="mb-6 p-4 rounded-xl bg-secondary border border-primary">
+      <div
+        className={cn(
+          'mb-6 p-4 bg-secondary border border-primary',
+          shineClass,
+          cornerClass
+        )}
+        style={{ borderRadius }}
+      >
         <h4 className="text-xs font-medium text-tertiary uppercase tracking-wider mb-2">
           Question
         </h4>
@@ -93,12 +116,15 @@ export function ManualFixFlow({ questionText, onComplete, className }: ManualFix
           placeholder="Start typing your answer here..."
           rows={6}
           className={cn(
-            'w-full px-4 py-3 rounded-xl resize-none',
+            'w-full px-4 py-3 resize-none',
             'bg-secondary border border-primary',
             'text-primary placeholder:text-tertiary',
             'focus:outline-none focus:ring-2 focus:ring-brand-primary',
-            'motion-safe:transition-colors motion-safe:duration-150'
+            'motion-safe:transition-colors motion-safe:duration-150',
+            shineClass,
+            cornerClass
           )}
+          style={{ borderRadius }}
         />
 
         {/* Voice button */}
@@ -140,7 +166,13 @@ export function ManualFixFlow({ questionText, onComplete, className }: ManualFix
       </div>
 
       {/* Tips */}
-      <div className="mb-6 p-4 rounded-xl bg-brand-primary/5 border border-brand-primary/20">
+      <div
+        className={cn(
+          'mb-6 p-4 bg-brand-primary/5 border border-brand-primary/20',
+          cornerClass
+        )}
+        style={{ borderRadius }}
+      >
         <div className="flex items-start gap-3">
           <HugeIcon icon={StarIcon} size="sm" color="brand" className="mt-0.5" />
           <div>
@@ -155,22 +187,18 @@ export function ManualFixFlow({ questionText, onComplete, className }: ManualFix
       </div>
 
       {/* Complete button */}
-      <button
-        type="button"
+      <Button
+        variant="primary"
+        size="lg"
+        roundness={styleConfig?.cornerShape === 'squircle' ? 'squircle' : 'default'}
         onClick={handleComplete}
         disabled={charCount < minChars}
-        className={cn(
-          'w-full px-4 py-3 rounded-xl',
-          'text-sm font-medium text-white',
-          'bg-brand-solid hover:bg-brand-solid-hover',
-          'disabled:opacity-50 disabled:cursor-not-allowed',
-          'motion-safe:transition-colors motion-safe:duration-150'
-        )}
+        className="w-full"
       >
         {charCount < minChars
           ? `Add ${minChars - charCount} more characters`
           : 'Save Answer'}
-      </button>
+      </Button>
     </div>
   )
 }

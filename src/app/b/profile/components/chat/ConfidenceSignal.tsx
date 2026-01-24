@@ -23,6 +23,8 @@ interface ConfidenceSignalProps {
   confidence: number
   /** Size of the signal */
   size?: 'sm' | 'md'
+  /** Variant for different contexts */
+  variant?: 'default' | 'inverted'
   className?: string
 }
 
@@ -40,13 +42,13 @@ function getConfidenceLevel(confidence: number): ConfidenceLevel {
 function getConfidenceColor(level: ConfidenceLevel): string {
   switch (level) {
     case 4:
-      return 'bg-success-primary'
+      return 'bg-emerald-400'
     case 3:
-      return 'bg-success-primary'
+      return 'bg-emerald-400'
     case 2:
-      return 'bg-warning-primary'
+      return 'bg-amber-400'
     case 1:
-      return 'bg-error-primary'
+      return 'bg-red-400'
   }
 }
 
@@ -57,10 +59,12 @@ function getConfidenceColor(level: ConfidenceLevel): string {
 export function ConfidenceSignal({
   confidence,
   size = 'sm',
+  variant = 'default',
   className,
 }: ConfidenceSignalProps) {
   const level = getConfidenceLevel(confidence)
-  const color = getConfidenceColor(level)
+  const color = variant === 'inverted' ? 'bg-white' : getConfidenceColor(level)
+  const inactiveColor = variant === 'inverted' ? 'bg-white/30' : 'bg-white/20'
 
   const barSizes = size === 'sm'
     ? { width: 2, gap: 1, heights: [4, 6, 8, 10] }
@@ -87,7 +91,7 @@ export function ConfidenceSignal({
               'rounded-full',
               'motion-safe:transition-colors motion-safe:duration-150',
               'motion-reduce:transition-none',
-              isActive ? color : 'bg-quaternary'
+              isActive ? color : inactiveColor
             )}
             style={{
               width: `${barSizes.width}px`,

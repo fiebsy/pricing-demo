@@ -73,7 +73,7 @@ export const DEFAULT_CHAT_CONFIG: ChatConfig = {
     bubbleBgColor: 'primary',
     bubbleOpacity: 90,
     userBubbleBgColor: 'brand-primary',
-    userBubbleOpacity: 20,
+    userBubbleOpacity: 80,
     fadeTopHeight: 100,
     fadeBottomHeight: 200,
     borderRadius: 32,

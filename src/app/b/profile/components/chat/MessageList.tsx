@@ -53,6 +53,8 @@ export interface MessageListProps {
   scrollbarBottomOffset?: number
   /** Extra bottom padding for input overlay (px) - allows messages to scroll behind input */
   inputHeight?: number
+  /** Callback when "Improve answer" button is clicked */
+  onImproveAnswer?: (message: ChatMessage) => void
   className?: string
 }
 
@@ -77,6 +79,7 @@ export function MessageList({
   maxHeight,
   scrollbarBottomOffset = 0,
   inputHeight = 0,
+  onImproveAnswer,
   className,
 }: MessageListProps) {
   const bottomRef = useRef<HTMLDivElement>(null)
@@ -123,6 +126,7 @@ export function MessageList({
             useAsymmetricCorners={useAsymmetricCorners}
             useSquircle={useSquircle}
             shineStyle={shineStyle}
+            onImproveAnswer={onImproveAnswer}
           />
         ))}
         <div ref={bottomRef} />

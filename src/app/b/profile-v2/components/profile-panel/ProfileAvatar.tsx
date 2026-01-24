@@ -12,7 +12,7 @@ import * as React from 'react'
 import Image from 'next/image'
 import { cn } from '@/lib/utils'
 import { HugeIcon } from '@/components/ui/prod/base/icon'
-import Tick02Icon from '@hugeicons-pro/core-stroke-rounded/Tick02Icon'
+import CheckmarkBadge02Icon from '@hugeicons-pro/core-solid-rounded/CheckmarkBadge02Icon'
 import type { ProfileAvatarProps } from '../../types'
 
 // =============================================================================
@@ -53,18 +53,12 @@ export function ProfileAvatar({
 
       {/* Verified badge - positioned at bottom right */}
       {isVerified && (
-        <div
-          className={cn(
-            'absolute -bottom-0.5 -right-0.5',
-            'flex items-center justify-center',
-            'size-6 rounded-full bg-white shadow-lg'
-          )}
-        >
+        <div className="absolute -bottom-1 -right-1">
           <HugeIcon
-            icon={Tick02Icon}
-            size={14}
-            className="text-black"
-            strokeWidth={2.5}
+            icon={CheckmarkBadge02Icon}
+            size={24}
+            className="text-[var(--color-blue-500)]"
+            strokeWidth={0}
           />
         </div>
       )}

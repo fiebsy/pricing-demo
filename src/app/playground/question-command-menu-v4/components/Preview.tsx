@@ -13,7 +13,7 @@ import {
   type BiaxialExpandConfig,
 } from '@/components/ui/prod/base/biaxial-command-menu-v4'
 import { V4Provider, useV4Context } from '../state'
-import { useSlotHeight, filterQuestionGroups, filterSuggestions } from '../hooks'
+import { useSlotHeight, filterQuestionGroups, filterSuggestions, useFlowConfig } from '../hooks'
 import { UniversalSlot } from './UniversalSlot'
 import { UnifiedTrigger } from './UnifiedTrigger'
 import type {
@@ -31,7 +31,10 @@ import type {
 function transformToV4Config(
   config: QuestionCommandMenuV4Config,
   topHeight: number,
-  bottomHeight: number
+  bottomHeight: number,
+  effectiveTopEnabled: boolean,
+  effectiveBottomEnabled: boolean,
+  confidenceLevel?: number | null
 ): Partial<BiaxialExpandConfig> {
   // For slots, 'none' is valid
   const toSlotBackground = (bg: string | undefined) =>
@@ -86,8 +89,9 @@ function transformToV4Config(
       gradientColor: config.appearance.gradientColor,
       squircle: config.appearance.squircle,
     },
+    collapsedBackground: config.appearance.collapsedBackground,
     topSlot: {
-      enabled: config.slots.top.enabled,
+      enabled: effectiveTopEnabled,
       height: isTopFixed ? config.slots.top.fixedHeight : undefined,
       delayOffset: config.slots.top.animation.delayOffset,
       durationOffset: config.slots.top.animation.durationOffset,
@@ -98,7 +102,7 @@ function transformToV4Config(
       borderColor: config.slots.top.appearance.borderColor,
     },
     bottomSlot: {
-      enabled: config.slots.bottom.enabled,
+      enabled: effectiveBottomEnabled,
       delayOffset: config.slots.bottom.animation.delayOffset,
       durationOffset: config.slots.bottom.animation.durationOffset,
       background: toSlotBackground(config.slots.bottom.appearance.background),
@@ -107,6 +111,7 @@ function transformToV4Config(
       borderWidth: config.slots.bottom.appearance.borderWidth,
       borderColor: config.slots.bottom.appearance.borderColor,
     },
+    confidenceLevel,
     debug: config.debug,
   }
 }
@@ -145,6 +150,7 @@ interface InnerPreviewProps {
   onChatSend?: (message: string) => void
   onChatRegenerate?: (messageId: string) => void
   onQuestionSave?: (question: string) => void
+  onDelete?: () => void
 }
 
 function InnerPreview({
@@ -155,8 +161,27 @@ function InnerPreview({
   onChatSend,
   onChatRegenerate,
   onQuestionSave,
+  onDelete,
 }: InnerPreviewProps) {
-  const { config, state, setInput } = useV4Context()
+  const { config, state, setInput, collapse, expand, storedConfidence, flowStateId } = useV4Context()
+  const { effectiveTopEnabled, effectiveBottomEnabled } = useFlowConfig()
+
+  // Only show confidence-based styling after response is received
+  const effectiveConfidence = (flowStateId === 'response' || flowStateId === 'editing')
+    ? storedConfidence
+    : null
+
+  // Handle expanded state changes from BiaxialExpandV4 (e.g., click outside)
+  const handleExpandedChange = useCallback(
+    (newExpanded: boolean) => {
+      if (newExpanded) {
+        expand()
+      } else {
+        collapse()
+      }
+    },
+    [expand, collapse]
+  )
 
   // Filter groups based on current search query
   const filteredGroups = useMemo(
@@ -172,13 +197,13 @@ function InnerPreview({
 
   // Calculate dynamic heights
   const topHeight = useSlotHeight('top', filteredGroups, chatMessages, isChatTyping, filteredSuggestions)
-  const rawBottomHeight = useSlotHeight('bottom', filteredGroups, chatMessages, isChatTyping, filteredSuggestions)
-  const bottomHeight = Math.max(rawBottomHeight, 100)
+  const bottomHeight = useSlotHeight('bottom', filteredGroups, chatMessages, isChatTyping, filteredSuggestions)
 
-  // Transform to V4 config
+  // Transform to V4 config (with flow-aware slot enabled states and confidence)
+  // Note: effectiveConfidence only shows after response is received
   const v4Config = useMemo(
-    () => transformToV4Config(config, topHeight, bottomHeight),
-    [config, topHeight, bottomHeight]
+    () => transformToV4Config(config, topHeight, bottomHeight, effectiveTopEnabled, effectiveBottomEnabled, effectiveConfidence),
+    [config, topHeight, bottomHeight, effectiveTopEnabled, effectiveBottomEnabled, effectiveConfidence]
   )
 
   // Handlers
@@ -189,6 +214,12 @@ function InnerPreview({
   const handleButtonClick = useCallback(
     (index: number, buttonConfig: TriggerButtonConfig) => {
       console.log('[QuestionCommandMenuV4] Trigger button clicked:', index, buttonConfig.icon, buttonConfig.action)
+      // If this is a delete button, call onDelete
+      const isDeleteButton = buttonConfig.icon === 'delete' || buttonConfig.id?.includes('delete')
+      if (isDeleteButton && onDelete) {
+        onDelete()
+        return
+      }
       // If this is a send/submit button and we have text, send it
       const isSubmitButton = buttonConfig.icon === 'send' || buttonConfig.action === 'submit'
       if (isSubmitButton && state.inputValue.trim() && onChatSend) {
@@ -196,7 +227,7 @@ function InnerPreview({
         // Don't clear input - keep the question visible for editing
       }
     },
-    [state.inputValue, onChatSend]
+    [state.inputValue, onChatSend, onDelete]
   )
 
   const handleEnter = useCallback(() => {
@@ -231,9 +262,13 @@ function InnerPreview({
   )
 
   return (
-    <BiaxialExpandV4.Root config={v4Config}>
+    <BiaxialExpandV4.Root
+      config={v4Config}
+      expanded={state.expanded}
+      onExpandedChange={handleExpandedChange}
+    >
       {/* Top Slot */}
-      {config.slots.top.enabled && (
+      {effectiveTopEnabled && (
         <BiaxialExpandV4.TopSlot>
           <UniversalSlot
             position="top"
@@ -303,6 +338,7 @@ export interface PreviewProps {
   onChatSend?: (message: string) => void
   onChatRegenerate?: (messageId: string) => void
   onQuestionSave?: (question: string) => void
+  onDelete?: () => void
   /** Skip creating provider (use when already inside a V4Provider) */
   skipProvider?: boolean
 }
@@ -316,6 +352,7 @@ export function Preview({
   onChatSend,
   onChatRegenerate,
   onQuestionSave,
+  onDelete,
   skipProvider = false,
 }: PreviewProps) {
   const inner = (
@@ -327,6 +364,7 @@ export function Preview({
       onChatSend={onChatSend}
       onChatRegenerate={onChatRegenerate}
       onQuestionSave={onQuestionSave}
+      onDelete={onDelete}
     />
   )
 

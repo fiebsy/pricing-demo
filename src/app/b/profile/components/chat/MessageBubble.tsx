@@ -12,10 +12,7 @@
 import * as React from 'react'
 import { motion } from 'motion/react'
 import { cn } from '@/lib/utils'
-import { Badge } from '@/components/ui/prod/base/badge'
 import { Button } from '@/components/ui/prod/base/button'
-import { HugeIcon } from '@/components/ui/prod/base/icon'
-import Tick01Icon from '@hugeicons-pro/core-stroke-rounded/Tick01Icon'
 import { ConfidenceSignal } from './ConfidenceSignal'
 import type { ChatMessage } from '../../types'
 import type { SemanticBgColor, ShineStyle } from '@/app/playground/radial-blur/config/types'
@@ -55,10 +52,8 @@ const messageVariants = {
 // UTILITIES
 // =============================================================================
 
-function getConfidenceBadgeColor(confidence: number): 'success' | 'warning' | 'error' {
-  if (confidence >= 0.8) return 'success'
-  if (confidence >= 0.5) return 'warning'
-  return 'error'
+function isLowConfidence(confidence: number | undefined): boolean {
+  return confidence !== undefined && confidence < 0.4
 }
 
 // =============================================================================
@@ -85,6 +80,8 @@ export interface MessageBubbleProps {
   useSquircle?: boolean
   /** Shine effect style */
   shineStyle?: ShineStyle
+  /** Callback when "Improve answer" button is clicked */
+  onImproveAnswer?: (message: ChatMessage) => void
   className?: string
 }
 
@@ -103,6 +100,7 @@ export function MessageBubble({
   useAsymmetricCorners = false,
   useSquircle = true,
   shineStyle = 'shine-3',
+  onImproveAnswer,
   className,
 }: MessageBubbleProps) {
   const isUser = message.role === 'user'
@@ -167,6 +165,19 @@ export function MessageBubble({
               boxShadow: shineBoxShadow,
             }}
           />
+          {/* Low confidence red gradient overlay */}
+          {!isUser && isComplete && isLowConfidence(message.confidence) && (
+            <div
+              className={cn(
+                'absolute inset-0 pointer-events-none',
+                useSquircle && 'corner-squircle'
+              )}
+              style={{
+                borderRadius: cornerRadiusStyle,
+                background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(220, 38, 38, 0.08) 50%, rgba(185, 28, 28, 0.12) 100%)',
+              }}
+            />
+          )}
           {/* Content layer */}
           <div className="relative z-10">
             {/* Message content */}
@@ -181,31 +192,24 @@ export function MessageBubble({
             {/* Confidence indicator (assistant only, when complete) */}
             {!isUser && isComplete && message.confidence !== undefined && (
               <div className="mt-2 flex items-center gap-2">
-                {/* Wi-Fi signal strength */}
+                {/* Signal gauge */}
                 <ConfidenceSignal confidence={message.confidence} size="sm" />
-                {/* Badge with percentage */}
-                <Badge
-                  size="xs"
-                  shape="squircle"
-                  color={getConfidenceBadgeColor(message.confidence)}
-                  iconLeading={
-                    <HugeIcon icon={Tick01Icon} size={12} color="current" />
-                  }
-                >
+                {/* Confidence text */}
+                <span className="text-xs text-tertiary">
                   {Math.round(message.confidence * 100)}% confidence
-                </Badge>
+                </span>
               </div>
             )}
           </div>
         </div>
 
         {/* Add confidence button - outside bubble (assistant only, when complete) */}
-        {!isUser && isComplete && (
+        {!isUser && isComplete && onImproveAnswer && (
           <div className="mt-2 ml-1">
             <Button
-              variant="primary"
+              variant="tertiary"
               size="xs"
-              onClick={() => console.log('Add confidence clicked')}
+              onClick={() => onImproveAnswer(message)}
             >
               Improve answer
             </Button>

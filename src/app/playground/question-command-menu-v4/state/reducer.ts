@@ -67,7 +67,33 @@ export function triggerReducer(
       return state
 
     case 'ESCAPE':
-      // Cancel editing and collapse
+      // If in editing flow state, revert to response state (implicit cancel)
+      if (state.flowState.type === 'editing') {
+        return {
+          ...state,
+          expanded: false,
+          view: 'collapsed',
+          editing: false,
+          topSlotOpen: false,
+          bottomSlotOpen: false,
+          flowState: { type: 'response' },
+          inputValue: state.storedQuestion ?? '',
+        }
+      }
+      // If in idle or adding state, clear input and return to idle
+      if (state.flowState.type === 'idle' || state.flowState.type === 'adding') {
+        return {
+          ...state,
+          expanded: false,
+          view: 'collapsed',
+          editing: false,
+          topSlotOpen: false,
+          bottomSlotOpen: false,
+          flowState: { type: 'idle' },
+          inputValue: '',
+        }
+      }
+      // Cancel editing and collapse (legacy mode system)
       if (state.mode === 'question') {
         return {
           ...state,
@@ -76,7 +102,6 @@ export function triggerReducer(
           view: 'collapsed',
           topSlotOpen: false,
           bottomSlotOpen: false,
-          // Revert input to saved value
           inputValue: state.savedValue ?? '',
         }
       }
@@ -170,6 +195,32 @@ export function triggerReducer(
       }
 
     case 'COLLAPSE':
+      // If in editing flow state, revert to response state (implicit cancel)
+      if (state.flowState.type === 'editing') {
+        return {
+          ...state,
+          expanded: false,
+          view: 'collapsed',
+          editing: false,
+          topSlotOpen: false,
+          bottomSlotOpen: false,
+          flowState: { type: 'response' },
+          inputValue: state.storedQuestion ?? '',
+        }
+      }
+      // If in idle or adding state (no stored question), clear input on collapse
+      if (state.flowState.type === 'idle' || state.flowState.type === 'adding') {
+        return {
+          ...state,
+          expanded: false,
+          view: 'collapsed',
+          editing: false,
+          topSlotOpen: false,
+          bottomSlotOpen: false,
+          flowState: { type: 'idle' },
+          inputValue: '',
+        }
+      }
       return {
         ...state,
         expanded: false,
@@ -223,6 +274,7 @@ export function triggerReducer(
     // -------------------------------------------------------------------------
     case 'START_ADDING': {
       // Enter adding state: expand, open top slot (for typing), close bottom slot
+      // IMPORTANT: Preserve inputValue - user may have already typed before transitioning
       return {
         ...state,
         flowState: { type: 'adding', isTyping: false },
@@ -230,7 +282,9 @@ export function triggerReducer(
         view: 'expanded',
         topSlotOpen: false, // Default: hide top slot during typing (can be overridden via flowConfigs)
         bottomSlotOpen: false, // Hide bottom slot while typing
-        inputValue: '', // Clear input for new question
+        // Don't clear inputValue - preserve what user typed
+        savedValue: null, // Clear saved value for clean state
+        saveStatus: 'idle', // Reset save status
       }
     }
 
@@ -240,6 +294,7 @@ export function triggerReducer(
         ...state,
         flowState: { type: 'processing' },
         storedQuestion: state.inputValue,
+        storedConfidence: action.confidence ?? null,
         topSlotOpen: true, // Show top slot for chat/response area
         bottomSlotOpen: true, // Show bottom slot for loading buttons
       }
@@ -287,6 +342,7 @@ export function triggerReducer(
         flowState: { type: 'idle' },
         storedQuestion: null,
         storedResponse: null,
+        storedConfidence: null,
         inputValue: '',
         savedValue: null,
         expanded: false,
@@ -294,6 +350,7 @@ export function triggerReducer(
         topSlotOpen: false,
         bottomSlotOpen: false,
         editing: false,
+        saveStatus: 'idle', // Reset save status
       }
     }
 
@@ -345,7 +402,7 @@ export const actions = {
 
   // Flow actions
   startAdding: (): TriggerAction => ({ type: 'START_ADDING' }),
-  submitQuestion: (): TriggerAction => ({ type: 'SUBMIT_QUESTION' }),
+  submitQuestion: (confidence?: number): TriggerAction => ({ type: 'SUBMIT_QUESTION', confidence }),
   receiveResponse: (response: string): TriggerAction => ({ type: 'RECEIVE_RESPONSE', response }),
   startEditing: (): TriggerAction => ({ type: 'START_EDITING' }),
   cancelEditing: (): TriggerAction => ({ type: 'CANCEL_EDITING' }),

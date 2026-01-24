@@ -16,7 +16,9 @@ import { cn } from '@/lib/utils'
 import { ProfileAvatar } from '../../../profile-v2/components/profile-panel/ProfileAvatar'
 import { EditableText } from './EditableText'
 import { ButtonUtility } from '@/components/ui/prod/base/button-utility'
+import { Badge } from '@/components/ui/prod/base/badge'
 import RefreshIcon from '@hugeicons-pro/core-stroke-rounded/RefreshIcon'
+import Diamond01Icon from '@hugeicons-pro/core-stroke-rounded/Diamond01Icon'
 
 // =============================================================================
 // TYPES
@@ -111,6 +113,25 @@ export function EditableProfilePanel({
           minWidth={120}
         />
 
+        {/* Tier and Rank Badges */}
+        <div className="flex items-center gap-2 mt-2">
+          <Badge
+            size="sm"
+            shape="squircle"
+            iconLeading={Diamond01Icon}
+            className="badge-blue"
+          >
+            Diamond Tier
+          </Badge>
+          <Badge
+            color="gray"
+            size="sm"
+            shape="squircle"
+          >
+            #113 in Design
+          </Badge>
+        </div>
+
         {/* Bio with AI generate button on hover */}
         <div className="group/bio mt-4">
           <EditableText
@@ -121,13 +142,8 @@ export function EditableProfilePanel({
             multiline
           />
 
-          {/* AI Generate Bio Button - visible on hover, hidden while generating */}
-          <div
-            className={cn(
-              'mt-2 transition-opacity duration-150',
-              isGenerating ? 'opacity-0 pointer-events-none' : 'opacity-0 group-hover/bio:opacity-100'
-            )}
-          >
+          {/* AI Generate Bio Button - visible on hover */}
+          <div className="mt-2 opacity-0 group-hover/bio:opacity-100 transition-opacity duration-150">
             <ButtonUtility
               icon={RefreshIcon}
               tooltip={isGenerating ? 'Generating...' : 'Generate bio'}

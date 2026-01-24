@@ -137,7 +137,7 @@ export const BiaxialExpandRoot: React.FC<BiaxialExpandRootProps> = ({
       slotDuration: (slot: SlotPosition) => {
         const slotConfig = config[`${slot}Slot` as keyof BiaxialExpandConfig]
         const offset =
-          typeof slotConfig === 'object' && 'durationOffset' in slotConfig
+          slotConfig && typeof slotConfig === 'object' && 'durationOffset' in slotConfig
             ? (slotConfig.durationOffset as number) ?? 0
             : 0
         return baseDuration + offset
@@ -145,7 +145,7 @@ export const BiaxialExpandRoot: React.FC<BiaxialExpandRootProps> = ({
       slotDelay: (slot: SlotPosition) => {
         const slotConfig = config[`${slot}Slot` as keyof BiaxialExpandConfig]
         const offset =
-          typeof slotConfig === 'object' && 'delayOffset' in slotConfig
+          slotConfig && typeof slotConfig === 'object' && 'delayOffset' in slotConfig
             ? (slotConfig.delayOffset as number) ?? 0
             : 0
         return animation.backdropDelay + offset
@@ -192,6 +192,8 @@ export const BiaxialExpandRoot: React.FC<BiaxialExpandRootProps> = ({
         style={{
           width: config.layout.triggerWidth,
           height: config.layout.triggerHeight,
+          // Elevate z-index when expanded so this menu appears above siblings
+          zIndex: expanded ? 50 : 'auto',
         }}
       >
         {children}

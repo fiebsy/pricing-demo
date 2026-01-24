@@ -28,8 +28,9 @@ export const ContentWrapper: React.FC<ContentWrapperProps> = ({
   const { triggerHeight, bottomGap } = layout
   const { contentFadeDuration, contentFadeDelay } = animation
 
-  // Position below trigger + gap
-  const topOffset = triggerHeight + bottomGap
+  // Position below trigger + gap (only apply gap when bottom slot is enabled)
+  const effectiveBottomGap = config.bottomSlot.enabled ? bottomGap : 0
+  const topOffset = triggerHeight + effectiveBottomGap
 
   // Fade timing
   const fadeDuration = contentFadeDuration || timing.duration * 0.3

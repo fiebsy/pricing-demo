@@ -35,6 +35,12 @@ const RESPONSES: Record<string, string[]> = {
     "Looking at your profile, you've built solid foundations across all three sections. To boost your overall score, I'd recommend focusing on the 'Voice' section - adding more personality to your responses could increase engagement by 15-20%.",
     "Your profile is well-rounded! The Mind section shows deep expertise, while your Appearance scores indicate strong visual presentation. Consider adding more context to your career narrative for maximum impact.",
   ],
+  // Low confidence responses - for uncertain/unknown answers
+  uncertain: [
+    "I'm not entirely sure about this based on your current profile data. This topic may require additional information or context that isn't available in your profile yet.",
+    "I don't have enough confidence in this answer. The data points I have access to don't provide a clear picture for this specific question.",
+    "This is outside the scope of what I can confidently answer based on your profile. Consider adding more relevant information to improve my understanding.",
+  ],
   skills: [
     "Your skill profile indicates expertise in multiple areas. The AI analysis suggests you could benefit from highlighting transferable skills that bridge your technical and interpersonal abilities.",
     "I've analyzed your skill distribution. Your technical competencies score highly, but there's room to showcase soft skills more prominently. This could improve your overall match rate with opportunities.",
@@ -58,8 +64,38 @@ const RESPONSES: Record<string, string[]> = {
 // UTILITIES
 // =============================================================================
 
-function getContextualResponse(userMessage: string): string {
+interface ResponseResult {
+  text: string
+  isLowConfidence: boolean
+}
+
+function getContextualResponse(userMessage: string): ResponseResult {
   const lowerMessage = userMessage.toLowerCase()
+
+  // Check for low confidence trigger keywords
+  const lowConfidenceTriggers = [
+    'uncertain',
+    'unsure',
+    'don\'t know',
+    "don't know",
+    'unknown',
+    'unclear',
+    'confused',
+    'test low',
+    'low confidence',
+  ]
+
+  const isLowConfidenceTrigger = lowConfidenceTriggers.some(trigger =>
+    lowerMessage.includes(trigger)
+  )
+
+  if (isLowConfidenceTrigger) {
+    const responses = RESPONSES.uncertain
+    return {
+      text: responses[Math.floor(Math.random() * responses.length)],
+      isLowConfidence: true,
+    }
+  }
 
   // Determine context from user message
   let category: keyof typeof RESPONSES = 'general'
@@ -86,11 +122,18 @@ function getContextualResponse(userMessage: string): string {
   }
 
   const responses = RESPONSES[category]
-  return responses[Math.floor(Math.random() * responses.length)]
+  return {
+    text: responses[Math.floor(Math.random() * responses.length)],
+    isLowConfidence: false,
+  }
 }
 
-function getRandomConfidence(): number {
-  // Returns 0.75-0.95 randomly
+function getRandomConfidence(isLowConfidence: boolean = false): number {
+  if (isLowConfidence) {
+    // Returns 0.0-0.25 randomly for low confidence
+    return Math.random() * 0.25
+  }
+  // Returns 0.75-0.95 randomly for normal confidence
   return 0.75 + Math.random() * 0.2
 }
 
@@ -124,8 +167,8 @@ export function useSimulatedResponse(): UseSimulatedResponseReturn {
         return
       }
 
-      // Get response text
-      const responseText = getContextualResponse(userMessage)
+      // Get response text and confidence state
+      const { text: responseText, isLowConfidence } = getContextualResponse(userMessage)
       let currentContent = ''
 
       // Stream character by character (~30ms intervals)
@@ -144,7 +187,7 @@ export function useSimulatedResponse(): UseSimulatedResponseReturn {
       }
 
       setIsTyping(false)
-      onComplete(getRandomConfidence())
+      onComplete(getRandomConfidence(isLowConfidence))
     },
     []
   )

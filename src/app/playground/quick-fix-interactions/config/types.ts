@@ -156,6 +156,7 @@ export interface CompletionConfig {
   // CTA button
   buttonStyle: 'solid' | 'outline' | 'ghost'
   buttonSize: 'sm' | 'md' | 'lg'
+  buttonText?: string
 }
 
 // =============================================================================
@@ -268,7 +269,7 @@ export interface QuickFixInteractionsConfig {
   flowOptions: FlowOptionConfig
 
   // Preview mode
-  previewMode: 'card-stack' | 'flow-selector' | 'completion' | 'island' | 'toast'
+  previewMode: 'card-stack' | 'flow-selector' | 'completion' | 'island' | 'toast' | 'full-flow'
 }
 
 // =============================================================================
@@ -281,4 +282,77 @@ export interface QuickFixPresetMeta {
   description?: string
   category?: 'default' | 'minimal' | 'playful' | 'premium' | 'compact'
   data: QuickFixInteractionsConfig
+}
+
+// =============================================================================
+// FLOW DEFINITION & REGISTRY
+// =============================================================================
+
+export type FlowId = 'quick-fix' | 'add-to-mind' | 'manual-fix'
+
+/**
+ * Flow definition for configurable flow registry.
+ * Allows enabling/disabling flows and customizing their appearance.
+ */
+export interface FlowDefinition {
+  id: FlowId
+  enabled: boolean
+  label: string
+  description: string
+  icon: string // Icon name for dynamic lookup (e.g., 'SparklesIcon')
+  /**
+   * For Add to Mind flow: determines which component variant to render
+   * - 'generic': File/link/text upload interface (edit-questions style)
+   * - 'category-aware': Impact-ranked suggestions by category (profile style)
+   */
+  variant?: 'generic' | 'category-aware'
+}
+
+/**
+ * Flow registry configuration for solution presets.
+ */
+export interface FlowRegistry {
+  flows: FlowDefinition[]
+  defaultFlow: FlowId | null
+}
+
+// =============================================================================
+// INTEGRATION CONFIGURATION
+// =============================================================================
+
+export type IntegrationMode = 'modal' | 'inline' | 'panel'
+export type OnCompleteAction = 'close' | 'toast' | 'callback'
+
+/**
+ * Integration configuration for embedding quick-fix flows.
+ */
+export interface IntegrationConfig {
+  mode: IntegrationMode
+  showHeader: boolean
+  showBackButton: boolean
+  showCloseButton: boolean
+  /** Header title. Use {category} for dynamic category name substitution. */
+  headerTitle?: string
+  showStepIndicator: boolean
+  onCompleteAction: OnCompleteAction
+}
+
+// =============================================================================
+// SOLUTION PRESETS
+// =============================================================================
+
+export type SolutionId = 'edit-questions' | 'profile-v3' | 'standalone'
+
+/**
+ * Solution preset for pre-configured integration scenarios.
+ * Combines base config, flow registry, and integration settings.
+ */
+export interface SolutionPreset {
+  id: string
+  name: string
+  solution: SolutionId
+  description: string
+  baseConfig: QuickFixInteractionsConfig
+  flowRegistry: FlowRegistry
+  integration: IntegrationConfig
 }

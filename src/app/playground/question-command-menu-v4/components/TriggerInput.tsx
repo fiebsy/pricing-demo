@@ -12,7 +12,7 @@ import { cn } from '@/lib/utils'
 import { HugeIcon } from '@/components/ui/prod/base/icon'
 import { useBiaxialExpand } from '@/components/ui/prod/base/biaxial-command-menu-v4'
 import { useV4Context } from '../state'
-import { useVisibleButtons } from '../hooks'
+import { useVisibleButtons, useFlowConfig } from '../hooks'
 import { ActionButton } from './TriggerButtons'
 import type { TriggerConfig, TriggerButtonConfig, SaveStatus } from '../types'
 
@@ -51,6 +51,7 @@ export const TriggerInput = forwardRef<HTMLInputElement, TriggerInputProps>(
   ) => {
     const { expanded, setExpanded, timing } = useBiaxialExpand()
     const { state, setInput, escape, expand, collapse } = useV4Context()
+    const { effectiveTriggerButtons } = useFlowConfig()
 
     // Get save status for button display
     const saveStatus = state.saveStatus
@@ -58,8 +59,9 @@ export const TriggerInput = forwardRef<HTMLInputElement, TriggerInputProps>(
     const hasUnsavedChanges = state.inputValue.trim() !== (state.savedValue ?? '').trim() && state.inputValue.trim() !== ''
 
     // Filter buttons by position using hook (pass BiaxialExpand's expanded state for accuracy)
-    const leftButtons = useVisibleButtons(triggerConfig.buttons ?? [], 'left', expanded)
-    const rightButtons = useVisibleButtons(triggerConfig.buttons ?? [], 'right', expanded)
+    // Use effectiveTriggerButtons which respects flow state overrides
+    const leftButtons = useVisibleButtons(effectiveTriggerButtons ?? [], 'left', expanded)
+    const rightButtons = useVisibleButtons(effectiveTriggerButtons ?? [], 'right', expanded)
     const hasRightButtons = rightButtons.length > 0
 
     const handleFocus = useCallback(() => {
@@ -119,11 +121,11 @@ export const TriggerInput = forwardRef<HTMLInputElement, TriggerInputProps>(
         }}
       >
         {/* Left Buttons */}
-        {leftButtons.map((btn) => (
+        {leftButtons.map((btn, index) => (
           <ActionButton
             key={btn.id}
             config={btn}
-            onClick={() => onButtonClick?.(triggerConfig.buttons.indexOf(btn), btn)}
+            onClick={() => onButtonClick?.(index, btn)}
             expanded={expanded}
             duration={duration}
             saveStatus={saveStatus}
@@ -175,11 +177,11 @@ export const TriggerInput = forwardRef<HTMLInputElement, TriggerInputProps>(
         )}
 
         {/* Right Buttons */}
-        {rightButtons.map((btn) => (
+        {rightButtons.map((btn, index) => (
           <ActionButton
             key={btn.id}
             config={btn}
-            onClick={() => onButtonClick?.(triggerConfig.buttons.indexOf(btn), btn)}
+            onClick={() => onButtonClick?.(index, btn)}
             expanded={expanded}
             duration={duration}
             saveStatus={saveStatus}

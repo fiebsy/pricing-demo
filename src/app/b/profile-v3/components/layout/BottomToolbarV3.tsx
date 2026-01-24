@@ -10,7 +10,7 @@
 
 import * as React from 'react'
 import { cn } from '@/lib/utils'
-import { HugeIcon } from '@/components/ui/prod/base/icon'
+import { Button } from '@/components/ui/prod/base/button'
 import Settings01Icon from '@hugeicons-pro/core-stroke-rounded/Settings01Icon'
 import Share01Icon from '@hugeicons-pro/core-stroke-rounded/Share01Icon'
 import { Z_INDEX } from '../../../profile-v2/config'
@@ -49,59 +49,37 @@ export function BottomToolbarV3({
       )}
       style={{ zIndex: Z_INDEX.bottomToolbar }}
     >
-      {/* Save my Delphi button */}
-      <button
-        type="button"
+      {/* Share my Delphi button */}
+      <Button
+        variant="primary"
+        size="sm"
         onClick={onSave}
-        disabled={isSaving}
-        className={cn(
-          'flex items-center gap-2',
-          'px-4 py-2 rounded-lg',
-          'text-sm font-medium',
-          'bg-brand-primary text-white',
-          'hover:bg-brand-primary/90',
-          'motion-safe:transition-all motion-safe:duration-150',
-          'motion-reduce:transition-none',
-          'disabled:opacity-50 disabled:cursor-not-allowed'
-        )}
+        isLoading={isSaving}
+        showTextWhileLoading
       >
-        <span>{isSaving ? 'Saving...' : 'Save my Delphi'}</span>
-      </button>
+        Share my Delphi
+      </Button>
 
       {/* Settings button */}
       {onSettings && (
-        <button
-          type="button"
+        <Button
+          variant="tertiary"
+          size="sm"
+          iconLeading={Settings01Icon}
           onClick={onSettings}
-          className={cn(
-            'flex items-center justify-center',
-            'size-10 rounded-lg',
-            'bg-secondary text-secondary hover:text-primary hover:bg-tertiary',
-            'motion-safe:transition-colors motion-safe:duration-150',
-            'motion-reduce:transition-none'
-          )}
           aria-label="Settings"
-        >
-          <HugeIcon icon={Settings01Icon} size={18} strokeWidth={2} />
-        </button>
+        />
       )}
 
       {/* Share button */}
       {onShare && (
-        <button
-          type="button"
+        <Button
+          variant="tertiary"
+          size="sm"
+          iconLeading={Share01Icon}
           onClick={onShare}
-          className={cn(
-            'flex items-center justify-center',
-            'size-10 rounded-lg',
-            'bg-secondary text-secondary hover:text-primary hover:bg-tertiary',
-            'motion-safe:transition-colors motion-safe:duration-150',
-            'motion-reduce:transition-none'
-          )}
           aria-label="Share"
-        >
-          <HugeIcon icon={Share01Icon} size={18} strokeWidth={2} />
-        </button>
+        />
       )}
     </div>
   )

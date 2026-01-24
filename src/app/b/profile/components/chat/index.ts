@@ -5,6 +5,7 @@
  */
 
 export { ChatOverlay } from './ChatOverlay'
+export type { ChatOverlayRef } from './ChatOverlay'
 export { ChatBackdrop } from './ChatBackdrop'
 export { ChatInput } from './ChatInput'
 export { MessageList } from './MessageList'
