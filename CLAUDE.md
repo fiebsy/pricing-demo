@@ -19,17 +19,47 @@ Skwircle (demo-repo) is a **sandboxed UI testing environment** for PAYVA design 
 This is a **standalone repository** separate from the main PAYVA monorepo.
 
 ```
-demo-repo/                              # This codebase
+skwircle/
 ├── src/
-│   ├── app/                            # Next.js App Router pages
-│   │   ├── playground/                 # Active playground routes
-│   │   └── _hidden/playground/         # Development playgrounds
-│   ├── components/ui/prod/             # Production-ready components
-│   ├── v2/components/ui/               # V2 component system
-│   ├── styles/                         # Theme, tokens, utilities
-│   └── docs/                           # Embedded documentation
-├── docs/                               # Project documentation
-└── .claude/commands/                   # Slash commands (/docs, /playground)
+│   ├── app/                              # Next.js App Router pages
+│   │   ├── playground/                   # Active playground routes
+│   │   ├── _hidden/                      # Development/experimental
+│   │   │   ├── playground/               # Experimental playgrounds
+│   │   │   ├── sandbox/                  # Free-form testing (exploratory code)
+│   │   │   └── prototypes/               # Profile versions, prototypes
+│   │   └── [feature-routes]/             # Feature pages (dashboard, studio, etc.)
+│   │
+│   ├── components/ui/                    # UI Component Library
+│   │   ├── core/                         # STABLE - Hardened primitives
+│   │   │   ├── primitives/               # Button, Badge, Icon, Menu, Accordion
+│   │   │   ├── inputs/                   # Checkbox, Input, Select
+│   │   │   ├── feedback/                 # Tooltip, Skeleton, ClawbackTimer
+│   │   │   └── layout/                   # Layout utilities (future)
+│   │   ├── features/                     # STABLE - Composed feature components
+│   │   │   ├── metric-card/
+│   │   │   ├── expanding-search/
+│   │   │   ├── display-card/
+│   │   │   └── ...
+│   │   ├── patterns/                     # STABLE - Complex UI patterns
+│   │   │   ├── control-panel/
+│   │   │   ├── filter/
+│   │   │   └── data-table/
+│   │   ├── experimental/                 # WIP - Versioned components
+│   │   │   ├── command-menu/             # v1, v2, v3, v4
+│   │   │   └── button-animation/         # v1, v2
+│   │   ├── deprecated/                   # Legacy (do not use for new code)
+│   │   └── prod/                         # Legacy path (use new structure)
+│   │
+│   ├── registry/                         # Component & Playground registries
+│   │   ├── components.ts                 # All components with metadata
+│   │   └── playgrounds.ts                # All playgrounds with metadata
+│   │
+│   ├── styles/                           # Theme, tokens, utilities
+│   ├── docs/                             # Embedded documentation
+│   └── modules/                          # Feature modules
+│
+├── docs/                                 # Project documentation
+└── .claude/commands/                     # Slash commands (/docs, /playground)
 ```
 
 **Parent repo reference** (when needed): `/Users/derickfiebiger/Payva-Repos/`
@@ -72,14 +102,52 @@ pnpm start
 
 ## Architecture & Code Structure
 
-### Component System
+### Component System (NEW STRUCTURE)
 
-| Location | Purpose |
-|----------|---------|
-| `src/components/ui/prod/` | Production-ready components |
-| `src/v2/components/ui/` | V2 component system (skwircle primitives) |
-| `src/v2/components/ui/skwircle/` | Core squircle implementation |
-| `src/components/ui/deprecated/` | Legacy components (do not use) |
+| Location | Status | Purpose |
+|----------|--------|---------|
+| `src/components/ui/core/` | **STABLE** | Hardened primitives (buttons, badges, inputs) |
+| `src/components/ui/features/` | **STABLE** | Composed feature components |
+| `src/components/ui/patterns/` | **STABLE** | Complex patterns (data table, filters) |
+| `src/components/ui/experimental/` | **WIP** | Versioned work-in-progress components |
+| `src/components/ui/deprecated/` | **LEGACY** | Do not use for new code |
+
+### Import Patterns
+
+```typescript
+// Core primitives (stable)
+import { Button, Badge, Icon } from '@/components/ui/core'
+import { Checkbox, Input, Select } from '@/components/ui/core/inputs'
+
+// Feature components (stable)
+import { MetricCard, ExpandingSearch } from '@/components/ui/features'
+
+// Complex patterns (stable)
+import { ControlPanel, Filter } from '@/components/ui/patterns'
+
+// Experimental (specify version or use default latest)
+import { CommandMenu } from '@/components/ui/experimental'           // Latest (v4)
+import { CommandMenuV3 } from '@/components/ui/experimental'        // Specific version
+import { ButtonAnimation } from '@/components/ui/experimental'      // Latest (v2)
+```
+
+### Component Registry
+
+Use the registry for programmatic access to component metadata:
+
+```typescript
+import {
+  allComponents,
+  getComponentsByStatus,
+  getComponent
+} from '@/registry/components'
+
+import {
+  allPlaygrounds,
+  getLatestPlayground,
+  getPlaygroundsForComponent
+} from '@/registry/playgrounds'
+```
 
 ### Design Token System
 
@@ -91,7 +159,7 @@ pnpm start
 
 - **Tailwind v4**: CSS-first config via `@theme`, `@custom-variant`
 - **Custom utilities**: `src/styles/utilities/` for animations, gradients, corners, depth
-- **Class merging**: Use `cx()` utility from `src/v2/utils/cx.ts`
+- **Class merging**: Use `cx()` utility from `src/lib/cx.ts` or `src/modules/utils/cx.ts`
 
 ---
 
@@ -103,7 +171,7 @@ pnpm start
 
 ```typescript
 // CORRECT - Always use Hugeicons with wrapper
-import { HugeIcon } from '@/v2/components/ui/icon/huge-icons/huge-icons'
+import { HugeIcon } from '@/components/ui/core/primitives/icon'
 import Home01Icon from '@hugeicons-pro/core-stroke-rounded/Home01Icon'
 
 <HugeIcon icon={Home01Icon} size={20} className="text-primary" />
@@ -178,8 +246,27 @@ width, height, top, left, margin, padding
 
 | Route | Purpose |
 |-------|---------|
-| `/playground/[name]` | Active playgrounds |
-| `/_hidden/playground/[name]` | Development/experimental |
+| `/playground/[name]` | Active playgrounds (production testing) |
+| `/_hidden/playground/[name]` | Experimental playgrounds |
+| `/_hidden/sandbox/` | Free-form exploratory code |
+| `/_hidden/prototypes/` | Feature prototypes (profile versions, etc.) |
+
+### Playground Registry
+
+```typescript
+import {
+  activePlaygrounds,
+  experimentalPlaygrounds,
+  archivedPlaygrounds,
+  getLatestPlayground
+} from '@/registry/playgrounds'
+
+// Get all active playgrounds
+activePlaygrounds.forEach(p => console.log(p.route, p.description))
+
+// Get latest playground for a component
+const latestCommandMenu = getLatestPlayground('CommandMenu')
+```
 
 ### UnifiedControlPanel (Required for all playgrounds)
 
@@ -188,7 +275,7 @@ import {
   UnifiedControlPanel,
   type ControlChangeEvent,
   type PanelConfig,
-} from '@/components/ui/prod/base/control-panel'
+} from '@/components/ui/patterns/control-panel'
 
 // Standard layout
 <div className="min-h-screen">
@@ -217,17 +304,19 @@ When bringing components from PAYVA frontend into demo-repo:
 # Source (frontend)
 front-end/src/modules/v2/[feature]/components/[component]/
 
-# Target (demo-repo)
-src/components/ui/prod/features/[component]/
-# OR for primitives:
-src/v2/components/ui/[component]/
+# Target (demo-repo) - Use NEW structure:
+src/components/ui/core/primitives/[component]/     # For primitives
+src/components/ui/core/inputs/[component]/         # For form inputs
+src/components/ui/features/[component]/            # For feature components
+src/components/ui/patterns/[component]/            # For complex patterns
+src/components/ui/experimental/[component]/        # For WIP components
 ```
 
 ### 2. Adapt Import Paths
 
 | Frontend | Demo Repo |
 |----------|-----------|
-| `@/modules/design-system/v2/components/ui/...` | `@/components/ui/prod/...` |
+| `@/modules/design-system/v2/components/ui/...` | `@/components/ui/core/...` |
 | `@/modules/api/generated/graphql` | Remove (no GraphQL in demo) |
 | `@untitledui-pro/icons/...` | `@hugeicons-pro/core-stroke-rounded/...` |
 
@@ -247,6 +336,7 @@ src/v2/components/ui/[component]/
 - [ ] Verify semantic tokens work
 - [ ] Test dark mode
 - [ ] Add to playground if applicable
+- [ ] Add to component registry
 
 ---
 
@@ -274,6 +364,8 @@ Syncs Skwircle core files to frontend.
 
 | Topic | Location |
 |-------|----------|
+| Component Registry | `src/registry/components.ts` |
+| Playground Registry | `src/registry/playgrounds.ts` |
 | Animation Preferences | `docs/ANIMATION-PREFERENCES.md` |
 | Collections Migration | `docs/COLLECTIONS-MIGRATION.md` |
 | Sticky Data Table | `docs/design-system/sticky-data-table/init.md` |

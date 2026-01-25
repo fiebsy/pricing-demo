@@ -32,7 +32,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="font-body bg-secondary_alt overscroll-none noise-overlay noise-fixed noise-opacity-90">
+      <body className="font-body bg-secondary_alt noise-overlay noise-fixed noise-opacity-90">
         <ThemeProvider>
           <FloatingNav />
           {children}
