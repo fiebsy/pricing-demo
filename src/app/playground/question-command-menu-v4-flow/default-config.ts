@@ -44,12 +44,13 @@ export const FLOW_DEFAULT_CONFIG: QuestionCommandMenuV4Config = {
     paddingRight: 12,
     paddingTop: 0,
     paddingBottom: 0,
-    paddingExpandedLeft: 0,
+    paddingExpandedLeft: -8,
     paddingExpandedRight: -4,
     showSearchIcon: false,
     showKeyboardHint: false,
     keyboardHintText: '/',
     cursor: 'text',
+    inputAreaExpandedClassName: 'bg-secondary border border-primary rounded-[14px] corner-squircle pl-4 pr-2 py-1',
     buttons: [
       // Send button - shows when typing, triggers submit (disabled by default, flow config controls visibility)
       {
@@ -63,6 +64,7 @@ export const FLOW_DEFAULT_CONFIG: QuestionCommandMenuV4Config = {
         icon: 'send',
         showWhen: 'has-value',
         action: 'submit',
+        group: 'input-area',
       },
       // Add button - xs text only (same style as Edit, disabled by default, enabled in adding state)
       {
@@ -70,12 +72,13 @@ export const FLOW_DEFAULT_CONFIG: QuestionCommandMenuV4Config = {
         position: 'right',
         enabled: false,
         type: 'text',
-        variant: 'primary',
+        variant: 'tertiary',
         size: 'xs',
         roundness: 'squircle',
         label: 'Add',
         showWhen: 'expanded',
         action: 'submit',
+        group: 'input-area',
       },
       // Edit button - xs text only (disabled by default, enabled in response/editing)
       {
@@ -89,6 +92,7 @@ export const FLOW_DEFAULT_CONFIG: QuestionCommandMenuV4Config = {
         icon: 'delete',
         showWhen: 'expanded',
         label: 'Edit',
+        group: 'input-area',
       },
       // Plus indicator when collapsed (for idle/adding states)
       {
@@ -123,6 +127,7 @@ export const FLOW_DEFAULT_CONFIG: QuestionCommandMenuV4Config = {
         roundness: 'squircle',
         icon: 'delete',
         showWhen: 'expanded',
+        group: 'actions',
       },
     ],
   },

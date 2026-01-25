@@ -95,6 +95,10 @@ export const QUESTION_FLOW_CONFIG: FlowConfigs = {
       { id: 'btn4', enabled: false },
     ],
     triggerButtons: [
+      { id: 'send', enabled: false },
+      { id: 'add-button', enabled: false },
+      { id: 'edit-small', enabled: true },
+      { id: 'delete-expanded', enabled: true },
       { id: 'plus-collapsed', enabled: false },
       { id: 'arrow-collapsed', enabled: true },
     ],

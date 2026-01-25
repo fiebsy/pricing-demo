@@ -86,6 +86,7 @@ export const COMMON_BUTTONS = {
     roundness: 'squircle' as const,
     icon: 'delete',
     showWhen: 'expanded' as const,
+    group: 'actions' as const,
   },
   editExpanded: {
     id: 'edit-expanded',
@@ -98,6 +99,7 @@ export const COMMON_BUTTONS = {
     icon: 'delete',
     showWhen: 'expanded' as const,
     label: 'Edit',
+    group: 'input-area' as const,
   },
   saveExpanded: {
     id: 'save-expanded',

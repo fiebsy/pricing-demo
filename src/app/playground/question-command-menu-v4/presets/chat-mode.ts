@@ -191,6 +191,7 @@ export const CHAT_INLINE_EDIT_V2_PRESET: QuestionCommandMenuV4Preset = {
     trigger: {
       ...DEFAULT_CONFIG.trigger,
       showKeyboardHint: false,
+      inputAreaExpandedClassName: 'bg-tertiary rounded-lg px-2 py-1 -mx-1',
       buttons: [
         {
           id: 'edit-small',
@@ -203,6 +204,7 @@ export const CHAT_INLINE_EDIT_V2_PRESET: QuestionCommandMenuV4Preset = {
           icon: 'delete',
           showWhen: 'expanded',
           label: 'Edit',
+          group: 'input-area',
         },
         COMMON_BUTTONS.arrowCollapsed,
         { ...COMMON_BUTTONS.deleteExpanded, enabled: false },

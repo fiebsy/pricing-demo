@@ -99,8 +99,22 @@ export const TriggerDisplay: React.FC<TriggerDisplayProps> = ({
   const rightButtons = useVisibleButtons(effectiveTriggerButtons ?? [], 'right', expanded)
   const hasFlowButtons = rightButtons.length > 0 && (flowStateId === 'processing' || flowStateId === 'response')
 
+  // Separate right buttons into input-area group and action buttons
+  const inputAreaButtons = rightButtons.filter(btn => btn.group === 'input-area')
+  const actionButtons = rightButtons.filter(btn => btn.group !== 'input-area')
+
+  // Only show input area styling in response/editing/processing states (not idle/adding)
+  const hasResponseState = flowStateId === 'response' || flowStateId === 'editing' || flowStateId === 'processing'
+  const showInputAreaStyling = expanded && hasResponseState
+
   // Get animation duration
   const duration = timing.duration
+
+  // Only apply expanded padding offset when showing input area styling
+  const expandOffsetLeft = showInputAreaStyling ? triggerConfig.paddingExpandedLeft : 0
+  const expandOffsetRight = showInputAreaStyling ? triggerConfig.paddingExpandedRight : 0
+  const paddingLeft = triggerConfig.paddingLeft + expandOffsetLeft
+  const paddingRight = triggerConfig.paddingRight + expandOffsetRight
 
   return (
     <div
@@ -121,10 +135,11 @@ export const TriggerDisplay: React.FC<TriggerDisplayProps> = ({
         className
       )}
       style={{
-        paddingLeft: triggerConfig.paddingLeft,
-        paddingRight: triggerConfig.paddingRight,
+        paddingLeft,
+        paddingRight,
         paddingTop: triggerConfig.paddingTop,
         paddingBottom: triggerConfig.paddingBottom,
+        transition: `padding ${duration}ms cubic-bezier(0.16, 1, 0.3, 1)`,
       }}
     >
       {/* Status icon - single container prevents layout shift */}
@@ -154,26 +169,52 @@ export const TriggerDisplay: React.FC<TriggerDisplayProps> = ({
         </div>
       )}
 
-      {/* Display text */}
-      <span
+      {/* Display area - wraps text and input-area group buttons */}
+      <div
         className={cn(
-          'flex-1 min-w-0 truncate',
-          'text-sm',
-          textColor
+          'flex items-center gap-2 flex-1 min-w-0',
+          'transition-all duration-300 ease-out',
+          showInputAreaStyling && triggerConfig.inputAreaExpandedClassName
         )}
       >
-        {displayText}
-      </span>
+        {/* Display text */}
+        <span
+          className={cn(
+            'flex-1 min-w-0 truncate',
+            'text-sm',
+            textColor
+          )}
+        >
+          {displayText}
+        </span>
 
-      {/* Flow-aware buttons (Edit, Delete) in response state */}
-      {hasFlowButtons && rightButtons.map((btn, index) => (
+        {/* Input area buttons (Edit, etc.) */}
+        {hasFlowButtons && inputAreaButtons.map((btn, index) => (
+          <div
+            key={btn.id}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <ActionButton
+              config={btn}
+              onClick={() => onButtonClick?.(index, btn)}
+              expanded={expanded}
+              duration={duration}
+              saveStatus={state.saveStatus}
+              hasUnsavedChanges={false}
+            />
+          </div>
+        ))}
+      </div>
+
+      {/* Action buttons (Delete, etc.) - outside the display area */}
+      {hasFlowButtons && actionButtons.map((btn, index) => (
         <div
           key={btn.id}
           onClick={(e) => e.stopPropagation()}
         >
           <ActionButton
             config={btn}
-            onClick={() => onButtonClick?.(index, btn)}
+            onClick={() => onButtonClick?.(inputAreaButtons.length + index, btn)}
             expanded={expanded}
             duration={duration}
             saveStatus={state.saveStatus}

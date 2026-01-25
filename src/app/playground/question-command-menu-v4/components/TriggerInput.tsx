@@ -51,7 +51,11 @@ export const TriggerInput = forwardRef<HTMLInputElement, TriggerInputProps>(
   ) => {
     const { expanded, setExpanded, timing } = useBiaxialExpand()
     const { state, setInput, escape, expand, collapse } = useV4Context()
-    const { effectiveTriggerButtons } = useFlowConfig()
+    const { effectiveTriggerButtons, flowStateId } = useFlowConfig()
+
+    // Only show input area styling in response/editing/processing states (not idle/adding)
+    const hasResponseState = flowStateId === 'response' || flowStateId === 'editing' || flowStateId === 'processing'
+    const showInputAreaStyling = expanded && hasResponseState
 
     // Get save status for button display
     const saveStatus = state.saveStatus
@@ -63,6 +67,10 @@ export const TriggerInput = forwardRef<HTMLInputElement, TriggerInputProps>(
     const leftButtons = useVisibleButtons(effectiveTriggerButtons ?? [], 'left', expanded)
     const rightButtons = useVisibleButtons(effectiveTriggerButtons ?? [], 'right', expanded)
     const hasRightButtons = rightButtons.length > 0
+
+    // Separate right buttons into input-area group and action buttons
+    const inputAreaButtons = rightButtons.filter(btn => btn.group === 'input-area')
+    const actionButtons = rightButtons.filter(btn => btn.group !== 'input-area')
 
     const handleFocus = useCallback(() => {
       if (expandOnFocus) {
@@ -93,8 +101,9 @@ export const TriggerInput = forwardRef<HTMLInputElement, TriggerInputProps>(
       [setInput]
     )
 
-    const expandOffsetLeft = expanded ? triggerConfig.paddingExpandedLeft : 0
-    const expandOffsetRight = expanded ? triggerConfig.paddingExpandedRight : 0
+    // Only apply expanded padding offset when showing input area styling
+    const expandOffsetLeft = showInputAreaStyling ? triggerConfig.paddingExpandedLeft : 0
+    const expandOffsetRight = showInputAreaStyling ? triggerConfig.paddingExpandedRight : 0
     const paddingLeft = triggerConfig.paddingLeft + expandOffsetLeft
     const paddingRight = triggerConfig.paddingRight + expandOffsetRight
     const paddingTop = triggerConfig.paddingTop
@@ -133,55 +142,77 @@ export const TriggerInput = forwardRef<HTMLInputElement, TriggerInputProps>(
           />
         ))}
 
-        {/* Search icon */}
-        {triggerConfig.showSearchIcon && (
-          <HugeIcon
-            icon={Search01Icon}
-            size={18}
+        {/* Input Area - wraps search icon, input, and input-area group buttons */}
+        <div
+          className={cn(
+            'flex items-center gap-2 flex-1 min-w-0',
+            'transition-all duration-300 ease-out',
+            showInputAreaStyling && triggerConfig.inputAreaExpandedClassName
+          )}
+        >
+          {/* Search icon */}
+          {triggerConfig.showSearchIcon && (
+            <HugeIcon
+              icon={Search01Icon}
+              size={18}
+              className={cn(
+                'shrink-0 transition-colors duration-150',
+                expanded ? 'text-tertiary' : 'text-quaternary'
+              )}
+            />
+          )}
+
+          {/* Input */}
+          <input
+            ref={ref}
+            type="text"
+            value={state.inputValue}
+            onChange={handleChange}
+            onFocus={handleFocus}
+            onKeyDown={handleKeyDown}
+            placeholder={placeholder}
             className={cn(
-              'shrink-0 transition-colors duration-150',
-              expanded ? 'text-tertiary' : 'text-quaternary'
+              'flex-1 min-w-0 bg-transparent outline-none',
+              'text-primary placeholder:text-tertiary',
+              'text-sm'
             )}
           />
-        )}
 
-        {/* Input */}
-        <input
-          ref={ref}
-          type="text"
-          value={state.inputValue}
-          onChange={handleChange}
-          onFocus={handleFocus}
-          onKeyDown={handleKeyDown}
-          placeholder={placeholder}
-          className={cn(
-            'flex-1 min-w-0 bg-transparent outline-none',
-            'text-primary placeholder:text-tertiary',
-            'text-sm'
+          {/* Keyboard hint */}
+          {!expanded && triggerConfig.showKeyboardHint && !hasRightButtons && (
+            <kbd
+              className={cn(
+                'hidden sm:flex items-center gap-1',
+                'px-1.5 py-0.5 rounded',
+                'bg-tertiary text-tertiary',
+                'text-xs font-medium'
+              )}
+            >
+              <span className="text-[10px]">⌘</span>
+              <span>{triggerConfig.keyboardHintText}</span>
+            </kbd>
           )}
-        />
 
-        {/* Keyboard hint */}
-        {!expanded && triggerConfig.showKeyboardHint && !hasRightButtons && (
-          <kbd
-            className={cn(
-              'hidden sm:flex items-center gap-1',
-              'px-1.5 py-0.5 rounded',
-              'bg-tertiary text-tertiary',
-              'text-xs font-medium'
-            )}
-          >
-            <span className="text-[10px]">⌘</span>
-            <span>{triggerConfig.keyboardHintText}</span>
-          </kbd>
-        )}
+          {/* Input Area Buttons (Edit, Add, etc.) */}
+          {inputAreaButtons.map((btn, index) => (
+            <ActionButton
+              key={btn.id}
+              config={btn}
+              onClick={() => onButtonClick?.(index, btn)}
+              expanded={expanded}
+              duration={duration}
+              saveStatus={saveStatus}
+              hasUnsavedChanges={hasUnsavedChanges}
+            />
+          ))}
+        </div>
 
-        {/* Right Buttons */}
-        {rightButtons.map((btn, index) => (
+        {/* Action Buttons (Delete, etc.) - outside the input area */}
+        {actionButtons.map((btn, index) => (
           <ActionButton
             key={btn.id}
             config={btn}
-            onClick={() => onButtonClick?.(index, btn)}
+            onClick={() => onButtonClick?.(inputAreaButtons.length + index, btn)}
             expanded={expanded}
             duration={duration}
             saveStatus={saveStatus}

@@ -37,6 +37,7 @@ export type {
   TriggerButtonType,
   TriggerButtonSize,
   TriggerButtonRoundness,
+  TriggerButtonGroup,
   TriggerButtonConfig,
   TriggerButtonAction,
   TriggerConfig,

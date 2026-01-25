@@ -44,6 +44,9 @@ export type TriggerButtonType = 'icon' | 'text' | 'icon-text' | 'indicator'
 export type TriggerButtonSize = 'xs' | 'sm' | 'md'
 export type TriggerButtonRoundness = 'default' | 'pill' | 'squircle'
 
+/** Button group for layout purposes */
+export type TriggerButtonGroup = 'input-area' | 'actions'
+
 export interface TriggerButtonConfig {
   /** Unique identifier for this button */
   id: string
@@ -69,6 +72,8 @@ export interface TriggerButtonConfig {
   showWhen?: ButtonVisibility
   /** Action to perform on click */
   action?: TriggerButtonAction
+  /** Group for layout purposes - 'input-area' buttons are styled with the input when expanded */
+  group?: TriggerButtonGroup
 }
 
 // =============================================================================
@@ -114,6 +119,8 @@ export interface TriggerConfig {
   cursor: 'text' | 'pointer'
   /** Buttons in the trigger */
   buttons: TriggerButtonConfig[]
+  /** Additional className for input area when expanded (wraps input + 'input-area' group buttons) */
+  inputAreaExpandedClassName?: string
 }
 
 // =============================================================================
