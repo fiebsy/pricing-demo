@@ -15,7 +15,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={`${neueHaasGroteskText.variable} ${neueHaasGroteskDisplay.variable} bg-secondary_alt overscroll-none`} style={{ scrollbarGutter: 'stable' }} suppressHydrationWarning>
+    <html lang="en" className={`${neueHaasGroteskText.variable} ${neueHaasGroteskDisplay.variable} bg-secondary_alt overscroll-none dark-mode`} style={{ scrollbarGutter: 'stable' }} suppressHydrationWarning>
       <head>
         <script
           dangerouslySetInnerHTML={{
@@ -23,8 +23,8 @@ export default function RootLayout({
               (function() {
                 try {
                   var theme = localStorage.getItem('theme');
-                  if (theme === 'dark') {
-                    document.documentElement.classList.add('dark-mode');
+                  if (theme === 'light') {
+                    document.documentElement.classList.remove('dark-mode');
                   }
                 } catch (e) {}
               })();
