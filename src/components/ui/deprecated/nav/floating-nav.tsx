@@ -9,7 +9,7 @@
 'use client'
 
 import type { ComponentType } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import { HugeIcon } from '@/components/ui/prod/base/icon'
 import { Menu } from '@/components/ui/prod/base/menu'
 import type { MenuItemType, MenuItemAction, MenuItemSubmenu } from '@/components/ui/prod/base/menu'
@@ -154,6 +154,12 @@ const createNavMenuItems = (router: ReturnType<typeof useRouter>): MenuItemType[
 
 export function FloatingNav({ className = '' }: FloatingNavProps) {
   const router = useRouter()
+  const pathname = usePathname()
+
+  // Only show on home page
+  if (pathname !== '/') {
+    return null
+  }
 
   // Create menu items with router
   const menuItems = createNavMenuItems(router)
