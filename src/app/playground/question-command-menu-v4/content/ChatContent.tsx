@@ -281,7 +281,7 @@ export const ChatContent: React.FC<ChatContentProps> = ({
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Debug mode - set to true to visualize padding
-  const DEBUG_COLORS = false
+  const DEBUG_COLORS = true
 
   return (
     <div

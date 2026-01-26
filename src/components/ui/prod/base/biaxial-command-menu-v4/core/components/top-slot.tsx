@@ -73,6 +73,9 @@ export const TopSlot: React.FC<SlotProps> = ({
 
   const totalHeight = effectiveHeight + (config.layout.topGap ?? 0)
 
+  // DEBUG: set to true to visualize TopSlot layout
+  const DEBUG_TOPSLOT = true
+
   return (
     <div
       ref={refs.top}
@@ -86,6 +89,7 @@ export const TopSlot: React.FC<SlotProps> = ({
         height: totalHeight,
         clipPath: outerClipPath,
         transition: `clip-path ${duration}ms ${EASING_EXPO_OUT} ${delay}ms`,
+        background: DEBUG_TOPSLOT ? 'rgba(255,0,255,0.3)' : undefined, // MAGENTA = outer TopSlot container (includes topGap)
       }}
     >
       {/* Inner container with compound animation */}
@@ -107,6 +111,7 @@ export const TopSlot: React.FC<SlotProps> = ({
           borderRadius: slotConfig.borderRadius ?? 14,
           clipPath: innerClipPath,
           transition: `clip-path ${innerDuration}ms ${EASING_EXPO_OUT} ${delay}ms`,
+          outline: DEBUG_TOPSLOT ? '2px solid cyan' : undefined, // CYAN outline = inner container boundary
           ...(slotConfig.borderWidth && slotConfig.borderWidth > 0 && {
             borderTopWidth: slotConfig.borderWidth,
             borderLeftWidth: slotConfig.borderWidth,

@@ -25,7 +25,7 @@ export const FLOW_DEFAULT_CONFIG: QuestionCommandMenuV4Config = {
     panelWidth: 480,
     fillWidth: false,
     borderRadius: 20,
-    topGap: 16,
+    topGap: 0,
     bottomGap: 16,
     backdropTopOffset: 0,
   },
@@ -34,7 +34,7 @@ export const FLOW_DEFAULT_CONFIG: QuestionCommandMenuV4Config = {
     shadow: '2xl',
     shine: 'shine-2-subtle',
     background: 'tertiary',
-    gradient: 'subtle-depth-md',
+    gradient: 'none',
     gradientColor: 'tertiary',
     squircle: true,
   },
@@ -50,7 +50,8 @@ export const FLOW_DEFAULT_CONFIG: QuestionCommandMenuV4Config = {
     showKeyboardHint: false,
     keyboardHintText: '/',
     cursor: 'text',
-    inputAreaExpandedClassName: 'bg-secondary border border-primary rounded-[14px] corner-squircle pl-4 pr-2 py-1',
+    inputAreaExpandedClassName: 'bg-quaternary border border-primary rounded-[14px] corner-squircle pl-4 pr-2 py-1 shine-3',
+    inputAreaEditingClassName: 'bg-secondary border border-primary rounded-[14px] corner-squircle pl-4 pr-2 py-1 shine-3',
     buttons: [
       // Send button - shows when typing, triggers submit (disabled by default, flow config controls visibility)
       {

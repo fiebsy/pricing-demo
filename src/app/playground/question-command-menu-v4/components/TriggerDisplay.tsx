@@ -105,6 +105,7 @@ export const TriggerDisplay: React.FC<TriggerDisplayProps> = ({
 
   // Only show input area styling in response/editing/processing states (not idle/adding)
   const hasResponseState = flowStateId === 'response' || flowStateId === 'editing' || flowStateId === 'processing'
+  const isEditingState = flowStateId === 'editing'
   const showInputAreaStyling = expanded && hasResponseState
 
   // Get animation duration
@@ -173,8 +174,13 @@ export const TriggerDisplay: React.FC<TriggerDisplayProps> = ({
       <div
         className={cn(
           'flex items-center gap-2 flex-1 min-w-0',
-          'transition-all duration-300 ease-out',
-          showInputAreaStyling && triggerConfig.inputAreaExpandedClassName
+          // Exclude border-color from transition to prevent white flash on expand
+          'transition-[background-color,padding,border-radius] duration-300 ease-out',
+          showInputAreaStyling && (
+            isEditingState && triggerConfig.inputAreaEditingClassName
+              ? triggerConfig.inputAreaEditingClassName
+              : triggerConfig.inputAreaExpandedClassName
+          )
         )}
       >
         {/* Display text */}

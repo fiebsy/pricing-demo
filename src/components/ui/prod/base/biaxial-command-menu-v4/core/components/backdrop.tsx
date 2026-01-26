@@ -43,6 +43,9 @@ function getBackdropClipPath(
   return `inset(${topInset}px ${sideInset}px ${bottomInset}px ${sideInset}px round ${borderRadius}px)`
 }
 
+// DEBUG: set to true to visualize backdrop
+const DEBUG_BACKDROP = true
+
 export const Backdrop: React.FC<BackdropProps> = ({ className }) => {
   const {
     expanded,
@@ -140,6 +143,7 @@ export const Backdrop: React.FC<BackdropProps> = ({ className }) => {
         height: backdropHeight,
         borderRadius: layout.borderRadius,
         boxShadow: expanded ? '0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 12px 24px -8px rgba(0, 0, 0, 0.3)' : 'none',
+        ...(DEBUG_BACKDROP && { background: 'rgba(255,165,0,0.5)', outline: '3px dashed orange' }), // ORANGE = backdrop
         transition: `
           top ${duration}ms ${EASING_EXPO_OUT} ${delay}ms,
           width ${duration}ms ${EASING_EXPO_OUT} ${delay}ms,
