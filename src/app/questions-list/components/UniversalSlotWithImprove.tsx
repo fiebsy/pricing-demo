@@ -7,10 +7,10 @@
 'use client'
 
 import * as React from 'react'
-import { useV4Context } from '../../playground/question-command-menu-v4/state'
-import { useSlotHeight, useFlowConfig } from '../../playground/question-command-menu-v4/hooks'
-import { ContentRenderer } from '../../playground/question-command-menu-v4/components/ContentRenderer'
-import type { SlotPosition, QuestionGroup, ChatMessage, SuggestionItem } from '../../playground/question-command-menu-v4/types'
+import { useV4Context } from '@/components/ui/features/expandable-input'
+import { useSlotHeight, useFlowConfig } from '../../playground/archived/question-command-menu-v4/hooks'
+import { ContentRenderer } from '../../playground/archived/question-command-menu-v4/components/ContentRenderer'
+import type { SlotPosition, QuestionGroup, ChatMessage, SuggestionItem } from '../../playground/archived/question-command-menu-v4/types'
 
 // =============================================================================
 // TYPES

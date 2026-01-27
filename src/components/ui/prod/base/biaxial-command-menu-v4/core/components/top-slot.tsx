@@ -20,6 +20,9 @@ import { getTopSectionClipPath, getSlotContainerClipPath } from '../utils'
 import { EASING_EXPO_OUT } from '../constants'
 import type { SlotProps } from '../types'
 
+// Debug flag - set to true to visualize spacing layers
+const DEBUG_LAYOUT = false
+
 export const TopSlot: React.FC<SlotProps> = ({
   children,
   className,
@@ -36,19 +39,48 @@ export const TopSlot: React.FC<SlotProps> = ({
   const contentRef = useRef<HTMLDivElement>(null)
   const slotConfig = { ...config.topSlot, ...slotConfigOverride }
 
+  // Get heightMode from slot config (defaults to 'fixed')
+  const heightMode = slotConfig.heightMode ?? 'fixed'
+  const isAutoHeight = heightMode === 'auto'
+
   // Determine height mode:
-  // - If maxTopHeight is set, use it (enables scrollable content like BottomSlot)
-  // - Otherwise, use fixed height from slotConfig or auto-measure
-  const useMaxHeight = config.layout.maxTopHeight !== undefined
-  const effectiveHeight = useMaxHeight
-    ? config.layout.maxTopHeight!
-    : (slotConfig.height ?? 48)
+  // - 'auto': Let content determine height (no explicit height)
+  // - 'dynamic': Use maxTopHeight for scrollable content
+  // - 'fixed': Use slotConfig.height
+  const useMaxHeight = config.layout.maxTopHeight !== undefined && !isAutoHeight
+  const effectiveHeight = isAutoHeight
+    ? undefined  // Auto height - don't set explicit height
+    : useMaxHeight
+      ? config.layout.maxTopHeight!
+      : (slotConfig.height ?? 48)
 
   // Set height for dimension tracking
   // IMPORTANT: Set height to 0 when disabled so the layout collapses properly
   useEffect(() => {
-    setSlotHeight('top', slotConfig.enabled ? effectiveHeight : 0)
-  }, [effectiveHeight, slotConfig.enabled, setSlotHeight])
+    if (!isAutoHeight && effectiveHeight !== undefined) {
+      // For fixed/dynamic modes, use the calculated height
+      setSlotHeight('top', slotConfig.enabled ? effectiveHeight : 0)
+    }
+  }, [effectiveHeight, slotConfig.enabled, setSlotHeight, isAutoHeight])
+
+  // For auto mode: measure actual content height and report to backdrop
+  useEffect(() => {
+    if (!isAutoHeight || !slotConfig.enabled || !contentRef.current) return
+
+    const measureHeight = () => {
+      const height = contentRef.current?.offsetHeight ?? 0
+      setSlotHeight('top', height)
+    }
+
+    // Initial measurement
+    measureHeight()
+
+    // Re-measure on resize
+    const observer = new ResizeObserver(measureHeight)
+    observer.observe(contentRef.current)
+
+    return () => observer.disconnect()
+  }, [isAutoHeight, slotConfig.enabled, setSlotHeight])
 
   // If slot is disabled, don't render
   if (!slotConfig.enabled) {
@@ -71,10 +103,11 @@ export const TopSlot: React.FC<SlotProps> = ({
     ? getSlotContainerClipPath(expanded, innerOrigin)
     : 'inset(0 0 0 0)'
 
-  const totalHeight = effectiveHeight + (config.layout.topGap ?? 0)
+  // Inset from container edges
+  const inset = slotConfig.inset ?? 4
 
-  // DEBUG: set to true to visualize TopSlot layout
-  const DEBUG_TOPSLOT = true
+  // Total height: slot height + inset (only for non-auto modes)
+  const totalHeight = isAutoHeight ? undefined : (effectiveHeight! + inset)
 
   return (
     <div
@@ -86,32 +119,46 @@ export const TopSlot: React.FC<SlotProps> = ({
         left: '50%',
         width: config.layout.panelWidth,
         marginLeft: -(config.layout.panelWidth / 2),
-        height: totalHeight,
+        marginBottom: config.layout.topGap ?? 0,
+        // Only set explicit height for non-auto modes
+        ...(totalHeight !== undefined && { height: totalHeight }),
         clipPath: outerClipPath,
         transition: `clip-path ${duration}ms ${EASING_EXPO_OUT} ${delay}ms`,
-        background: DEBUG_TOPSLOT ? 'rgba(255,0,255,0.3)' : undefined, // MAGENTA = outer TopSlot container (includes topGap)
+        // For auto mode, add padding instead of using absolute inner container
+        ...(isAutoHeight && { paddingTop: inset, paddingLeft: inset, paddingRight: inset }),
+        // DEBUG: Red = outer container (shows inset area)
+        ...(DEBUG_LAYOUT ? { background: 'rgba(255,0,0,0.3)', outline: '2px dashed red' } : {}),
       }}
     >
       {/* Inner container with compound animation */}
       <div
         ref={contentRef}
         className={cn(
-          'absolute overflow-hidden',
+          // Use absolute positioning only for non-auto modes
+          !isAutoHeight && 'absolute',
+          'overflow-hidden',
           config.appearance.squircle && 'corner-squircle',
-          getBackgroundClass(slotConfig.background ?? 'secondary'),
+          !DEBUG_LAYOUT && getBackgroundClass(slotConfig.background ?? 'secondary'),
           // Apply shine effect if configured (and not 'none')
           slotConfig.shine && slotConfig.shine !== 'none' && slotConfig.shine,
           className
         )}
         style={{
-          top: slotConfig.inset ?? 4,
-          left: slotConfig.inset ?? 4,
-          right: slotConfig.inset ?? 4,
-          bottom: config.layout.topGap ?? 0,
+          // For non-auto modes: use absolute positioning with inset
+          // For auto modes: no positioning, content determines height
+          ...(!isAutoHeight && {
+            top: inset,
+            left: inset,
+            right: inset,
+            bottom: inset,
+          }),
+          // For auto mode, force height to fit content
+          ...(isAutoHeight && { height: 'fit-content' }),
           borderRadius: slotConfig.borderRadius ?? 14,
           clipPath: innerClipPath,
           transition: `clip-path ${innerDuration}ms ${EASING_EXPO_OUT} ${delay}ms`,
-          outline: DEBUG_TOPSLOT ? '2px solid cyan' : undefined, // CYAN outline = inner container boundary
+          // DEBUG: Green = inner container (content area)
+          ...(DEBUG_LAYOUT ? { background: 'rgba(0,255,0,0.3)', outline: '2px dashed green' } : {}),
           ...(slotConfig.borderWidth && slotConfig.borderWidth > 0 && {
             borderTopWidth: slotConfig.borderWidth,
             borderLeftWidth: slotConfig.borderWidth,

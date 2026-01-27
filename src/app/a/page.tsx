@@ -15,7 +15,8 @@
 'use client'
 
 import * as React from 'react'
-import { useState, useCallback, useRef, useMemo } from 'react'
+import { useState, useCallback, useRef, useMemo, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { cn } from '@/lib/utils'
 
 // Auth
@@ -28,14 +29,14 @@ import type { ProfileFormData } from './types'
 
 // Questions system
 import { QuestionsListWithImprove } from '@/app/questions-list/components/QuestionsListWithImprove'
-import type { Question } from '@/app/playground/question-command-menu-v4-flow/types'
+import type { Question } from '@/components/ui/features/question-command-menu/flow'
 
 // Modal & Toast
-import { QuickFixModal } from '@/app/playground/quick-fix-modal/core/QuickFixModal'
-import { EDIT_QUESTIONS_MODAL_PRESET } from '@/app/playground/quick-fix-modal/config/presets'
-import type { IntegrationConfig } from '@/app/playground/quick-fix-modal/config/types'
-import { ConfigurableToast } from '@/app/playground/success-toast/core/ConfigurableToast'
-import type { SuccessToastConfig } from '@/app/playground/success-toast/config/types'
+import { QuickFixModal } from '@/app/playground/archived/quick-fix-modal/core/QuickFixModal'
+import { EDIT_QUESTIONS_MODAL_PRESET } from '@/app/playground/archived/quick-fix-modal/config/presets'
+import type { IntegrationConfig } from '@/app/playground/archived/quick-fix-modal/config/types'
+import { ConfigurableToast } from '@/components/ui/features/success-toast'
+import type { SuccessToastConfig } from '@/components/ui/features/success-toast'
 
 // UI Components
 import { Button } from '@/components/ui/prod/base/button'
@@ -299,6 +300,8 @@ interface QuestionsWrapperProps {
   onImproveAnswer: (questionId: string) => void
   regeneratingIds: Set<string>
   registerRegenerate: (fn: (questionId: string) => void) => void
+  isLocked?: boolean
+  onLockedChange?: (locked: boolean) => void
 }
 
 function QuestionsWrapper({
@@ -307,6 +310,8 @@ function QuestionsWrapper({
   onImproveAnswer,
   regeneratingIds,
   registerRegenerate,
+  isLocked,
+  onLockedChange,
 }: QuestionsWrapperProps) {
   return (
     <div className="flex flex-col gap-2">
@@ -324,6 +329,8 @@ function QuestionsWrapper({
         onImproveAnswer={onImproveAnswer}
         onRegisterRegenerate={registerRegenerate}
         regeneratingIds={regeneratingIds}
+        isLocked={isLocked}
+        onLockedChange={onLockedChange}
       />
     </div>
   )
@@ -337,8 +344,36 @@ export default function ProfilePage() {
   // Auth
   const { isAuthenticated, isLoading, showLoginModal, signIn, signOut, closeLoginModal } = useAuth()
 
-  // Mode
-  const [mode, setMode] = useState<'view' | 'edit'>('view')
+  // URL params for mode persistence (survives hot reload)
+  const searchParams = useSearchParams()
+
+  // Mode - initialized from URL param, defaults to 'view'
+  const [mode, setModeState] = useState<'view' | 'edit'>(() => {
+    const urlMode = searchParams.get('mode')
+    return urlMode === 'edit' ? 'edit' : 'view'
+  })
+
+  // Sync URL when mode changes
+  const setMode = useCallback((newMode: 'view' | 'edit') => {
+    setModeState(newMode)
+    const url = new URL(window.location.href)
+    if (newMode === 'edit') {
+      url.searchParams.set('mode', 'edit')
+    } else {
+      url.searchParams.delete('mode')
+    }
+    window.history.replaceState({}, '', url)
+  }, [])
+
+  // Sync state from URL on initial load (handles browser back/forward)
+  useEffect(() => {
+    const urlMode = searchParams.get('mode')
+    const expectedMode = urlMode === 'edit' ? 'edit' : 'view'
+    if (mode !== expectedMode) {
+      setModeState(expectedMode)
+    }
+  }, [searchParams, mode])
+
   const [profileData, setProfileData] = useState(initialProfileData)
 
   // Questions for view mode (filtered strings)
@@ -366,6 +401,9 @@ export default function ProfilePage() {
 
   // Focus mode - dims other sections to highlight questions
   const [focusMode, setFocusMode] = useState(true)
+
+  // Lock mode - keeps expanded menus open for debugging
+  const [lockExpanded, setLockExpanded] = useState(false)
 
   // Toast state
   const [showToast, setShowToast] = useState(false)
@@ -495,6 +533,8 @@ export default function ProfilePage() {
                     onImproveAnswer={handleImproveAnswer}
                     regeneratingIds={regeneratingIdsSet}
                     registerRegenerate={registerRegenerate}
+                    isLocked={lockExpanded}
+                    onLockedChange={setLockExpanded}
                   />
                 }
               />
@@ -534,6 +574,13 @@ export default function ProfilePage() {
       {/* Bottom right buttons */}
       {isAuthenticated && (
         <div className="fixed bottom-6 right-6 z-40 flex items-center gap-2">
+          <Button
+            variant={lockExpanded ? 'primary' : 'tertiary'}
+            size="sm"
+            onClick={() => setLockExpanded(!lockExpanded)}
+          >
+            {lockExpanded ? 'Unlock' : 'Lock'}
+          </Button>
           <Button
             variant={focusMode ? 'secondary' : 'tertiary'}
             size="sm"

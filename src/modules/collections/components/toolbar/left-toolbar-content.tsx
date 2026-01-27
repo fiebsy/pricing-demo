@@ -109,9 +109,9 @@ export const LeftToolbarContent: React.FC<LeftToolbarContentProps> = ({
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   // Transform activeFilters to FilterChipData format for the motion component
-  // IMPORTANT: Use category as the stable ID so value changes don't trigger enter/exit animations
+  // Use filter.id as the stable key to support multiple filters from the same category
   const filterChipData: FilterChipData[] = activeFilters.map((filter) => ({
-    id: filter.category.toLowerCase(), // Stable key based on category (e.g., 'status')
+    id: filter.id, // Unique filter ID (e.g., 'status-collections')
     label: filter.category, // Category name shown in dropdown header
     icon: FILTER_ICONS[filter.category],
     value: filter.id, // Currently selected option ID (e.g., 'status-collections')
@@ -119,26 +119,15 @@ export const LeftToolbarContent: React.FC<LeftToolbarContentProps> = ({
   }))
 
   // Handle filter value change (switching to a different option in same category)
-  // filterId is now the category (e.g., 'status'), newValue is the new option ID
-  const handleFilterChange = (categoryId: string, newValue: string) => {
-    // Find the current filter for this category to get its option ID
-    const currentFilter = activeFilters.find(
-      (f) => f.category.toLowerCase() === categoryId
-    )
-    if (currentFilter) {
-      onFilterChange(currentFilter.id, newValue)
-    }
+  // filterId is the current filter ID (e.g., 'status-collections'), newValue is the new option ID
+  const handleFilterChange = (filterId: string, newValue: string) => {
+    onFilterChange(filterId, newValue)
   }
 
   // Handle filter removal
-  // filterId is now the category (e.g., 'status'), need to find the actual option ID
-  const handleFilterRemove = (categoryId: string) => {
-    const currentFilter = activeFilters.find(
-      (f) => f.category.toLowerCase() === categoryId
-    )
-    if (currentFilter) {
-      onFilterRemove(currentFilter.id)
-    }
+  // filterId is the filter ID (e.g., 'status-collections')
+  const handleFilterRemove = (filterId: string) => {
+    onFilterRemove(filterId)
   }
 
   return (

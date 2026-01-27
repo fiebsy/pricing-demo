@@ -6,7 +6,7 @@
  */
 
 import { useCallback, useState, useEffect, useRef } from 'react'
-import { useV4Context } from '../../playground/question-command-menu-v4/state'
+import { useV4Context } from '@/components/ui/features/expandable-input'
 import type { ChatMessage, Question } from '../../playground/question-command-menu-v4-flow/types'
 
 interface UseQuestionFlowWithImproveOptions {

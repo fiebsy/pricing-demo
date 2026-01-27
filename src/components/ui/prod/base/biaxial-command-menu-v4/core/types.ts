@@ -27,6 +27,8 @@ export type SlotPosition = 'top' | 'trigger' | 'bottom'
 export interface SlotConfig {
   /** Whether this slot is enabled */
   enabled?: boolean
+  /** Height mode: 'fixed' uses height prop, 'auto' sizes to content, 'dynamic' uses maxHeight */
+  heightMode?: 'fixed' | 'auto' | 'dynamic'
   /** Fixed height for this slot (px). If not set, auto-measures content */
   height?: number
   /** Animation delay offset (ms) */
@@ -145,7 +147,10 @@ export interface LayoutConfig {
   maxBottomHeight: number
   /** Border radius for the entire component */
   borderRadius: number
-  /** Gap between top slot and trigger */
+  /**
+   * Gap between top slot and trigger
+   * @deprecated Use topSlot.inset instead for uniform spacing on all sides
+   */
   topGap: number
   /** Gap between trigger and bottom slot */
   bottomGap: number
@@ -198,6 +203,10 @@ export interface BiaxialExpandContextValue {
   setExpanded: (expanded: boolean) => void
   hovered: boolean
   setHovered: (hovered: boolean) => void
+  /** Lock state - when locked, menu won't collapse on blur/click outside */
+  isLocked: boolean
+  /** Toggle or set the lock state */
+  setLocked: (locked: boolean) => void
 
   // Config
   config: BiaxialExpandConfig
@@ -239,6 +248,10 @@ export interface BiaxialExpandRootProps {
   expanded?: boolean
   /** Called when expansion state changes */
   onExpandedChange?: (expanded: boolean) => void
+  /** Controlled lock state - prevents collapse on blur/click outside */
+  isLocked?: boolean
+  /** Called when lock state changes (via Cmd+Shift+L) */
+  onLockedChange?: (locked: boolean) => void
   /** Additional className */
   className?: string
   /** Children (slot components) */

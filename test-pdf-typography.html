@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PDF Typography Test</title>
+  <style>
+    /* Base styles matching the payva-deck theme */
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Neue Haas Grotesk Display', -apple-system, sans-serif;
+      background: white;
+    }
+    
+    /* Original problem: rem-based sizing */
+    .original-text {
+      --spacing: 0.25rem;
+      --text-display-2xl: calc(var(--spacing) * 18); /* 72px */
+      font-size: var(--text-display-2xl);
+      color: #333;
+    }
+    
+    /* Fixed solution: viewport-based sizing */
+    .pdf-export-mode {
+      --pdf-text-scale: 1vw;
+      --pdf-text-display-2xl: calc(var(--pdf-text-scale) * 3.75); /* ~72px at 1920px */
+    }
+    
+    .pdf-export-mode .text-display-2xl {
+      font-size: var(--pdf-text-display-2xl) !important;
+      line-height: 1.25 !important;
+      color: #111;
+    }
+    
+    /* Container styles */
+    .container {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2rem;
+    }
+    
+    .card {
+      border: 2px solid #e5e5e5;
+      border-radius: 16px;
+      padding: 2rem;
+      background: linear-gradient(0deg, rgba(220,220,255,0.15) 0%, white 70%);
+    }
+    
+    .stat-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    
+    .arrow-icon {
+      display: inline-block;
+      width: 1.5em;
+      height: 1.5em;
+      background: #666;
+      clip-path: polygon(0% 40%, 60% 40%, 60% 20%, 100% 50%, 60% 80%, 60% 60%, 0% 60%);
+    }
+    
+    .label {
+      font-size: 1rem;
+      color: #666;
+      margin-top: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>PDF Typography Test - Comparing Solutions</h1>
+    
+    <!-- Original Problem -->
+    <div class="card">
+      <h2>Original (rem-based) - Problem</h2>
+      <div class="stat-row original-text">
+        <span>2×</span>
+      </div>
+      <div class="label">Monthly origination growth</div>
+    </div>
+    
+    <!-- Fixed Solution -->
+    <div class="card pdf-export-mode">
+      <h2>Fixed (viewport-based) - Solution</h2>
+      <div class="stat-row text-display-2xl">
+        <span>2×</span>
+      </div>
+      <div class="label">Monthly origination growth</div>
+    </div>
+    
+    <!-- With Arrow Icon -->
+    <div class="card pdf-export-mode">
+      <h2>With Arrow Icon (scales with text)</h2>
+      <div class="stat-row text-display-2xl">
+        <span style="color: #999">3</span>
+        <span class="arrow-icon"></span>
+        <span>23</span>
+      </div>
+      <div class="label">Team growth in 2 years</div>
+    </div>
+  </div>
+  
+  <script>
+    // Log the computed sizes for debugging
+    const original = document.querySelector('.original-text');
+    const fixed = document.querySelector('.text-display-2xl');
+    
+    console.log('Original font size:', window.getComputedStyle(original).fontSize);
+    console.log('Fixed font size:', window.getComputedStyle(fixed).fontSize);
+    console.log('Viewport width:', window.innerWidth);
+  </script>
+</body>
+</html>

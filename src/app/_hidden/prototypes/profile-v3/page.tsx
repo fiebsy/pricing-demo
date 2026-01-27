@@ -25,7 +25,7 @@ import { AvatarVideo } from './components/video'
 import { EditableProfilePanel } from './components/editable-profile'
 
 // Quick Fix Modal
-import { QuickFixModal } from '@/app/playground/quick-fix-modal/core/QuickFixModal'
+import { QuickFixModal } from '@/app/playground/archived/quick-fix-modal/core/QuickFixModal'
 import { PROFILE_QUICK_FIX_CONFIG, PROFILE_INTEGRATION_CONFIG } from './config/quick-fix-config'
 
 // Reuse components from profile-v2

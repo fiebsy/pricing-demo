@@ -25,7 +25,7 @@ import MinusSignIcon from '@hugeicons-pro/core-stroke-rounded/MinusSignIcon'
 import Cancel01Icon from '@hugeicons-pro/core-stroke-rounded/Cancel01Icon'
 import CancelCircleIcon from '@hugeicons-pro/core-stroke-rounded/CancelCircleIcon'
 import type { ChatInputProps, ChatOverlayState } from '../../types'
-import type { InputStyleConfig, SemanticBgColor, ShineStyle } from '@/app/playground/radial-blur/config/types'
+import type { InputStyleConfig, SemanticBgColor, ShineStyle } from '@/components/ui/features/radial-blur'
 
 // =============================================================================
 // COLOR MAPPING

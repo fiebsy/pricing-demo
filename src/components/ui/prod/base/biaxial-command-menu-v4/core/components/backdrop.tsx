@@ -18,6 +18,9 @@ import { useBiaxialExpand } from '../context'
 import { EASING_EXPO_OUT } from '../constants'
 import type { BackdropProps } from '../types'
 
+// Debug flag - set to true to visualize backdrop layer
+const DEBUG_LAYOUT = false
+
 /**
  * Calculate backdrop clip-path for unified model.
  * Matches V3's getBackdropClipPath() logic.
@@ -42,9 +45,6 @@ function getBackdropClipPath(
 
   return `inset(${topInset}px ${sideInset}px ${bottomInset}px ${sideInset}px round ${borderRadius}px)`
 }
-
-// DEBUG: set to true to visualize backdrop
-const DEBUG_BACKDROP = true
 
 export const Backdrop: React.FC<BackdropProps> = ({ className }) => {
   const {
@@ -73,8 +73,11 @@ export const Backdrop: React.FC<BackdropProps> = ({ className }) => {
   const delay = animation.backdropDelay
 
   // Calculate total height including top section offset
+  const topSlotInset = config.topSlot.inset ?? 4
+  // Include topGap (gap between trigger and top slot) in the offset calculation
+  const topGap = layout.topGap ?? 0
   const backdropTopOffset = layout.backdropTopOffset + (
-    config.topSlot.enabled ? dimensions.topHeight + (layout.topGap ?? 0) : 0
+    config.topSlot.enabled ? dimensions.topHeight + topSlotInset + topGap : 0
   )
 
   // Total panel height (trigger + gap + bottom) - only apply gap when bottom slot is enabled
@@ -130,11 +133,11 @@ export const Backdrop: React.FC<BackdropProps> = ({ className }) => {
     <div
       className={cn(
         'absolute motion-reduce:transition-none',
-        popupClasses,
+        !DEBUG_LAYOUT && popupClasses,
         className
       )}
       style={{
-        ...gradientStyles,
+        ...(DEBUG_LAYOUT ? {} : gradientStyles),
         zIndex: 10,
         top: expanded ? -backdropTopOffset : 0,
         left: '50%',
@@ -143,7 +146,8 @@ export const Backdrop: React.FC<BackdropProps> = ({ className }) => {
         height: backdropHeight,
         borderRadius: layout.borderRadius,
         boxShadow: expanded ? '0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 12px 24px -8px rgba(0, 0, 0, 0.3)' : 'none',
-        ...(DEBUG_BACKDROP && { background: 'rgba(255,165,0,0.5)', outline: '3px dashed orange' }), // ORANGE = backdrop
+        // DEBUG: Orange = backdrop (should cover entire expanded area)
+        ...(DEBUG_LAYOUT ? { background: 'rgba(255,165,0,0.4)', outline: '3px dashed orange' } : {}),
         transition: `
           top ${duration}ms ${EASING_EXPO_OUT} ${delay}ms,
           width ${duration}ms ${EASING_EXPO_OUT} ${delay}ms,

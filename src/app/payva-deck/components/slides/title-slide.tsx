@@ -1,46 +1,59 @@
 'use client'
 
 import { motion } from 'motion/react'
-import type { PitchSlide } from '../../data/slides'
 import { contentDelays } from '../../lib/animations'
+import { slideTypography } from '../../lib/typography'
+import { SlideLayout } from '../slide-layout'
+import { PayvaWordmark } from '../payva-wordmark'
+import type { SlideProps } from './index'
 
-interface TitleSlideProps {
-  slide: PitchSlide
-}
-
-export function TitleSlide({ slide }: TitleSlideProps) {
+export function TitleSlide({
+  slide,
+  variant,
+  slideNumber,
+  totalSlides,
+  isLightMode,
+}: SlideProps) {
   return (
-    <div className="flex flex-col items-center justify-center text-center">
-      <motion.h1
-        className="font-display text-display-2xl text-primary mb-6"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: contentDelays.title }}
-      >
-        {slide.title}
-      </motion.h1>
-
-      {slide.subtitle && (
-        <motion.p
-          className="font-display text-display-md text-secondary mb-4"
-          initial={{ opacity: 0, y: 10 }}
+    <SlideLayout
+      variant={variant}
+      label={slide.label}
+      slideNumber={slideNumber}
+      totalSlides={totalSlides}
+      isLightMode={isLightMode}
+    >
+      <div className="flex flex-col items-center justify-center text-center">
+        <motion.div
+          className="mb-6"
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: contentDelays.subtitle + 0.1 }}
+          transition={{ delay: contentDelays.title }}
         >
-          {slide.subtitle}
-        </motion.p>
-      )}
+          <PayvaWordmark width={280} className="text-primary" />
+        </motion.div>
 
-      {slide.description && (
-        <motion.p
-          className="text-xl text-tertiary max-w-2xl leading-relaxed"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: contentDelays.description + 0.1 }}
-        >
-          {slide.description}
-        </motion.p>
-      )}
-    </div>
+        {slide.subtitle && (
+          <motion.p
+            className={`${slideTypography.heroSubtitle} mb-4`}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: contentDelays.subtitle + 0.1 }}
+          >
+            {slide.subtitle}
+          </motion.p>
+        )}
+
+        {slide.description && (
+          <motion.p
+            className={`${slideTypography.body} max-w-2xl`}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: contentDelays.description + 0.1 }}
+          >
+            {slide.description}
+          </motion.p>
+        )}
+      </div>
+    </SlideLayout>
   )
 }

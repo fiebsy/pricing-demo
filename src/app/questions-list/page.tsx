@@ -21,9 +21,9 @@ import { QuestionsListWithImprove } from './components/QuestionsListWithImprove'
 import type { Question } from '../playground/question-command-menu-v4-flow/types'
 
 // Quick Fix Modal
-import { QuickFixModal } from '@/app/playground/quick-fix-modal/core/QuickFixModal'
-import { EDIT_QUESTIONS_MODAL_PRESET } from '@/app/playground/quick-fix-modal/config/presets'
-import type { IntegrationConfig } from '@/app/playground/quick-fix-modal/config/types'
+import { QuickFixModal } from '@/app/playground/archived/quick-fix-modal/core/QuickFixModal'
+import { EDIT_QUESTIONS_MODAL_PRESET } from '@/app/playground/archived/quick-fix-modal/config/presets'
+import type { IntegrationConfig } from '@/app/playground/archived/quick-fix-modal/config/types'
 
 // Success Toast
 import { ConfigurableToast } from '@/app/playground/success-toast/core/ConfigurableToast'

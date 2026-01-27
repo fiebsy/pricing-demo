@@ -12,11 +12,11 @@
 import * as React from 'react'
 import { useRef, useEffect } from 'react'
 import { cn } from '@/lib/utils'
-import { FadingScrollArea } from '@/app/playground/radial-blur/core/FadingScrollArea'
+import { FadingScrollArea } from '@/components/ui/features/radial-blur'
 import { MessageBubble } from './MessageBubble'
 import { ConfidenceSignal } from './ConfidenceSignal'
 import type { ChatMessage } from '../../types'
-import type { SemanticBgColor, ShineStyle } from '@/app/playground/radial-blur/config/types'
+import type { SemanticBgColor, ShineStyle } from '@/components/ui/features/radial-blur'
 
 // =============================================================================
 // TYPES

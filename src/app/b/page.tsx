@@ -25,7 +25,7 @@ import { AvatarVideo } from './profile-v3/components/video'
 import { EditableProfilePanel } from './profile-v3/components/editable-profile'
 
 // Quick Fix Modal
-import { QuickFixModal } from '@/app/playground/quick-fix-modal/core/QuickFixModal'
+import { QuickFixModal } from '@/app/playground/archived/quick-fix-modal/core/QuickFixModal'
 import { PROFILE_QUICK_FIX_CONFIG, PROFILE_INTEGRATION_CONFIG } from './profile-v3/config/quick-fix-config'
 
 // Reuse components from profile-v2
@@ -40,8 +40,8 @@ import { QuestionsContainer, QuestionCard, AddQuestionInput } from './profile-v3
 import { BentoGrid } from './profile-v2/components/bento-grid'
 
 // Success Toast
-import { ConfigurableToast } from '@/app/playground/success-toast/core/ConfigurableToast'
-import type { SuccessToastConfig } from '@/app/playground/success-toast/config/types'
+import { ConfigurableToast } from '@/components/ui/features/success-toast'
+import type { SuccessToastConfig } from '@/components/ui/features/success-toast'
 
 // Auth components
 import { useAuth } from './profile/hooks/useAuth'

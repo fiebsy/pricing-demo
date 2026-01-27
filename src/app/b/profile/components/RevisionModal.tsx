@@ -38,7 +38,7 @@ import Image01Icon from '@hugeicons-pro/core-stroke-rounded/Image01Icon'
 import Image02Icon from '@hugeicons-pro/core-stroke-rounded/Image02Icon'
 import PaintBrush01Icon from '@hugeicons-pro/core-stroke-rounded/PaintBrush01Icon'
 import Link01Icon from '@hugeicons-pro/core-stroke-rounded/Link01Icon'
-import { QuickFixFlow, ManualFixFlow } from '@/app/playground/edit-questions/components'
+import { QuickFixFlow, ManualFixFlow } from '@/components/ui/features/edit-questions'
 import { getCategoryById, getUploadSuggestions } from '../constants'
 import type { RevisionModalProps, RevisionFlowType, UploadSuggestion, CategoryType } from '../types'
 

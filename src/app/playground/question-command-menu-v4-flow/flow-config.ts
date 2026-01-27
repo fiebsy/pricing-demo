@@ -31,7 +31,7 @@
  *      │ cancel → RESPONSE
  */
 
-import type { FlowConfigs } from '../question-command-menu-v4/types'
+import type { FlowConfigs } from '../archived/question-command-menu-v4/types'
 
 /**
  * Single button flow configuration

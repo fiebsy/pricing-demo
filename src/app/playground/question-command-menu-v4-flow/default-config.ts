@@ -4,7 +4,7 @@
  * Your base configuration for flow state testing.
  */
 
-import type { QuestionCommandMenuV4Config } from '../question-command-menu-v4/types'
+import type { QuestionCommandMenuV4Config } from '../archived/question-command-menu-v4/types'
 
 export const FLOW_DEFAULT_CONFIG: QuestionCommandMenuV4Config = {
   animation: {
@@ -25,7 +25,7 @@ export const FLOW_DEFAULT_CONFIG: QuestionCommandMenuV4Config = {
     panelWidth: 480,
     fillWidth: false,
     borderRadius: 20,
-    topGap: 0,
+    topGap: 16,
     bottomGap: 16,
     backdropTopOffset: 0,
   },
@@ -160,9 +160,9 @@ export const FLOW_DEFAULT_CONFIG: QuestionCommandMenuV4Config = {
       },
       scroll: {
         overflowGradient: true,
-        gradientHeight: 24,
+        gradientHeight: 0,
         paddingTop: 8,
-        paddingBottom: 8,
+        paddingBottom: 0,
       },
     },
     bottom: {
@@ -279,8 +279,8 @@ export const FLOW_DEFAULT_CONFIG: QuestionCommandMenuV4Config = {
         squircle: true,
       },
       container: {
-        paddingTop: 16,
-        paddingBottom: 16,
+        paddingTop: 8,
+        paddingBottom: 8,
       },
       userMessage: {
         background: 'quaternary',

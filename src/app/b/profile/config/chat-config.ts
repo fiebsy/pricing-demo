@@ -7,7 +7,7 @@
  * @module b/profile/config
  */
 
-import type { InputStyleConfig, MessageStyleConfig } from '@/app/playground/radial-blur/config/types'
+import type { InputStyleConfig, MessageStyleConfig } from '@/components/ui/features/radial-blur'
 
 // =============================================================================
 // BLUR HEIGHT CONFIG

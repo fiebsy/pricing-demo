@@ -2,6 +2,38 @@
  * Biaxial Command Menu V4 - Constants
  *
  * Default configuration values for the composable expand system.
+ *
+ * SPACING MODEL
+ * =============
+ * The layout uses a unified "inset" system where each slot container has
+ * uniform padding on all sides. This creates consistent visual margins
+ * between the backdrop and slot content.
+ *
+ * ┌─────────────────────────────────────────┐
+ * │ Backdrop (background, gradient, shadow) │
+ * │ ┌─────────────────────────────────────┐ │
+ * │ │ Top Slot Container                  │ │ ← topSlot.inset (uniform all sides)
+ * │ │ ┌─────────────────────────────────┐ │ │
+ * │ │ │ Scroll Area / Content           │ │ │
+ * │ │ └─────────────────────────────────┘ │ │
+ * │ └─────────────────────────────────────┘ │
+ * │ ┌─────────────────────────────────────┐ │
+ * │ │ Trigger Slot                        │ │ ← triggerSlot.inset
+ * │ │   [Input / Button / Custom]         │ │
+ * │ └─────────────────────────────────────┘ │
+ * │           ↕ layout.bottomGap            │
+ * │ ┌─────────────────────────────────────┐ │
+ * │ │ Bottom Slot Container               │ │ ← bottomSlot.inset (uniform all sides)
+ * │ │ ┌─────────────────────────────────┐ │ │
+ * │ │ │ Scroll Area / Content           │ │ │
+ * │ │ └─────────────────────────────────┘ │ │
+ * │ └─────────────────────────────────────┘ │
+ * └─────────────────────────────────────────┘
+ *
+ * KEY PROPERTIES:
+ * - slotConfig.inset: Padding between slot container and backdrop (uniform all sides)
+ * - layout.bottomGap: Gap between trigger and bottom slot
+ * - layout.topGap: DEPRECATED - use topSlot.inset instead
  */
 
 import { DEFAULT_APPEARANCE } from '@/components/ui/prod/base/menu/config'
@@ -43,7 +75,7 @@ export const DEFAULT_LAYOUT_CONFIG: LayoutConfig = {
   maxTopHeight: undefined, // When set, enables scrollable content in top slot
   maxBottomHeight: 380,
   borderRadius: 18,
-  topGap: 0,
+  topGap: 0, // @deprecated - Use topSlot.inset instead for uniform spacing
   bottomGap: 12,
   backdropTopOffset: 0,
 }

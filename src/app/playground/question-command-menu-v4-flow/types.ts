@@ -4,7 +4,7 @@
  * Shared types for the question command menu flow system.
  */
 
-import type { ChatMessage } from '../question-command-menu-v4/types'
+import type { ChatMessage } from '../archived/question-command-menu-v4/types'
 
 // Re-export for convenience
 export type { ChatMessage }

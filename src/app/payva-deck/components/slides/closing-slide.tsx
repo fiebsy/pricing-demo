@@ -1,44 +1,62 @@
 'use client'
 
 import { motion } from 'motion/react'
-import type { PitchSlide } from '../../data/slides'
 import { contentDelays } from '../../lib/animations'
+import { slideTypography } from '../../lib/typography'
+import { slideSpacing } from '../../lib/spacing'
+import { SlideLayout } from '../slide-layout'
+import { PayvaWordmark } from '../payva-wordmark'
+import type { SlideProps } from './index'
 
-interface ClosingSlideProps {
-  slide: PitchSlide
-}
+export function ClosingSlide({
+  slide,
+  variant,
+  slideNumber,
+  totalSlides,
+  isLightMode,
+}: SlideProps) {
+  const ctaUrl = slide.closingConfig?.ctaUrl
 
-export function ClosingSlide({ slide }: ClosingSlideProps) {
   return (
-    <div className="flex flex-col items-center justify-center text-center">
-      <motion.h1
-        className="font-display text-display-2xl text-primary mb-8"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: contentDelays.title }}
-      >
-        {slide.title}
-      </motion.h1>
-
-      {slide.description && (
-        <motion.p
-          className="text-xl text-secondary max-w-3xl leading-relaxed"
-          initial={{ opacity: 0, y: 10 }}
+    <SlideLayout
+      variant={variant}
+      label={slide.label}
+      slideNumber={slideNumber}
+      totalSlides={totalSlides}
+      isLightMode={isLightMode}
+    >
+      <div className="flex flex-col items-center justify-center text-center">
+        <motion.div
+          className="mb-8"
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: contentDelays.description }}
+          transition={{ delay: contentDelays.title }}
         >
-          {slide.description}
-        </motion.p>
-      )}
+          <PayvaWordmark width={280} className="text-primary" />
+        </motion.div>
 
-      <motion.div
-        className="mt-12 text-sm text-tertiary"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: contentDelays.description + 0.2 }}
-      >
-        payva.com
-      </motion.div>
-    </div>
+        {slide.description && (
+          <motion.p
+            className={`${slideTypography.description} max-w-2xl`}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: contentDelays.description }}
+          >
+            {slide.description}
+          </motion.p>
+        )}
+
+        {ctaUrl && (
+          <motion.div
+            className={`${slideSpacing.margin.ctaTop} ${slideTypography.supporting}`}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: contentDelays.description + 0.2 }}
+          >
+            {ctaUrl}
+          </motion.div>
+        )}
+      </div>
+    </SlideLayout>
   )
 }

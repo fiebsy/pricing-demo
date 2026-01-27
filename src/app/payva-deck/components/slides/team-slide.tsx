@@ -1,67 +1,90 @@
 'use client'
 
 import { motion } from 'motion/react'
+import Image from 'next/image'
 import User02Icon from '@hugeicons-pro/core-stroke-rounded/User02Icon'
 import { HugeIcon } from '@/components/ui/prod/base/icon'
-import type { PitchSlide } from '../../data/slides'
 import { contentDelays } from '../../lib/animations'
+import { slideTypography } from '../../lib/typography'
+import { slideSpacing } from '../../lib/spacing'
+import { SlideLayout } from '../slide-layout'
+import { SlideCard } from '../slide-card'
+import type { SlideProps } from './index'
 
-interface TeamSlideProps {
-  slide: PitchSlide
-}
-
-export function TeamSlide({ slide }: TeamSlideProps) {
+export function TeamSlide({
+  slide,
+  variant,
+  slideNumber,
+  totalSlides,
+  isLightMode,
+}: SlideProps) {
   const members = slide.teamConfig?.members ?? []
 
   return (
-    <div className="text-center max-w-5xl mx-auto">
-      {slide.subtitle && (
-        <motion.p
-          className="text-sm font-medium text-tertiary uppercase tracking-wider mb-4"
-          initial={{ opacity: 0, y: 10 }}
+    <SlideLayout
+      variant={variant}
+      topLeftSubtitle={slide.subtitle}
+      slideNumber={slideNumber}
+      totalSlides={totalSlides}
+      isLightMode={isLightMode}
+    >
+      <div className={`flex flex-col items-center ${slideSpacing.layout.stacked} text-center max-w-5xl mx-auto`}>
+        <motion.h1
+          className={slideTypography.sectionTitle}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: contentDelays.subtitle }}
+          transition={{ delay: contentDelays.title }}
         >
-          {slide.subtitle}
-        </motion.p>
-      )}
+          {slide.title}
+        </motion.h1>
 
-      <motion.h1
-        className="font-display text-display-lg text-primary mb-12"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: contentDelays.title }}
-      >
-        {slide.title}
-      </motion.h1>
-
-      {/* Team Grid */}
-      <div className="flex flex-wrap justify-center gap-6 max-w-4xl mx-auto">
-        {members.map((member, index) => (
-          <motion.div
-            key={index}
-            className="rounded-2xl corner-squircle bg-secondary p-1.5 shine-3"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: contentDelays.stat + index * 0.1 }}
-          >
-            <div className="flex flex-col items-center gap-3 rounded-xl corner-squircle bg-primary px-8 py-6 min-w-[160px]">
-              {/* Avatar Placeholder */}
-              <div className="w-16 h-16 rounded-full bg-secondary flex items-center justify-center">
-                <HugeIcon icon={User02Icon} size={28} className="text-tertiary" />
+        {/* Team Grid - fixed width cards for consistency */}
+        <div className={`flex flex-wrap justify-center ${slideSpacing.cards.grid} max-w-4xl mx-auto`}>
+          {members.map((member, index) => (
+            <SlideCard
+              key={index}
+              className={`flex flex-col items-center gap-4 ${slideSpacing.cardPadding.team} ${slideSpacing.cardWidth.team}`}
+              delay={contentDelays.stat + index * 0.1}
+              motionProps={{
+                initial: { opacity: 0, y: 20 },
+                animate: { opacity: 1, y: 0 },
+              }}
+            >
+              {/* Avatar */}
+              <div className="w-32 h-32 rounded-full bg-secondary flex items-center justify-center overflow-hidden">
+                {member.imageSrc ? (
+                  // Use img tag for PDF export compatibility when in light variant
+                  variant === 'light' ? (
+                    <img
+                      src={member.imageSrc}
+                      alt={member.name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <Image
+                      src={member.imageSrc}
+                      alt={member.name}
+                      width={128}
+                      height={128}
+                      className="w-full h-full object-cover"
+                    />
+                  )
+                ) : (
+                  <HugeIcon icon={User02Icon} size={48} className="text-tertiary" />
+                )}
               </div>
 
-              {/* Name */}
-              <span className="text-base font-medium text-primary">
-                {member.name}
-              </span>
-
-              {/* Role */}
-              <span className="text-xs text-tertiary">{member.role}</span>
-            </div>
-          </motion.div>
-        ))}
+              {/* Name and Role */}
+              <div className="flex flex-col items-center gap-1">
+                <span className={`${slideTypography.cardName} text-center whitespace-nowrap`}>
+                  {member.name}
+                </span>
+                <span className={`${slideTypography.cardRole} text-center whitespace-nowrap`}>{member.role}</span>
+              </div>
+            </SlideCard>
+          ))}
+        </div>
       </div>
-    </div>
+    </SlideLayout>
   )
 }

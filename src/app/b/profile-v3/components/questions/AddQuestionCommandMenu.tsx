@@ -12,11 +12,10 @@
 import * as React from 'react'
 import { useCallback, useEffect, useMemo } from 'react'
 import { cn } from '@/lib/utils'
-import { V4Provider, useV4Context } from '@/app/playground/question-command-menu-v4/state'
-import { Preview } from '@/app/playground/question-command-menu-v4/components/Preview'
+import { V4Provider, useV4Context, Preview } from '@/components/ui/features/question-command-menu'
+import type { QuestionCommandMenuV4Config } from '@/components/ui/features/question-command-menu'
 import { ADD_QUESTION_CONFIG, PROFILE_FLOW_CONFIG } from '../../config/question-command-config'
 import type { ProfileQuestion, CategoryType } from '../../types'
-import type { QuestionCommandMenuV4Config } from '@/app/playground/question-command-menu-v4/types'
 
 // =============================================================================
 // TYPES

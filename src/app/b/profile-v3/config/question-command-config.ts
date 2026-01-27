@@ -15,7 +15,7 @@
  * @module b/profile-v3/config
  */
 
-import type { QuestionCommandMenuV4Config, FlowConfigs } from '@/app/playground/question-command-menu-v4/types'
+import type { QuestionCommandMenuV4Config, FlowConfigs } from '@/components/ui/features/question-command-menu'
 
 // =============================================================================
 // PROFILE FLOW CONFIG

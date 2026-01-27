@@ -6,9 +6,9 @@ import { HugeIcon } from '@/components/ui/prod/base/icon'
 import Add01Icon from '@hugeicons-pro/core-stroke-rounded/Add01Icon'
 
 // V4 Command Menu imports
-import type { ChatMessage, QuestionCommandMenuV4Config } from '@/app/playground/question-command-menu-v4/types'
-import { V4Provider, useV4Context } from '@/app/playground/question-command-menu-v4/state'
-import { Preview } from '@/app/playground/question-command-menu-v4/components'
+import type { ChatMessage, QuestionCommandMenuV4Config } from '@/app/playground/archived/question-command-menu-v4/types'
+import { V4Provider, useV4Context } from '@/app/playground/archived/question-command-menu-v4/state'
+import { Preview } from '@/app/playground/archived/question-command-menu-v4/components'
 import { FLOW_DEFAULT_CONFIG } from '@/app/playground/question-command-menu-v4-flow/default-config'
 import { QUESTION_FLOW_CONFIG } from '@/app/playground/question-command-menu-v4-flow/flow-config'
 

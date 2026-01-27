@@ -67,6 +67,10 @@ export interface QuestionsListWithImproveProps {
   regeneratingIds?: Set<string>
   /** Optional className */
   className?: string
+  /** Lock state - keeps menu expanded */
+  isLocked?: boolean
+  /** Called when lock state changes */
+  onLockedChange?: (locked: boolean) => void
 }
 
 // ============================================================================
@@ -84,6 +88,8 @@ export function QuestionsListWithImprove({
   onRegisterRegenerate,
   regeneratingIds = new Set(),
   className,
+  isLocked,
+  onLockedChange,
 }: QuestionsListWithImproveProps) {
   const [questions, setQuestions] = useState<Question[]>(() =>
     createInitialQuestions(questionCount, initialQuestions)
@@ -149,6 +155,8 @@ export function QuestionsListWithImprove({
           onImproveAnswer={() => onImproveAnswer?.(question.id)}
           onRegisterRegenerate={(fn) => handleRegisterRegenerate(question.id, fn)}
           isRegenerating={regeneratingIds.has(question.id)}
+          isLocked={isLocked}
+          onLockedChange={onLockedChange}
         />
       ))}
     </div>

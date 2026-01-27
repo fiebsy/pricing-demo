@@ -10,7 +10,7 @@
 import { useMemo, useCallback } from 'react'
 import { cn } from '@/lib/utils'
 
-import { V4Provider, useV4Context } from '../../playground/question-command-menu-v4/state'
+import { V4Provider, useV4Context } from '@/components/ui/features/expandable-input'
 import { PreviewWithImprove } from './PreviewWithImprove'
 import { useQuestionFlowWithImprove } from '../hooks/useQuestionFlowWithImprove'
 import { FLOW_DEFAULT_CONFIG } from '../../playground/question-command-menu-v4-flow/default-config'
@@ -40,6 +40,10 @@ export interface QuestionFlowCardWithImproveProps {
   isActive?: boolean
   /** Optional className for the wrapper */
   className?: string
+  /** Lock state - keeps menu expanded */
+  isLocked?: boolean
+  /** Called when lock state changes */
+  onLockedChange?: (locked: boolean) => void
 }
 
 // ============================================================================
@@ -53,6 +57,8 @@ interface CardContentProps {
   onImproveAnswer?: () => void
   onRegisterRegenerate?: (fn: () => void) => void
   isRegenerating?: boolean
+  isLocked?: boolean
+  onLockedChange?: (locked: boolean) => void
 }
 
 function CardContent({
@@ -62,6 +68,8 @@ function CardContent({
   onImproveAnswer,
   onRegisterRegenerate,
   isRegenerating = false,
+  isLocked,
+  onLockedChange,
 }: CardContentProps) {
   const { config } = useV4Context()
 
@@ -102,6 +110,8 @@ function CardContent({
       onDelete={handleDelete}
       onButtonSelect={handleButtonSelect}
       isRegenerating={isRegenerating}
+      isLocked={isLocked}
+      onLockedChange={onLockedChange}
       skipProvider
     />
   )
@@ -124,6 +134,8 @@ export function QuestionFlowCardWithImprove({
   isRegenerating = false,
   isActive = true,
   className,
+  isLocked,
+  onLockedChange,
 }: QuestionFlowCardWithImproveProps) {
   const isAddMode = !question?.text && !question?.response
 
@@ -163,6 +175,8 @@ export function QuestionFlowCardWithImprove({
           onImproveAnswer={onImproveAnswer}
           onRegisterRegenerate={onRegisterRegenerate}
           isRegenerating={isRegenerating}
+          isLocked={isLocked}
+          onLockedChange={onLockedChange}
         />
       </V4Provider>
     </div>

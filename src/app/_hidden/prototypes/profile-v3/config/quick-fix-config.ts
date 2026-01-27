@@ -7,8 +7,8 @@
  * @module b/profile-v3/config
  */
 
-import { PROFILE_MODAL_PRESET } from '@/app/playground/quick-fix-modal/config/presets'
-import type { QuickFixModalConfig, IntegrationConfig } from '@/app/playground/quick-fix-modal/config/types'
+import { PROFILE_MODAL_PRESET } from '@/app/playground/archived/quick-fix-modal/config/presets'
+import type { QuickFixModalConfig, IntegrationConfig } from '@/app/playground/archived/quick-fix-modal/config/types'
 
 // =============================================================================
 // PROFILE QUICK FIX CONFIG
@@ -31,8 +31,6 @@ export const PROFILE_QUICK_FIX_CONFIG: QuickFixModalConfig = {
   },
   completion: {
     ...PROFILE_MODAL_PRESET.config.completion,
-    // Contextual button text for profile improvement flow
-    buttonText: 'Done',
   },
 }
 

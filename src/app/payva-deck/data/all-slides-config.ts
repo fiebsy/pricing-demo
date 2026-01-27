@@ -1,0 +1,312 @@
+/**
+ * ALL SLIDES IN ONE PLACE - Edit this file to update any slide content
+ * This is a consolidated view of all slide data for easy editing
+ * while maintaining compatibility with existing components
+ */
+
+import type { PitchSlide } from './types'
+
+/**
+ * Complete slide deck configuration
+ * Edit the content here and it will update across the entire deck
+ */
+export const ALL_SLIDES_CONFIG: PitchSlide[] = [
+  // ============================================
+  // SLIDE 1: TITLE
+  // ============================================
+  {
+    id: 'title',
+    type: 'title',
+    variant: 'dark',
+    title: 'Payva',
+    subtitle: 'Grow Now. Pay Later.',
+    description: 'Modern financing for digital creators',
+  },
+
+  // ============================================
+  // SLIDE 2: THE PROBLEM
+  // ============================================
+  {
+    id: 'problem',
+    type: 'bullet',
+    label: 'The problem',
+    variant: 'light',
+    title: 'The problem',
+    subtitle: 'Not built for digital economy',
+    bulletConfig: {
+      bullets: [
+        { bold: 'Conversion struggles', text: 'from upfront costs' },
+        { bold: 'Cash flow gaps', text: 'from payment timing' },
+        { bold: 'Customers face', text: 'rigid payment plans' },
+        { bold: 'Limited approvals', text: 'waste acquisition spend' },
+      ],
+      supporting: 'Traditional financing wasn\'t built for digital goods',
+    },
+  },
+
+  // ============================================
+  // SLIDE 3: THE SOLUTION
+  // ============================================
+  {
+    id: 'solution',
+    type: 'bullet',
+    label: 'The solution',
+    variant: 'light',
+    title: 'Payva\'s solution',
+    subtitle: 'BNPL built for creators',
+    bulletConfig: {
+      bullets: [
+        { text: 'Higher approval rates' },
+        { text: 'Upfront payouts to creators' },
+        { text: 'Industry-specific risk mitigation' },
+        { text: 'Seamless platform integration' },
+      ],
+      supporting: '',
+    },
+  },
+
+  // ============================================
+  // SLIDE 4: WHY NOW
+  // ============================================
+  {
+    id: 'why-now',
+    type: 'stat',
+    label: 'Why now',
+    variant: 'light',
+    title: 'Why now',
+    subtitle: 'Creator economy growth',
+    statConfig: {
+      stats: [
+        {
+          value: '$250B → $480B',
+          label: 'Creator economy growth by 2027',
+          subtext: '',
+        },
+      ],
+      layout: 'single',
+      supporting: 'Source: Goldman Sachs Research',
+    },
+  },
+
+  // ============================================
+  // SLIDE 5: MARKET OPPORTUNITY
+  // ============================================
+  {
+    id: 'market-opportunity',
+    type: 'stat',
+    label: 'Market opportunity',
+    variant: 'light',
+    title: 'Market opportunity',
+    subtitle: 'Origination projections',
+    statConfig: {
+      stats: [
+        {
+          value: '$10M–$15M',
+          label: 'Monthly origination target',
+        },
+      ],
+      layout: 'single',
+    },
+  },
+
+  // ============================================
+  // SLIDE 6: TRACTION
+  // ============================================
+  {
+    id: 'traction',
+    type: 'stat',
+    label: 'Traction',
+    variant: 'light',
+    title: 'Traction',
+    subtitle: 'Growth trajectory',
+    statConfig: {
+      stats: [
+        { value: '3→36', label: 'Team growth in 2 years' },
+        { value: '$2M→$85M', label: 'in origination in 24 months' },
+      ],
+      layout: 'stacked',
+    },
+  },
+
+  // ============================================
+  // SLIDE 7: PORTFOLIO PERFORMANCE
+  // ============================================
+  {
+    id: 'portfolio',
+    type: 'chart',
+    label: 'Portfolio',
+    variant: 'light',
+    title: 'Portfolio performance',
+    subtitle: 'Year-over-year growth',
+    chartConfig: {
+      chartType: 'bar',
+      data: [
+        { label: '2024', value: 19, displayValue: '19M' },
+        { label: '2025', value: 64, displayValue: '64M' },
+        { label: '2026', value: 200, displayValue: '200M' },
+      ],
+      contextText: 'Year-over-year growth',
+    },
+  },
+
+  // ============================================
+  // SLIDE 8: BUSINESS MODEL
+  // ============================================
+  {
+    id: 'business-model',
+    type: 'bullet',
+    label: 'Business model',
+    variant: 'light',
+    title: 'Business model',
+    subtitle: 'How it works',
+    bulletConfig: {
+      bullets: [
+        { bold: 'Upfront:', text: 'capital upfront, customer repays' },
+        { bold: 'Pay as Collected:', text: 'payouts as customers pay' },
+      ],
+      supporting: 'Recourse model: Aligns creator accountability with capital protection',
+    },
+  },
+
+  // ============================================
+  // SLIDE 9: DISTRIBUTION PARTNERS
+  // ============================================
+  {
+    id: 'distribution',
+    type: 'logo-grid',
+    label: 'Distribution',
+    variant: 'light',
+    title: 'Distribution',
+    subtitle: 'Platform integrations',
+    logoConfig: {
+      logos: [
+        { 
+          name: 'FanBasis', 
+          src: '/payva-deck/fanbasis-logo.svg',
+          displayText: 'FanBasis'  // Fallback text if image doesn't load
+        },
+        { 
+          name: 'CopeCart', 
+          src: '/payva-deck/copecart-logo.svg',
+          displayText: 'CopeCart'  // Fallback text if image doesn't load
+        },
+        { 
+          name: 'Affiliate Partners', 
+          displayText: '50+',
+          isTextCard: true  // This will display as text instead of an image
+        },
+      ],
+      columns: 3,
+      supporting: 'All partnerships are inbound - zero outbound marketing',
+    },
+  },
+
+  // ============================================
+  // SLIDE 10: TEAM
+  // ============================================
+  {
+    id: 'team',
+    type: 'team',
+    label: 'Team',
+    variant: 'light',
+    title: 'Team',
+    subtitle: 'Leadership',
+    teamConfig: {
+      members: [
+        { 
+          name: 'Christopher Gravagna', 
+          role: 'Co-founder & Co-CEO',
+          imageSrc: '/payva-deck/chris-photo-bw.png'
+        },
+        { 
+          name: 'Chase Craft', 
+          role: 'Co-founder & Co-CEO',
+          imageSrc: '/payva-deck/chase-photo-bw.png'
+        },
+        { 
+          name: 'Jay Phillips', 
+          role: 'CTO',
+          imageSrc: '/payva-deck/jay-photo-bw.png'
+        },
+      ],
+    },
+  },
+
+  // ============================================
+  // SLIDE 11: FINANCIAL PROJECTIONS
+  // ============================================
+  {
+    id: 'financials',
+    type: 'chart',
+    label: 'Financials',
+    variant: 'light',
+    title: 'Financial projections',
+    subtitle: '3-year outlook',
+    chartConfig: {
+      chartType: 'bar',
+      data: [
+        { label: '2024', value: 2, displayValue: '$2M' },
+        { label: '2025', value: 25, displayValue: '$25M' },
+        { label: '2026', value: 85, displayValue: '$85M' },
+      ],
+      contextText: 'Revenue projections based on current growth trajectory',
+    },
+  },
+
+  // ============================================
+  // SLIDE 12: CLOSING
+  // ============================================
+  {
+    id: 'closing',
+    type: 'closing',
+    variant: 'dark',
+    title: 'Payva',
+    subtitle: '',
+    description: 'Financing built for digital creator-led businesses',
+    closingConfig: {
+      ctaUrl: 'payva.com',
+    },
+  },
+]
+
+// ============================================
+// QUICK EDIT GUIDE
+// ============================================
+
+/**
+ * HOW TO EDIT SLIDES:
+ * 
+ * 1. CHANGE TEXT:
+ *    - Just edit the strings directly in the objects above
+ *    - Example: title: 'New Title Here'
+ * 
+ * 2. ADD/REMOVE BULLETS:
+ *    - Add new objects to the bullets array
+ *    - Format: { bold: 'Key term', text: 'explanation' }
+ * 
+ * 3. UPDATE STATS:
+ *    - Change the value and label in statConfig.stats
+ *    - Use → for transitions (e.g., '3→36')
+ * 
+ * 4. MODIFY CHARTS:
+ *    - Edit the data array in chartConfig
+ *    - Adjust value for bar height, displayValue for label
+ * 
+ * 5. VISUAL VARIANTS:
+ *    - 'light' = white background
+ *    - 'dark' = dark background (for impact)
+ *    - 'bordered' = white with border
+ * 
+ * 6. LAYOUT TYPES FOR STATS:
+ *    - 'single' = one large centered stat
+ *    - 'horizontal' = stats side by side
+ *    - 'stacked' = stats stacked vertically
+ * 
+ * After editing, the changes will automatically apply to:
+ * - Screen view (navigation mode)
+ * - Print view (/payva-deck/print)
+ * - PDF export
+ */
+
+// Export for use in data/index.ts
+export const STORAGE_KEY = 'payva-deck-slide-index'

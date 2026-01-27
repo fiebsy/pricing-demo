@@ -39,11 +39,12 @@ body {
 
 /* Prevent horizontal scrollbar from appearing during off-screen animations
    (e.g., Tinder-style card swipes that translateX beyond viewport)
-   Note: Explicitly setting overflow-y ensures vertical scroll works when overflow-x is hidden */
+   Note: We use clip instead of hidden because overflow-x: hidden causes
+   overflow-y to compute as 'auto' (CSS spec), which breaks position: sticky.
+   clip prevents scrolling without creating a scroll container. */
 html,
 body {
-  overflow-x: hidden;
-  overflow-y: auto;
+  overflow-x: clip;
 }
 
 /* Explicit color-scheme for theme modes - helps browser optimize */

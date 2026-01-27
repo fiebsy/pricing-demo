@@ -1,29 +1,74 @@
 /**
  * PDF Export Styles for Pitch Deck
  *
- * These styles apply when printing or exporting to PDF.
+ * Export renders all slides in landscape format (16:9 proportions).
+ * - .print-view is hidden on screen, visible only during print
+ * - .screen-view is visible on screen, hidden during print
  */
 
-/* Hide interactive elements during print */
-@media print {
-  .print-hidden {
+/* ============================================
+   SCREEN STYLES (Normal viewing)
+   ============================================ */
+
+@media screen {
+  .print-only,
+  .print-view {
     display: none !important;
   }
+}
 
-  /* Page setup for 16:9 landscape */
+/* ============================================
+   PRINT STYLES (PDF Export)
+   ============================================ */
+
+@media print {
+  /* Page setup - landscape format */
   @page {
-    size: 11in 8.5in landscape;
+    size: landscape;
     margin: 0;
   }
 
-  /* Force light mode colors */
-  body,
-  html {
+  /* Reset everything */
+  * {
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Hide all screen-only elements */
+  .print-hidden,
+  .screen-view,
+  nav,
+  [role="switch"],
+  [role="tablist"],
+  [data-mcp-inspector],
+  button[class*="fixed"][class*="bottom"],
+  div[class*="fixed"][class*="bottom"],
+  [class*="fixed"][class*="left-4"],
+  [class*="z-[9999]"] {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+  }
+
+  /* Show print view */
+  .print-view {
+    display: block !important;
+  }
+
+  /* Force light mode */
+  html,
+  body {
     background: white !important;
     color-scheme: light !important;
   }
 
-  /* Disable all animations */
+  /* Remove dark mode class effects */
+  html.dark-mode,
+  html.dark-mode body {
+    background: white !important;
+  }
+
+  /* Disable animations */
   *,
   *::before,
   *::after {
@@ -31,46 +76,21 @@
     transition: none !important;
   }
 
-  /* Slide container styles */
-  .slide-container {
-    page-break-after: always;
-    break-after: page;
-    height: 100vh;
-    width: 100vw;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: white;
-    overflow: hidden;
-  }
-
-  /* Last slide shouldn't have page break */
-  .slide-container:last-child {
-    page-break-after: auto;
-    break-after: auto;
-  }
-
-  /* Print-only elements */
-  .print-only {
-    display: block !important;
-  }
-
-  /* Force backgrounds to print */
+  /* Force color printing */
   * {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
     color-adjust: exact !important;
   }
-}
 
-/* Hide print-only elements on screen */
-@media screen {
-  .print-only {
-    display: none !important;
+  /* Override dark variant backgrounds */
+  [data-variant="dark"],
+  [data-variant="bordered"] {
+    background: transparent !important;
   }
 }
 
-/* Print mode class for triggering export mode */
+/* Print mode class - applied via JavaScript during export */
 body.print-mode {
-  /* Additional print-mode specific overrides if needed */
+  /* Marker class for export state */
 }

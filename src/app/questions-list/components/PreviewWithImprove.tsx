@@ -12,18 +12,18 @@ import { useMemo, useCallback } from 'react'
 import {
   BiaxialExpandV4,
   type BiaxialExpandConfig,
-} from '@/components/ui/prod/base/biaxial-command-menu-v4'
-import { V4Provider, useV4Context } from '../../playground/question-command-menu-v4/state'
-import { useSlotHeight, filterQuestionGroups, filterSuggestions, useFlowConfig } from '../../playground/question-command-menu-v4/hooks'
+} from '@/components/ui/core/primitives/biaxial-expand'
+import { V4Provider, useV4Context } from '@/components/ui/features/expandable-input'
+import { useSlotHeight, filterQuestionGroups, filterSuggestions, useFlowConfig } from '../../playground/archived/question-command-menu-v4/hooks'
 import { UniversalSlotWithImprove } from './UniversalSlotWithImprove'
-import { UnifiedTrigger } from '../../playground/question-command-menu-v4/components/UnifiedTrigger'
+import { UnifiedTrigger } from '../../playground/archived/question-command-menu-v4/components/UnifiedTrigger'
 import type {
   QuestionCommandMenuV4Config,
   QuestionGroup,
   ChatMessage,
   TriggerButtonConfig,
   SuggestionItem,
-} from '../../playground/question-command-menu-v4/types'
+} from '../../playground/archived/question-command-menu-v4/types'
 
 // =============================================================================
 // CONFIG TRANSFORMER
@@ -89,6 +89,7 @@ function transformToV4Config(
     collapsedBackground: config.appearance.collapsedBackground,
     topSlot: {
       enabled: effectiveTopEnabled,
+      heightMode: config.slots.top.heightMode,
       height: isTopFixed ? config.slots.top.fixedHeight : undefined,
       delayOffset: config.slots.top.animation.delayOffset,
       durationOffset: config.slots.top.animation.durationOffset,
@@ -134,6 +135,8 @@ interface InnerPreviewProps {
   onDelete?: () => void
   onButtonSelect?: (buttonId: string) => void
   isRegenerating?: boolean
+  isLocked?: boolean
+  onLockedChange?: (locked: boolean) => void
 }
 
 function InnerPreview({
@@ -147,6 +150,8 @@ function InnerPreview({
   onDelete,
   onButtonSelect,
   isRegenerating = false,
+  isLocked,
+  onLockedChange,
 }: InnerPreviewProps) {
   const { config, state, setInput, collapse, expand, storedConfidence, flowStateId } = useV4Context()
   const { effectiveTopEnabled, effectiveBottomEnabled } = useFlowConfig()
@@ -240,6 +245,8 @@ function InnerPreview({
       config={v4Config}
       expanded={state.expanded}
       onExpandedChange={handleExpandedChange}
+      isLocked={isLocked}
+      onLockedChange={onLockedChange}
     >
       {effectiveTopEnabled && (
         <BiaxialExpandV4.TopSlot>
@@ -312,6 +319,8 @@ export interface PreviewWithImproveProps {
   onButtonSelect?: (buttonId: string) => void
   isRegenerating?: boolean
   skipProvider?: boolean
+  isLocked?: boolean
+  onLockedChange?: (locked: boolean) => void
 }
 
 export function PreviewWithImprove({
@@ -327,6 +336,8 @@ export function PreviewWithImprove({
   onButtonSelect,
   isRegenerating = false,
   skipProvider = false,
+  isLocked,
+  onLockedChange,
 }: PreviewWithImproveProps) {
   const inner = (
     <InnerPreview
@@ -340,6 +351,8 @@ export function PreviewWithImprove({
       onDelete={onDelete}
       onButtonSelect={onButtonSelect}
       isRegenerating={isRegenerating}
+      isLocked={isLocked}
+      onLockedChange={onLockedChange}
     />
   )
 

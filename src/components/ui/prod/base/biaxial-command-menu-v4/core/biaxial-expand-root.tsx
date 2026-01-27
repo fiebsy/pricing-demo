@@ -39,6 +39,8 @@ export const BiaxialExpandRoot: React.FC<BiaxialExpandRootProps> = ({
   config: userConfig,
   expanded: controlledExpanded,
   onExpandedChange,
+  isLocked: controlledLocked,
+  onLockedChange,
   className,
   children,
 }) => {
@@ -51,7 +53,18 @@ export const BiaxialExpandRoot: React.FC<BiaxialExpandRootProps> = ({
   // State
   const [internalExpanded, setInternalExpanded] = useState(false)
   const [hovered, setHovered] = useState(false)
+  const [internalLocked, setInternalLocked] = useState(false)
   const expanded = controlledExpanded ?? internalExpanded
+  const isLocked = controlledLocked ?? internalLocked
+
+  // Lock state handler (supports controlled mode)
+  const setLocked = useCallback(
+    (newLocked: boolean) => {
+      setInternalLocked(newLocked)
+      onLockedChange?.(newLocked)
+    },
+    [onLockedChange]
+  )
 
   // Slot dimension state - initialize with config values
   // topHeight: use maxTopHeight if set (for scrollable content), otherwise use fixed height
@@ -94,11 +107,14 @@ export const BiaxialExpandRoot: React.FC<BiaxialExpandRootProps> = ({
     []
   )
 
-  // Click outside handler
+  // Click outside handler - respects lock state
   useEffect(() => {
     if (!expanded) return
 
     const handleClickOutside = (e: MouseEvent) => {
+      // Don't collapse when locked
+      if (isLocked) return
+
       if (
         containerRef.current &&
         !containerRef.current.contains(e.target as Node)
@@ -116,7 +132,20 @@ export const BiaxialExpandRoot: React.FC<BiaxialExpandRootProps> = ({
       clearTimeout(timeoutId)
       document.removeEventListener('mousedown', handleClickOutside)
     }
-  }, [expanded, setExpanded])
+  }, [expanded, setExpanded, isLocked])
+
+  // Keyboard shortcut for lock toggle (Cmd+Shift+L)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.metaKey && e.shiftKey && e.key.toLowerCase() === 'l') {
+        e.preventDefault()
+        setLocked(!isLocked)
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [isLocked, setLocked])
 
   // Calculate total expanded height (for backdrop)
   const totalExpandedHeight = useMemo(() => {
@@ -160,6 +189,8 @@ export const BiaxialExpandRoot: React.FC<BiaxialExpandRootProps> = ({
       setExpanded,
       hovered,
       setHovered,
+      isLocked,
+      setLocked,
       config,
       dimensions,
       refs: {
@@ -176,6 +207,7 @@ export const BiaxialExpandRoot: React.FC<BiaxialExpandRootProps> = ({
       expanded,
       setExpanded,
       hovered,
+      isLocked,
       config,
       dimensions,
       setSlotHeight,

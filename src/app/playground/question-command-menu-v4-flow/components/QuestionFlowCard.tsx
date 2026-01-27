@@ -10,8 +10,8 @@
 import { useMemo } from 'react'
 import { cn } from '@/lib/utils'
 
-import { V4Provider, useV4Context } from '../../question-command-menu-v4/state'
-import { Preview } from '../../question-command-menu-v4/components'
+import { V4Provider, useV4Context } from '../../archived/question-command-menu-v4/state'
+import { Preview } from '../../archived/question-command-menu-v4/components'
 import { useQuestionFlow } from '../hooks'
 import { FLOW_DEFAULT_CONFIG } from '../default-config'
 import { QUESTION_FLOW_CONFIG } from '../flow-config'

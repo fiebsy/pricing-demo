@@ -100,66 +100,27 @@ pnpm start
 
 ---
 
-## Architecture & Code Structure
+## Architecture
 
-### Component System (NEW STRUCTURE)
+### Component System
 
-| Location | Status | Purpose |
-|----------|--------|---------|
-| `src/components/ui/core/` | **STABLE** | Hardened primitives (buttons, badges, inputs) |
-| `src/components/ui/features/` | **STABLE** | Composed feature components |
-| `src/components/ui/patterns/` | **STABLE** | Complex patterns (data table, filters) |
-| `src/components/ui/experimental/` | **WIP** | Versioned work-in-progress components |
-| `src/components/ui/deprecated/` | **LEGACY** | Do not use for new code |
+| Location | Purpose |
+|----------|---------|
+| `src/components/ui/core/` | Stable primitives (buttons, inputs) |
+| `src/components/ui/features/` | Feature components |
+| `src/components/ui/patterns/` | Complex patterns |
+| `src/components/ui/experimental/` | WIP versioned components |
 
-### Import Patterns
+**Import**: `from '@/components/ui/[category]'`
 
-```typescript
-// Core primitives (stable)
-import { Button, Badge, Icon } from '@/components/ui/core'
-import { Checkbox, Input, Select } from '@/components/ui/core/inputs'
+**Registries**: Use `@/registry/components` and `@/registry/playgrounds` for metadata access.
 
-// Feature components (stable)
-import { MetricCard, ExpandingSearch } from '@/components/ui/features'
+### Styling
 
-// Complex patterns (stable)
-import { ControlPanel, Filter } from '@/components/ui/patterns'
-
-// Experimental (specify version or use default latest)
-import { CommandMenu } from '@/components/ui/experimental'           // Latest (v4)
-import { CommandMenuV3 } from '@/components/ui/experimental'        // Specific version
-import { ButtonAnimation } from '@/components/ui/experimental'      // Latest (v2)
-```
-
-### Component Registry
-
-Use the registry for programmatic access to component metadata:
-
-```typescript
-import {
-  allComponents,
-  getComponentsByStatus,
-  getComponent
-} from '@/registry/components'
-
-import {
-  allPlaygrounds,
-  getLatestPlayground,
-  getPlaygroundsForComponent
-} from '@/registry/playgrounds'
-```
-
-### Design Token System
-
-- **200+ semantic tokens** in `src/styles/theme.css`
-- **Token usage**: Always use semantic tokens like `text-primary`, `bg-brand-solid`, `border-secondary`
-- **Dark mode**: Handled via `.dark-mode` class - tokens remap automatically
-
-### Styling Approach
-
-- **Tailwind v4**: CSS-first config via `@theme`, `@custom-variant`
-- **Custom utilities**: `src/styles/utilities/` for animations, gradients, corners, depth
-- **Class merging**: Use `cx()` utility from `src/lib/cx.ts` or `src/modules/utils/cx.ts`
+- **Tokens**: Use semantic tokens (`text-primary`, `bg-brand-solid`)
+- **Tailwind v4**: CSS-first config with custom utilities in `src/styles/`  
+- **Dark mode**: Automatic via `.dark-mode` class
+- **Class merging**: Use `cx()` utility
 
 ---
 
@@ -192,171 +153,37 @@ import { User01 } from '@untitledui-pro/icons/line'  // NO!
 
 ---
 
-## Animation Preferences (CRITICAL)
+## Animation Preferences
 
-Follow the performance tier system from `docs/ANIMATION-PREFERENCES.md`:
+**CRITICAL**: Only animate `transform` and `opacity` (compositor-only). Never animate layout properties.
 
-### S-Tier (Prefer) - Compositor-only
-
-```typescript
-// Animate transform + opacity only
-className="transition-transform transition-opacity duration-300
-           ease-[cubic-bezier(.2,.8,.2,1)] transform-gpu
-           translate-x-0 opacity-100"
-
-// Use data attributes for state
-className="translate-x-full opacity-0
-           data-open:translate-x-0 data-open:opacity-100"
-```
-
-### Accessibility - Always include
-
-```typescript
-// Gate motion for reduced-motion users
-className="motion-safe:transition motion-reduce:transition-none"
-```
-
-### Avoid - Layout animations
-
-```typescript
-// NEVER animate these properties
-width, height, top, left, margin, padding
-
-// If layout must change, use FLIP technique
-// (measure once, animate with transforms)
-```
-
-### Tailwind v4 Motion Tokens
-
-```css
-@theme {
-  --ease-standard: cubic-bezier(.2,.8,.2,1);
-  --ease-snappy: cubic-bezier(.2, 0, 0, 1);
-  --duration-fast: 150ms;
-  --duration-base: 300ms;
-  --duration-slow: 500ms;
-}
-```
+- **Preferred**: `transition-transform transition-opacity`
+- **Accessibility**: Always include `motion-safe:transition motion-reduce:transition-none`
+- **Avoid**: width, height, margin, padding
+- **Reference**: `docs/ANIMATION-PREFERENCES.md`
 
 ---
 
 ## Playground System
 
-### Routes
+**Routes**: `/playground/[name]` (active), `/_hidden/playground/[name]` (experimental)
 
-| Route | Purpose |
-|-------|---------|
-| `/playground/[name]` | Active playgrounds (production testing) |
-| `/_hidden/playground/[name]` | Experimental playgrounds |
-| `/_hidden/sandbox/` | Free-form exploratory code |
-| `/_hidden/prototypes/` | Feature prototypes (profile versions, etc.) |
+**Required**: All playgrounds must use `UnifiedControlPanel` from `@/components/ui/patterns/control-panel` with presets, copy, and reset functionality.
 
-### Playground Registry
-
-```typescript
-import {
-  activePlaygrounds,
-  experimentalPlaygrounds,
-  archivedPlaygrounds,
-  getLatestPlayground
-} from '@/registry/playgrounds'
-
-// Get all active playgrounds
-activePlaygrounds.forEach(p => console.log(p.route, p.description))
-
-// Get latest playground for a component
-const latestCommandMenu = getLatestPlayground('CommandMenu')
-```
-
-### UnifiedControlPanel (Required for all playgrounds)
-
-```typescript
-import {
-  UnifiedControlPanel,
-  type ControlChangeEvent,
-  type PanelConfig,
-} from '@/components/ui/patterns/control-panel'
-
-// Standard layout
-<div className="min-h-screen">
-  <div className="fixed top-0 ...">Header</div>
-  <div className="pt-20 pr-[352px]">Preview Area</div>
-  <UnifiedControlPanel config={panelConfig} onChange={handleChange} />
-</div>
-```
-
-**Every playground MUST include:**
-- Preset dropdown (select from saved configurations)
-- Copy Preset button (exports current config as JSON)
-- Reset to default functionality
-
-**Reference implementation**: `src/app/_hidden/playground/skwircle-demo/`
+**Registry**: Use `@/registry/playgrounds` for metadata access.
 
 ---
 
-## Component Transfer (Frontend → Demo Repo)
+## Component Transfer
 
-When bringing components from PAYVA frontend into demo-repo:
-
-### 1. Identify Source & Target
-
-```
-# Source (frontend)
-front-end/src/modules/v2/[feature]/components/[component]/
-
-# Target (demo-repo) - Use NEW structure:
-src/components/ui/core/primitives/[component]/     # For primitives
-src/components/ui/core/inputs/[component]/         # For form inputs
-src/components/ui/features/[component]/            # For feature components
-src/components/ui/patterns/[component]/            # For complex patterns
-src/components/ui/experimental/[component]/        # For WIP components
-```
-
-### 2. Adapt Import Paths
-
-| Frontend | Demo Repo |
-|----------|-----------|
-| `@/modules/design-system/v2/components/ui/...` | `@/components/ui/core/...` |
-| `@/modules/api/generated/graphql` | Remove (no GraphQL in demo) |
-| `@untitledui-pro/icons/...` | `@hugeicons-pro/core-stroke-rounded/...` |
-
-### 3. Remove Business Logic
-
-- Strip GraphQL hooks/queries
-- Replace API data with mock data
-- Remove authentication checks
-- Keep only UI rendering logic
-
-### 4. Checklist
-
-- [ ] Update all import paths
-- [ ] Replace Untitled UI icons with Hugeicons
-- [ ] Remove GraphQL dependencies
-- [ ] Add mock data if needed
-- [ ] Verify semantic tokens work
-- [ ] Test dark mode
-- [ ] Add to playground if applicable
-- [ ] Add to component registry
+**Frontend → Demo**: Strip business logic, update import paths, replace Untitled UI with Hugeicons, add to registries.
 
 ---
 
 ## Sync Scripts
 
-### Pull styles from frontend
-
-```bash
-./scripts/sync-styles.sh
-```
-
-Syncs `theme.css`, `base.css`, and all `utilities/*.css` from PAYVA frontend.
-
-### Push components to frontend
-
-```bash
-./scripts/sync-to-frontend.sh
-```
-
-Syncs Skwircle core files to frontend.
+- `./scripts/sync-styles.sh` - Pull styles from frontend
+- `./scripts/sync-to-frontend.sh` - Push components to frontend
 
 ---
 
@@ -364,6 +191,8 @@ Syncs Skwircle core files to frontend.
 
 | Topic | Location |
 |-------|----------|
+| **MCP Browser Bridge** | `docs/mcp/INDEX.md` |
+| MCP Test Plan | `docs/MCP-BRIDGE-TEST-PLAN.md` |
 | Component Registry | `src/registry/components.ts` |
 | Playground Registry | `src/registry/playgrounds.ts` |
 | Animation Preferences | `docs/ANIMATION-PREFERENCES.md` |
@@ -381,6 +210,38 @@ Syncs Skwircle core files to frontend.
 |---------|---------|
 | `/docs [topic]` | Generate progressive disclosure documentation |
 | `/playground [component]` | Create playground page with UnifiedControlPanel |
+
+---
+
+## MCP Browser Integration
+
+This project includes an **MCP Browser Bridge** for browser communication. **Use MCP tools only when explicitly requested by the user.**
+
+### Available Tools
+
+| Tool | Purpose |
+|------|---------|
+| `take_screenshot` | Capture browser screenshots (when requested) |
+| `get_selected_component` | Get info on selected component |
+| `get_component_source` | Read component source file |
+| `trigger_hot_reload` | Refresh the browser |
+
+### Usage Policy
+
+- **Screenshots**: Only take when user explicitly asks ("take a screenshot", "show me how this looks")
+- **Component selection**: Use when user references "this component" or "selected element"  
+- **Source access**: Only when debugging specific components
+
+### Setup Requirements
+
+Chrome with remote debugging required for screenshots:
+```bash
+chrome-debug  # See docs/mcp/INDEX.md for setup
+```
+
+### Documentation
+
+See `docs/mcp/INDEX.md` for complete setup and usage guide.
 
 ---
 

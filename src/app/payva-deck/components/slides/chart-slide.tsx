@@ -1,85 +1,92 @@
 'use client'
 
 import { motion } from 'motion/react'
-import type { PitchSlide } from '../../data/slides'
 import { contentDelays } from '../../lib/animations'
+import { slideTypography } from '../../lib/typography'
+import { slideSpacing } from '../../lib/spacing'
+import { SlideLayout } from '../slide-layout'
+import { SlideCard } from '../slide-card'
+import type { SlideProps } from './index'
 
-interface ChartSlideProps {
-  slide: PitchSlide
-}
-
-export function ChartSlide({ slide }: ChartSlideProps) {
+export function ChartSlide({
+  slide,
+  variant,
+  slideNumber,
+  totalSlides,
+  isLightMode,
+}: SlideProps) {
   const data = slide.chartConfig?.data ?? []
+  const contextText = slide.chartConfig?.contextText
   const maxValue = Math.max(...data.map((d) => d.value))
 
   return (
-    <div className="text-center max-w-4xl mx-auto">
-      {slide.subtitle && (
-        <motion.p
-          className="text-sm font-medium text-tertiary uppercase tracking-wider mb-4"
-          initial={{ opacity: 0, y: 10 }}
+    <SlideLayout
+      variant={variant}
+      label={slide.subtitle ? undefined : slide.label}
+      topLeftSubtitle={slide.subtitle}
+      slideNumber={slideNumber}
+      totalSlides={totalSlides}
+      isLightMode={isLightMode}
+    >
+      <div className={`flex flex-col items-center ${slideSpacing.layout.stacked} max-w-3xl w-full`}>
+        {/* Title */}
+        <motion.h1
+          className={`${slideTypography.sectionTitle} text-center`}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: contentDelays.subtitle }}
+          transition={{ delay: contentDelays.title }}
         >
-          {slide.subtitle}
-        </motion.p>
-      )}
+          {slide.title}
+        </motion.h1>
 
-      <motion.h1
-        className="font-display text-display-lg text-primary mb-12"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: contentDelays.title }}
-      >
-        {slide.title}
-      </motion.h1>
+        {/* Chart Card */}
+        <div className="flex flex-col items-center">
+          <SlideCard className={slideSpacing.cardPadding.chart}>
+            <div className="flex items-end justify-center gap-12 h-56">
+              {data.map((item, index) => {
+                const heightPercent = (item.value / maxValue) * 100
 
-      {/* Chart Container with Shine Border */}
-      <motion.div
-        className="rounded-2xl corner-squircle bg-secondary p-1.5 shine-3"
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: contentDelays.stat }}
-      >
-        <div className="rounded-xl corner-squircle bg-primary px-8 py-10">
-          {/* Bar Chart */}
-          <div className="flex items-end justify-center gap-10 h-56">
-            {data.map((item, index) => {
-              const heightPercent = (item.value / maxValue) * 100
-
-              return (
-                <motion.div
-                  key={index}
-                  className="flex flex-col items-center gap-3"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: contentDelays.stat + 0.1 + index * 0.15 }}
-                >
-                  {/* Display value above bar */}
-                  <span className="text-lg font-medium text-primary">
-                    {item.displayValue ?? item.value}
-                  </span>
-
-                  {/* Bar with subtle gradient */}
+                return (
                   <motion.div
-                    className="w-20 rounded-lg corner-squircle bg-tertiary"
-                    initial={{ height: 0 }}
-                    animate={{ height: `${heightPercent * 1.6}px` }}
-                    transition={{
-                      delay: contentDelays.stat + 0.2 + index * 0.15,
-                      duration: 0.5,
-                      ease: 'easeOut',
-                    }}
-                  />
+                    key={index}
+                    className="flex flex-col items-center gap-3"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: contentDelays.stat + 0.1 + index * 0.15 }}
+                  >
+                    <span className={slideTypography.chartValue}>
+                      {item.displayValue ?? item.value}
+                    </span>
+                    <motion.div
+                      className="w-20 rounded-lg corner-squircle bg-secondary shine-1"
+                      initial={{ height: 0 }}
+                      animate={{ height: `${heightPercent * 1.8}px` }}
+                      transition={{
+                        delay: contentDelays.stat + 0.2 + index * 0.15,
+                        duration: 0.5,
+                        ease: 'easeOut',
+                      }}
+                    />
+                    <span className={slideTypography.chartLabel}>{item.label}</span>
+                  </motion.div>
+                )
+              })}
+            </div>
+          </SlideCard>
 
-                  {/* Label below bar */}
-                  <span className="text-sm text-secondary">{item.label}</span>
-                </motion.div>
-              )
-            })}
-          </div>
+          {/* Context description - data-driven */}
+          {contextText && (
+            <motion.p
+              className={`${slideTypography.supporting} text-center ${slideSpacing.margin.chartContext}`}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: contentDelays.stat + 0.5 }}
+            >
+              {contextText}
+            </motion.p>
+          )}
         </div>
-      </motion.div>
-    </div>
+      </div>
+    </SlideLayout>
   )
 }

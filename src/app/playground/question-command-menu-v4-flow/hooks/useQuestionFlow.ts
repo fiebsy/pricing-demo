@@ -6,7 +6,7 @@
  */
 
 import { useCallback, useState, useEffect, useRef } from 'react'
-import { useV4Context } from '../../question-command-menu-v4/state'
+import { useV4Context } from '../../archived/question-command-menu-v4/state'
 import type { ChatMessage, Question } from '../types'
 
 interface UseQuestionFlowOptions {

@@ -1,6 +1,6 @@
 'use client'
 
-import { forwardRef, isValidElement, createElement, cloneElement } from 'react'
+import React, { forwardRef, isValidElement, createElement, cloneElement } from 'react'
 import type { FC, ReactNode, ReactElement } from 'react'
 import { cn } from '@/lib/utils'
 
@@ -173,7 +173,12 @@ export const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
         {!dot && renderIcon(iconLeading, cn(sizeConfig.icon, colorConfig.icon))}
 
         {/* Content */}
-        <span>{children}</span>
+        {React.Children.map(children, (child) => {
+          if (typeof child === 'string' || typeof child === 'number') {
+            return <span>{child}</span>
+          }
+          return child
+        })}
 
         {/* Trailing icon */}
         {!onRemove && renderIcon(iconTrailing, cn(sizeConfig.icon, colorConfig.icon))}

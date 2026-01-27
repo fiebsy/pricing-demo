@@ -1,73 +1,119 @@
 'use client'
 
 import { motion } from 'motion/react'
-import type { PitchSlide } from '../../data/slides'
+import Image from 'next/image'
 import { contentDelays } from '../../lib/animations'
+import { slideTypography } from '../../lib/typography'
+import { slideSpacing } from '../../lib/spacing'
+import { SlideLayout } from '../slide-layout'
+import { SlideCard } from '../slide-card'
+import type { SlideProps } from './index'
 
-interface LogoGridSlideProps {
-  slide: PitchSlide
-}
-
-export function LogoGridSlide({ slide }: LogoGridSlideProps) {
+export function LogoGridSlide({
+  slide,
+  variant,
+  slideNumber,
+  totalSlides,
+  isLightMode,
+}: SlideProps) {
   const logos = slide.logoConfig?.logos ?? []
   const columns = slide.logoConfig?.columns ?? 3
-  const note = slide.logoConfig?.note
+  const supporting = slide.logoConfig?.supporting
 
   return (
-    <div className="text-center max-w-4xl mx-auto">
-      {slide.subtitle && (
-        <motion.p
-          className="text-sm font-medium text-tertiary uppercase tracking-wider mb-4"
-          initial={{ opacity: 0, y: 10 }}
+    <SlideLayout
+      variant={variant}
+      topLeftSubtitle={slide.subtitle}
+      slideNumber={slideNumber}
+      totalSlides={totalSlides}
+      isLightMode={isLightMode}
+    >
+      <div className={`flex flex-col items-center ${slideSpacing.layout.stacked} text-center max-w-4xl mx-auto`}>
+        <motion.h1
+          className={slideTypography.sectionTitle}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: contentDelays.subtitle }}
+          transition={{ delay: contentDelays.title }}
         >
-          {slide.subtitle}
-        </motion.p>
-      )}
+          {slide.title}
+        </motion.h1>
 
-      <motion.h1
-        className="font-display text-display-lg text-primary mb-12"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: contentDelays.title }}
-      >
-        {slide.title}
-      </motion.h1>
+        {/* Logo Grid */}
+        <div
+          className={`grid ${slideSpacing.cards.grid} max-w-3xl mx-auto`}
+          style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}
+        >
+          {logos.map((logo, index) => (
+            <SlideCard
+              key={index}
+              className={`flex flex-col items-center justify-center gap-4 ${slideSpacing.cardPadding.logo} min-h-[200px]`}
+              delay={contentDelays.stat + index * 0.1}
+            >
+              {/* Logo Image or Text Display */}
+              <div className="flex items-center justify-center h-24 w-full px-4">
+                {logo.isTextCard ? (
+                  // Text card (50+ Integration Partners)
+                  <span className={`${slideTypography.statValueMd} text-primary`}>
+                    {logo.displayText}
+                  </span>
+                ) : logo.src ? (
+                  // Logo image - use img tag for PDF export compatibility
+                  variant === 'light' ? (
+                    <img
+                      src={logo.src}
+                      alt={logo.name}
+                      className="max-w-full h-auto object-contain"
+                      style={{ 
+                        maxHeight: '80px', 
+                        width: 'auto',
+                        imageRendering: 'crisp-edges',
+                        WebkitFontSmoothing: 'antialiased'
+                      }}
+                    />
+                  ) : (
+                    <Image
+                      src={logo.src}
+                      alt={logo.name}
+                      width={200}
+                      height={80}
+                      className="max-w-full h-auto object-contain"
+                      style={{ maxHeight: '80px' }}
+                    />
+                  )
+                ) : (
+                  // Fallback text
+                  <span className={slideTypography.cardTitle}>
+                    {logo.name}
+                  </span>
+                )}
+              </div>
+              
+              {/* Company Name as Subtext - using supporting style */}
+              {!logo.isTextCard && (
+                <span className={slideTypography.supporting}>
+                  {logo.displayText || logo.name}
+                </span>
+              )}
+              {logo.isTextCard && logo.name !== logo.displayText && (
+                <span className={slideTypography.supporting}>
+                  {logo.name}
+                </span>
+              )}
+            </SlideCard>
+          ))}
+        </div>
 
-      {/* Logo Grid */}
-      <div
-        className="grid gap-6 max-w-3xl mx-auto"
-        style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}
-      >
-        {logos.map((logo, index) => (
-          <motion.div
-            key={index}
-            className="rounded-2xl corner-squircle bg-secondary p-1.5 shine-3"
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: contentDelays.stat + index * 0.1 }}
+        {supporting && (
+          <motion.p
+            className={`text-lg text-secondary text-center ${slideSpacing.margin.supportingTop}`}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: contentDelays.stat + logos.length * 0.1 + 0.1 }}
           >
-            <div className="flex flex-col items-center justify-center rounded-xl corner-squircle bg-primary px-6 py-10">
-              {/* Logo Placeholder (text name) */}
-              <span className="text-xl font-medium text-primary">
-                {logo.name}
-              </span>
-            </div>
-          </motion.div>
-        ))}
+            {supporting}
+          </motion.p>
+        )}
       </div>
-
-      {note && (
-        <motion.p
-          className="mt-10 text-lg text-tertiary"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: contentDelays.stat + logos.length * 0.1 + 0.1 }}
-        >
-          {note}
-        </motion.p>
-      )}
-    </div>
+    </SlideLayout>
   )
 }

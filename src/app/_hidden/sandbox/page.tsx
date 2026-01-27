@@ -31,9 +31,9 @@ import { QuestionsListWithImprove } from '@/app/questions-list/components/Questi
 import type { Question } from '@/app/playground/question-command-menu-v4-flow/types'
 
 // Modal & Toast
-import { QuickFixModal } from '@/app/playground/quick-fix-modal/core/QuickFixModal'
-import { EDIT_QUESTIONS_MODAL_PRESET } from '@/app/playground/quick-fix-modal/config/presets'
-import type { IntegrationConfig } from '@/app/playground/quick-fix-modal/config/types'
+import { QuickFixModal } from '@/app/playground/archived/quick-fix-modal/core/QuickFixModal'
+import { EDIT_QUESTIONS_MODAL_PRESET } from '@/app/playground/archived/quick-fix-modal/config/presets'
+import type { IntegrationConfig } from '@/app/playground/archived/quick-fix-modal/config/types'
 import { ConfigurableToast } from '@/app/playground/success-toast/core/ConfigurableToast'
 import type { SuccessToastConfig } from '@/app/playground/success-toast/config/types'
 

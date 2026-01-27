@@ -15,7 +15,7 @@ import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/prod/base/button'
 import { ConfidenceSignal } from './ConfidenceSignal'
 import type { ChatMessage } from '../../types'
-import type { SemanticBgColor, ShineStyle } from '@/app/playground/radial-blur/config/types'
+import type { SemanticBgColor, ShineStyle } from '@/components/ui/features/radial-blur'
 
 // =============================================================================
 // COLOR MAPPING

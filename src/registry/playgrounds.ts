@@ -47,6 +47,15 @@ export const activePlaygrounds: PlaygroundEntry[] = [
 
   // Button Animation Series
   {
+    name: 'Button Animation',
+    route: '/playground/button-animation',
+    category: 'animation',
+    status: 'active',
+    description: 'Original button animation',
+    component: 'ButtonAnimation',
+    version: 'v1',
+  },
+  {
     name: 'Button Animation v2',
     route: '/playground/button-animation-v2',
     category: 'animation',
@@ -56,73 +65,14 @@ export const activePlaygrounds: PlaygroundEntry[] = [
     version: 'v2',
     latestVersion: 'v2',
   },
-  {
-    name: 'Button Audit',
-    route: '/playground/button-audit',
-    category: 'component',
-    status: 'active',
-    description: 'Button component style audit and comparison',
-    component: 'Button',
-  },
 
   // Feature Playgrounds
   {
-    name: 'Edit Questions',
-    route: '/playground/edit-questions',
+    name: 'Order Details Activity Feed',
+    route: '/playground/order-details-activity-feed',
     category: 'feature',
     status: 'active',
-    description: 'Question editing interface playground',
-  },
-  {
-    name: 'Filter Chip Motion',
-    route: '/playground/filter-chip-motion',
-    category: 'animation',
-    status: 'active',
-    description: 'Animated filter chip interactions',
-    component: 'Filter',
-  },
-  {
-    name: 'Quick Fix Modal',
-    route: '/playground/quick-fix-modal',
-    category: 'feature',
-    status: 'active',
-    description: 'Quick fix modal interface',
-  },
-  {
-    name: 'Quick Fix Interactions',
-    route: '/playground/quick-fix-interactions',
-    category: 'feature',
-    status: 'active',
-    description: 'Quick fix interaction patterns',
-  },
-  {
-    name: 'Radial Blur',
-    route: '/playground/radial-blur',
-    category: 'animation',
-    status: 'active',
-    description: 'Radial blur effect playground',
-  },
-  {
-    name: 'Ratings Panel',
-    route: '/playground/ratings-panel',
-    category: 'feature',
-    status: 'active',
-    description: 'Rating selection panel',
-  },
-  {
-    name: 'Sliding Ratings',
-    route: '/playground/sliding-ratings',
-    category: 'animation',
-    status: 'active',
-    description: 'Animated sliding ratings interface',
-  },
-  {
-    name: 'Sticky Data Table',
-    route: '/playground/sticky-data-table',
-    category: 'pattern',
-    status: 'active',
-    description: 'Data table with sticky headers/columns',
-    component: 'StickyDataTable',
+    description: 'Order details activity feed interface',
   },
   {
     name: 'Success Toast',
@@ -168,7 +118,7 @@ export const archivedPlaygrounds: PlaygroundEntry[] = [
   // Command Menu older versions
   {
     name: 'Biaxial Command Menu v1',
-    route: '/playground/biaxial-command-menu',
+    route: '/playground/archived/biaxial-command-menu',
     category: 'pattern',
     status: 'archived',
     description: 'Original biaxial command menu',
@@ -177,7 +127,7 @@ export const archivedPlaygrounds: PlaygroundEntry[] = [
   },
   {
     name: 'Biaxial Command Menu v2',
-    route: '/playground/biaxial-command-menu-v2',
+    route: '/playground/archived/biaxial-command-menu-v2',
     category: 'pattern',
     status: 'archived',
     description: 'Second iteration command menu',
@@ -186,7 +136,7 @@ export const archivedPlaygrounds: PlaygroundEntry[] = [
   },
   {
     name: 'Biaxial Command Menu v3',
-    route: '/playground/biaxial-command-menu-v3',
+    route: '/playground/archived/biaxial-command-menu-v3',
     category: 'pattern',
     status: 'archived',
     description: 'Third iteration command menu',
@@ -196,7 +146,7 @@ export const archivedPlaygrounds: PlaygroundEntry[] = [
   // Question Command Menu older versions
   {
     name: 'Question Command Menu v1',
-    route: '/playground/question-command-menu',
+    route: '/playground/archived/question-command-menu',
     category: 'pattern',
     status: 'archived',
     description: 'Original question command menu',
@@ -204,7 +154,7 @@ export const archivedPlaygrounds: PlaygroundEntry[] = [
   },
   {
     name: 'Question Command Menu v2',
-    route: '/playground/question-command-menu-v2',
+    route: '/playground/archived/question-command-menu-v2',
     category: 'pattern',
     status: 'archived',
     description: 'Second iteration',
@@ -212,7 +162,7 @@ export const archivedPlaygrounds: PlaygroundEntry[] = [
   },
   {
     name: 'Question Command Menu v3',
-    route: '/playground/question-command-menu-v3',
+    route: '/playground/archived/question-command-menu-v3',
     category: 'pattern',
     status: 'archived',
     description: 'Third iteration',
@@ -220,21 +170,81 @@ export const archivedPlaygrounds: PlaygroundEntry[] = [
   },
   {
     name: 'Question Command Menu v4',
-    route: '/playground/question-command-menu-v4',
+    route: '/playground/archived/question-command-menu-v4',
     category: 'pattern',
     status: 'archived',
     description: 'Fourth iteration (use v4-flow instead)',
     version: 'v4',
   },
-  // Button Animation older version
+  
+  // Button Audit
   {
-    name: 'Button Animation v1',
-    route: '/playground/button-animation',
+    name: 'Button Audit',
+    route: '/playground/archived/button-audit',
+    category: 'component',
+    status: 'archived',
+    description: 'Button component style audit and comparison',
+    component: 'Button',
+  },
+  
+  // Feature Playgrounds
+  {
+    name: 'Edit Questions',
+    route: '/playground/archived/edit-questions',
+    category: 'feature',
+    status: 'archived',
+    description: 'Question editing interface playground',
+  },
+  {
+    name: 'Filter Chip Motion',
+    route: '/playground/archived/filter-chip-motion',
     category: 'animation',
     status: 'archived',
-    description: 'Original button animation',
-    component: 'ButtonAnimation',
-    version: 'v1',
+    description: 'Animated filter chip interactions',
+    component: 'Filter',
+  },
+  {
+    name: 'Quick Fix Modal',
+    route: '/playground/archived/quick-fix-modal',
+    category: 'feature',
+    status: 'archived',
+    description: 'Quick fix modal interface',
+  },
+  {
+    name: 'Quick Fix Interactions',
+    route: '/playground/archived/quick-fix-interactions',
+    category: 'feature',
+    status: 'archived',
+    description: 'Quick fix interaction patterns',
+  },
+  {
+    name: 'Radial Blur',
+    route: '/playground/archived/radial-blur',
+    category: 'animation',
+    status: 'archived',
+    description: 'Radial blur effect playground',
+  },
+  {
+    name: 'Ratings Panel',
+    route: '/playground/archived/ratings-panel',
+    category: 'feature',
+    status: 'archived',
+    description: 'Rating selection panel',
+  },
+  {
+    name: 'Sliding Ratings',
+    route: '/playground/archived/sliding-ratings',
+    category: 'animation',
+    status: 'archived',
+    description: 'Animated sliding ratings interface',
+  },
+  {
+    name: 'Sticky Data Table',
+    route: '/playground/archived/sticky-data-table',
+    category: 'pattern',
+    status: 'archived',
+    description: 'Data table with sticky headers/columns',
+    component: 'StickyDataTable',
   },
 ]
 
