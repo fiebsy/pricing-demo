@@ -56,10 +56,10 @@ export const ALL_SLIDES_CONFIG: PitchSlide[] = [
     subtitle: 'BNPL built for creators',
     bulletConfig: {
       bullets: [
-        { bold: 'Digital-first financing', text: 'for intangible products' },
-        { bold: 'Installment payments', text: 'across digital commerce' },
-        { bold: 'Cash flow', text: 'eliminated for creators' },
-        { bold: 'End-to-end handling', text: 'from underwriting to repayment' },
+        { bold: 'Intangible financing', text: 'for creator-driven products' },
+        { bold: 'Installment unlocked', text: 'across digital commerce' },
+        { bold: 'Cash flow', text: 'strain eliminated instantly' },
+        { bold: 'Full service', text: 'underwrite, pay, collect' },
       ],
       supporting: 'Payva is rebuilding financing infrastructure for digital goods — empowering creators to sell more and consumers to buy with confidence.',
     },
