@@ -57,9 +57,9 @@ export const ALL_SLIDES_CONFIG: PitchSlide[] = [
     bulletConfig: {
       bullets: [
         { bold: 'Purpose-built BNPL', text: 'for digital goods' },
-        { bold: 'Installment unlocked', text: 'across digital commerce' },
-        { bold: 'Cash flow', text: 'strain eliminated instantly' },
-        { bold: 'Full service', text: 'underwrite, pay, collect' },
+        { bold: 'Instant approval', text: 'with seamless checkout' },
+        { bold: 'Upfront payment', text: 'creators paid immediately' },
+        { bold: 'End-to-end management', text: 'underwriting through collections' },
       ],
       supporting: 'Payva is rebuilding financing infrastructure for digital goods — empowering creators to sell more and consumers to buy with confidence.',
     },
