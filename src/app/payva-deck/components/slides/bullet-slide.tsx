@@ -15,12 +15,15 @@ export function BulletSlide({
   isLightMode,
 }: SlideProps) {
   const bullets = slide.bulletConfig?.bullets ?? []
+  
+  // Check if this is the problem slide with the long subtitle
+  const isProblemSlide = slide.id === 'problem' && slide.subtitle && slide.subtitle.length > 50
 
   return (
     <SlideLayout
       variant={variant}
-      label={slide.subtitle ? undefined : slide.label}
-      topLeftSubtitle={slide.subtitle}
+      label={!isProblemSlide && slide.subtitle ? undefined : slide.label}
+      topLeftSubtitle={!isProblemSlide ? slide.subtitle : undefined}
       slideNumber={slideNumber}
       totalSlides={totalSlides}
       isLightMode={isLightMode}
@@ -41,8 +44,20 @@ export function BulletSlide({
             </motion.h1>
           </div>
 
-          {/* Right: Bullets section */}
+          {/* Right: Bullets section with subtitle for problem slide */}
           <div className="flex-1">
+            {/* Show subtitle here for problem slide */}
+            {isProblemSlide && slide.subtitle && (
+              <motion.p
+                className="text-xl text-secondary mb-8 leading-relaxed"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: contentDelays.title + 0.1 }}
+              >
+                {slide.subtitle}
+              </motion.p>
+            )}
+            
             <ul className="space-y-8">
               {bullets.map((bullet, index) => (
                 <motion.li
