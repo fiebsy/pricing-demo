@@ -7,9 +7,10 @@ const CDP_URL = process.env.CDP_URL || 'http://localhost:9222'
 const STATE_DIR = path.join(os.homedir(), '.app-mcp-bridge')
 const SCREENSHOTS_DIR = path.join(STATE_DIR, 'screenshots')
 
-// Screenshot cleanup settings
-const MAX_SCREENSHOT_AGE_MS = 24 * 60 * 60 * 1000 // 24 hours
-const MAX_SCREENSHOTS = 50
+// Screenshot cleanup settings - aggressive single-use optimization
+const MAX_SCREENSHOT_AGE_MS = 5 * 60 * 1000 // 5 minutes - fallback cleanup
+const MAX_SCREENSHOTS = 3 // Keep only last 3 for immediate use
+const DELETE_ON_READ = true // Auto-delete after screenshot is read
 
 export interface ScreenshotOptions {
   scope: 'selected' | 'element' | 'viewport' | 'fullpage'
@@ -53,8 +54,49 @@ function ensureScreenshotsDir(): void {
   }
 }
 
+// Track screenshots that have been accessed (for auto-deletion)
+const SCREENSHOT_TRACKER_FILE = path.join(STATE_DIR, 'screenshot-tracker.json')
+let screenshotTracker: Set<string> = new Set()
+
+// Load tracker on startup
+function loadTracker(): void {
+  try {
+    if (fs.existsSync(SCREENSHOT_TRACKER_FILE)) {
+      const data = fs.readFileSync(SCREENSHOT_TRACKER_FILE, 'utf-8')
+      screenshotTracker = new Set(JSON.parse(data))
+    }
+  } catch {
+    screenshotTracker = new Set()
+  }
+}
+
+// Save tracker state
+function saveTracker(): void {
+  try {
+    fs.writeFileSync(SCREENSHOT_TRACKER_FILE, JSON.stringify(Array.from(screenshotTracker)))
+  } catch {
+    // Ignore save errors
+  }
+}
+
+// Mark screenshot as accessed (for deletion)
+export function markScreenshotAccessed(filepath: string): void {
+  if (DELETE_ON_READ) {
+    // Delete immediately when accessed
+    try {
+      if (fs.existsSync(filepath)) {
+        fs.unlinkSync(filepath)
+      }
+    } catch {
+      // If immediate deletion fails, track for later cleanup
+      screenshotTracker.add(filepath)
+      saveTracker()
+    }
+  }
+}
+
 /**
- * Clean up old screenshots (older than 24h or if more than 50 files)
+ * Clean up old screenshots - aggressive single-use policy
  */
 function cleanupOldScreenshots(): void {
   try {
@@ -74,19 +116,27 @@ function cleanupOldScreenshots(): void {
     files.forEach((file, index) => {
       const isOld = now - file.mtime > MAX_SCREENSHOT_AGE_MS
       const isBeyondLimit = index >= MAX_SCREENSHOTS
+      const wasAccessed = screenshotTracker.has(file.path)
 
-      if (isOld || isBeyondLimit) {
+      // Delete if: accessed before, too old, or beyond limit
+      if (wasAccessed || isOld || isBeyondLimit) {
         try {
           fs.unlinkSync(file.path)
+          screenshotTracker.delete(file.path)
         } catch {
           // Ignore deletion errors
         }
       }
     })
+    
+    saveTracker()
   } catch {
     // Ignore cleanup errors
   }
 }
+
+// Initialize tracker on module load
+loadTracker()
 
 /**
  * Get the WebSocket debugger URL from Chrome's CDP endpoint
@@ -226,7 +276,8 @@ export async function takeScreenshot(options: ScreenshotOptions): Promise<Screen
   // Default to JPEG for viewport/fullpage (smaller files), PNG for element screenshots (precision)
   const defaultFormat = (options.scope === 'viewport' || options.scope === 'fullpage') ? 'jpeg' : 'png'
   const format = options.format ?? defaultFormat
-  const quality = options.quality ?? 80
+  // Reduced default quality for better performance (60 for JPEG, was 80)
+  const quality = options.quality ?? (format === 'jpeg' ? 60 : undefined)
 
   const filename = options.filename
     ? (options.filename.match(/\.(jpg|jpeg|png)$/i) ? options.filename : `${options.filename}.${format === 'jpeg' ? 'jpg' : 'png'}`)

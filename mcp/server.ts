@@ -54,6 +54,42 @@ function isValidFilePath(filePath: string): boolean {
   return resolved.startsWith(normalizedRoot)
 }
 
+// Context level for controlling response verbosity
+let contextLevel: 'minimal' | 'standard' | 'detailed' = 'minimal'
+
+// Format component info for concise output
+function formatComponentInfo(component: any, verbose = false): string {
+  if (!component) return 'No component selected'
+  
+  if (verbose || contextLevel === 'detailed') {
+    return JSON.stringify(component, null, 2)
+  }
+  
+  // Concise format for minimal/standard mode
+  const parts = [`📦 ${component.name}`]
+  
+  if (component.filePath) {
+    const shortPath = component.filePath.replace(/^.*\/src\//, 'src/')
+    parts.push(`📁 ${shortPath}${component.lineNumber ? `:${component.lineNumber}` : ''}`)
+  }
+  
+  if (component.selector && contextLevel === 'standard') {
+    parts.push(`🎯 ${component.selector}`)
+  }
+  
+  // Only show essential props in minimal mode
+  if (component.props && Object.keys(component.props).length > 0) {
+    const propKeys = Object.keys(component.props)
+      .filter(k => k !== '[...]' && k !== '[fn]' && k !== '{...}')
+      .slice(0, 3)
+    if (propKeys.length > 0) {
+      parts.push(`⚙️ Props: ${propKeys.join(', ')}${propKeys.length < Object.keys(component.props).length ? '...' : ''}`)
+    }
+  }
+  
+  return parts.join('\n')
+}
+
 // Create MCP server
 const server = new McpServer({
   name: 'app-bridge',
@@ -64,8 +100,10 @@ const server = new McpServer({
 server.tool(
   'get_selected_component',
   'Get the currently selected component from the browser dev inspector',
-  {},
-  async () => {
+  {
+    verbose: z.boolean().optional().describe('Return full JSON instead of concise format'),
+  },
+  async ({ verbose }) => {
     ensureStateDir()
 
     // Try to sync from browser first
@@ -87,7 +125,7 @@ server.tool(
         content: [
           {
             type: 'text' as const,
-            text: 'No component is currently selected. Open the browser, enable Dev Mode (Cmd+Shift+I), and click on a component.',
+            text: 'No component selected. Enable Dev Mode (Cmd+Shift+I) and click a component.',
           },
         ],
       }
@@ -97,7 +135,7 @@ server.tool(
       content: [
         {
           type: 'text' as const,
-          text: JSON.stringify(component, null, 2),
+          text: formatComponentInfo(component, verbose),
         },
       ],
     }
@@ -213,8 +251,10 @@ server.tool(
 server.tool(
   'sync_from_browser',
   'Pull the latest state from the browser',
-  {},
-  async () => {
+  {
+    verbose: z.boolean().optional().describe('Return full state instead of summary'),
+  },
+  async ({ verbose }) => {
     try {
       const state = await fetchFromApp('state') as {
         selectedComponent: unknown
@@ -225,6 +265,27 @@ server.tool(
       ensureStateDir()
       if (state.selectedComponent) {
         fs.writeFileSync(SELECTED_FILE, JSON.stringify(state.selectedComponent, null, 2))
+      }
+
+      // Concise response in minimal mode
+      if (!verbose && contextLevel !== 'detailed') {
+        const summary = []
+        if (state.selectedComponent) {
+          summary.push(`✅ Component: ${formatComponentInfo(state.selectedComponent).split('\n')[0]}`)
+        }
+        if (state.pendingActions && (state.pendingActions as unknown[]).length > 0) {
+          summary.push(`📋 Pending actions: ${(state.pendingActions as unknown[]).length}`)
+        }
+        summary.push(`🕐 Last sync: ${new Date(state.timestamp).toLocaleTimeString()}`)
+        
+        return {
+          content: [
+            {
+              type: 'text' as const,
+              text: summary.join('\n'),
+            },
+          ],
+        }
       }
 
       return {
@@ -240,7 +301,7 @@ server.tool(
         content: [
           {
             type: 'text' as const,
-            text: `Failed to sync: ${error instanceof Error ? error.message : String(error)}. Is the dev server running at ${APP_URL}?`,
+            text: `❌ Sync failed. Check dev server at ${APP_URL}`,
           },
         ],
       }
@@ -301,8 +362,10 @@ server.tool(
       .describe("Image format"),
     quality: z.number().min(0).max(100).optional()
       .describe('JPEG quality'),
+    deleteAfterRead: z.boolean().optional().default(true)
+      .describe('Auto-delete screenshot after reading (default: true)'),
   },
-  async ({ scope, selector, padding, filename, format, quality }) => {
+  async ({ scope, selector, padding, filename, format, quality, deleteAfterRead }) => {
     try {
       const result = await puppeteerBridge.takeScreenshot({
         scope,
@@ -313,11 +376,17 @@ server.tool(
         quality,
       })
 
+      // Concise response with just the path for the Read tool
+      const shortPath = result.path.replace(os.homedir(), '~')
+      
+      // Note about auto-deletion
+      const deleteNote = deleteAfterRead ? ' (auto-deletes after read)' : ''
+      
       return {
         content: [
           {
             type: 'text' as const,
-            text: `Screenshot saved: ${result.path} (${result.width}x${result.height})`,
+            text: `📸 ${shortPath} (${result.width}×${result.height})${deleteNote}`,
           },
         ],
       }
@@ -330,6 +399,62 @@ server.tool(
           },
         ],
       }
+    }
+  }
+)
+
+// Tool: Mark screenshot as read (for auto-deletion)
+server.tool(
+  'mark_screenshot_read',
+  'Mark a screenshot as read for automatic deletion',
+  {
+    filepath: z.string().describe('Path to the screenshot file'),
+  },
+  async ({ filepath }) => {
+    try {
+      // Resolve ~ to home directory
+      const resolvedPath = filepath.replace('~', os.homedir())
+      puppeteerBridge.markScreenshotAccessed(resolvedPath)
+      
+      return {
+        content: [
+          {
+            type: 'text' as const,
+            text: '✅ Screenshot marked for deletion',
+          },
+        ],
+      }
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: 'text' as const,
+            text: `Failed to mark screenshot: ${error instanceof Error ? error.message : String(error)}`,
+          },
+        ],
+      }
+    }
+  }
+)
+
+// Tool: Set context level
+server.tool(
+  'set_context_level',
+  'Set the verbosity level for MCP responses (minimal, standard, or detailed)',
+  {
+    level: z.enum(['minimal', 'standard', 'detailed']).describe('Context verbosity level'),
+  },
+  async ({ level }) => {
+    const previousLevel = contextLevel
+    contextLevel = level
+    
+    return {
+      content: [
+        {
+          type: 'text' as const,
+          text: `Context level changed: ${previousLevel} → ${level}`,
+        },
+      ],
     }
   }
 )
@@ -347,7 +472,7 @@ server.tool(
         content: [
           {
             type: 'text' as const,
-            text: 'Chrome connected via CDP. Screenshots ready.',
+            text: '✅ Chrome connected (CDP ready)',
           },
         ],
       }
@@ -357,7 +482,7 @@ server.tool(
       content: [
         {
           type: 'text' as const,
-          text: `Chrome not connected. Error: ${status.error}`,
+          text: `❌ Chrome not connected`,
         },
       ],
     }

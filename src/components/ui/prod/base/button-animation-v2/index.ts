@@ -37,10 +37,13 @@
  */
 
 // ============================================================================
-// COMPONENT
+// COMPONENTS
 // ============================================================================
 
 export { ButtonAnimationV2 } from './button-animation-v2'
+export { ButtonAnimationV2Enhanced } from './ButtonAnimationV2Enhanced'
+// Legacy export name for compatibility
+export { ButtonAnimationV2Enhanced as EnhancedButtonAnimationV2 } from './ButtonAnimationV2Enhanced'
 
 // ============================================================================
 // TYPES
@@ -155,3 +158,61 @@ export {
   type StackItemComponentProps,
   type StackLevelProps,
 } from './components'
+
+export {
+  AnimatedButton,
+  type AnimatedButtonProps,
+} from './components/AnimatedButton'
+
+export {
+  EnhancedStackLevel,
+  type EnhancedStackLevelProps,
+} from './components/EnhancedStackLevel'
+
+// ============================================================================
+// DEBUG COMPONENTS
+// ============================================================================
+
+export { 
+  StateVisualizer, 
+  MiniStateVisualizer,
+  type StateVisualizerProps,
+} from './debug/StateVisualizer'
+
+// ============================================================================
+// CORE UTILITIES
+// ============================================================================
+
+export { 
+  ButtonState, 
+  determineButtonState, 
+  STATE_METADATA,
+  STATE_TRANSITIONS,
+  isTransitionAllowed,
+  getTransitionConfig,
+  isTransitionalState,
+  getStateZIndex,
+  getStateOpacity,
+  type StateContext,
+  type StateMetadata,
+  type StateTransition,
+} from './core/state-machine'
+
+export { 
+  AnimationPhaseManager, 
+  useAnimationPhases,
+  type AnimationPhase,
+  type GlobalPhase,
+  type AnimationSequence,
+  type AnimationStep,
+} from './core/animation-phases'
+
+export { 
+  PositionCalculator,
+  getPositionCalculator, 
+  usePositionCalculator,
+  type Position,
+  type BoundingBox,
+  type PositionConfig,
+  type LayoutContext,
+} from './core/position-calculator'

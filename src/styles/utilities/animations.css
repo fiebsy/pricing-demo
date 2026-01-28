@@ -1,5 +1,21 @@
 /* Animation utilities - Reusable animation classes and keyframes */
 
+/* Button Animation V2 - Child to parent promotion animation */
+@keyframes pulse-once {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.95;
+  }
+}
+
+.animate-pulse-once {
+  animation: pulse-once 0.3s ease-out;
+}
+
 /* Click animation - scale effect for interactive elements */
 .click-animation {
   transition: transform 0.1s ease-in-out;

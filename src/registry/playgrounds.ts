@@ -60,10 +60,19 @@ export const activePlaygrounds: PlaygroundEntry[] = [
     route: '/playground/button-animation-v2',
     category: 'animation',
     status: 'active',
-    description: 'Latest button animation implementation',
+    description: 'Multi-level stacking with peek-behind pattern',
     component: 'ButtonAnimation',
     version: 'v2',
-    latestVersion: 'v2',
+  },
+  {
+    name: 'Button Animation v3',
+    route: '/playground/button-animation-v3',
+    category: 'animation',
+    status: 'active',
+    description: 'Production-ready with fixed child-to-parent animations',
+    component: 'ButtonAnimation',
+    version: 'v3',
+    latestVersion: 'v3',
   },
 
   // Feature Playgrounds

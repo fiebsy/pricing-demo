@@ -9,12 +9,53 @@ const notAvailable = () => NextResponse.json({ error: 'Not available' }, { statu
 
 const STATE_DIR = path.join(os.homedir(), '.app-mcp-bridge')
 const SELECTED_FILE = path.join(STATE_DIR, 'selected-component.json')
+const HISTORY_DIR = path.join(STATE_DIR, 'history')
+const MAX_HISTORY_FILES = 5 // Keep only last 5 selections
 
 async function ensureStateDir() {
   try {
     await fs.mkdir(STATE_DIR, { recursive: true })
+    await fs.mkdir(HISTORY_DIR, { recursive: true })
   } catch {
-    // Directory exists
+    // Directories exist
+  }
+}
+
+// Clean up old history files
+async function cleanupHistory() {
+  try {
+    const files = await fs.readdir(HISTORY_DIR)
+    const historyFiles = files
+      .filter(f => f.endsWith('.json'))
+      .map(f => ({
+        name: f,
+        path: path.join(HISTORY_DIR, f),
+        mtime: 0
+      }))
+    
+    // Get modification times
+    for (const file of historyFiles) {
+      try {
+        const stat = await fs.stat(file.path)
+        file.mtime = stat.mtime.getTime()
+      } catch {
+        // Ignore stat errors
+      }
+    }
+    
+    // Sort by modification time (newest first)
+    historyFiles.sort((a, b) => b.mtime - a.mtime)
+    
+    // Delete old files beyond limit
+    for (let i = MAX_HISTORY_FILES; i < historyFiles.length; i++) {
+      try {
+        await fs.unlink(historyFiles[i].path)
+      } catch {
+        // Ignore deletion errors
+      }
+    }
+  } catch {
+    // Ignore cleanup errors
   }
 }
 
@@ -53,7 +94,17 @@ export async function POST(request: NextRequest) {
     await ensureStateDir()
     const component = await request.json() as SelectedComponent
     component.timestamp = Date.now()
+    
+    // Save to main file
     await fs.writeFile(SELECTED_FILE, JSON.stringify(component, null, 2))
+    
+    // Save to history with timestamp
+    const historyFile = path.join(HISTORY_DIR, `selection-${component.timestamp}.json`)
+    await fs.writeFile(historyFile, JSON.stringify(component, null, 2))
+    
+    // Clean up old history files
+    await cleanupHistory()
+    
     return NextResponse.json({ success: true })
   } catch (error) {
     return NextResponse.json(

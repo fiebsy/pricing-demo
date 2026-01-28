@@ -33,44 +33,131 @@ interface ReactFiber {
   return?: ReactFiber
 }
 
-// Serialize props safely (exclude functions, handle circular refs)
-function serializeProps(props: Record<string, unknown>): Record<string, unknown> {
+// Essential props that are commonly useful for debugging
+const ESSENTIAL_PROPS = new Set([
+  'className',
+  'id',
+  'href',
+  'src',
+  'alt',
+  'title',
+  'type',
+  'value',
+  'name',
+  'placeholder',
+  'disabled',
+  'checked',
+  'selected',
+  'variant',
+  'size',
+  'color',
+  'open',
+  'active',
+  'loading',
+  'error'
+])
+
+// Props that should always be excluded
+const EXCLUDED_PROPS = new Set([
+  'children',
+  'ref',
+  'key',
+  '_owner',
+  '_store',
+  '__source',
+  '__self'
+])
+
+export interface SerializationOptions {
+  mode?: 'minimal' | 'standard' | 'detailed'
+  maxProps?: number
+  maxDepth?: number
+  includeDataAttrs?: boolean
+}
+
+// Serialize props safely with performance optimizations
+function serializeProps(
+  props: Record<string, unknown>,
+  options: SerializationOptions = {}
+): Record<string, unknown> {
+  const {
+    mode = 'minimal',
+    maxProps = mode === 'minimal' ? 5 : mode === 'standard' ? 10 : 20,
+    maxDepth = mode === 'minimal' ? 2 : mode === 'standard' ? 3 : 5,
+    includeDataAttrs = mode !== 'minimal'
+  } = options
+
   const seen = new WeakSet()
+  let propCount = 0
 
   function serialize(value: unknown, depth = 0): unknown {
-    if (depth > 5) return '[max depth]'
+    if (depth > maxDepth) return '[...]'
     if (value === null || value === undefined) return value
-    if (typeof value === 'function') return '[function]'
-    if (typeof value === 'symbol') return '[symbol]'
+    if (typeof value === 'function') return '[fn]'
+    if (typeof value === 'symbol') return '[sym]'
 
     if (typeof value === 'object') {
       if (seen.has(value as object)) return '[circular]'
       seen.add(value as object)
 
       if (Array.isArray(value)) {
-        return value.slice(0, 10).map((v) => serialize(v, depth + 1))
+        return mode === 'minimal' 
+          ? `[Array(${value.length})]`
+          : value.slice(0, 3).map((v) => serialize(v, depth + 1))
       }
 
-      // Skip Promises (Next.js 15+ params/searchParams are Promises)
+      // Skip Promises
       if (value instanceof Promise || (value && typeof (value as Promise<unknown>).then === 'function')) {
         return '[Promise]'
       }
 
       // Skip React elements and DOM nodes
       if ('$$typeof' in value || value instanceof HTMLElement) {
-        return '[React element]'
+        return '[ReactElement]'
       }
 
       const result: Record<string, unknown> = {}
-      const entries = Object.entries(value).slice(0, 20)
-      for (const [k, v] of entries) {
-        if (k.startsWith('_') || k === 'children') continue
-        result[k] = serialize(v, depth + 1)
+      
+      // In minimal mode, just show object type
+      if (mode === 'minimal' && depth > 0) {
+        return '{...}'
       }
+
+      for (const [k, v] of Object.entries(value)) {
+        if (propCount >= maxProps) break
+        
+        // Skip excluded props
+        if (EXCLUDED_PROPS.has(k) || k.startsWith('_')) continue
+        
+        // In minimal mode, only include essential props
+        if (mode === 'minimal' && !ESSENTIAL_PROPS.has(k)) {
+          if (!includeDataAttrs || !k.startsWith('data-')) continue
+        }
+        
+        result[k] = serialize(v, depth + 1)
+        propCount++
+      }
+      
       return result
     }
 
+    // Simplify long strings in minimal mode
+    if (typeof value === 'string' && mode === 'minimal' && value.length > 50) {
+      return value.substring(0, 47) + '...'
+    }
+
     return value
+  }
+
+  // Start with only essential props for minimal mode
+  if (mode === 'minimal') {
+    const filtered: Record<string, unknown> = {}
+    for (const key of Object.keys(props)) {
+      if (ESSENTIAL_PROPS.has(key) || (includeDataAttrs && key.startsWith('data-'))) {
+        filtered[key] = props[key]
+      }
+    }
+    return serialize(filtered) as Record<string, unknown>
   }
 
   return serialize(props) as Record<string, unknown>
@@ -176,7 +263,8 @@ function findUserComponent(fiber: ReactFiber | null): ReactFiber | null {
 // Extract component info from fiber
 function extractComponentInfo(
   fiber: ReactFiber,
-  element: HTMLElement
+  element: HTMLElement,
+  serializationMode: SerializationOptions['mode'] = 'minimal'
 ): ComponentInfo {
   const type = fiber.type as { displayName?: string; name?: string }
   const name = type?.displayName || type?.name || 'Unknown'
@@ -186,7 +274,7 @@ function extractComponentInfo(
     name,
     filePath: debugSource?.fileName || null,
     lineNumber: debugSource?.lineNumber || null,
-    props: serializeProps(fiber.memoizedProps || {}),
+    props: serializeProps(fiber.memoizedProps || {}, { mode: serializationMode }),
     element,
     bounds: getElementBounds(element),
     selector: generateSelector(element),
