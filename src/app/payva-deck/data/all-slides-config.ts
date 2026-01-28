@@ -36,8 +36,8 @@ export const ALL_SLIDES_CONFIG: PitchSlide[] = [
     bulletConfig: {
       bullets: [
         { bold: 'Creator-first', text: 'solutions don\'t exist' },
-        { bold: 'Expensive courses', text: 'need payment plans' },
         { bold: 'Payment flexibility', text: 'customers desperately need' },
+        { bold: 'Expensive courses', text: 'need payment plans' },
       ],
       supporting: 'The world is buying digital experiences, but creators still don\'t have a scalable way to offer financing.',
     },
