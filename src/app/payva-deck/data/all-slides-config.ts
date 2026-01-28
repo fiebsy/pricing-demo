@@ -89,28 +89,7 @@ export const ALL_SLIDES_CONFIG: PitchSlide[] = [
   },
 
   // ============================================
-  // SLIDE 5: MARKET OPPORTUNITY
-  // ============================================
-  {
-    id: 'market-opportunity',
-    type: 'stat',
-    label: 'Market opportunity',
-    variant: 'light',
-    title: 'Market opportunity',
-    subtitle: 'Origination projections',
-    statConfig: {
-      stats: [
-        {
-          value: '$10M–$15M',
-          label: 'Monthly origination target',
-        },
-      ],
-      layout: 'single',
-    },
-  },
-
-  // ============================================
-  // SLIDE 6: TRACTION
+  // SLIDE 5: TRACTION (was SLIDE 6 before removing market opportunity)
   // ============================================
   {
     id: 'traction',
@@ -122,6 +101,7 @@ export const ALL_SLIDES_CONFIG: PitchSlide[] = [
     statConfig: {
       stats: [
         { value: '3→36', label: 'Team growth in 2 years' },
+        { value: '50→500', label: 'Creator growth' },
         { value: '$2M→$85M', label: 'in origination in 24 months' },
       ],
       layout: 'stacked',
@@ -129,7 +109,7 @@ export const ALL_SLIDES_CONFIG: PitchSlide[] = [
   },
 
   // ============================================
-  // SLIDE 7: PORTFOLIO PERFORMANCE
+  // SLIDE 6: PORTFOLIO PERFORMANCE (was SLIDE 7 after removing market opportunity)
   // ============================================
   {
     id: 'portfolio',
@@ -144,13 +124,14 @@ export const ALL_SLIDES_CONFIG: PitchSlide[] = [
         { label: '2024', value: 19, displayValue: '19M' },
         { label: '2025', value: 64, displayValue: '64M' },
         { label: '2026', value: 200, displayValue: '200M' },
+        { label: '2027', value: 500, displayValue: '500M' },
       ],
       contextText: 'Year-over-year growth',
     },
   },
 
   // ============================================
-  // SLIDE 8: BUSINESS MODEL
+  // SLIDE 7: BUSINESS MODEL (was SLIDE 8 after removing market opportunity)
   // ============================================
   {
     id: 'business-model',
@@ -169,7 +150,7 @@ export const ALL_SLIDES_CONFIG: PitchSlide[] = [
   },
 
   // ============================================
-  // SLIDE 9: DISTRIBUTION PARTNERS
+  // SLIDE 8: DISTRIBUTION PARTNERS (was SLIDE 9 after removing market opportunity)
   // ============================================
   {
     id: 'distribution',
@@ -202,7 +183,7 @@ export const ALL_SLIDES_CONFIG: PitchSlide[] = [
   },
 
   // ============================================
-  // SLIDE 10: TEAM
+  // SLIDE 9: TEAM (was SLIDE 10 after removing market opportunity)
   // ============================================
   {
     id: 'team',
@@ -233,7 +214,7 @@ export const ALL_SLIDES_CONFIG: PitchSlide[] = [
   },
 
   // ============================================
-  // SLIDE 11: FINANCIAL PROJECTIONS
+  // SLIDE 10: FINANCIAL PROJECTIONS (was SLIDE 11 after removing market opportunity)
   // ============================================
   {
     id: 'financials',
@@ -241,20 +222,20 @@ export const ALL_SLIDES_CONFIG: PitchSlide[] = [
     label: 'Financials',
     variant: 'light',
     title: 'Financial projections',
-    subtitle: '3-year outlook',
+    subtitle: '3-year revenue outlook',
     chartConfig: {
       chartType: 'bar',
       data: [
         { label: '2024', value: 2, displayValue: '$2M' },
-        { label: '2025', value: 25, displayValue: '$25M' },
-        { label: '2026', value: 85, displayValue: '$85M' },
+        { label: '2025', value: 5, displayValue: '$5M' },
+        { label: '2026', value: 20, displayValue: '$20M' },
       ],
       contextText: 'Revenue projections based on current growth trajectory',
     },
   },
 
   // ============================================
-  // SLIDE 12: CLOSING
+  // SLIDE 11: CLOSING (was SLIDE 12 after removing market opportunity)
   // ============================================
   {
     id: 'closing',
