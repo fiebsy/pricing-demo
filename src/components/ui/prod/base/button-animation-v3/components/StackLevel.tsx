@@ -130,14 +130,18 @@ export function StackLevel({
             ? getAnchoredOffset(level + 1)  // level + 1 because this is the item's depth
             : getActiveOffset()
           
+          // Determine positioning strategy based on level and state
+          const isFirstActiveAtLevel = isActive && !hasActiveChild
+          const shouldUseMargin = !isAnchored && level === 0 && isFirstActiveAtLevel
+          
           return (
             <motion.div
               key={item.id}
               layout={!isAnchored ? 'position' : false}
               className={isAnchored ? 'absolute top-0 inline-flex' : 'inline-flex'}
               style={{
-                left: isAnchored ? itemOffset : (level > 0 ? itemOffset : undefined),
-                marginLeft: !isAnchored && level === 0 ? itemOffset : undefined,
+                left: isAnchored ? itemOffset : undefined,
+                marginLeft: shouldUseMargin ? itemOffset : undefined,
                 zIndex: isAnchored ? getAnchoredZIndex(level + 1) : 100,
               }}
               initial={shouldReduceMotion ? undefined : { opacity: 0, ...entryOffset }}
@@ -171,15 +175,37 @@ export function StackLevel({
             isParentAnchored: hasActiveChild,
           }}
         >
-          <StackLevel
-            items={activeItem.children}
-            parentLevelIndices={[
-              ...parentLevelIndices,
-              anchorItem
-                ? regularItems.findIndex((i) => i.id === activeId) + 1
-                : regularItems.findIndex((i) => i.id === activeId),
-            ]}
-          />
+          {/* For deeper levels, wrap children in a positioned container */}
+          {level > 0 ? (
+            <div 
+              className="inline-flex gap-2"
+              style={{
+                position: 'absolute',
+                left: getActiveOffset(),
+                top: 0,
+              }}
+            >
+              <StackLevel
+                items={activeItem.children}
+                parentLevelIndices={[
+                  ...parentLevelIndices,
+                  anchorItem
+                    ? regularItems.findIndex((i) => i.id === activeId) + 1
+                    : regularItems.findIndex((i) => i.id === activeId),
+                ]}
+              />
+            </div>
+          ) : (
+            <StackLevel
+              items={activeItem.children}
+              parentLevelIndices={[
+                ...parentLevelIndices,
+                anchorItem
+                  ? regularItems.findIndex((i) => i.id === activeId) + 1
+                  : regularItems.findIndex((i) => i.id === activeId),
+              ]}
+            />
+          )}
         </LevelContext.Provider>
       )}
     </>
