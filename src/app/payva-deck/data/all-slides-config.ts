@@ -32,7 +32,7 @@ export const ALL_SLIDES_CONFIG: PitchSlide[] = [
     label: 'The problem',
     variant: 'light',
     title: 'The problem',
-    subtitle: '',
+    subtitle: 'BNPL not built for digital economy',
     bulletConfig: {
       bullets: [
         { text: 'Lending hasn\'t evolved beyond physical goods' },
