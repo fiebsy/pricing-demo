@@ -32,7 +32,7 @@ export const ALL_SLIDES_CONFIG: PitchSlide[] = [
     label: 'The problem',
     variant: 'light',
     title: 'The problem',
-    subtitle: 'The world is buying digital experiences, but creators still don\'t have a scalable way to offer financing.',
+    subtitle: '',
     bulletConfig: {
       bullets: [
         { text: 'Lending hasn\'t evolved beyond physical goods' },
@@ -40,7 +40,7 @@ export const ALL_SLIDES_CONFIG: PitchSlide[] = [
         { text: 'Customers want pay-over-time flexibility' },
         { text: 'Existing solutions aren\'t built for the creator economy' },
       ],
-      supporting: '',
+      supporting: 'The world is buying digital experiences, but creators still don\'t have a scalable way to offer financing.',
     },
   },
 
