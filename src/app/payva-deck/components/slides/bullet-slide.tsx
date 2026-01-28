@@ -22,8 +22,8 @@ export function BulletSlide({
   return (
     <SlideLayout
       variant={variant}
-      label={!isProblemSlide && slide.subtitle ? undefined : slide.label}
-      topLeftSubtitle={!isProblemSlide ? slide.subtitle : undefined}
+      label={slide.label}
+      topLeftSubtitle={undefined}
       slideNumber={slideNumber}
       totalSlides={totalSlides}
       isLightMode={isLightMode}
@@ -44,20 +44,8 @@ export function BulletSlide({
             </motion.h1>
           </div>
 
-          {/* Right: Bullets section with subtitle for problem slide */}
+          {/* Right: Bullets section */}
           <div className="flex-1">
-            {/* Show subtitle here for problem slide */}
-            {isProblemSlide && slide.subtitle && (
-              <motion.p
-                className="text-xl text-secondary mb-8 leading-relaxed"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: contentDelays.title + 0.1 }}
-              >
-                {slide.subtitle}
-              </motion.p>
-            )}
-            
             <ul className="space-y-8">
               {bullets.map((bullet, index) => (
                 <motion.li
@@ -82,6 +70,18 @@ export function BulletSlide({
             </ul>
           </div>
         </div>
+
+        {/* Subtitle - Show below the two column layout for problem slide */}
+        {isProblemSlide && slide.subtitle && (
+          <motion.p
+            className="mt-12 text-xl text-secondary text-center max-w-3xl leading-relaxed"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: contentDelays.bullets + bullets.length * 0.1 }}
+          >
+            {slide.subtitle}
+          </motion.p>
+        )}
 
         {/* Supporting text - Centered below */}
         {slide.bulletConfig?.supporting && (
