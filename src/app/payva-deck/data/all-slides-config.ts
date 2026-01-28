@@ -35,10 +35,10 @@ export const ALL_SLIDES_CONFIG: PitchSlide[] = [
     subtitle: 'BNPL not built for digital economy',
     bulletConfig: {
       bullets: [
-        { bold: 'Outdated lending', text: 'stuck on physical goods' },
-        { bold: 'Monetization barriers', text: 'for high-value offers' },
-        { bold: 'Payment flexibility', text: 'customers desperately need' },
-        { bold: 'Creator-first', text: 'solutions don\'t exist' },
+        { bold: 'Lending stuck', text: 'in physical goods era' },
+        { bold: 'Creators struggling', text: 'with high-value monetization' },
+        { bold: 'Customers lacking', text: 'flexible payment options' },
+        { bold: 'No solutions', text: 'built for creators' },
       ],
       supporting: 'The world is buying digital experiences, but creators still don\'t have a scalable way to offer financing.',
     },
