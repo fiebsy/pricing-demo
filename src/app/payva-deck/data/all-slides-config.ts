@@ -32,15 +32,15 @@ export const ALL_SLIDES_CONFIG: PitchSlide[] = [
     label: 'The problem',
     variant: 'light',
     title: 'The problem',
-    subtitle: 'Not built for digital economy',
+    subtitle: 'The world is buying digital experiences, but creators still don\'t have a scalable way to offer financing.',
     bulletConfig: {
       bullets: [
-        { bold: 'Conversion struggles', text: 'from upfront costs' },
-        { bold: 'Cash flow gaps', text: 'from payment timing' },
-        { bold: 'Customers face', text: 'rigid payment plans' },
-        { bold: 'Limited approvals', text: 'waste acquisition spend' },
+        { text: 'Lending hasn\'t evolved beyond physical goods' },
+        { text: 'Creators struggle to monetize high-value offers' },
+        { text: 'Customers want pay-over-time flexibility' },
+        { text: 'Existing solutions aren\'t built for the creator economy' },
       ],
-      supporting: 'Traditional financing wasn\'t built for digital goods',
+      supporting: '',
     },
   },
 

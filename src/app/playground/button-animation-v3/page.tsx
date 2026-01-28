@@ -168,7 +168,7 @@ const DEFAULT_PLAYGROUND_CONFIG: PlaygroundConfig = {
   childEntryDelay: DEFAULT_ANIMATION_CONFIG.childEntryDelay * 1000, // ms
   
   // Stacking
-  peekOffset: DEFAULT_STYLE_CONFIG.peekOffset,
+  peekOffset: 8,
   anchoredOpacity: DEFAULT_STYLE_CONFIG.anchoredOpacity,
   
   // Layout
@@ -298,8 +298,8 @@ function createPanelConfig(config: PlaygroundConfig): UnifiedControlPanelConfig 
                 type: 'slider',
                 label: 'Peek Offset',
                 value: config.peekOffset,
-                min: -24,
-                max: 0,
+                min: -40,
+                max: 40,
                 step: 2,
                 formatLabel: (v: number) => `${v}px`,
               },

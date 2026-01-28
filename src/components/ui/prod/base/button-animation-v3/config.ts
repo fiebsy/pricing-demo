@@ -37,7 +37,7 @@ export const DEFAULT_ANIMATION_CONFIG: AnimationConfig = {
  * Default style configuration.
  */
 export const DEFAULT_STYLE_CONFIG: StyleConfig = {
-  peekOffset: -8,
+  peekOffset: 8,
   anchoredOpacity: 0.6,
   gap: 'md',
   expandedVariant: 'shine',

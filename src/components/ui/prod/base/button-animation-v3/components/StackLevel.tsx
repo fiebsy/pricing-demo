@@ -2,7 +2,7 @@
  * ButtonAnimation V3 - Stack Level Component
  *
  * Renders items at a specific level with proper animations.
- * Anchored items stay fixed, new active items offset to the right.
+ * Active items push off from anchored items with proper spacing.
  *
  * @module prod/base/button-animation-v3/components
  */
@@ -60,17 +60,19 @@ export function StackLevel({
     previousActiveIdRef.current = activeId
   }, [activeId, level, items])
   
-  // Calculate positions
-  // Key: Anchored items stay at 0, active items offset by 4px per level
-  const getItemPosition = (isAnchored: boolean, itemLevel: number) => {
-    if (isAnchored) {
-      // Anchored items never move from their original position
-      return 0
-    } else if (itemLevel > 0) {
-      // Active items offset 4px to the right per level
-      return 4 * itemLevel
-    }
-    return 0
+  // Calculate positions with proper cumulative stacking
+  // Each anchored level adds to the total offset
+  const getAnchoredOffset = (depth: number) => {
+    // Anchored items stack progressively based on depth
+    // Depth 0 = All button, Depth 1 = Design, Depth 2 = Figma, etc.
+    return styleConfig.peekOffset * depth
+  }
+  
+  const getActiveOffset = () => {
+    // Active (non-anchored) items push off from the entire anchor stack
+    // Count how many levels are anchored (all ancestors in activePath)
+    const anchoredDepth = activePath.length
+    return styleConfig.peekOffset * anchoredDepth
   }
   
   // Entry animation
@@ -87,8 +89,9 @@ export function StackLevel({
         return (
           <motion.div
             key={anchorItem.id}
-            className={isAnchored ? 'absolute top-0 left-0 inline-flex' : 'inline-flex'}
+            className={isAnchored ? 'absolute top-0 inline-flex' : 'inline-flex'}
             style={{
+              left: isAnchored ? getAnchoredOffset(0) : undefined,
               zIndex: isAnchored ? getAnchoredZIndex(0) : 100,
             }}
             initial={shouldReduceMotion ? undefined : { opacity: 0 }}
@@ -120,16 +123,21 @@ export function StackLevel({
           // Check if promoting (with memoized check)
           const isPromoting = item.id === promotingId
           
-          // Position calculation
-          const position = getItemPosition(isAnchored, level + 1)
+          // Calculate position with proper depth-based offsets
+          // Anchored items get progressive offset based on their depth
+          // Active items push off from the entire anchored stack
+          const itemOffset = isAnchored 
+            ? getAnchoredOffset(level + 1)  // level + 1 because this is the item's depth
+            : getActiveOffset()
           
           return (
             <motion.div
               key={item.id}
               layout={!isAnchored ? 'position' : false}
-              className={isAnchored ? 'absolute top-0 left-0 inline-flex' : 'inline-flex'}
+              className={isAnchored ? 'absolute top-0 inline-flex' : 'inline-flex'}
               style={{
-                transform: position > 0 ? `translateX(${position}px)` : undefined,
+                left: isAnchored ? itemOffset : (level > 0 ? itemOffset : undefined),
+                marginLeft: !isAnchored && level === 0 ? itemOffset : undefined,
                 zIndex: isAnchored ? getAnchoredZIndex(level + 1) : 100,
               }}
               initial={shouldReduceMotion ? undefined : { opacity: 0, ...entryOffset }}
