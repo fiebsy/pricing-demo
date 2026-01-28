@@ -56,7 +56,7 @@ export const ALL_SLIDES_CONFIG: PitchSlide[] = [
     subtitle: 'BNPL built for creators',
     bulletConfig: {
       bullets: [
-        { bold: 'Intangible financing', text: 'for creator-driven products' },
+        { bold: 'Purpose-built BNPL', text: 'for digital goods' },
         { bold: 'Installment unlocked', text: 'across digital commerce' },
         { bold: 'Cash flow', text: 'strain eliminated instantly' },
         { bold: 'Full service', text: 'underwrite, pay, collect' },
