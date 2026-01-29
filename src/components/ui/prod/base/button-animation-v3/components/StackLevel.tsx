@@ -2,7 +2,12 @@
  * ButtonAnimation V3 - Stack Level Component
  *
  * Renders items at a specific level with proper animations.
- * Active items push off from anchored items with proper spacing.
+ * Uses flex flow for natural positioning with anchored items using absolute positioning.
+ *
+ * KEY POSITIONING MODEL:
+ * - Anchored items: absolute position (peek-behind stack)
+ * - Active parent: inline-flex (normal flow)
+ * - Children: inline-flex (flow naturally to the right of parent)
  *
  * @module prod/base/button-animation-v3/components
  */
@@ -30,9 +35,10 @@ export function StackLevel({
     animationConfig,
     styleConfig,
     shouldReduceMotion,
+    showDebug,
   } = useStackContext()
   
-  const { level } = useLevelContext()
+  const { level, anchorCount } = useLevelContext()
   
   // Track which item was just selected for promotion animation
   const [promotingId, setPromotingId] = useState<string | null>(null)
@@ -41,6 +47,33 @@ export function StackLevel({
   // Separate "All" from regular items at root
   const anchorItem = level === 0 ? items.find((i) => i.id === ROOT_ANCHOR_ID) : null
   const regularItems = level === 0 ? items.filter((i) => i.id !== ROOT_ANCHOR_ID) : items
+  
+  // Enhanced debug logging
+  useEffect(() => {
+    if (showDebug && typeof window !== 'undefined') {
+      console.group(`🔍 [StackLevel] Level ${level} Render`)
+      console.log('Items:', items.map(i => i.id))
+      console.log('Active Path:', activePath)
+      console.log('Active ID at this level:', activePath[level])
+      console.log('Has active at this level:', activePath[level] !== undefined)
+      console.log('Has child in path:', activePath.length > level + 1)
+      console.log('Anchor item:', anchorItem?.id || 'none')
+      
+      // Visual positioning table
+      console.log('%c=== POSITIONING STATE ===', 'font-weight: bold; color: #3b82f6')
+      const positionData = items.map(item => ({
+        item: item.id,
+        level,
+        isActive: item.id === activePath[level],
+        hasChildren: !!(item.children?.length),
+        wouldBeAnchored: item.id === activePath[level] && activePath.length > level + 1 && !!(item.children?.length),
+        expectedPosition: 'TBD'
+      }))
+      console.table(positionData)
+      
+      console.groupEnd()
+    }
+  }, [level, items, activePath, anchorItem, showDebug])
   
   // State at this level
   const activeId = activePath[level]
@@ -60,19 +93,10 @@ export function StackLevel({
     previousActiveIdRef.current = activeId
   }, [activeId, level, items])
   
-  // Calculate positions with proper cumulative stacking
-  // Each anchored level adds to the total offset
+  // Calculate anchored offset for peek-behind effect
+  // Each anchored level adds peekOffset to position
   const getAnchoredOffset = (depth: number) => {
-    // Anchored items stack progressively based on depth
-    // Depth 0 = All button, Depth 1 = Design, Depth 2 = Figma, etc.
     return styleConfig.peekOffset * depth
-  }
-  
-  const getActiveOffset = () => {
-    // Active (non-anchored) items push off from the entire anchor stack
-    // Count how many levels are anchored (all ancestors in activePath)
-    const anchoredDepth = activePath.length
-    return styleConfig.peekOffset * anchoredDepth
   }
   
   // Entry animation
@@ -82,20 +106,29 @@ export function StackLevel({
   
   return (
     <>
-      {/* Root Anchor (All button) */}
+      {/* Root Anchor (All button) - only at level 0 */}
       {anchorItem && (() => {
         const isAnchored = hasActiveAtThisLevel && activeId !== ROOT_ANCHOR_ID
+        const anchorOffset = getAnchoredOffset(0) // 0px for the All button
         
         return (
           <motion.div
             key={anchorItem.id}
-            className={isAnchored ? 'absolute top-0 inline-flex' : 'inline-flex'}
+            layout="position"
+            className={isAnchored ? 'absolute top-0 left-0 inline-flex' : 'inline-flex'}
             style={{
-              left: isAnchored ? getAnchoredOffset(0) : undefined,
               zIndex: isAnchored ? getAnchoredZIndex(0) : 100,
             }}
             initial={shouldReduceMotion ? undefined : { opacity: 0 }}
-            animate={{ opacity: 1 }}
+            animate={{ 
+              opacity: 1,
+              x: isAnchored ? anchorOffset : 0,
+            }}
+            transition={{
+              type: 'spring',
+              stiffness: animationConfig.stiffness,
+              damping: animationConfig.damping,
+            }}
           >
             <AnimatedItem
               item={anchorItem}
@@ -117,42 +150,111 @@ export function StackLevel({
           // Hide non-active siblings when something is active
           if (hasActiveAtThisLevel && !isActive) return null
           
-          // Determine if anchored
-          const isAnchored = isActive && hasActiveChild
+          // Determine if this item should be anchored (pushed back in peek stack)
+          // An item is anchored if: it's active AND its children are showing AND it has children
+          const isAnchored = isActive && hasActiveChild && item.children && item.children.length > 0
           
-          // Check if promoting (with memoized check)
-          const isPromoting = item.id === promotingId
+          // Check if promoting (child becoming parent)
+          const isPromoting = item.id === promotingId || false
           
-          // Calculate position with proper depth-based offsets
-          // Anchored items get progressive offset based on their depth
-          // Active items push off from the entire anchored stack
-          const itemOffset = isAnchored 
-            ? getAnchoredOffset(level + 1)  // level + 1 because this is the item's depth
-            : getActiveOffset()
+          // Calculate anchored offset for peek-behind positioning
+          // At level 0: "Design" becomes anchored at depth 1 (since "All" is at depth 0)
+          // At level N: item becomes anchored at depth N+1
+          const anchoredDepth = level === 0 ? 1 : level + 1
           
-          // Determine positioning strategy based on level and state
-          const isFirstActiveAtLevel = isActive && !hasActiveChild
-          const shouldUseMargin = !isAnchored && level === 0 && isFirstActiveAtLevel
+          // POSITIONING STRATEGY:
+          // - Anchored items: absolute positioning with peek offset
+          // - Non-anchored active items: inline-flex (normal flow)
+          // - Children flow naturally to the right via flex container
+          const shouldUseAbsolute = isAnchored
+          
+          // Animation configuration
+          // Use consistent animation timing regardless of level for promotion
+          // Only apply stagger delay for initial child entry (not for active items)
+          const isInitialEntry = level > 0 && !isActive
+          const animationDelay = isInitialEntry ? getChildDelay(index, animationConfig) : 0
+          
+          // Debug logging
+          if (showDebug && typeof window !== 'undefined') {
+            console.group(`📍 [Button] ${item.id}`)
+            console.log('Level:', level)
+            console.log('State:', {
+              isActive,
+              hasActiveChild,
+              isAnchored,
+              hasChildren: item.children?.length || 0,
+              isPromoting,
+            })
+            console.log('Position Strategy:', {
+              positioning: shouldUseAbsolute ? 'absolute (anchored)' : 'inline-flex (flow)',
+              anchoredDepth: isAnchored ? anchoredDepth : 'N/A',
+              anchoredOffset: isAnchored ? `${getAnchoredOffset(anchoredDepth)}px` : 'N/A',
+            })
+            console.log('Animation:', {
+              isInitialEntry,
+              animationDelay: `${animationDelay}s`,
+            })
+            console.groupEnd()
+          }
+          
+          // Calculate anchored offset for this item
+          const anchoredOffset = getAnchoredOffset(anchoredDepth)
+          
+          // Calculate offset for active parent to clear anchored items above
+          // The active parent needs to be positioned after all the anchored items
+          // At level 0, we also need to account for the root anchor (All) if it's showing
+          const rootAnchorVisible = level === 0 && hasActiveAtThisLevel && activeId !== ROOT_ANCHOR_ID
+          const totalAnchorCount = anchorCount + (rootAnchorVisible ? 1 : 0)
+          const activeParentOffset = totalAnchorCount > 0 ? getAnchoredOffset(totalAnchorCount) : 0
+          
+          // Calculate animate state based on whether item is anchored
+          // Anchored items use x transform to slide to their peek position
+          // Active parent uses x transform to clear anchored items
+          const animateState = isAnchored 
+            ? { 
+                opacity: 1, 
+                x: anchoredOffset, // Slide to anchored position
+                y: 0,
+                scale: 1,
+              }
+            : isPromoting
+              ? {
+                  opacity: 1,
+                  x: activeParentOffset, // Keep offset during promotion
+                  y: 0,
+                  scale: [1, animationConfig.promotionScale, 1], // Scale up then back
+                }
+              : { 
+                  opacity: 1, 
+                  x: activeParentOffset, // Offset to clear anchored items
+                  y: 0,
+                  scale: 1,
+                }
           
           return (
             <motion.div
               key={item.id}
               layout={!isAnchored ? 'position' : false}
-              className={isAnchored ? 'absolute top-0 inline-flex' : 'inline-flex'}
+              className={shouldUseAbsolute ? 'absolute top-0 left-0 inline-flex' : 'inline-flex'}
               style={{
-                left: isAnchored ? itemOffset : undefined,
-                marginLeft: shouldUseMargin ? itemOffset : undefined,
-                zIndex: isAnchored ? getAnchoredZIndex(level + 1) : 100,
+                zIndex: isAnchored ? getAnchoredZIndex(anchoredDepth) : 100,
               }}
-              initial={shouldReduceMotion ? undefined : { opacity: 0, ...entryOffset }}
-              animate={{ opacity: 1, x: 0, y: 0 }}
+              initial={shouldReduceMotion ? undefined : { opacity: 0, ...entryOffset, scale: 0.95 }}
+              animate={animateState}
               exit={shouldReduceMotion ? undefined : getExitAnimation(animationConfig)}
               transition={{
-                delay: level > 0 ? getChildDelay(index, animationConfig) : 0,
+                delay: animationDelay,
                 type: 'spring',
                 stiffness: animationConfig.stiffness,
                 damping: animationConfig.damping,
+                // Promotion animation uses specific timing
+                scale: isPromoting ? {
+                  duration: animationConfig.promotionDuration,
+                  times: [0, 0.5, 1],
+                  ease: 'easeInOut',
+                } : undefined,
               }}
+              data-button-expected-offset={shouldUseAbsolute ? anchoredOffset : 0}
             >
               <AnimatedItem
                 item={item}
@@ -166,36 +268,26 @@ export function StackLevel({
         })}
       </AnimatePresence>
       
-      {/* Children of Active Item */}
-      {activeItem?.children && activeItem.children.length > 0 && (
-        <LevelContext.Provider
-          value={{
-            level: level + 1,
-            parentId: activeItem.id,
-            isParentAnchored: hasActiveChild,
-          }}
-        >
-          {/* For deeper levels, wrap children in a positioned container */}
-          {level > 0 ? (
-            <div 
-              className="inline-flex gap-2"
-              style={{
-                position: 'absolute',
-                left: getActiveOffset(),
-                top: 0,
-              }}
-            >
-              <StackLevel
-                items={activeItem.children}
-                parentLevelIndices={[
-                  ...parentLevelIndices,
-                  anchorItem
-                    ? regularItems.findIndex((i) => i.id === activeId) + 1
-                    : regularItems.findIndex((i) => i.id === activeId),
-                ]}
-              />
-            </div>
-          ) : (
+      {/* Children of Active Item - INLINE FLEX (flow naturally to the right) */}
+      {activeItem?.children && activeItem.children.length > 0 && (() => {
+        // Calculate anchor count for children
+        // We need to count all the anchors that will be visible:
+        // 1. All previous anchors (passed down via anchorCount)
+        // 2. The root anchor (All) if we're at level 0 and something is selected
+        // 3. The current active item if it's becoming anchored (has active child)
+        const rootAnchorCount = level === 0 && activeId !== ROOT_ANCHOR_ID ? 1 : 0
+        const currentItemBecomesAnchor = hasActiveChild && activeItem.children && activeItem.children.length > 0 ? 1 : 0
+        const childAnchorCount = anchorCount + rootAnchorCount + currentItemBecomesAnchor
+        
+        return (
+          <LevelContext.Provider
+            value={{
+              level: level + 1,
+              parentId: activeItem.id,
+              isParentAnchored: hasActiveChild,
+              anchorCount: childAnchorCount,
+            }}
+          >
             <StackLevel
               items={activeItem.children}
               parentLevelIndices={[
@@ -205,9 +297,9 @@ export function StackLevel({
                   : regularItems.findIndex((i) => i.id === activeId),
               ]}
             />
-          )}
-        </LevelContext.Provider>
-      )}
+          </LevelContext.Provider>
+        )
+      })()}
     </>
   )
 }

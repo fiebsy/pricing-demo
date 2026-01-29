@@ -1,0 +1,24 @@
+{
+  "timestamp": "2026-01-29T16:34:04.133Z",
+  "environment": {
+    "node": "v20.9.0",
+    "platform": "darwin",
+    "cwd": "/Users/derickfiebiger/Payva-Repos/other-repos/demo-repo"
+  },
+  "instructions": {
+    "console_commands": [
+      "window.exportPositionLog() - Export position data",
+      "window.clearPositionLog() - Clear stored logs"
+    ],
+    "expected_behavior": {
+      "anchoring": "Each anchored button should stack at peekOffset intervals (8px by default)",
+      "children": "Children should appear after all anchored items",
+      "formula": "childOffset = anchoredCount * peekOffset"
+    }
+  },
+  "files_to_check": [
+    "src/components/ui/prod/base/button-animation-v2/core/position-calculator.ts",
+    "src/components/ui/prod/base/button-animation-v2/components/AnimatedButton.tsx",
+    "src/components/ui/prod/base/button-animation-v2/components/EnhancedStackLevel.tsx"
+  ]
+}

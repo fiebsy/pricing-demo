@@ -155,6 +155,18 @@ export function StatSlide({
               </div>
             </div>
           </div>
+
+          {/* Supporting text below the two-column layout */}
+          {slide.statConfig?.supporting && (
+            <motion.p
+              className={`${slideTypography.supporting} mt-12 text-center max-w-3xl`}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: contentDelays.stat + stats.length * 0.1 + 0.1 }}
+            >
+              {slide.statConfig.supporting}
+            </motion.p>
+          )}
         </div>
       </SlideLayout>
     )

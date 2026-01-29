@@ -189,6 +189,8 @@ export interface LevelContextValue {
   parentId: string | null
   /** Whether this level's parent is anchored */
   isParentAnchored: boolean
+  /** Number of anchored ancestors (for positioning) */
+  anchoredCount?: number
 }
 
 // ============================================================================

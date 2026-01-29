@@ -54,7 +54,7 @@ export const slideSpacing = {
     /** Compact stat card padding (stacked layout) */
     statCompact: 'px-6 py-5',
     /** Chart card padding */
-    chart: 'px-12 pt-14 pb-6',
+    chart: 'p-7',
     /** Logo card padding */
     logo: 'px-6 py-10',
     /** Large centered card padding (single stat) */

@@ -37,7 +37,6 @@ export const ALL_SLIDES_CONFIG: PitchSlide[] = [
       bullets: [
         { bold: 'Creator-first', text: 'solutions don\'t exist' },
         { bold: 'Payment flexibility', text: 'customers desperately need' },
-        { bold: 'Expensive courses', text: 'need payment plans' },
         { bold: 'Cash flow gaps', text: 'kill creator businesses' },
         { bold: 'Hidden churn', text: 'destroys recurring revenue' },
       ],
@@ -60,7 +59,7 @@ export const ALL_SLIDES_CONFIG: PitchSlide[] = [
         { bold: 'Purpose-built BNPL', text: 'for digital goods' },
         { bold: 'Instant approval', text: 'with seamless checkout' },
         { bold: 'Upfront payouts:', text: 'creators paid immediately' },
-        { bold: 'Performance insights', text: 'optimize retention, reduce churn' },
+        { bold: 'Lifecycle intelligence', text: 'captures post-purchase customer signals' },
       ],
       supporting: 'Payva is rebuilding financing infrastructure for digital goods — empowering creators to sell more and consumers to buy with confidence.',
     },
@@ -102,10 +101,11 @@ export const ALL_SLIDES_CONFIG: PitchSlide[] = [
     statConfig: {
       stats: [
         { value: '3→36', label: 'Team growth in 2 years' },
-        { value: '50→500', label: 'Creator growth' },
-        { value: '$2M→$85M', label: 'in origination in 24 months' },
+        { value: '50→500', label: 'Creator growth in 2 years' },
+        { value: '$2M→$85M', label: 'in origination in 2 years' },
       ],
       layout: 'stacked',
+      supporting: 'Traction to date reflects pure inbound demand, achieved without sales teams, marketing campaigns, or heavy tooling.',
     },
   },
 
@@ -124,10 +124,10 @@ export const ALL_SLIDES_CONFIG: PitchSlide[] = [
       data: [
         { label: '2024', value: 19, displayValue: '19M' },
         { label: '2025', value: 64, displayValue: '64M' },
-        { label: '2026', value: 200, displayValue: '200M' },
-        { label: '2027', value: 500, displayValue: '500M' },
+        { label: '2026', value: 150, displayValue: '150M' },
+        { label: '2027', value: 400, displayValue: '400M' },
       ],
-      contextText: 'Year-over-year growth',
+      contextText: 'Projected year-over-year growth through 2027',
     },
   },
 
@@ -210,6 +210,16 @@ export const ALL_SLIDES_CONFIG: PitchSlide[] = [
           role: 'CTO',
           imageSrc: '/payva-deck/jay-photo-bw.png'
         },
+        { 
+          name: 'Neil Fleischman', 
+          role: 'Chief of Staff',
+          imageSrc: '/payva-deck/neil-photo.png'
+        },
+        { 
+          name: 'Gerard Adams', 
+          role: 'Advisor',
+          imageSrc: '/payva-deck/gerard-photo.png'
+        },
       ],
     },
   },
@@ -222,16 +232,17 @@ export const ALL_SLIDES_CONFIG: PitchSlide[] = [
     type: 'chart',
     label: 'Financials',
     variant: 'light',
-    title: 'Financial projections',
-    subtitle: '3-year revenue outlook',
+    title: 'Financial highlights',
+    subtitle: 'Revenue & net income',
     chartConfig: {
       chartType: 'bar',
       data: [
-        { label: '2024', value: 2, displayValue: '$2M' },
+        { label: '2024', value: 1.9, displayValue: '$1.9M' },
         { label: '2025', value: 5, displayValue: '$5M' },
-        { label: '2026', value: 20, displayValue: '$20M' },
+        { label: '2026', value: 30, displayValue: '$30M' },
+        { label: '2027', value: 75, displayValue: '$75M' },
       ],
-      contextText: 'Revenue projections based on current growth trajectory',
+      contextText: 'Projected revenue growth through 2027',
     },
   },
 

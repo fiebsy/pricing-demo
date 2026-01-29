@@ -81,7 +81,7 @@ export function AnimatedButton({
     collapseToLevel,
   } = useStackContext()
   
-  const { level } = useLevelContext()
+  const { level, anchoredCount: contextAnchoredCount } = useLevelContext()
   const shouldReduceMotion = useReducedMotion() ?? false
   
   // Refs
@@ -206,6 +206,10 @@ export function AnimatedButton({
   // POSITION & STYLING
   // ============================================================================
   
+  // Calculate anchor context - use context value if available, otherwise calculate
+  const anchoredCount = contextAnchoredCount ?? Math.max(0, activePath.length - 1)
+  const anchorIndex = activePath.indexOf(item.id)
+  
   const layoutContext: LayoutContext = {
     state: currentState,
     level,
@@ -214,6 +218,8 @@ export function AnimatedButton({
     styleConfig,
     siblingIndex: index,
     totalSiblings: siblingIds.length,
+    anchorIndex: anchorIndex >= 0 ? anchorIndex : undefined,
+    anchoredCount,
   }
   
   const positionConfig = positionCalculator.calculatePosition(item.id, layoutContext)
@@ -279,23 +285,36 @@ export function AnimatedButton({
   }
   
   const getInitialVariant = () => {
-    if (shouldReduceMotion) return {}
+    if (shouldReduceMotion) return { opacity: 1 }
     
-    switch (currentState) {
-      case ButtonState.CHILD_ENTERING:
-        return {
-          opacity: 0,
-          y: animationConfig.entryDistance ?? 8,
-          scale: 0.95,
-        }
-      case ButtonState.CHILD_ACTIVATING:
-        // Start from current child position
-        return {
-          scale: 1,
-          opacity: 1,
-        }
-      default:
-        return {}
+    // When a child becomes active parent, start with a "promotion" effect
+    const wasChild = previousStateRef.current === ButtonState.CHILD_IDLE ||
+                     previousStateRef.current === ButtonState.CHILD_ACTIVATING
+    
+    if (wasChild && (currentState === ButtonState.PARENT_ACTIVE || 
+                     currentState === ButtonState.CHILD_ACTIVATING)) {
+      return {
+        opacity: 0.8,
+        scale: 0.95,
+        y: 0,
+      }
+    }
+    
+    // Children entering fade up
+    if (currentState === ButtonState.CHILD_ENTERING || 
+        currentState === ButtonState.CHILD_IDLE) {
+      return {
+        opacity: 0,
+        y: animationConfig.entryDistance ?? 8,
+        scale: 0.95,
+      }
+    }
+    
+    // Default: start visible
+    return {
+      opacity: 1,
+      y: 0,
+      scale: 1,
     }
   }
   
@@ -304,27 +323,97 @@ export function AnimatedButton({
       return { opacity }
     }
     
+    // Base spring transition for smooth animations
+    const springTransition = {
+      type: 'spring' as const,
+      stiffness: animationConfig.stiffness ?? 500,
+      damping: animationConfig.damping ?? 35,
+    }
+    
+    // Fast spring for snappy feedback
+    const fastSpring = {
+      type: 'spring' as const,
+      stiffness: 600,
+      damping: 30,
+    }
+    
+    // Check if this was a child promotion
+    const wasChild = previousStateRef.current === ButtonState.CHILD_IDLE ||
+                     previousStateRef.current === ButtonState.CHILD_ACTIVATING
+    
     switch (currentState) {
       case ButtonState.CHILD_ACTIVATING:
-        // Animate to parent position with scale effect
+        // Child is becoming active - scale up with pulse
         return {
-          scale: [1, 1.05, 1],
+          scale: [0.95, animationConfig.terminalScale ?? 1.08, 1],
           opacity: 1,
-          x: positionConfig.target.x - positionConfig.current.x,
-          y: positionConfig.target.y - positionConfig.current.y,
+          y: 0,
+          transition: {
+            scale: {
+              duration: animationConfig.terminalDuration ?? 0.35,
+              times: [0, 0.5, 1],
+              ease: [0.34, 1.56, 0.64, 1], // Custom bounce ease
+            },
+            opacity: { duration: 0.15 },
+            default: fastSpring,
+          },
         }
+        
+      case ButtonState.PARENT_ACTIVE:
+        // Active parent - if promoted from child, animate with emphasis
+        if (wasChild) {
+          return {
+            scale: [0.95, 1.03, 1],
+            opacity: 1,
+            x: 0,
+            y: 0,
+            transition: {
+              scale: {
+                duration: 0.3,
+                times: [0, 0.6, 1],
+                ease: 'easeOut',
+              },
+              opacity: { duration: 0.15 },
+              default: fastSpring,
+            },
+          }
+        }
+        return {
+          scale: 1,
+          opacity: 1,
+          x: 0,
+          y: 0,
+          transition: springTransition,
+        }
+        
       case ButtonState.PARENT_ANCHORED:
       case ButtonState.PARENT_ANCHORING:
+        // Anchored parent - slide behind and fade
         return {
-          opacity,
+          opacity: styleConfig.anchoredOpacity ?? 0.6,
           x: positionConfig.offset.x,
+          scale: 1,
+          y: 0,
+          transition: springTransition,
         }
+        
+      case ButtonState.CHILD_IDLE:
+      case ButtonState.CHILD_ENTERING:
+        // Child items - visible and in position
+        return {
+          opacity: 1,
+          scale: 1,
+          y: 0,
+          transition: springTransition,
+        }
+        
       default:
         return {
           opacity,
           x: 0,
           y: 0,
           scale: 1,
+          transition: springTransition,
         }
     }
   }
@@ -334,10 +423,15 @@ export function AnimatedButton({
       return { opacity: 0 }
     }
     
+    // Fast exit for snappy transitions
     return {
       opacity: 0,
-      scale: 0.95,
-      y: -(animationConfig.entryDistance ?? 8),
+      scale: 0.9,
+      y: -(animationConfig.entryDistance ?? 6),
+      transition: {
+        duration: 0.15,
+        ease: 'easeOut',
+      },
     }
   }
   
@@ -379,39 +473,39 @@ export function AnimatedButton({
         transition={variants.transition}
         {...debugInfo}
       >
-        <Button
-          variant={variant}
-          size={styleConfig.size}
-          roundness={styleConfig.roundness}
-          className={cn(
-            heightClass,
-            positionConfig.isAbsolute && 'shadow-[4px_0_8px_-2px_rgba(0,0,0,0.3)]',
-            isAnimating && 'transition-all'
-          )}
-          onClick={handleClick}
-          disabled={isAnimating}
-        >
-          {numberLabel && (
-            <span className="mr-1.5 font-mono text-xs opacity-50">{numberLabel}</span>
-          )}
-          <span className="select-none">{item.label}</span>
-          {showRemove && (
-            <span
-              role="button"
-              tabIndex={0}
-              onClick={handleRemove}
-              className={cn(
-                'ml-2 rounded-full p-0.5',
-                'opacity-60 transition-opacity',
-                'hover:opacity-100',
-                'motion-reduce:transition-none'
-              )}
-              aria-label={`Remove ${item.label}`}
-            >
-              <HugeIcon icon={Cancel01Icon} size={14} strokeWidth={2} />
-            </span>
-          )}
-        </Button>
+      <Button
+        variant={variant}
+        size={styleConfig.size}
+        roundness={styleConfig.roundness}
+        className={cn(
+          heightClass,
+          positionConfig.isAbsolute && 'shadow-[4px_0_8px_-2px_rgba(0,0,0,0.3)]',
+          isAnimating && 'transition-all'
+        )}
+        onClick={handleClick}
+        disabled={isAnimating}
+      >
+        {numberLabel && (
+          <span className="mr-1.5 font-mono text-xs opacity-50">{numberLabel}</span>
+        )}
+        <span className="select-none">{item.label}</span>
+        {showRemove && (
+          <span
+            role="button"
+            tabIndex={0}
+            onClick={handleRemove}
+            className={cn(
+              'ml-2 rounded-full p-0.5',
+              'opacity-60 transition-opacity',
+              'hover:opacity-100',
+              'motion-reduce:transition-none'
+            )}
+            aria-label={`Remove ${item.label}`}
+          >
+            <HugeIcon icon={Cancel01Icon} size={14} strokeWidth={2} />
+          </span>
+        )}
+      </Button>
       </motion.div>
     </AnimatePresence>
   )

@@ -1,0 +1,284 @@
+/**
+ * PDF Export Styles V2 - Mobile-Compatible
+ *
+ * Enhanced version with fallbacks for mobile rendering
+ * - Detects and handles mobile vs desktop export modes
+ * - Provides CSS fallbacks for unsupported features
+ * - Maintains visual fidelity while ensuring compatibility
+ */
+
+/* ============================================
+   SCREEN STYLES (Normal viewing)
+   ============================================ */
+
+@media screen {
+  .print-only,
+  .print-view {
+    display: none !important;
+  }
+}
+
+/* ============================================
+   PRINT STYLES (PDF Export)
+   ============================================ */
+
+@media print {
+  /* Page setup - landscape format */
+  @page {
+    size: landscape;
+    margin: 0;
+  }
+
+  /* Reset everything */
+  * {
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Hide all screen-only elements */
+  .print-hidden,
+  .screen-view,
+  nav,
+  [role="switch"],
+  [role="tablist"],
+  [data-mcp-inspector],
+  button[class*="fixed"][class*="bottom"],
+  div[class*="fixed"][class*="bottom"],
+  [class*="fixed"][class*="left-4"],
+  [class*="z-[9999]"] {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+  }
+
+  /* Show print view */
+  .print-view {
+    display: block !important;
+  }
+
+  /* Force light mode */
+  html,
+  body {
+    background: white !important;
+    color-scheme: light !important;
+  }
+
+  /* Remove dark mode class effects */
+  html.dark-mode,
+  html.dark-mode body {
+    background: white !important;
+  }
+
+  /* Disable animations */
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  /* Force color printing */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  /* Override dark variant backgrounds */
+  [data-variant="dark"],
+  [data-variant="bordered"] {
+    background: transparent !important;
+  }
+}
+
+/* ============================================
+   V2 EXPORT MODE STYLES
+   ============================================ */
+
+/* Base V2 export container */
+.pdf-export-mode-v2 {
+  /* Base settings for all V2 exports */
+  --pdf-v2-text-scale: 1vw;
+  --pdf-v2-border-radius: 1rem;
+}
+
+/* ============================================
+   MOBILE EXPORT FALLBACKS
+   ============================================ */
+
+.pdf-export-mode-v2.mobile-export {
+  /* Disable experimental CSS features */
+  * {
+    /* Disable corner-shape (not supported on mobile WebKit) */
+    corner-shape: unset !important;
+    corner-shape: initial !important;
+  }
+  
+  /* Simplified corner radius for squircle elements */
+  .corner-squircle {
+    border-radius: var(--pdf-v2-border-radius) !important;
+    corner-shape: unset !important;
+  }
+  
+  /* Convert gradients to solid colors or simple gradients */
+  .bg-gradient-to-br {
+    /* Fallback to solid color */
+    background: var(--color-tertiary, #f5f5f7) !important;
+  }
+  
+  .bg-gradient-to-r {
+    /* Simple linear gradient fallback */
+    background: linear-gradient(90deg, 
+      var(--color-primary, #000) 0%, 
+      var(--color-secondary, #666) 100%) !important;
+  }
+  
+  /* Simplified shine effects */
+  .shine-0,
+  .shine-1,
+  .shine-2,
+  .shine-3,
+  .shine-brand {
+    /* Replace complex multi-layer shadows with simple border */
+    box-shadow: inset 0 0 0 1px rgba(100, 100, 110, 0.15) !important;
+    border: 1px solid rgba(100, 100, 110, 0.1) !important;
+  }
+  
+  /* Fallback for card styling */
+  [class*="rounded-"][class*="corner-squircle"] {
+    border-radius: 1rem !important;
+  }
+  
+  /* Ensure text remains crisp */
+  * {
+    -webkit-font-smoothing: antialiased !important;
+    text-rendering: optimizeLegibility !important;
+  }
+  
+  /* Optimize image rendering for mobile */
+  img {
+    image-rendering: auto !important;
+    transform: translateZ(0) !important;
+  }
+  
+  svg {
+    shape-rendering: crispEdges !important;
+  }
+  
+  /* Simplified shadows for all elements */
+  [class*="shadow-"] {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12) !important;
+  }
+}
+
+/* ============================================
+   DESKTOP EXPORT - FULL EFFECTS
+   ============================================ */
+
+.pdf-export-mode-v2.desktop-export {
+  /* Enable all visual effects for desktop */
+  
+  /* Ensure corner-shape works if supported */
+  @supports (corner-shape: squircle) {
+    .corner-squircle {
+      corner-shape: squircle !important;
+    }
+  }
+  
+  /* Full gradient support */
+  .bg-gradient-to-br {
+    background: linear-gradient(135deg, 
+      var(--color-tertiary, #f5f5f7) 0%, 
+      var(--color-quaternary, #fafafa) 100%) !important;
+  }
+  
+  /* Full shine effects with multiple shadows */
+  .shine-1 {
+    box-shadow: var(--shine-1) !important;
+  }
+  
+  .shine-2 {
+    box-shadow: var(--shine-2) !important;
+  }
+  
+  .shine-3 {
+    box-shadow: var(--shine-3) !important;
+  }
+  
+  /* High quality rendering */
+  * {
+    image-rendering: -webkit-optimize-contrast !important;
+    -webkit-font-smoothing: antialiased !important;
+    text-rendering: geometricPrecision !important;
+  }
+  
+  img {
+    image-rendering: high-quality !important;
+    transform: translateZ(0) !important;
+    backface-visibility: hidden !important;
+  }
+  
+  svg {
+    shape-rendering: geometricPrecision !important;
+  }
+}
+
+/* ============================================
+   COMMON V2 STYLES
+   ============================================ */
+
+.pdf-export-mode-v2 {
+  /* Typography scaling for PDF */
+  font-size: calc(16px * var(--pdf-v2-text-scale, 1));
+  
+  /* Ensure proper page breaks */
+  .slide-page {
+    page-break-after: always;
+    page-break-inside: avoid;
+    break-after: page;
+    break-inside: avoid;
+  }
+  
+  /* Last slide shouldn't have page break */
+  .slide-page:last-child {
+    page-break-after: auto;
+    break-after: auto;
+  }
+  
+  /* Ensure content doesn't overflow */
+  .slide-frame {
+    overflow: hidden !important;
+  }
+  
+  /* Print-safe colors */
+  --print-black: #000000;
+  --print-white: #ffffff;
+  --print-gray-50: #f9fafb;
+  --print-gray-100: #f3f4f6;
+  --print-gray-200: #e5e7eb;
+  --print-gray-300: #d1d5db;
+  --print-gray-400: #9ca3af;
+  --print-gray-500: #6b7280;
+  --print-gray-600: #4b5563;
+  --print-gray-700: #374151;
+  --print-gray-800: #1f2937;
+  --print-gray-900: #111827;
+}
+
+/* ============================================
+   DEBUG MODE ENHANCEMENTS
+   ============================================ */
+
+.pdf-export-mode-v2 .debug-mode-indicator {
+  /* Make debug indicator print-visible in debug mode */
+  @media print {
+    display: block !important;
+    opacity: 1 !important;
+  }
+}
+
+/* Print mode class - applied via JavaScript during export */
+body.print-mode-v2 {
+  /* Marker class for V2 export state */
+  --export-version: 2;
+}

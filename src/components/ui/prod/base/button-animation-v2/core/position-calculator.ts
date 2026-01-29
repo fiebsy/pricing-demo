@@ -68,6 +68,10 @@ export interface LayoutContext {
   siblingIndex?: number
   /** Total siblings */
   totalSiblings?: number
+  /** Position in anchor stack (for anchored items) */
+  anchorIndex?: number
+  /** Total number of anchored ancestors */
+  anchoredCount?: number
 }
 
 // ============================================================================
@@ -153,38 +157,58 @@ export class PositionCalculator {
   
   /**
    * Calculates the peek-behind offset for anchored items.
+   * Fixed: Now correctly uses position in active path for progressive stacking.
    */
   private calculateAnchoredOffset(context: LayoutContext): Position {
-    const { depth, activePathLength, styleConfig } = context
+    const { styleConfig } = context
     const { offsetTarget, peekOffset } = styleConfig
     
+    // Get the anchored item's position in the anchor stack
+    // This should be passed in the context, but we'll calculate it based on level
+    const anchorStackPosition = context.anchorIndex ?? context.level
+    
     if (offsetTarget === 'incoming') {
-      // Layer anchored items by depth (deeper = further right)
+      // Progressive stacking: each anchored item moves further right
+      // The first anchored item (All button) is at peekOffset * 1
+      // The second anchored item is at peekOffset * 2, etc.
       return {
-        x: peekOffset * depth,
+        x: peekOffset * (anchorStackPosition + 1),
         y: 0,
       }
     }
     
-    // Original behavior: offset by levels from active
-    const levelsFromActive = activePathLength - depth
+    // Original behavior: anchored items shift left (negative offset)
+    // Each level deeper gets a more negative offset
     return {
-      x: peekOffset * levelsFromActive,
+      x: peekOffset * (anchorStackPosition + 1),
       y: 0,
     }
   }
   
   /**
    * Calculates offset for child items.
+   * Fixed: Now correctly positions children after all anchored ancestors.
    */
   private calculateChildOffset(context: LayoutContext): Position {
-    const { styleConfig, siblingIndex = 0 } = context
+    const { styleConfig, anchoredCount = 0, siblingIndex = 0 } = context
+    const { offsetTarget, peekOffset } = styleConfig
     
-    // Apply child gap as margin
+    // First child should be positioned after all anchored items
+    // Only the first child needs absolute positioning with offset
+    const isFirstChild = siblingIndex === 0
+    
+    if (offsetTarget === 'incoming' && isFirstChild && context.level > 0) {
+      // Position after all anchored ancestors
+      // anchoredCount tells us how many items are in the anchor stack
+      return {
+        x: peekOffset * anchoredCount,
+        y: 0,
+      }
+    }
+    
+    // Other children flow naturally (no offset needed)
     return {
-      x: styleConfig.offsetTarget === 'incoming' 
-        ? styleConfig.peekOffset * (context.depth + 1)
-        : 0,
+      x: 0,
       y: 0,
     }
   }

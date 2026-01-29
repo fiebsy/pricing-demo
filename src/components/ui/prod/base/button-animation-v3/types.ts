@@ -215,4 +215,6 @@ export interface LevelContextValue {
   parentId: string | null
   /** Whether parent is anchored */
   isParentAnchored: boolean
+  /** Total count of anchored items above this level (for offset calculation) */
+  anchorCount: number
 }

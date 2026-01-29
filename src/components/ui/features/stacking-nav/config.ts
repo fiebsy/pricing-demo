@@ -1,0 +1,151 @@
+/**
+ * StackingNav - Configuration
+ *
+ * Default values and constants for the stacking navigation component.
+ *
+ * @module features/stacking-nav
+ */
+
+import type { AnimationConfig, StyleConfig, StackItem } from './types'
+
+// =============================================================================
+// DEFAULT CONFIGURATION
+// =============================================================================
+
+/**
+ * Default animation configuration.
+ * Tuned for smooth, responsive interactions.
+ */
+export const DEFAULT_ANIMATION_CONFIG: AnimationConfig = {
+  // Animation type - tween by default for smoother feel
+  type: 'tween',
+  
+  // Spring settings - used when type = 'spring'
+  stiffness: 500,
+  damping: 30,
+  
+  // Tween settings - duration-based easing
+  duration: 0.15,
+  ease: 'easeOut',
+  
+  // Promotion animation - disabled by default (scale = 1)
+  promotionDuration: 0.1,
+  promotionScale: 1,
+  
+  // Child animations - staggered entry with diagonal slide
+  stagger: 0.045,
+  entryOffsetX: 12,
+  entryOffsetY: 10,
+  childEntryDelay: 0,
+  entryScale: 0.95,
+  
+  // Exit animation
+  exitDuration: 0.15,
+  exitScale: 0.95,
+  
+  // Leaf node behavior
+  skipLeafAnimation: false,
+}
+
+/**
+ * Default style configuration.
+ */
+export const DEFAULT_STYLE_CONFIG: StyleConfig = {
+  peekOffset: 8,
+  anchoredOpacity: 1,
+  gap: 'md',
+  expandedVariant: 'shine',
+  childVariant: 'tertiary',
+  anchoredVariant: 'secondary',
+}
+
+/**
+ * Default demo items for showcasing the component.
+ */
+export const DEFAULT_STACK_ITEMS: StackItem[] = [
+  { id: 'all', label: 'All' },
+  {
+    id: 'design',
+    label: 'Design',
+    children: [
+      { id: 'figma', label: 'Figma' },
+      { id: 'sketch', label: 'Sketch' },
+    ],
+  },
+  {
+    id: 'develop',
+    label: 'Develop',
+    children: [
+      { id: 'react', label: 'React' },
+      { id: 'vue', label: 'Vue' },
+    ],
+  },
+]
+
+// =============================================================================
+// CONSTANTS
+// =============================================================================
+
+/**
+ * Root anchor ID (typically an "All" or "Clear" button).
+ */
+export const ROOT_ANCHOR_ID = 'all'
+
+/**
+ * Z-index values for proper layering.
+ */
+export const Z_INDEX = {
+  BASE: 1,
+  ANCHORED_BASE: 10,
+  ANCHORED_INCREMENT: 10,
+  ACTIVE: 100,
+  PROMOTING: 150,
+} as const
+
+/**
+ * Gap classes for Tailwind.
+ */
+export const GAP_CLASSES: Record<'sm' | 'md' | 'lg', string> = {
+  sm: 'gap-2',
+  md: 'gap-3',
+  lg: 'gap-4',
+}
+
+/**
+ * Animation spring presets for different feels.
+ */
+export const SPRING_PRESETS = {
+  /** Smooth and controlled - default */
+  smooth: { stiffness: 500, damping: 30 },
+  /** Snappy and responsive */
+  snappy: { stiffness: 700, damping: 35 },
+  /** Soft and gentle */
+  soft: { stiffness: 300, damping: 25 },
+} as const
+
+// =============================================================================
+// HELPERS
+// =============================================================================
+
+/**
+ * Get z-index for an anchored item based on depth.
+ * Deeper items have higher z-index to appear on top of the stack.
+ */
+export function getAnchoredZIndex(depth: number): number {
+  return Z_INDEX.ANCHORED_BASE + depth * Z_INDEX.ANCHORED_INCREMENT
+}
+
+/**
+ * Get number label for display (e.g., "1.A.2").
+ */
+export function getNumberLabel(indices: number[]): string {
+  const LETTERS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
+  
+  return indices
+    .map((idx, level) => {
+      if (level === 0) return idx.toString()
+      if (level === 1) return LETTERS[idx] || idx.toString()
+      return idx.toString()
+    })
+    .join('.')
+}

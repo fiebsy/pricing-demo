@@ -10,6 +10,7 @@ export type {
   // Control types
   Control,
   SliderControl,
+  InlineSliderControl,
   SelectControl,
   ColorSelectControl,
   ToggleControl,
@@ -38,6 +39,7 @@ export { PanelProvider, usePanelContext } from './context'
 
 // Sub-components for composition
 export { ScrollableTabList, TabTrigger, MinimizeButton } from './components/tab-navigation'
+export { SidebarNavigation } from './components/sidebar-navigation'
 export { SectionRenderer, ActiveSectionContent } from './components/section-renderer'
 export { ActionBar } from './components/action-bar'
 export { MinimizedHeader } from './components/minimized-header'
@@ -54,4 +56,6 @@ export {
   ColorControl as ColorControlComponent,
   TextControl as TextControlComponent,
   ControlRenderer,
+  InlineSlider,
 } from './components/controls'
+export type { InlineSliderProps } from './components/controls'

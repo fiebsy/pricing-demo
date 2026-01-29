@@ -41,6 +41,7 @@ import {
   PrintView,
 } from './components'
 import { UniversalSlide } from './components/universal-slide'
+import { ExportButtonV2 } from './components/export-button-v2'
 
 // Print styles
 import './styles/print.css'
@@ -141,7 +142,10 @@ function PitchDeckContent() {
           {/* Top Controls - Theme Toggle & Export Button */}
           <div className="print-hidden absolute top-6 right-6 z-10 flex items-center gap-3">
             <ThemeToggle />
-            <ExportButton />
+            <div className="flex flex-col gap-2">
+              <ExportButton />
+              <ExportButtonV2 showDeviceIndicator={true} />
+            </div>
           </div>
 
           {/* Main Content Area */}

@@ -9,6 +9,7 @@
  * - @/components/ui/features/question-command-menu
  * - @/components/ui/features/expandable-input
  * - @/components/ui/features/edit-questions
+ * - @/components/ui/features/stacking-nav
  */
 
 // Display Card
@@ -25,6 +26,9 @@ export * from './metric-card'
 
 // Order Details
 export * from './order-details'
+
+// Stacking Nav
+export * from './stacking-nav'
 
 // Success Toast
 export * from './success-toast'

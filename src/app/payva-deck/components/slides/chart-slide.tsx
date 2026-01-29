@@ -45,6 +45,11 @@ export function ChartSlide({
             <div className="flex items-end justify-center gap-12 h-56">
               {data.map((item, index) => {
                 const heightPercent = (item.value / maxValue) * 100
+                // Adjust height to account for top padding
+                const maxBarHeight = 180
+                const chartTopPadding = 26
+                const effectiveHeight = maxBarHeight - chartTopPadding
+                const barHeight = (heightPercent / 100) * effectiveHeight
 
                 return (
                   <motion.div
@@ -58,9 +63,9 @@ export function ChartSlide({
                       {item.displayValue ?? item.value}
                     </span>
                     <motion.div
-                      className="w-20 rounded-lg corner-squircle bg-secondary shine-1"
+                      className="w-20 rounded-lg corner-squircle bg-gray-300"
                       initial={{ height: 0 }}
-                      animate={{ height: `${heightPercent * 1.8}px` }}
+                      animate={{ height: `${barHeight}px` }}
                       transition={{
                         delay: contentDelays.stat + 0.2 + index * 0.15,
                         duration: 0.5,

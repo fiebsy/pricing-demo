@@ -46,7 +46,13 @@ export function ActionBar<T>({
 
   const hasPresets = presetConfig && presetConfig.presets.length > 0
   const showCopyButton = presetConfig?.showCopyButton !== false && getConfigForCopy
-  const hasContent = hasPresets || showCopyButton || (showReset && onReset)
+  const hasContent = true // Always show action bar
+  
+  // Build presets list - always include Default
+  const presets = hasPresets 
+    ? presetConfig.presets 
+    : [{ id: 'default', name: 'Default' }]
+  const activePresetId = presetConfig?.activePresetId || 'default'
 
   const handleCopyConfig = useCallback(async () => {
     if (!getConfigForCopy) return
@@ -76,31 +82,29 @@ export function ActionBar<T>({
   return (
     <div className="bg-primary border-primary shrink-0 rounded-b-xl border p-2">
       <div className="flex items-center gap-2">
-        {/* Preset Selector */}
-        {hasPresets && (
-          <div className="min-w-0 flex-1">
-            <Select
-              value={presetConfig.activePresetId || undefined}
-              onValueChange={handlePresetSelect}
-            >
-              <SelectTrigger className="h-8 w-full px-2 py-1 font-mono text-xs">
-                <SelectValue placeholder="Preset..." />
-              </SelectTrigger>
-              <SelectContent className="max-w-[280px]">
-                {presetConfig.presets.map((preset) => (
-                  <SelectItem key={preset.id} value={preset.id} className="font-mono text-xs">
-                    {preset.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        )}
+        {/* Preset Selector - Always shown */}
+        <div className="min-w-0 flex-1">
+          <Select
+            value={activePresetId}
+            onValueChange={handlePresetSelect}
+          >
+            <SelectTrigger className="h-8 w-full px-2 py-1 text-xs">
+              <SelectValue placeholder="Default" />
+            </SelectTrigger>
+            <SelectContent className="max-w-[280px]">
+              {presets.map((preset) => (
+                <SelectItem key={preset.id} value={preset.id} className="text-xs">
+                  {preset.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
         {/* Copy Button */}
         {showCopyButton && (
           <Button
-            size="sm"
+            size="xs"
             variant={copyStatus === 'copied' ? 'primary' : 'secondary'}
             onClick={handleCopyConfig}
             className="shrink-0"
@@ -110,7 +114,7 @@ export function ActionBar<T>({
 
         {/* Reset Button */}
         {showReset && onReset && (
-          <Button size="sm" variant="tertiary" onClick={onReset} className="shrink-0">
+          <Button size="xs" variant="tertiary" onClick={onReset} className="shrink-0">
             {resetLabel}
           </Button>
         )}

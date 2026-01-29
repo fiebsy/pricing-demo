@@ -105,7 +105,7 @@ export function LogoGridSlide({
 
         {supporting && (
           <motion.p
-            className={`text-lg text-secondary text-center ${slideSpacing.margin.supportingTop}`}
+            className={`${slideTypography.supporting} text-center mt-8`}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: contentDelays.stat + logos.length * 0.1 + 0.1 }}

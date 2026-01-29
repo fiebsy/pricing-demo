@@ -138,7 +138,7 @@ export function TabTrigger({ label, isSelected, isScrollable }: TabTriggerProps)
   return (
     <span
       className={cx(
-        'block rounded px-2 py-1.5 font-mono font-medium tracking-wider whitespace-nowrap uppercase',
+        'block rounded px-2 py-1.5 font-medium whitespace-nowrap',
         'transition-colors motion-reduce:transition-none',
         isScrollable ? 'shrink-0 text-[9px]' : 'text-center text-[10px]',
         isSelected

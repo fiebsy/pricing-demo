@@ -1,0 +1,291 @@
+/**
+ * PDF Typography V2 - Enhanced for Mobile Compatibility
+ *
+ * Viewport-based text sizing that adapts to PDF export dimensions
+ * with fallbacks for mobile rendering engines
+ */
+
+/* ============================================
+   V2 TYPOGRAPHY SYSTEM
+   ============================================ */
+
+.pdf-export-mode-v2 {
+  /* Base font settings */
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  
+  /* Viewport-based scaling factors */
+  --vw-scale: 1vw;
+  --vh-scale: 1vh;
+}
+
+/* ============================================
+   MOBILE EXPORT TYPOGRAPHY
+   ============================================ */
+
+.pdf-export-mode-v2.mobile-export {
+  /* Simplified font rendering for mobile */
+  -webkit-font-smoothing: subpixel-antialiased !important;
+  text-rendering: auto !important;
+  
+  /* Section Title - Mobile */
+  .text-section-title,
+  h1[class*="slideTypography.sectionTitle"] {
+    font-size: clamp(2rem, 4vw, 3rem) !important;
+    font-weight: 700 !important;
+    line-height: 1.2 !important;
+    letter-spacing: -0.02em !important;
+  }
+  
+  /* Display Text Sizes - Mobile */
+  .text-display-2xl,
+  [class*="text-display-2xl"] {
+    font-size: clamp(2.5rem, 3.5vw, 3.75rem) !important;
+    line-height: 1.2 !important;
+    font-weight: 700 !important;
+  }
+  
+  .text-display-xl,
+  [class*="text-display-xl"] {
+    font-size: clamp(2rem, 3vw, 3rem) !important;
+    line-height: 1.2 !important;
+    font-weight: 700 !important;
+  }
+  
+  .text-display-lg,
+  [class*="text-display-lg"] {
+    font-size: clamp(1.5rem, 2.5vw, 2.25rem) !important;
+    line-height: 1.25 !important;
+    font-weight: 600 !important;
+  }
+  
+  /* Body Text - Mobile */
+  .text-body,
+  .text-base {
+    font-size: clamp(0.875rem, 1.2vw, 1rem) !important;
+    line-height: 1.5 !important;
+  }
+  
+  .text-sm {
+    font-size: clamp(0.75rem, 1vw, 0.875rem) !important;
+    line-height: 1.5 !important;
+  }
+  
+  .text-xs {
+    font-size: clamp(0.625rem, 0.85vw, 0.75rem) !important;
+    line-height: 1.4 !important;
+  }
+  
+  /* Supporting Text - Mobile */
+  .text-supporting,
+  [class*="supporting"] {
+    font-size: clamp(0.75rem, 1vw, 0.875rem) !important;
+    opacity: 0.7 !important;
+  }
+  
+  /* Stat Values - Mobile */
+  .stat-value,
+  [class*="statValue"] {
+    font-size: clamp(2rem, 3.5vw, 3rem) !important;
+    font-weight: 700 !important;
+    line-height: 1.2 !important;
+  }
+  
+  /* Stat Labels - Mobile */
+  .stat-label,
+  [class*="statLabel"] {
+    font-size: clamp(0.875rem, 1.1vw, 1rem) !important;
+    font-weight: 500 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+  }
+}
+
+/* ============================================
+   DESKTOP EXPORT TYPOGRAPHY
+   ============================================ */
+
+.pdf-export-mode-v2.desktop-export {
+  /* High quality font rendering for desktop */
+  -webkit-font-smoothing: antialiased !important;
+  text-rendering: geometricPrecision !important;
+  
+  /* Section Title - Desktop */
+  .text-section-title,
+  h1[class*="slideTypography.sectionTitle"] {
+    font-size: 4vw !important;
+    font-weight: 700 !important;
+    line-height: 1.1 !important;
+    letter-spacing: -0.03em !important;
+  }
+  
+  /* Display Text Sizes - Desktop */
+  .text-display-2xl,
+  [class*="text-display-2xl"] {
+    font-size: 3.75vw !important;
+    line-height: 1.1 !important;
+    font-weight: 700 !important;
+    letter-spacing: -0.02em !important;
+  }
+  
+  .text-display-xl,
+  [class*="text-display-xl"] {
+    font-size: 3vw !important;
+    line-height: 1.15 !important;
+    font-weight: 700 !important;
+    letter-spacing: -0.02em !important;
+  }
+  
+  .text-display-lg,
+  [class*="text-display-lg"] {
+    font-size: 2.5vw !important;
+    line-height: 1.2 !important;
+    font-weight: 600 !important;
+    letter-spacing: -0.01em !important;
+  }
+  
+  /* Body Text - Desktop */
+  .text-body,
+  .text-base {
+    font-size: 1.25vw !important;
+    line-height: 1.6 !important;
+    font-weight: 400 !important;
+  }
+  
+  .text-sm {
+    font-size: 1.1vw !important;
+    line-height: 1.5 !important;
+  }
+  
+  .text-xs {
+    font-size: 0.9vw !important;
+    line-height: 1.4 !important;
+  }
+  
+  /* Supporting Text - Desktop */
+  .text-supporting,
+  [class*="supporting"] {
+    font-size: 1vw !important;
+    opacity: 0.6 !important;
+    font-weight: 400 !important;
+  }
+  
+  /* Stat Values - Desktop */
+  .stat-value,
+  [class*="statValue"] {
+    font-size: 3.75vw !important;
+    font-weight: 700 !important;
+    line-height: 1.1 !important;
+    letter-spacing: -0.02em !important;
+  }
+  
+  /* Stat Labels - Desktop */
+  .stat-label,
+  [class*="statLabel"] {
+    font-size: 1.15vw !important;
+    font-weight: 500 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.08em !important;
+  }
+}
+
+/* ============================================
+   COMMON V2 TYPOGRAPHY UTILITIES
+   ============================================ */
+
+.pdf-export-mode-v2 {
+  /* Font weights */
+  .font-thin { font-weight: 100 !important; }
+  .font-light { font-weight: 300 !important; }
+  .font-normal { font-weight: 400 !important; }
+  .font-medium { font-weight: 500 !important; }
+  .font-semibold { font-weight: 600 !important; }
+  .font-bold { font-weight: 700 !important; }
+  .font-extrabold { font-weight: 800 !important; }
+  .font-black { font-weight: 900 !important; }
+  
+  /* Text alignment */
+  .text-left { text-align: left !important; }
+  .text-center { text-align: center !important; }
+  .text-right { text-align: right !important; }
+  .text-justify { text-align: justify !important; }
+  
+  /* Text transform */
+  .uppercase { text-transform: uppercase !important; }
+  .lowercase { text-transform: lowercase !important; }
+  .capitalize { text-transform: capitalize !important; }
+  .normal-case { text-transform: none !important; }
+  
+  /* Letter spacing */
+  .tracking-tighter { letter-spacing: -0.05em !important; }
+  .tracking-tight { letter-spacing: -0.025em !important; }
+  .tracking-normal { letter-spacing: 0 !important; }
+  .tracking-wide { letter-spacing: 0.025em !important; }
+  .tracking-wider { letter-spacing: 0.05em !important; }
+  .tracking-widest { letter-spacing: 0.1em !important; }
+  
+  /* Ensure inline elements inherit font size */
+  span, em, strong {
+    font-size: inherit !important;
+  }
+  
+  /* Icon sizing relative to text */
+  .inline-icon {
+    width: 1.2em !important;
+    height: 1.2em !important;
+    vertical-align: middle !important;
+  }
+  
+  /* Arrow icon specific sizes */
+  .stat-arrow-icon {
+    width: 2.5vw !important;
+    height: 2.5vw !important;
+  }
+  
+  .stat-arrow-icon-md {
+    width: 1.67vw !important;
+    height: 1.67vw !important;
+  }
+  
+  /* Prevent text overflow */
+  .text-ellipsis {
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+  
+  /* Ensure list items are properly sized */
+  ul, ol {
+    font-size: inherit !important;
+  }
+  
+  li {
+    font-size: inherit !important;
+    line-height: inherit !important;
+  }
+}
+
+/* ============================================
+   MOBILE-SPECIFIC FIXES
+   ============================================ */
+
+.pdf-export-mode-v2.mobile-export {
+  /* Fix for webkit text rendering issues */
+  * {
+    -webkit-text-size-adjust: 100% !important;
+    -webkit-tap-highlight-color: transparent !important;
+  }
+  
+  /* Ensure consistent line heights */
+  p, div, span {
+    line-height: inherit !important;
+  }
+  
+  /* Fix for mobile Safari font weight issues */
+  b, strong {
+    font-weight: 700 !important;
+    -webkit-font-smoothing: subpixel-antialiased !important;
+  }
+}

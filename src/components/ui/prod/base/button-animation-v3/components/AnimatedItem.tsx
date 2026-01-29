@@ -89,6 +89,7 @@ export const AnimatedItem = React.memo(function AnimatedItem({
     activePath,
     styleConfig,
     showNumbers,
+    showDebug,
     selectItem,
     collapseToLevel,
   } = useStackContext()
@@ -143,35 +144,87 @@ export const AnimatedItem = React.memo(function AnimatedItem({
     ? 'shadow-[4px_0_8px_-2px_rgba(0,0,0,0.3)]'
     : ''
   
-  // Scale for promoting items
-  const scale = isPromoting ? 1.05 : 1
-  
   // Height class for consistent sizing
   const heightClass = 'h-10' // md size
 
   return (
-    <Button
-      variant={variant}
-      size="md"
-      roundness="default"
-      iconTrailing={trailingElement}
-      onClick={handleSelect}
-      disabled={isAnchored}
-      className={cn(
-        'relative transition-all duration-300',
-        heightClass,
-        anchoredShadow,
-        isAnchored && 'pointer-events-none'
+    <div className="relative">
+      <Button
+        variant={variant}
+        size="md"
+        roundness="default"
+        iconTrailing={trailingElement}
+        onClick={handleSelect}
+        disabled={isAnchored}
+        className={cn(
+          'relative transition-all duration-300',
+          heightClass,
+          anchoredShadow,
+          isAnchored && 'pointer-events-none'
+        )}
+        style={{
+          opacity: isAnchored ? styleConfig.anchoredOpacity : 1,
+          // Scale is now handled by motion.div wrapper for promotion animation
+        }}
+        // Debug data attributes
+        data-button-id={item.id}
+        data-button-label={item.label}
+        data-button-level={level}
+        data-button-state={
+          isPromoting ? 'promoting' :
+          isAnchored ? 'anchored' :
+          isSelected ? 'active' :
+          isChildItem ? 'child' :
+          isExpanded ? 'active' :
+          'idle'
+        }
+        data-button-anchored={isAnchored}
+        data-button-anchor-depth={isAnchored ? activePath.indexOf(item.id) : undefined}
+      >
+        {numberLabel && (
+          <span className="mr-1.5 font-mono text-xs opacity-50">{numberLabel}</span>
+        )}
+        <span className="select-none">{item.label}</span>
+      </Button>
+      
+      {/* Debug Status Badge */}
+      {(showNumbers || showDebug) && (
+        <div className="absolute -top-2 -right-2 pointer-events-none">
+          <div className={cn(
+            'px-1.5 py-0.5 rounded-md text-[10px] font-mono font-semibold border shadow-sm',
+            isPromoting ? 'bg-purple-500 text-white border-purple-600' :
+            isAnchored ? 'bg-yellow-500 text-black border-yellow-600' :
+            isSelected ? 'bg-green-500 text-white border-green-600' :
+            isExpanded ? 'bg-blue-500 text-white border-blue-600' :
+            isChildItem ? 'bg-gray-500 text-white border-gray-600' :
+            'bg-gray-300 text-gray-700 border-gray-400'
+          )}>
+            <div className="flex flex-col items-center gap-0.5">
+              <div>
+                {isPromoting ? 'PROMOTING' :
+                 isAnchored ? 'ANCHORED' :
+                 isSelected ? 'ACTIVE' :
+                 isExpanded ? 'EXPANDED' :
+                 isChildItem ? 'CHILD' :
+                 'IDLE'}
+              </div>
+              <div className="text-[8px] opacity-80">
+                L{level}
+                {isAnchored && ` D${activePath.indexOf(item.id)}`}
+              </div>
+            </div>
+          </div>
+        </div>
       )}
-      style={{
-        opacity: isAnchored ? styleConfig.anchoredOpacity : 1,
-        transform: `scale(${scale})`,
-      }}
-    >
-      {numberLabel && (
-        <span className="mr-1.5 font-mono text-xs opacity-50">{numberLabel}</span>
+      
+      {/* Position Debug Info */}
+      {showDebug && (
+        <div className="absolute -bottom-6 left-0 pointer-events-none">
+          <div className="px-1 py-0.5 bg-black/80 text-white text-[8px] font-mono rounded whitespace-nowrap">
+            {item.id}
+          </div>
+        </div>
       )}
-      <span className="select-none">{item.label}</span>
-    </Button>
+    </div>
   )
 })

@@ -24,8 +24,10 @@ export function SlideCard({
   motionProps,
 }: SlideCardProps) {
   const cardClasses = cn(
-    'rounded-2xl corner-squircle shine-1',
-    'bg-gradient-to-br from-tertiary to-quaternary',
+    // Updated styles to match your configuration
+    'rounded-[40px] corner-squircle',
+    'bg-tertiary',
+    'border border-secondary',
     className
   )
 

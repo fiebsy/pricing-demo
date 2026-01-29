@@ -16,6 +16,7 @@ import { cn } from '@/lib/utils'
 import { StackContext, LevelContext } from './context'
 import { StackLevel } from './components/StackLevel'
 import { DebugOverlay } from './components/DebugOverlay'
+import { AnchorPositionDebugger } from './debug/AnchorPositionDebugger'
 import type { ButtonAnimationV3Props, AnimationConfig, StyleConfig, ActivePath } from './types'
 import {
   DEFAULT_ANIMATION_CONFIG,
@@ -125,6 +126,7 @@ export function ButtonAnimationV3({
           level: 0,
           parentId: null,
           isParentAnchored: false,
+          anchorCount: 0,
         }}
       >
         <div
@@ -133,10 +135,13 @@ export function ButtonAnimationV3({
             GAP_CLASSES[styleConfig.gap],
             className
           )}
+          style={{
+            minHeight: '100px', // Ensure container has height for absolute positioning
+          }}
         >
           <StackLevel items={items} />
           
-          {/* Debug Overlay */}
+          {/* Debug Overlay - Simple state display */}
           {showDebug && (
             <DebugOverlay
               activePath={activePath}
@@ -144,6 +149,15 @@ export function ButtonAnimationV3({
             />
           )}
         </div>
+        
+        {/* Advanced Position Debugger */}
+        {showDebug && (
+          <AnchorPositionDebugger
+            enabled={showDebug}
+            activePath={activePath}
+            styleConfig={styleConfig}
+          />
+        )}
       </LevelContext.Provider>
     </StackContext.Provider>
   )

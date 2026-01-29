@@ -61,7 +61,7 @@ export const slideTypography = {
   // ===================
 
   /** Supporting text - additional context below content */
-  supporting: 'text-sm text-quaternary',
+  supporting: 'text-lg text-tertiary',
 
   /** Note text - emphasized context (logo grid notes) */
   note: 'text-base text-secondary',

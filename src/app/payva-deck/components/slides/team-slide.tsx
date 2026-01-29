@@ -58,7 +58,8 @@ export function TeamSlide({
                     <img
                       src={member.imageSrc}
                       alt={member.name}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover grayscale"
+                      style={{ filter: 'grayscale(100%)' }}
                     />
                   ) : (
                     <Image
@@ -66,7 +67,8 @@ export function TeamSlide({
                       alt={member.name}
                       width={128}
                       height={128}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover grayscale"
+                      style={{ filter: 'grayscale(100%)' }}
                     />
                   )
                 ) : (

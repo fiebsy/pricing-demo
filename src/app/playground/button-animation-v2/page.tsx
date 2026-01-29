@@ -18,7 +18,7 @@ import {
   type UnifiedControlPanelProps,
 } from '@/components/ui/prod/base/control-panel'
 import {
-  ButtonAnimationV2,
+  EnhancedButtonAnimationV2 as ButtonAnimationV2,
   type AnimationConfig,
   type StyleConfig,
   type StackItem,
@@ -28,6 +28,11 @@ import {
   DEFAULT_ANIMATION_CONFIG,
   DEFAULT_STYLE_CONFIG,
 } from '@/components/ui/prod/base/button-animation-v2'
+import { 
+  AnchorPositionDebugger, 
+  MiniPositionTracker 
+} from '@/components/ui/prod/base/button-animation-v2/debug/AnchorPositionDebugger'
+import { PositionLogger } from '@/components/ui/prod/base/button-animation-v2/debug/PositionLogger'
 
 type UnifiedControlPanelConfig = UnifiedControlPanelProps['config']
 
@@ -176,6 +181,14 @@ interface PlaygroundConfig {
 
   // Display
   showNumbers: boolean
+  
+  // Debug
+  showDebugOverlay: boolean
+  showMiniTracker: boolean
+  debugGrid: boolean
+  debugRulers: boolean
+  debugConnections: boolean
+  debugCalculations: boolean
 }
 
 const DEFAULT_PLAYGROUND_CONFIG: PlaygroundConfig = {
@@ -217,6 +230,14 @@ const DEFAULT_PLAYGROUND_CONFIG: PlaygroundConfig = {
 
   // Display
   showNumbers: false,
+  
+  // Debug
+  showDebugOverlay: false,
+  showMiniTracker: false,
+  debugGrid: true,
+  debugRulers: true,
+  debugConnections: true,
+  debugCalculations: true,
 }
 
 // =============================================================================
@@ -554,6 +575,59 @@ function createPanelConfig(config: PlaygroundConfig): UnifiedControlPanelConfig 
           },
         ],
       },
+      {
+        id: 'debug',
+        title: 'Debug',
+        tabLabel: 'Debug',
+        groups: [
+          {
+            title: 'Debug Overlay',
+            controls: [
+              {
+                id: 'showDebugOverlay',
+                type: 'toggle',
+                label: 'Enable Debug Overlay',
+                value: config.showDebugOverlay,
+              },
+              {
+                id: 'showMiniTracker',
+                type: 'toggle',
+                label: 'Show Mini Tracker',
+                value: config.showMiniTracker,
+              },
+            ],
+          },
+          {
+            title: 'Debug Options',
+            controls: [
+              {
+                id: 'debugGrid',
+                type: 'toggle',
+                label: 'Show Grid',
+                value: config.debugGrid,
+              },
+              {
+                id: 'debugRulers',
+                type: 'toggle',
+                label: 'Show Rulers',
+                value: config.debugRulers,
+              },
+              {
+                id: 'debugConnections',
+                type: 'toggle',
+                label: 'Show Connections',
+                value: config.debugConnections,
+              },
+              {
+                id: 'debugCalculations',
+                type: 'toggle',
+                label: 'Show Calculations',
+                value: config.debugCalculations,
+              },
+            ],
+          },
+        ],
+      },
     ],
     defaultActiveTab: 'active',
     position: {
@@ -653,6 +727,19 @@ export default function ButtonAnimationV2Playground() {
 
   return (
     <div className="min-h-screen bg-primary">
+      {/* Debug Overlay - conditionally rendered to avoid React errors */}
+      {config.showDebugOverlay && (
+        <AnchorPositionDebugger
+          enabled={true}
+          showGrid={config.debugGrid}
+          showRulers={config.debugRulers}
+          showConnections={config.debugConnections}
+          showOffsetCalculations={config.debugCalculations}
+        />
+      )}
+      
+      {/* Mini Position Tracker */}
+      {config.showMiniTracker && <MiniPositionTracker />}
       {/* Breadcrumbs */}
       <div className="nav-clearance px-6">
         <div className="flex items-center justify-between">

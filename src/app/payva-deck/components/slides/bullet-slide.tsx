@@ -71,7 +71,7 @@ export function BulletSlide({
         {/* Supporting text - Centered below */}
         {slide.bulletConfig?.supporting && (
           <motion.p
-            className={`${slideSpacing.margin.supportingTop} text-lg text-secondary text-center`}
+            className={`${slideTypography.supporting} ${slideSpacing.margin.supportingTop} text-center`}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: contentDelays.bullets + bullets.length * 0.1 + 0.1 }}

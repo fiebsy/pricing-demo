@@ -7,25 +7,28 @@
 
 'use client'
 
-import { useEffect, useState, type ReactNode } from 'react'
+import { Children, useEffect, useState, type ReactNode } from 'react'
 import { cx } from '@/components/utils/cx'
 
-// Using deprecated primitives until prod/base/ Select/Slider are ready
+// Using deprecated primitives until prod/base/ Select is ready
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
 } from '@/components/ui/deprecated/base/primitives/select'
-import { Slider } from '@/components/ui/deprecated/base/primitives/slider'
 
 // Prod components
 import { Checkbox } from '@/components/ui/prod/base/checkbox'
+
+// Core primitives
+import { InlineSlider } from '@/components/ui/core/primitives/slider'
 
 import type {
   ColorControl as ColorControlType,
   ColorSelectControl as ColorSelectControlType,
   Control,
+  InlineSliderControl as InlineSliderControlType,
   SelectControl as SelectControlType,
   SliderControl as SliderControlType,
   TextControl as TextControlType,
@@ -45,9 +48,9 @@ interface ControlGroupWrapperProps {
 export function ControlGroupWrapper({ label, description, children }: ControlGroupWrapperProps) {
   return (
     <div className="space-y-2">
-      <label className="text-secondary block font-mono text-xs">{label}</label>
+      <label className="text-tertiary block text-[11px] font-medium">{label}</label>
       {children}
-      {description && <p className="text-tertiary mt-1 font-mono text-xs">{description}</p>}
+      {description && <p className="text-tertiary mt-1 text-xs">{description}</p>}
     </div>
   )
 }
@@ -58,8 +61,24 @@ interface ControlGridProps {
 }
 
 export function ControlGrid({ columns = 1, children }: ControlGridProps) {
+  const childArray = Children.toArray(children)
+
+  // For single column, add separators between controls
+  if (columns === 1) {
+    return (
+      <div className="divide-y divide-secondary">
+        {childArray.map((child, index) => (
+          <div key={index} className="px-3 py-3">
+            {child}
+          </div>
+        ))}
+      </div>
+    )
+  }
+
+  // For multi-column, keep grid layout without dividers
   return (
-    <div className={cx('grid gap-4', columns === 2 ? 'grid-cols-2' : 'grid-cols-1')}>
+    <div className="grid grid-cols-2 gap-4 p-3">
       {children}
     </div>
   )
@@ -110,7 +129,7 @@ export function ColorSwatch({ color, size = 'sm', className }: ColorSwatchProps)
 }
 
 // -----------------------------------------------------------------------------
-// Slider Control
+// Slider Control (uses InlineSlider internally)
 // -----------------------------------------------------------------------------
 
 interface SliderControlProps {
@@ -119,69 +138,28 @@ interface SliderControlProps {
 }
 
 export function SliderControl({ control, onChange }: SliderControlProps) {
-  const { value, min, max, step, formatLabel, disabled } = control
-  const [inputValue, setInputValue] = useState(() => formatLabel?.(value) ?? `${value}`)
-  const [isTyping, setIsTyping] = useState(false)
-
-  useEffect(() => {
-    if (!isTyping) {
-      setInputValue(formatLabel?.(value) ?? `${value}`)
-    }
-  }, [value, formatLabel, isTyping])
-
-  const handleInputCommit = () => {
-    setIsTyping(false)
-    const match = inputValue.match(/-?\d+\.?\d*/)
-    if (match) {
-      const parsed = parseFloat(match[0])
-      const clamped = Math.max(min, Math.min(max, Math.round(parsed / step) * step))
-      onChange(clamped)
-      setInputValue(formatLabel?.(clamped) ?? `${clamped}`)
-    } else {
-      setInputValue(formatLabel?.(value) ?? `${value}`)
-    }
-  }
+  const { label, value, min, max, step, formatLabel, disabled } = control
 
   return (
-    <div className={cx('flex items-center gap-3', disabled && 'pointer-events-none opacity-50')}>
-      <div className="flex-1">
-        <Slider
-          value={[value]}
-          onChange={(val: number | number[]) => {
-            const newValue = Array.isArray(val) ? val[0] : val
-            if (newValue !== undefined) onChange(newValue)
-          }}
-          minValue={min}
-          maxValue={max}
-          step={step}
-          labelFormatter={formatLabel ?? ((v: number) => `${v}`)}
-          isDisabled={disabled}
-        />
-      </div>
-      <input
-        type="text"
-        value={inputValue}
-        onChange={(e) => {
-          setIsTyping(true)
-          setInputValue(e.target.value)
-        }}
-        onBlur={handleInputCommit}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter') {
-            e.preventDefault()
-            handleInputCommit()
-          } else if (e.key === 'Escape') {
-            setIsTyping(false)
-            setInputValue(formatLabel?.(value) ?? `${value}`)
-            e.currentTarget.blur()
-          }
-        }}
-        disabled={disabled}
-        className="text-secondary border-primary bg-primary focus:ring-brand focus:border-brand w-20 rounded border px-2 py-1 text-right font-mono text-xs font-medium focus:ring-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
-      />
-    </div>
+    <InlineSlider
+      label={label}
+      value={value}
+      min={min}
+      max={max}
+      step={step}
+      onChange={onChange}
+      formatLabel={formatLabel}
+      disabled={disabled}
+    />
   )
 }
+
+// -----------------------------------------------------------------------------
+// Inline Slider Control (Re-exported from primitives)
+// -----------------------------------------------------------------------------
+
+export { InlineSlider }
+export type { InlineSliderProps } from '@/components/ui/core/primitives/slider'
 
 // -----------------------------------------------------------------------------
 // Select Control
@@ -200,7 +178,7 @@ export function SelectControl({ control, onChange }: SelectControlProps) {
   return (
     <Select value={safeValue || undefined} onValueChange={disabled ? undefined : onChange} disabled={disabled}>
       <SelectTrigger
-        className={cx('h-8 w-full px-2 py-1 font-mono text-xs', disabled && 'cursor-not-allowed opacity-50')}
+        className={cx('h-8 w-full px-2 py-1 text-xs', disabled && 'cursor-not-allowed opacity-50')}
       >
         <span className="flex items-center gap-2">
           {showColorSwatch && selectedOption?.color && (
@@ -211,7 +189,7 @@ export function SelectControl({ control, onChange }: SelectControlProps) {
       </SelectTrigger>
       <SelectContent>
         {options.map((option) => (
-          <SelectItem key={option.value} value={option.value} className="font-mono text-xs">
+          <SelectItem key={option.value} value={option.value} className="text-xs">
             <span className="flex items-center gap-2">
               {showColorSwatch && option.color && <ColorSwatch color={option.color} size="xs" />}
               <span>{option.label}</span>
@@ -240,7 +218,7 @@ export function ColorSelectControl({ control, onChange }: ColorSelectControlProp
   return (
     <Select value={safeValue || undefined} onValueChange={disabled ? undefined : onChange} disabled={disabled}>
       <SelectTrigger
-        className={cx('h-9 w-full px-2 py-1.5 font-mono text-xs', disabled && 'cursor-not-allowed opacity-50')}
+        className={cx('h-9 w-full px-2 py-1.5 text-xs', disabled && 'cursor-not-allowed opacity-50')}
       >
         <span className="flex items-center gap-2.5">
           {selectedOption?.color && <ColorSwatch color={selectedOption.color} size={swatchSize} />}
@@ -253,7 +231,7 @@ export function ColorSelectControl({ control, onChange }: ColorSelectControlProp
             <span className="flex items-center gap-2.5">
               {option.color && <ColorSwatch color={option.color} size={swatchSize} />}
               <span className="flex flex-col">
-                <span className="font-mono text-xs">{option.label}</span>
+                <span className="text-xs">{option.label}</span>
                 {option.description && (
                   <span className="text-tertiary text-[10px]">{option.description}</span>
                 )}
@@ -278,17 +256,19 @@ interface ToggleControlProps {
 
 export function ToggleControl({ control, onChange, inline = false }: ToggleControlProps) {
   const { value, label, disabled } = control
+  // Ensure checked is always a boolean to prevent controlled/uncontrolled warning
+  const checked = value ?? false
 
   if (inline) {
     return (
       <div className={cx('flex items-center justify-between', disabled && 'opacity-50')}>
-        <span className="text-secondary font-mono text-xs">{label}</span>
-        <Checkbox size="sm" checked={value} onCheckedChange={onChange} disabled={disabled} />
+        <span className="text-tertiary text-[11px] font-medium">{label}</span>
+        <Checkbox size="sm" checked={checked} onCheckedChange={onChange} disabled={disabled} />
       </div>
     )
   }
 
-  return <Checkbox size="sm" checked={value} onCheckedChange={onChange} disabled={disabled} />
+  return <Checkbox size="sm" checked={checked} onCheckedChange={onChange} disabled={disabled} />
 }
 
 // -----------------------------------------------------------------------------
@@ -315,7 +295,7 @@ export function ColorControl({ control, onChange }: ColorControlProps) {
           disabled && 'cursor-not-allowed'
         )}
       />
-      {showValue && <span className="text-secondary font-mono text-xs">{value}</span>}
+      {showValue && <span className="text-secondary text-xs tabular-nums">{value}</span>}
     </div>
   )
 }
@@ -341,7 +321,7 @@ export function TextControl({ control, onChange }: TextControlProps) {
       maxLength={maxLength}
       disabled={disabled}
       className={cx(
-        'text-primary border-primary bg-primary focus:ring-brand focus:border-brand w-full rounded border px-3 py-2 font-mono text-xs focus:ring-2 focus:outline-none',
+        'text-primary border-primary bg-primary focus:ring-brand focus:border-brand w-full rounded border px-3 py-2 text-xs focus:ring-2 focus:outline-none',
         disabled && 'cursor-not-allowed opacity-50'
       )}
     />
@@ -366,10 +346,25 @@ export function ControlRenderer({ control, sectionId, onChange }: ControlRendere
     return <div key={control.id}>{control.render()}</div>
   }
 
+  // Slider controls render without wrapper (label is inside InlineSlider)
+  if (control.type === 'slider' || control.type === 'inline-slider') {
+    const sliderControl = control as SliderControlType | InlineSliderControlType
+    return (
+      <InlineSlider
+        label={sliderControl.label}
+        value={sliderControl.value}
+        min={sliderControl.min}
+        max={sliderControl.max}
+        step={sliderControl.step}
+        onChange={handleChange as (v: number) => void}
+        formatLabel={sliderControl.formatLabel}
+        disabled={sliderControl.disabled}
+      />
+    )
+  }
+
   const renderControl = () => {
     switch (control.type) {
-      case 'slider':
-        return <SliderControl control={control} onChange={handleChange as (v: number) => void} />
       case 'select':
         return <SelectControl control={control} onChange={handleChange as (v: string) => void} />
       case 'color-select':

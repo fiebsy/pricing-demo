@@ -27,6 +27,16 @@ export const teamSlide: PitchSlide = {
         role: 'CTO',
         imageSrc: '/payva-deck/jay-photo-bw.png'
       },
+      { 
+        name: 'Neil Fleischman', 
+        role: 'Chief of Staff',
+        imageSrc: '/payva-deck/neil-photo.png'
+      },
+      { 
+        name: 'Gerard Adams', 
+        role: 'Advisor',
+        imageSrc: '/payva-deck/gerard-photo.png'
+      },
     ],
   },
 }

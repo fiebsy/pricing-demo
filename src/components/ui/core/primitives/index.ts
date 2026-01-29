@@ -66,3 +66,8 @@ export type {
 
 // Menu
 export * from './menu'
+
+// Slider
+export { InlineSlider } from './slider'
+export type { InlineSliderProps, SliderBaseProps } from './slider'
+export { sliderConfig, inlineSliderStyles } from './slider'

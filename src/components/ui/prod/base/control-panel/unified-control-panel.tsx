@@ -1,24 +1,29 @@
 // =============================================================================
 // Unified Control Panel
 // =============================================================================
-// Optimized control panel with:
+// Control panel with sidebar navigation that expands on hover.
+//
+// Features:
+// - Sidebar navigation that slides out on hover
+// - Section icons/labels for quick navigation
 // - Minimize/expand functionality
-// - React Aria Tabs for proper tab panel routing
-// - Cleaner structure and API
 // - Preset management and copy functionality
+// - Base UI ScrollArea for zero layout shift scrolling
 // =============================================================================
 
 'use client'
 
-import { useCallback } from 'react'
+import { useCallback, useRef, useState } from 'react'
+import { motion, AnimatePresence } from 'motion/react'
+import { ScrollArea } from '@base-ui/react/scroll-area'
 import { cx } from '@/components/utils/cx'
-import { Tabs as AriaTabs, TabList, Tab, TabPanel } from 'react-aria-components'
 
 import { PanelProvider, usePanelContext } from './context'
 import { ActiveSectionContent } from './components/section-renderer'
 import { ActionBar } from './components/action-bar'
 import { MinimizedHeader } from './components/minimized-header'
-import { ScrollableTabList, TabTrigger, MinimizeButton } from './components/tab-navigation'
+import { MinimizeButton } from './components/tab-navigation'
+import { SidebarNavigation } from './components/sidebar-navigation'
 
 import type { ControlChangeEvent, UnifiedControlPanelProps } from './types'
 
@@ -27,8 +32,11 @@ const DEFAULT_POSITION = {
   top: '90px',
   bottom: '90px',
   right: '16px',
-  width: '320px',
+  width: '260px',
 }
+
+// Layout constants - single source of truth for header alignment
+const PANEL_HEADER_HEIGHT = 36 // h-9 = 36px
 
 // -----------------------------------------------------------------------------
 // Panel Inner Component (uses context)
@@ -63,8 +71,6 @@ function PanelInner<T>({
   // Handle control changes
   const handleControlChange = useCallback(
     (controlId: string, value: unknown) => {
-      // Find which section this control belongs to
-      // Support both 'groups' and legacy 'subsections' naming
       const section = sections.find((s) => {
         const groups = s.groups || s.subsections || []
         return groups.some((g) => g.controls.some((c) => c.id === controlId))
@@ -81,15 +87,37 @@ function PanelInner<T>({
     [sections, onChange]
   )
 
+  // Panel hover state with delayed collapse
+  const [isPanelHovered, setIsPanelHovered] = useState(false)
+  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  const handleMouseEnter = useCallback(() => {
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current)
+      hoverTimeoutRef.current = null
+    }
+    setIsPanelHovered(true)
+  }, [])
+
+  const handleMouseLeave = useCallback(() => {
+    hoverTimeoutRef.current = setTimeout(() => {
+      setIsPanelHovered(false)
+    }, 300) // 300ms delay before collapse
+  }, [])
+
   const hasPresets = presetConfig && presetConfig.presets.length > 0
   const showCopyButton = presetConfig?.showCopyButton !== false && getConfigForCopy
   const showActionBar = hasPresets || showCopyButton || (showReset && onReset)
+
+  // Find active section for header display
+  const activeSection = sections.find((s) => s.id === activeTab) || sections[0]
 
   const cssVariables: React.CSSProperties = {
     '--panel-top': position.top,
     '--panel-bottom': position.bottom,
     '--panel-right': position.right,
     '--panel-width': position.width,
+    '--panel-header-height': `${PANEL_HEADER_HEIGHT}px`,
   } as React.CSSProperties
 
   // Minimized state - show just a button
@@ -108,15 +136,12 @@ function PanelInner<T>({
     )
   }
 
-  const isScrollable = sections.length > 4
-
-  // Expanded state - full panel with true tab routing
+  // Expanded state - full panel with sidebar overlay on hover
   return (
     <div
       className={cx(
         'fixed z-30',
-        'flex flex-col',
-        'overflow-hidden rounded-xl shadow-xl',
+        'flex flex-col overflow-visible rounded-xl shadow-xl',
         className
       )}
       style={{
@@ -124,69 +149,93 @@ function PanelInner<T>({
         top: 'var(--panel-top, 90px)',
         bottom: 'var(--panel-bottom, 90px)',
         right: 'var(--panel-right, 16px)',
-        width: 'var(--panel-width, 320px)',
+        width: 'var(--panel-width, 260px)',
       }}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
-      <AriaTabs
-        selectedKey={activeTab}
-        onSelectionChange={(key) => setActiveTab(key as string)}
-        className="flex min-h-0 flex-1 flex-col"
-      >
-        {/* Tab Navigation - Fixed Height */}
-        <div className="bg-quaternary border-primary flex h-10 shrink-0 items-center rounded-t-xl border px-1">
-          <ScrollableTabList activeTabId={activeTab} isScrollable={isScrollable}>
-            <TabList aria-label="Control sections" className="flex items-center gap-0.5">
-              {sections.map((section) => (
-                <Tab
-                  key={section.id}
-                  id={section.id}
-                  data-key={section.id}
-                  className="group cursor-pointer outline-none"
-                >
-                  {({ isSelected }) => (
-                    <TabTrigger
-                      label={section.label || section.tabLabel || section.title}
-                      isSelected={isSelected}
-                      isScrollable={isScrollable}
-                    />
-                  )}
-                </Tab>
-              ))}
-            </TabList>
-          </ScrollableTabList>
+      {/* Sidebar Navigation - Slides out from behind panel */}
+      <AnimatePresence>
+        {isPanelHovered && (
+          <motion.div
+            initial={{ x: 140 }}
+            animate={{ x: 8 }}
+            exit={{ x: 140 }}
+            transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
+            className="absolute right-full top-0 bottom-0 z-[-1]"
+          >
+            <SidebarNavigation
+              sections={sections}
+              activeTabId={activeTab}
+              onTabChange={setActiveTab}
+              forceExpanded
+              headerOffset={PANEL_HEADER_HEIGHT}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-          {/* Minimize button */}
+      {/* Main Content Area */}
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col bg-tertiary rounded-xl overflow-hidden">
+        {/* Header with breadcrumb and minimize */}
+        <div className="bg-quaternary border-primary flex h-9 shrink-0 items-center justify-between border-b px-3">
+          <div className="flex items-center gap-1.5 text-xs">
+            <span className="text-tertiary">Controls</span>
+            <span className="text-quaternary">/</span>
+            <span className="text-primary font-medium truncate">
+              {activeSection?.title || activeSection?.label}
+            </span>
+          </div>
           <MinimizeButton onClick={toggleMinimized} />
         </div>
 
-        {/* Tab Panels - Only active section rendered */}
-        {sections.map((section) => (
-          <TabPanel
-            key={section.id}
-            id={section.id}
-            className="bg-tertiary border-primary min-h-0 flex-1 overscroll-contain border-x scrollbar-overlay focus:outline-none"
+        {/* Active Section Content - Base UI ScrollArea for zero layout shift */}
+        <ScrollArea.Root className="relative min-h-0 flex-1 overflow-hidden">
+          <ScrollArea.Viewport className="h-full w-full overscroll-contain">
+            <ScrollArea.Content>
+              <div className="p-2.5">
+                {activeSection && (
+                  <ActiveSectionContent
+                    section={activeSection}
+                    onChange={handleControlChange}
+                  />
+                )}
+              </div>
+            </ScrollArea.Content>
+          </ScrollArea.Viewport>
+          
+          {/* Scrollbar - absolutely positioned, overlays content */}
+          <ScrollArea.Scrollbar
+            orientation="vertical"
+            className={cx(
+              'absolute top-1 right-0.5 bottom-1 flex w-1.5',
+              'touch-none select-none rounded-full p-px',
+              'opacity-0 transition-opacity duration-150',
+              'data-[hovering]:opacity-100 data-[scrolling]:opacity-100'
+            )}
           >
-            <div className="pt-2 pb-2.5 pl-2.5 pr-0">
-              <ActiveSectionContent
-                section={section}
-                onChange={handleControlChange}
-              />
-            </div>
-          </TabPanel>
-        ))}
-      </AriaTabs>
+            <ScrollArea.Thumb 
+              className={cx(
+                'relative flex-1 rounded-full',
+                'bg-fg-quaternary hover:bg-fg-quaternary_hover',
+                'transition-colors duration-150'
+              )}
+            />
+          </ScrollArea.Scrollbar>
+        </ScrollArea.Root>
 
-      {/* Action Bar */}
-      {showActionBar && (
-        <ActionBar
-          presetConfig={presetConfig}
-          showReset={showReset}
-          resetLabel={resetLabel}
-          onReset={onReset}
-          onPresetChange={onPresetChange}
-          getConfigForCopy={getConfigForCopy}
-        />
-      )}
+        {/* Action Bar */}
+        {showActionBar && (
+          <ActionBar
+            presetConfig={presetConfig}
+            showReset={showReset}
+            resetLabel={resetLabel}
+            onReset={onReset}
+            onPresetChange={onPresetChange}
+            getConfigForCopy={getConfigForCopy}
+          />
+        )}
+      </div>
     </div>
   )
 }

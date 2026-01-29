@@ -153,6 +153,14 @@ interface PlaygroundConfig {
   // Display
   showNumbers: boolean
   showDebug: boolean
+  
+  // Advanced Debug
+  showGrid: boolean
+  showRulers: boolean
+  showConnections: boolean
+  showCalculations: boolean
+  showPositionOverlays: boolean
+  debugOpacity: number
 }
 
 const DEFAULT_PLAYGROUND_CONFIG: PlaygroundConfig = {
@@ -177,6 +185,14 @@ const DEFAULT_PLAYGROUND_CONFIG: PlaygroundConfig = {
   // Display
   showNumbers: false,
   showDebug: false,
+  
+  // Advanced Debug
+  showGrid: true,
+  showRulers: true,
+  showConnections: true,
+  showCalculations: true,
+  showPositionOverlays: true,
+  debugOpacity: 0.9,
 }
 
 // =============================================================================
@@ -352,6 +368,51 @@ function createPanelConfig(config: PlaygroundConfig): UnifiedControlPanelConfig 
                 type: 'toggle',
                 label: 'Show Debug',
                 value: config.showDebug,
+              },
+            ],
+          },
+          {
+            title: 'Advanced Debug',
+            controls: [
+              {
+                id: 'showGrid',
+                type: 'toggle',
+                label: 'Grid Lines',
+                value: config.showGrid,
+              },
+              {
+                id: 'showRulers',
+                type: 'toggle',
+                label: 'Position Rulers',
+                value: config.showRulers,
+              },
+              {
+                id: 'showConnections',
+                type: 'toggle',
+                label: 'Connections',
+                value: config.showConnections,
+              },
+              {
+                id: 'showCalculations',
+                type: 'toggle',
+                label: 'Calculations',
+                value: config.showCalculations,
+              },
+              {
+                id: 'showPositionOverlays',
+                type: 'toggle',
+                label: 'Position Overlays',
+                value: config.showPositionOverlays,
+              },
+              {
+                id: 'debugOpacity',
+                type: 'slider',
+                label: 'Debug Opacity',
+                value: config.debugOpacity,
+                min: 0.1,
+                max: 1,
+                step: 0.1,
+                formatLabel: (v: number) => `${v.toFixed(1)}`,
               },
             ],
           },

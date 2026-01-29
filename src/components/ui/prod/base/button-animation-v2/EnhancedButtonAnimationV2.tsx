@@ -25,6 +25,8 @@ import { StackContext, LevelContext } from './context'
 import { useStackState } from './hooks'
 import { EnhancedStackLevel } from './components/EnhancedStackLevel'
 import { AnimationPhaseManager } from './core/animation-phases'
+import { PositionLogger } from './debug/PositionLogger'
+import { SimpleDebugger } from './debug/SimpleDebugger'
 
 // ============================================================================
 // ENHANCED MAIN COMPONENT
@@ -168,6 +170,13 @@ export function EnhancedButtonAnimationV2({
             items={items}
             parentId={null}
           />
+          {/* Debug helpers */}
+          {process.env.NODE_ENV === 'development' && (
+            <>
+              <PositionLogger />
+              <SimpleDebugger />
+            </>
+          )}
         </div>
       </LevelContext.Provider>
     </StackContext.Provider>

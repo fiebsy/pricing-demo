@@ -15,7 +15,8 @@ export const portfolioSlide: PitchSlide = {
     data: [
       { label: '2024', value: 19, displayValue: '19M' },
       { label: '2025', value: 64, displayValue: '64M' },
-      { label: '2026', value: 200, displayValue: '200M' },
+      { label: '2026', value: 150, displayValue: '150M' },
+      { label: '2027', value: 400, displayValue: '400M' },
     ],
     contextText: 'Year-over-year growth',
   },

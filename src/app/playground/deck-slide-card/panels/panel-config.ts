@@ -64,21 +64,21 @@ function buildOuterSection(config: DeckSlideCardConfig): Section {
           ...(isGradient ? [
             {
               id: 'outer.gradientFrom',
-              type: 'select',
+              type: 'select' as const,
               label: 'From Color',
               value: config.outer.gradientFrom || 'tertiary',
               options: [...GRADIENT_COLORS],
             },
             {
               id: 'outer.gradientTo',
-              type: 'select',
+              type: 'select' as const,
               label: 'To Color',
               value: config.outer.gradientTo || 'quaternary',
               options: [...GRADIENT_COLORS],
             },
             {
               id: 'outer.gradientDirection',
-              type: 'select',
+              type: 'select' as const,
               label: 'Direction',
               value: config.outer.gradientDirection || 'to-br',
               options: [...GRADIENT_DIRECTIONS],
@@ -221,28 +221,28 @@ function buildContentSection(config: DeckSlideCardConfig): Section {
           controls: [
             {
               id: 'content.statValue',
-              type: 'text',
+              type: 'text' as const,
               label: 'Value',
               value: config.content.statValue || '',
               placeholder: '$250B → $480B',
             },
             {
               id: 'content.statLabel',
-              type: 'text',
+              type: 'text' as const,
               label: 'Label',
               value: config.content.statLabel || '',
               placeholder: 'Creator economy growth',
             },
             {
               id: 'content.statSubtext',
-              type: 'text',
+              type: 'text' as const,
               label: 'Subtext',
               value: config.content.statSubtext || '',
               placeholder: 'Optional supporting text',
             },
             {
               id: 'content.showArrow',
-              type: 'toggle',
+              type: 'toggle' as const,
               label: 'Show Arrow Icon',
               value: config.content.showArrow ?? true,
             },

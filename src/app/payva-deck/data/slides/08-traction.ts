@@ -13,7 +13,8 @@ export const tractionSlide: PitchSlide = {
   statConfig: {
     stats: [
       { value: '3-36', label: 'Team growth in 2 years' },
-      { value: '2M-85M', label: 'in origination in 24 months' },
+      { value: '50-500', label: 'Creator growth in 2 years' },
+      { value: '$2M-$85M', label: 'in origination in 24 months' },
     ],
     layout: 'stacked',
   },

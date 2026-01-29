@@ -67,6 +67,9 @@ export function EnhancedStackLevel({
   const hasActiveAtThisLevel = activeId !== undefined
   const hasActiveChild = activePath.length > level + 1
   
+  // Calculate how many items are anchored at this level and above
+  const anchoredCount = Math.max(0, activePath.slice(0, level).length)
+  
   // Track animation states
   const [animatingItems, setAnimatingItems] = useState<Set<string>>(new Set())
   
@@ -277,12 +280,18 @@ function ChildrenLevel({
     return false
   }
   
+  // Calculate anchored count for children
+  const childAnchoredCount = hasActiveAtThisLevel 
+    ? activePath.slice(0, nextLevel).length 
+    : 0
+  
   return (
     <LevelContext.Provider
       value={{ 
         level: nextLevel, 
         parentId, 
-        isParentAnchored: true 
+        isParentAnchored: true,
+        anchoredCount: childAnchoredCount
       }}
     >
       <AnimatePresence mode="popLayout">
