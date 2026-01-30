@@ -4,7 +4,7 @@
  * Configures dimensions and spacing: widths, heights, gaps.
  */
 
-import type { Section } from '@/components/ui/prod/base/control-panel'
+import type { Section } from '@/components/ui/patterns/control-panel'
 import type { PlaygroundState } from '../../types'
 
 // ============================================================================

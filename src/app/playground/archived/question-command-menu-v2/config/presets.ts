@@ -9,7 +9,7 @@
  * - custom: User-defined variations
  */
 
-import type { Preset } from '@/components/ui/prod/base/control-panel'
+import type { Preset } from '@/components/ui/patterns/control-panel'
 import type {
   QuestionCommandMenuConfig,
   QuestionCommandMenuPreset,

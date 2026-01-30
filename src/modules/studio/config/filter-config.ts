@@ -13,7 +13,7 @@ import {
   Tag01Icon,
 } from '@hugeicons-pro/core-stroke-rounded'
 
-import type { MenuItemType, MenuItemAction, MenuItemSubmenu } from '@/components/ui/prod/base/filter'
+import type { MenuItemType, MenuItemAction, MenuItemSubmenu } from '@/components/ui/patterns/filter'
 import type { AudienceFilterId, ActiveFilter, FilterPredicate, AudienceUser, FilterCategory } from '../types'
 
 // =============================================================================

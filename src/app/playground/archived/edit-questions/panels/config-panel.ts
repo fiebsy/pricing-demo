@@ -6,7 +6,7 @@
  * @module playground/edit-questions/panels
  */
 
-import type { Section } from '@/components/ui/prod/base/control-panel'
+import type { Section } from '@/components/ui/patterns/control-panel'
 import type { PlaygroundConfig } from '../types'
 import { PRESET_OPTIONS } from '../constants'
 

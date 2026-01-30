@@ -12,7 +12,7 @@
 import * as React from 'react'
 import { useEffect, useRef, useState } from 'react'
 import { cn } from '@/lib/utils'
-import { HugeIcon } from '@/components/ui/prod/base/icon'
+import { HugeIcon } from '@/components/ui/core/primitives/icon'
 import AiBrain01Icon from '@hugeicons-pro/core-stroke-rounded/AiBrain01Icon'
 import { formatScore } from '../../types'
 

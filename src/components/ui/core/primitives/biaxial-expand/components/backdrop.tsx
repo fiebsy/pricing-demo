@@ -13,7 +13,7 @@ import { cn } from '@/lib/utils'
 import {
   getPopupClasses,
   getGradientStyles,
-} from '@/components/ui/prod/base/menu/config'
+} from '@/components/ui/core/primitives/menu/config'
 import { useBiaxialExpand } from '../context'
 import { EASING_EXPO_OUT } from '../constants'
 import type { BackdropProps } from '../types'

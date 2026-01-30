@@ -16,7 +16,7 @@ import {
   UnifiedControlPanel,
   type ControlChangeEvent,
   type UnifiedControlPanelProps,
-} from '@/components/ui/prod/base/control-panel'
+} from '@/components/ui/patterns/control-panel'
 
 import type { PlaygroundConfig, Question } from './types'
 import { DEFAULT_PLAYGROUND_CONFIG, getPresetConfig, INITIAL_QUESTIONS } from './constants'

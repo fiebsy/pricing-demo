@@ -10,7 +10,7 @@
 
 import * as React from 'react'
 import { cn } from '@/lib/utils'
-import { HugeIcon } from '@/components/ui/prod/base/icon'
+import { HugeIcon } from '@/components/ui/core/primitives/icon'
 import Notification01Icon from '@hugeicons-pro/core-stroke-rounded/Notification01Icon'
 import File01Icon from '@hugeicons-pro/core-stroke-rounded/File01Icon'
 import type { UpdatesIslandProps } from '../types'

@@ -5,7 +5,7 @@
  * Reused for BOTH top and bottom slots - same controls, different prefix.
  */
 
-import type { Section } from '@/components/ui/prod/base/control-panel'
+import type { Section } from '@/components/ui/patterns/control-panel'
 import type { PlaygroundState, SlotPosition } from '../../types'
 import {
   buildSlotEnableGroup,

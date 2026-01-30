@@ -8,7 +8,7 @@
 
 import * as React from 'react'
 import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/prod/base/button'
+import { Button } from '@/components/ui/core/primitives/button'
 import { useV4Context } from '../state'
 import { useFlowConfig } from '../hooks'
 import type { ActionButtonIcon, SlotPosition } from '../types'

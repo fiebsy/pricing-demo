@@ -2,7 +2,7 @@
 
 import Sun03Icon from '@hugeicons-pro/core-stroke-rounded/Sun03Icon'
 import Moon02Icon from '@hugeicons-pro/core-stroke-rounded/Moon02Icon'
-import { HugeIcon } from '@/components/ui/prod/base/icon'
+import { HugeIcon } from '@/components/ui/core/primitives/icon'
 import { cn } from '@/lib/utils'
 import { useDeckTheme } from './deck-theme-provider'
 

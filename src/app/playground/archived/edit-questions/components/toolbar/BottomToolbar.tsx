@@ -10,7 +10,7 @@
 
 import * as React from 'react'
 import { cn } from '@/lib/utils'
-import { HugeIcon } from '@/components/ui/prod/base/icon'
+import { HugeIcon } from '@/components/ui/core/primitives/icon'
 import FolderAddIcon from '@hugeicons-pro/core-stroke-rounded/FolderAddIcon'
 import NotificationBubbleIcon from '@hugeicons-pro/core-stroke-rounded/NotificationBubbleIcon'
 import CheckmarkCircle02Icon from '@hugeicons-pro/core-stroke-rounded/CheckmarkCircle02Icon'

@@ -14,7 +14,7 @@ import {
   getButtonPaddingStyle,
   getButtonIntentConfig,
 } from '@/components/ui/deprecated/skwircle/config/button'
-import { HugeIcon } from '@/components/ui/prod/base/icon'
+import { HugeIcon } from '@/components/ui/core/primitives/icon'
 import ArrowRight01Icon from '@hugeicons-pro/core-stroke-rounded/ArrowRight01Icon'
 
 interface ButtonPreviewProps {

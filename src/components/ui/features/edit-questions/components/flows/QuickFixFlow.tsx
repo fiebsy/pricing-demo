@@ -15,7 +15,7 @@
 import * as React from 'react'
 import { useState, useCallback, useMemo } from 'react'
 import { cn } from '@/lib/utils'
-import { HugeIcon } from '@/components/ui/prod/base/icon'
+import { HugeIcon } from '@/components/ui/core/primitives/icon'
 import Cancel01Icon from '@hugeicons-pro/core-stroke-rounded/Cancel01Icon'
 import Tick01Icon from '@hugeicons-pro/core-stroke-rounded/Tick01Icon'
 import ArrowLeft01Icon from '@hugeicons-pro/core-stroke-rounded/ArrowLeft01Icon'

@@ -7,7 +7,7 @@
  * @migration-target src/components/ui/prod/base/button
  */
 
-import type { ButtonRoundness, ButtonSize, ButtonVariant } from '@/components/ui/prod/base/button'
+import type { ButtonRoundness, ButtonSize, ButtonVariant } from '@/components/ui/core/primitives/button'
 
 // =============================================================================
 // DISPLAY MODE

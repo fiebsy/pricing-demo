@@ -38,7 +38,7 @@ import { ConfigurableToast } from '@/app/playground/success-toast/core/Configura
 import type { SuccessToastConfig } from '@/app/playground/success-toast/config/types'
 
 // UI Components
-import { Button } from '@/components/ui/prod/base/button'
+import { Button } from '@/components/ui/core/primitives/button'
 import Logout03Icon from '@hugeicons-pro/core-stroke-rounded/Logout03Icon'
 import ViewIcon from '@hugeicons-pro/core-stroke-rounded/ViewIcon'
 import ViewOffIcon from '@hugeicons-pro/core-stroke-rounded/ViewOffIcon'

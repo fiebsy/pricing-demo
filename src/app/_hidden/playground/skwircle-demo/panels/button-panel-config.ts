@@ -2,7 +2,7 @@
  * Button Panel Configuration
  */
 
-import type { Section as ControlSection } from '@/components/ui/prod/base/control-panel'
+import type { Section as ControlSection } from '@/components/ui/patterns/control-panel'
 import type { ButtonConfig } from '../types'
 import { BUTTON_INTENT_OPTIONS, BUTTON_SIZE_OPTIONS, ROUNDNESS_OPTIONS } from '../constants'
 

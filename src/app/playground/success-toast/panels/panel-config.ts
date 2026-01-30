@@ -1,4 +1,4 @@
-import type { PanelConfig, Section } from '@/components/ui/prod/base/control-panel'
+import type { PanelConfig, Section } from '@/components/ui/patterns/control-panel'
 import type { SuccessToastConfig, SuccessToastPresetMeta } from '../config/types'
 import {
   BACKGROUND_OPTIONS,

@@ -56,7 +56,7 @@ function extractIconData(icon: unknown): HugeIconData | null {
  * @example
  * ```tsx
  * import Cancel01Icon from '@hugeicons-pro/core-stroke-rounded/Cancel01Icon'
- * import { HugeIcon } from '@/components/ui/prod/base/icon'
+ * import { HugeIcon } from '@/components/ui/core/primitives/icon'
  *
  * // Basic usage with presets
  * <HugeIcon icon={Cancel01Icon} size="md" color="secondary" />
@@ -137,7 +137,7 @@ HugeIcon.displayName = 'HugeIcon'
  * @example
  * ```tsx
  * import Alert02Icon from '@hugeicons-pro/core-solid-rounded/Alert02Icon'
- * import { Icon } from '@/components/ui/prod/base/icon'
+ * import { Icon } from '@/components/ui/core/primitives/icon'
  *
  * // Solid icon with container (recommended for solid/bulk variants)
  * <Icon

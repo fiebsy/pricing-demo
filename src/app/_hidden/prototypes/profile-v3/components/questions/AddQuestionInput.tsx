@@ -12,7 +12,7 @@
 import * as React from 'react'
 import { useState, useCallback, useRef, useEffect, useMemo } from 'react'
 import { cn } from '@/lib/utils'
-import { HugeIcon } from '@/components/ui/prod/base/icon'
+import { HugeIcon } from '@/components/ui/core/primitives/icon'
 import Add01Icon from '@hugeicons-pro/core-stroke-rounded/Add01Icon'
 import Tick02Icon from '@hugeicons-pro/core-stroke-rounded/Tick02Icon'
 import Cancel01Icon from '@hugeicons-pro/core-stroke-rounded/Cancel01Icon'

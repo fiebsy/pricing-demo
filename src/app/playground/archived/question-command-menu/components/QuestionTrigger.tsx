@@ -15,12 +15,12 @@
 import * as React from 'react'
 import { useState, useCallback, useEffect, useRef } from 'react'
 import { cn } from '@/lib/utils'
-import { HugeIcon } from '@/components/ui/prod/base/icon'
+import { HugeIcon } from '@/components/ui/core/primitives/icon'
 import Add01Icon from '@hugeicons-pro/core-stroke-rounded/Add01Icon'
 import Search01Icon from '@hugeicons-pro/core-stroke-rounded/Search01Icon'
 import ArrowLeft01Icon from '@hugeicons-pro/core-stroke-rounded/ArrowLeft01Icon'
 
-import { useBiaxialExpand } from '@/components/ui/prod/base/biaxial-command-menu-v4'
+import { useBiaxialExpand } from '@/components/ui/features/command-menu'
 import type { ViewMode } from '../types'
 
 // =============================================================================

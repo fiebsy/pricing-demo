@@ -17,10 +17,10 @@ import { Breadcrumbs } from '@/components/ui/deprecated/nav'
 import {
   UnifiedControlPanel,
   type ControlChangeEvent,
-} from '@/components/ui/prod/base/control-panel'
-import { Button } from '@/components/ui/prod/base/button'
-import type { ButtonVariant, ButtonSize, ButtonRoundness } from '@/components/ui/prod/base/button'
-import { HugeIcon } from '@/components/ui/prod/base/icon'
+} from '@/components/ui/patterns/control-panel'
+import { Button } from '@/components/ui/core/primitives/button'
+import type { ButtonVariant, ButtonSize, ButtonRoundness } from '@/components/ui/core/primitives/button'
+import { HugeIcon } from '@/components/ui/core/primitives/icon'
 import ArrowRight01Icon from '@hugeicons-pro/core-stroke-rounded/ArrowRight01Icon'
 import Add01Icon from '@hugeicons-pro/core-stroke-rounded/Add01Icon'
 

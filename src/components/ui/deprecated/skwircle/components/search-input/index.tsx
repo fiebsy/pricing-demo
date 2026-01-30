@@ -24,7 +24,7 @@
 
 import * as React from 'react'
 import { Skwircle } from '../..'
-import { HugeIcon } from '@/components/ui/prod/base/icon'
+import { HugeIcon } from '@/components/ui/core/primitives/icon'
 import { Search01Icon, Cancel01Icon } from '@hugeicons-pro/core-stroke-rounded'
 
 // =============================================================================

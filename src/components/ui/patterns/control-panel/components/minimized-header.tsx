@@ -9,7 +9,7 @@
 
 import Add01Icon from '@hugeicons-pro/core-stroke-rounded/Add01Icon'
 import { cx } from '@/components/utils/cx'
-import { HugeIcon } from '@/components/ui/prod/base/icon'
+import { HugeIcon } from '@/components/ui/core/primitives/icon'
 import { usePanelContext } from '../context'
 
 interface MinimizedHeaderProps {

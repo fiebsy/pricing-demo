@@ -11,11 +11,11 @@
 
 import * as React from 'react'
 import { cn } from '@/lib/utils'
-import { Badge } from '@/components/ui/prod/base/badge'
+import { Badge } from '@/components/ui/core/primitives/badge'
 import { ScoreProgressBar } from './ScoreProgressBar'
 import { getScoreColor, getScoreColorClass, getScoreStatus, getScoreDelta } from '../config'
 import type { SubScoreItem, RatingsConfig, BadgeColorOption } from '../config/types'
-import type { BadgeColor } from '@/components/ui/prod/base/badge/types'
+import type { BadgeColor } from '@/components/ui/core/primitives/badge/types'
 
 export interface SubScoreProps {
   item: SubScoreItem

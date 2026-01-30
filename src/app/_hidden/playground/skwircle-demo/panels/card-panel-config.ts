@@ -2,7 +2,7 @@
  * Card Panel Configuration
  */
 
-import type { Section as ControlSection } from '@/components/ui/prod/base/control-panel'
+import type { Section as ControlSection } from '@/components/ui/patterns/control-panel'
 import type { CardConfig } from '../types'
 import {
   CARD_INTENT_OPTIONS,

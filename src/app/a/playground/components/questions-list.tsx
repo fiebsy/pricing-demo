@@ -2,7 +2,7 @@
 
 import { useMemo, useCallback, useEffect, useRef } from 'react'
 import { cn } from '@/lib/utils'
-import { HugeIcon } from '@/components/ui/prod/base/icon'
+import { HugeIcon } from '@/components/ui/core/primitives/icon'
 import Add01Icon from '@hugeicons-pro/core-stroke-rounded/Add01Icon'
 
 // V4 Command Menu imports

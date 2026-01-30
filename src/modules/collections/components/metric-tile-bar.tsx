@@ -19,7 +19,7 @@ import { cn } from '@/lib/utils'
 import {
   MetricCard,
   METRIC_CARD_PRESETS,
-} from '@/components/ui/prod/features/metric-card'
+} from '@/components/ui/features/metric-card'
 
 import type { MetricFilterId } from '../types'
 

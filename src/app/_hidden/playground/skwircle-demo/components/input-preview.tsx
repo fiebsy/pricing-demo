@@ -9,7 +9,7 @@
 import React from 'react'
 import type { InputConfig } from '../types'
 import { Skwircle } from '@/components/ui/deprecated/skwircle/skwircle'
-import { HugeIcon } from '@/components/ui/prod/base/icon'
+import { HugeIcon } from '@/components/ui/core/primitives/icon'
 import Mail01Icon from '@hugeicons-pro/core-stroke-rounded/Mail01Icon'
 
 interface InputPreviewProps {

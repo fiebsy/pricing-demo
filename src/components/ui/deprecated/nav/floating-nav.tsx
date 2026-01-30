@@ -10,9 +10,9 @@
 
 import type { ComponentType } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
-import { HugeIcon } from '@/components/ui/prod/base/icon'
-import { Menu } from '@/components/ui/prod/base/menu'
-import type { MenuItemType, MenuItemAction, MenuItemSubmenu } from '@/components/ui/prod/base/menu'
+import { HugeIcon } from '@/components/ui/core/primitives/icon'
+import { Menu } from '@/components/ui/core/primitives/menu'
+import type { MenuItemType, MenuItemAction, MenuItemSubmenu } from '@/components/ui/core/primitives/menu'
 import {
   Home01Icon,
   AnalyticsUpIcon,

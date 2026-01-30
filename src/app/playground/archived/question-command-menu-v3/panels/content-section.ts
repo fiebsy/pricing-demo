@@ -4,7 +4,7 @@
  * Configures content assignment and type-specific settings.
  */
 
-import type { Section, ControlGroup } from '@/components/ui/prod/base/control-panel'
+import type { Section, ControlGroup } from '@/components/ui/patterns/control-panel'
 import type { PlaygroundState, ContentInstance } from '../config/types'
 import {
   CONTENT_TYPE_OPTIONS,

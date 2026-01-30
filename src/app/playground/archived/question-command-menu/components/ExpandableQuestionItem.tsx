@@ -13,7 +13,7 @@
 import * as React from 'react'
 import { useCallback, useMemo, useState, useEffect, useRef } from 'react'
 import { cn } from '@/lib/utils'
-import { HugeIcon } from '@/components/ui/prod/base/icon'
+import { HugeIcon } from '@/components/ui/core/primitives/icon'
 import CheckmarkCircle02Icon from '@hugeicons-pro/core-stroke-rounded/CheckmarkCircle02Icon'
 import AlertCircleIcon from '@hugeicons-pro/core-stroke-rounded/AlertCircleIcon'
 import Time02Icon from '@hugeicons-pro/core-stroke-rounded/Time02Icon'
@@ -23,7 +23,7 @@ import ArrowLeft01Icon from '@hugeicons-pro/core-stroke-rounded/ArrowLeft01Icon'
 import {
   BiaxialExpandV4,
   type BiaxialExpandConfig,
-} from '@/components/ui/prod/base/biaxial-command-menu-v4'
+} from '@/components/ui/features/command-menu'
 
 import type { Question, QuestionStatus, Answer, AnswerState, PlaygroundConfig } from '../types'
 import { ChatPreview } from './ChatPreview'

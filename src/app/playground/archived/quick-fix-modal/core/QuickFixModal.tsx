@@ -14,7 +14,7 @@
 import * as React from 'react'
 import { Dialog } from '@base-ui/react/dialog'
 import { cn } from '@/lib/utils'
-import { HugeIcon } from '@/components/ui/prod/base/icon'
+import { HugeIcon } from '@/components/ui/core/primitives/icon'
 import ArrowLeft01Icon from '@hugeicons-pro/core-stroke-rounded/ArrowLeft01Icon'
 import Cancel01Icon from '@hugeicons-pro/core-stroke-rounded/Cancel01Icon'
 import CheckmarkCircle02Icon from '@hugeicons-pro/core-stroke-rounded/CheckmarkCircle02Icon'
@@ -326,12 +326,12 @@ function QuickFixContent({
 // ADD TO MIND CONTENT - File/link/text upload
 // =============================================================================
 
-import { HugeIcon as Icon } from '@/components/ui/prod/base/icon'
+import { HugeIcon as Icon } from '@/components/ui/core/primitives/icon'
 import FolderUploadIcon from '@hugeicons-pro/core-stroke-rounded/FolderUploadIcon'
 import Link01Icon from '@hugeicons-pro/core-stroke-rounded/Link01Icon'
 import TextIcon from '@hugeicons-pro/core-stroke-rounded/TextIcon'
 import Delete01Icon from '@hugeicons-pro/core-stroke-rounded/Delete01Icon'
-import { Button } from '@/components/ui/prod/base/button'
+import { Button } from '@/components/ui/core/primitives/button'
 
 interface MindContent {
   id: string

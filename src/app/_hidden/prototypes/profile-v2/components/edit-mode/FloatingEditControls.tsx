@@ -10,7 +10,7 @@
 
 import * as React from 'react'
 import { cn } from '@/lib/utils'
-import { HugeIcon } from '@/components/ui/prod/base/icon'
+import { HugeIcon } from '@/components/ui/core/primitives/icon'
 import Edit02Icon from '@hugeicons-pro/core-stroke-rounded/Edit02Icon'
 import Delete01Icon from '@hugeicons-pro/core-stroke-rounded/Delete01Icon'
 import type { FloatingEditControlsProps } from '../../types'

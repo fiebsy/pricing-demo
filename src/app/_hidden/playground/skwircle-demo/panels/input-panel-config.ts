@@ -2,7 +2,7 @@
  * Input Panel Configuration
  */
 
-import type { Section as ControlSection } from '@/components/ui/prod/base/control-panel'
+import type { Section as ControlSection } from '@/components/ui/patterns/control-panel'
 import type { InputConfig } from '../types'
 import { INPUT_STATE_OPTIONS, RING_COLOR_OPTIONS, ROUNDNESS_OPTIONS } from '../constants'
 

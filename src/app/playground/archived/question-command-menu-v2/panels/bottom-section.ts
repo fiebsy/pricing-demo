@@ -2,7 +2,7 @@
  * Question Command Menu - Bottom Section Config
  */
 
-import type { Section, ControlGroup } from '@/components/ui/prod/base/control-panel'
+import type { Section, ControlGroup } from '@/components/ui/patterns/control-panel'
 import type { PlaygroundState } from '../config/types'
 import {
   BACKGROUND_OPTIONS,

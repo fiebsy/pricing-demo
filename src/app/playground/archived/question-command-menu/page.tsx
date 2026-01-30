@@ -18,12 +18,12 @@ import { cn } from '@/lib/utils'
 import {
   UnifiedControlPanel,
   type ControlChangeEvent,
-} from '@/components/ui/prod/base/control-panel'
+} from '@/components/ui/patterns/control-panel'
 
 import {
   BiaxialExpandV4,
   type BiaxialExpandConfig,
-} from '@/components/ui/prod/base/biaxial-command-menu-v4'
+} from '@/components/ui/features/command-menu'
 
 // Local imports
 import type { PlaygroundConfig, Question, AnswerState } from './types'

@@ -12,8 +12,8 @@
 import * as React from 'react'
 import { useState, useCallback, useRef, useEffect, useMemo } from 'react'
 import { cn } from '@/lib/utils'
-import { Menu } from '@/components/ui/prod/base/menu'
-import { HugeIcon } from '@/components/ui/prod/base/icon'
+import { Menu } from '@/components/ui/core/primitives/menu'
+import { HugeIcon } from '@/components/ui/core/primitives/icon'
 import MoreVerticalIcon from '@hugeicons-pro/core-solid-rounded/MoreVerticalIcon'
 import PencilEdit01Icon from '@hugeicons-pro/core-stroke-rounded/PencilEdit01Icon'
 import Delete02Icon from '@hugeicons-pro/core-stroke-rounded/Delete02Icon'
@@ -21,7 +21,7 @@ import Tick02Icon from '@hugeicons-pro/core-stroke-rounded/Tick02Icon'
 import Cancel01Icon from '@hugeicons-pro/core-stroke-rounded/Cancel01Icon'
 import RefreshIcon from '@hugeicons-pro/core-stroke-rounded/RefreshIcon'
 import type { ProfileQuestion } from '../../types'
-import type { MenuItem } from '@/components/ui/prod/base/menu/types'
+import type { MenuItem } from '@/components/ui/core/primitives/menu/types'
 
 // =============================================================================
 // CONSTANTS

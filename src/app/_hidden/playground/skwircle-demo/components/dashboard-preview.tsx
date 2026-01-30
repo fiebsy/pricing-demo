@@ -10,7 +10,7 @@ import React from 'react'
 import type { DashboardConfig } from '../types'
 import { Skwircle } from '@/components/ui/deprecated/skwircle/skwircle'
 import type { SkwircleBackgroundGradient } from '@/components/ui/deprecated/skwircle/types'
-import { HugeIcon } from '@/components/ui/prod/base/icon'
+import { HugeIcon } from '@/components/ui/core/primitives/icon'
 import ArrowUp01Icon from '@hugeicons-pro/core-stroke-rounded/ArrowUp01Icon'
 import ArrowDown01Icon from '@hugeicons-pro/core-stroke-rounded/ArrowDown01Icon'
 

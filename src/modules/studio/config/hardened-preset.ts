@@ -9,7 +9,7 @@ import type {
   BorderConfig,
   BackgroundConfig,
   ToolbarLayoutConfig,
-} from '@/components/ui/prod/data/sticky-data-table'
+} from '@/components/ui/patterns/data-table'
 
 // =============================================================================
 // HARDENED DIMENSIONS

@@ -19,7 +19,7 @@ import * as React from 'react'
 import { useRef, useLayoutEffect, useEffect, useState, useCallback } from 'react'
 import { motion, AnimatePresence, useReducedMotion } from 'motion/react'
 import { cn } from '@/lib/utils'
-import { HugeIcon } from '@/components/ui/prod/base/icon'
+import { HugeIcon } from '@/components/ui/core/primitives/icon'
 
 // Icons
 import Briefcase01Icon from '@hugeicons-pro/core-stroke-rounded/Briefcase01Icon'
@@ -30,7 +30,7 @@ import ArrowLeft01Icon from '@hugeicons-pro/core-stroke-rounded/ArrowLeft01Icon'
 import SparklesIcon from '@hugeicons-pro/core-stroke-rounded/SparklesIcon'
 
 import type { SlidingRatingsConfig, CategoryData, CategoryId, AnimationConfig, ScaleOrigin, ButtonContentType, ShineStyle } from '../config/types'
-import { Button } from '@/components/ui/prod/base/button'
+import { Button } from '@/components/ui/core/primitives/button'
 import { getScoreColorClass, getScoreBgClass } from '../config/mock-data'
 
 // =============================================================================

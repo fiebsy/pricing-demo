@@ -3,7 +3,7 @@
 import * as React from 'react'
 import { Switch } from 'react-aria-components'
 import { useTheme } from '../../theme-provider'
-import { HugeIcon } from '@/components/ui/prod/base/icon'
+import { HugeIcon } from '@/components/ui/core/primitives/icon'
 import { Moon02Icon, Sun03Icon } from '@hugeicons-pro/core-duotone-rounded'
 
 /**

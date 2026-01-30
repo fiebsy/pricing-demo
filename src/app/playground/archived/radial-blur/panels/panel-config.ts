@@ -5,7 +5,7 @@
 import type {
   PanelConfig,
   Section,
-} from '@/components/ui/prod/base/control-panel'
+} from '@/components/ui/patterns/control-panel'
 import type { RadialBlurConfig, RadialBlurPresetMeta } from '../config/types'
 import { STATE_OPTIONS, BG_COLOR_OPTIONS, SHINE_STYLE_OPTIONS } from '../config/options'
 

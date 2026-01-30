@@ -12,7 +12,7 @@
 
 import * as React from 'react'
 import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/prod/base/button'
+import { Button } from '@/components/ui/core/primitives/button'
 import Delete01Icon from '@hugeicons-pro/core-stroke-rounded/Delete01Icon'
 import RefreshIcon from '@hugeicons-pro/core-stroke-rounded/RefreshIcon'
 import Tick01Icon from '@hugeicons-pro/core-stroke-rounded/Tick01Icon'

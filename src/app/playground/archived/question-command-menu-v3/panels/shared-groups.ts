@@ -5,7 +5,7 @@
  * This is the key to eliminating duplication.
  */
 
-import type { ControlGroup } from '@/components/ui/prod/base/control-panel'
+import type { ControlGroup } from '@/components/ui/patterns/control-panel'
 import type { UnifiedSlotConfig } from '../config/slots'
 import {
   HEIGHT_MODE_OPTIONS,

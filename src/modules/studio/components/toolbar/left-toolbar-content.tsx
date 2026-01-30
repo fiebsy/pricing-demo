@@ -15,12 +15,12 @@ import {
   FilterMenu,
   FilterTrigger,
   type FilterOption,
-} from '@/components/ui/prod/base/filter'
+} from '@/components/ui/patterns/filter'
 
 import {
   FilterSelectChipStatic,
   type FilterChipData,
-} from '@/components/ui/prod/base/filter/filter-select-chip-static'
+} from '@/components/ui/patterns/filter/filter-select-chip-static'
 
 import {
   AUDIENCE_FILTER_ITEMS,

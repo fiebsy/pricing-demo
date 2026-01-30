@@ -2,7 +2,7 @@
 
 import { motion } from 'motion/react'
 import LinkSquare02Icon from '@hugeicons-pro/core-stroke-rounded/LinkSquare02Icon'
-import { Button } from '@/components/ui/prod/base/button'
+import { Button } from '@/components/ui/core/primitives/button'
 import type { Slide, GridSection } from '../../data/slides'
 
 /**

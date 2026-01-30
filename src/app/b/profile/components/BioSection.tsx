@@ -10,7 +10,7 @@
 
 import * as React from 'react'
 import { cn } from '@/lib/utils'
-import { Badge } from '@/components/ui/prod/base/badge'
+import { Badge } from '@/components/ui/core/primitives/badge'
 import type { BioSectionProps } from '../types'
 
 // =============================================================================

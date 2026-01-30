@@ -10,7 +10,7 @@ import * as React from 'react'
 import { useRef, useEffect, useState } from 'react'
 import { ScrollArea } from '@base-ui/react/scroll-area'
 import { cn } from '@/lib/utils'
-import { HugeIcon } from '@/components/ui/prod/base/icon'
+import { HugeIcon } from '@/components/ui/core/primitives/icon'
 import { useV4Context } from '../state'
 import type { ChatMessage, ChatConfig, SlotPosition, SlotScrollConfig } from '../types'
 
@@ -22,7 +22,7 @@ import VolumeHighIcon from '@hugeicons-pro/core-stroke-rounded/VolumeHighIcon'
 import Tick01Icon from '@hugeicons-pro/core-stroke-rounded/Tick01Icon'
 
 // Badge component
-import { Badge } from '@/components/ui/prod/base/badge'
+import { Badge } from '@/components/ui/core/primitives/badge'
 
 // Debug flag - set to true to visualize container layers
 const DEBUG_LAYOUT = false

@@ -12,13 +12,13 @@ import { Breadcrumbs } from '@/components/ui/deprecated/nav'
 import {
   StickyDataTable,
   type ColumnConfig,
-} from '@/components/ui/prod/data/sticky-data-table'
+} from '@/components/ui/patterns/data-table'
 import {
   UnifiedControlPanel,
   type ControlChangeEvent,
   type Section as ControlSection,
   type UnifiedControlPanelProps,
-} from '@/components/ui/prod/base/control-panel'
+} from '@/components/ui/patterns/control-panel'
 type UnifiedControlPanelConfig = UnifiedControlPanelProps['config']
 
 // =============================================================================

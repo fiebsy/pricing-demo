@@ -76,7 +76,7 @@ The prod components had import paths referencing `@/modules/design-system/v2/...
 ### Files Updated
 
 - 46 files in `/src/components/ui/prod/` - design system import paths
-- 27 files - HugeIcon import paths (`@/components/ui/base/icon/huge-icons/...` → `@/components/ui/prod/base/icon`)
+- 27 files - HugeIcon import paths (`@/components/ui/base/icon/huge-icons/...` → `@/components/ui/core/primitives/icon`)
 
 ### Bug Fixes
 

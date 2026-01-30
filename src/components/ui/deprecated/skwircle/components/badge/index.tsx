@@ -35,7 +35,7 @@ import {
   type BadgeType,
   type BadgeSize,
 } from '../../config/badge'
-import { HugeIcon } from '@/components/ui/prod/base/icon'
+import { HugeIcon } from '@/components/ui/core/primitives/icon'
 
 // =============================================================================
 // TYPES

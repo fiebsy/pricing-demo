@@ -10,7 +10,7 @@
  * between the backdrop and slot content.
  */
 
-import { DEFAULT_APPEARANCE } from '@/components/ui/prod/base/menu/config'
+import { DEFAULT_APPEARANCE } from '@/components/ui/core/primitives/menu/config'
 import type {
   BiaxialExpandConfig,
   AnimationConfig,

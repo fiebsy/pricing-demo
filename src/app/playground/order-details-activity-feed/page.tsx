@@ -11,7 +11,7 @@ import { useCallback, useMemo, useState } from 'react'
 import {
   UnifiedControlPanel,
   type ControlChangeEvent,
-} from '@/components/ui/prod/base/control-panel'
+} from '@/components/ui/patterns/control-panel'
 
 import { OrderDetailsFeed } from './core/order-details-feed'
 import type { OrderDetailsFeedConfig, ContractData } from './config/types'

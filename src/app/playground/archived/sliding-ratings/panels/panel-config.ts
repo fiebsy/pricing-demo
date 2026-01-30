@@ -6,7 +6,7 @@
  * @module playground/sliding-ratings/panels
  */
 
-import type { PanelConfig, Section } from '@/components/ui/prod/base/control-panel'
+import type { PanelConfig, Section } from '@/components/ui/patterns/control-panel'
 import type { SlidingRatingsConfig, SlidingRatingsPreset } from '../config/types'
 import {
   BACKGROUND_OPTIONS,

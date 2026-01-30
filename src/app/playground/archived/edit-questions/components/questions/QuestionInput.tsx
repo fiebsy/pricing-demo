@@ -19,7 +19,7 @@ import * as React from 'react'
 import { useState, useCallback, useEffect } from 'react'
 import { Autocomplete } from '@base-ui/react/autocomplete'
 import { cn } from '@/lib/utils'
-import { HugeIcon } from '@/components/ui/prod/base/icon'
+import { HugeIcon } from '@/components/ui/core/primitives/icon'
 import Add01Icon from '@hugeicons-pro/core-stroke-rounded/Add01Icon'
 import AlertCircleIcon from '@hugeicons-pro/core-stroke-rounded/AlertCircleIcon'
 

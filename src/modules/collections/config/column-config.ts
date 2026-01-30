@@ -5,7 +5,7 @@
  * Optimized for risk activity workflow with key information visible.
  */
 
-import type { ColumnConfig } from '@/components/ui/prod/data/sticky-data-table'
+import type { ColumnConfig } from '@/components/ui/patterns/data-table'
 import type { PartnerRiskSortField } from '../types'
 
 // =============================================================================

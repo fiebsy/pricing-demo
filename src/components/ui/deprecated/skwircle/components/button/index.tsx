@@ -32,7 +32,7 @@ import {
   type ButtonSize,
   type ButtonIntent,
 } from '../../config/button'
-import { HugeIcon } from '@/components/ui/prod/base/icon'
+import { HugeIcon } from '@/components/ui/core/primitives/icon'
 
 // =============================================================================
 // TYPES

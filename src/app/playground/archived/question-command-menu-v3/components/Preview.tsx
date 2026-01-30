@@ -11,7 +11,7 @@ import { useMemo, useCallback } from 'react'
 import {
   BiaxialExpandV4,
   type BiaxialExpandConfig,
-} from '@/components/ui/prod/base/biaxial-command-menu-v4'
+} from '@/components/ui/features/command-menu'
 import { QuestionCommandMenuV3Provider, useV3Context, useSlotHeight, filterQuestionGroups } from '../core'
 import { UniversalSlot } from './UniversalSlot'
 import { InputWithButtons } from './InputWithButtons'

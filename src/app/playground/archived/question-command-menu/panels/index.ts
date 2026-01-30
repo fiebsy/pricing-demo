@@ -6,7 +6,7 @@
  * @module playground/question-command-menu/panels
  */
 
-import type { UnifiedControlPanelProps, Section } from '@/components/ui/prod/base/control-panel'
+import type { UnifiedControlPanelProps, Section } from '@/components/ui/patterns/control-panel'
 import type { PlaygroundConfig } from '../types'
 import { PRESETS } from '../constants'
 

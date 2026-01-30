@@ -16,7 +16,7 @@ import {
   UnifiedControlPanel,
   type ControlChangeEvent,
   type UnifiedControlPanelProps,
-} from '@/components/ui/prod/base/control-panel'
+} from '@/components/ui/patterns/control-panel'
 import {
   EnhancedButtonAnimationV2 as ButtonAnimationV2,
   type AnimationConfig,
@@ -27,12 +27,12 @@ import {
   type EaseType,
   DEFAULT_ANIMATION_CONFIG,
   DEFAULT_STYLE_CONFIG,
-} from '@/components/ui/prod/base/button-animation-v2'
+} from '@/components/ui/features/button-animation'
 import { 
   AnchorPositionDebugger, 
   MiniPositionTracker 
-} from '@/components/ui/prod/base/button-animation-v2/debug/AnchorPositionDebugger'
-import { PositionLogger } from '@/components/ui/prod/base/button-animation-v2/debug/PositionLogger'
+} from '@/components/ui/features/button-animation/debug/AnchorPositionDebugger'
+import { PositionLogger } from '@/components/ui/features/button-animation/debug/PositionLogger'
 
 type UnifiedControlPanelConfig = UnifiedControlPanelProps['config']
 

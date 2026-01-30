@@ -67,7 +67,7 @@ import type { ChatMessage } from './profile/types'
 
 // UI
 import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/prod/base/button'
+import { Button } from '@/components/ui/core/primitives/button'
 import Logout03Icon from '@hugeicons-pro/core-stroke-rounded/Logout03Icon'
 
 // =============================================================================

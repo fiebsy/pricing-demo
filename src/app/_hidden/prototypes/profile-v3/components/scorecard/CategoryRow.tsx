@@ -11,8 +11,8 @@
 import * as React from 'react'
 import NumberFlow from '@number-flow/react'
 import { cn } from '@/lib/utils'
-import { HugeIcon } from '@/components/ui/prod/base/icon'
-import { Button } from '@/components/ui/prod/base/button'
+import { HugeIcon } from '@/components/ui/core/primitives/icon'
+import { Button } from '@/components/ui/core/primitives/button'
 import type { CategoryType } from '../../types'
 
 // =============================================================================

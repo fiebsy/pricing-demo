@@ -174,7 +174,7 @@ Add to the appropriate `index.ts` file in the tier directory.
 
 ```typescript
 // Old
-import { Button } from '@/components/ui/prod/base/button'
+import { Button } from '@/components/ui/core/primitives/button'
 
 // New
 import { Button } from '@/components/ui/core/primitives/button'
@@ -186,7 +186,7 @@ import { Button } from '@/components/ui/core'
 
 ```typescript
 // Old
-import { MetricCard } from '@/components/ui/prod/features/metric-card'
+import { MetricCard } from '@/components/ui/features/metric-card'
 
 // New
 import { MetricCard } from '@/components/ui/features/metric-card'
@@ -198,7 +198,7 @@ import { MetricCard } from '@/components/ui/features'
 
 ```typescript
 // Old
-import { BiaxialCommandMenu } from '@/components/ui/prod/base/biaxial-command-menu-v4'
+import { BiaxialCommandMenu } from '@/components/ui/features/command-menu'
 
 // New
 import { CommandMenu } from '@/components/ui/experimental'

@@ -10,7 +10,7 @@
 import * as React from 'react'
 import { forwardRef, useCallback } from 'react'
 import { cn } from '@/lib/utils'
-import { HugeIcon } from '@/components/ui/prod/base/icon'
+import { HugeIcon } from '@/components/ui/core/primitives/icon'
 import ArrowDown01Icon from '@hugeicons-pro/core-stroke-rounded/ArrowDown01Icon'
 import { useBiaxialExpand } from '../context'
 

@@ -2,7 +2,7 @@
  * Badge Panel Configuration
  */
 
-import type { Section as ControlSection } from '@/components/ui/prod/base/control-panel'
+import type { Section as ControlSection } from '@/components/ui/patterns/control-panel'
 import type { BadgeConfig } from '../types'
 import { BADGE_TYPE_OPTIONS, BADGE_SIZE_OPTIONS, BADGE_COLOR_OPTIONS, ROUNDNESS_OPTIONS } from '../constants'
 

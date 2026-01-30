@@ -11,7 +11,7 @@ import { useMemo, useCallback } from 'react'
 import {
   BiaxialExpandV4,
   type BiaxialExpandConfig,
-} from '@/components/ui/prod/base/biaxial-command-menu-v4'
+} from '@/components/ui/features/command-menu'
 import { V4Provider, useV4Context } from '../state'
 import { useSlotHeight, filterQuestionGroups, filterSuggestions, useFlowConfig } from '../hooks'
 import { UniversalSlot } from './UniversalSlot'

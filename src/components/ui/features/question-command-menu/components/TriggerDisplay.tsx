@@ -9,8 +9,8 @@
 
 import * as React from 'react'
 import { cn } from '@/lib/utils'
-import { useBiaxialExpand } from '@/components/ui/prod/base/biaxial-command-menu-v4'
-import { HugeIcon } from '@/components/ui/prod/base/icon'
+import { useBiaxialExpand } from '@/components/ui/features/command-menu'
+import { HugeIcon } from '@/components/ui/core/primitives/icon'
 import Alert02Icon from '@hugeicons-pro/core-stroke-rounded/Alert02Icon'
 import CheckmarkCircle02Icon from '@hugeicons-pro/core-stroke-rounded/CheckmarkCircle02Icon'
 import Loading03Icon from '@hugeicons-pro/core-stroke-rounded/Loading03Icon'

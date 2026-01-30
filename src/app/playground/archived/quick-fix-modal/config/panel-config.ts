@@ -6,7 +6,7 @@
  * @module playground/quick-fix-modal/config
  */
 
-import type { PanelConfig, Section } from '@/components/ui/prod/base/control-panel'
+import type { PanelConfig, Section } from '@/components/ui/patterns/control-panel'
 import type { QuickFixModalConfig, QuickFixModalPresetMeta } from './types'
 import { MODAL_SOLUTION_PRESETS } from './presets'
 import {

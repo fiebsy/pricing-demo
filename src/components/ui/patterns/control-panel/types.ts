@@ -28,6 +28,16 @@ export interface SliderControl extends ControlBase {
   formatLabel?: (value: number) => string
 }
 
+/** Inline slider control - compact variant with label inside fill */
+export interface InlineSliderControl extends ControlBase {
+  type: 'inline-slider'
+  value: number
+  min: number
+  max: number
+  step: number
+  formatLabel?: (value: number) => string
+}
+
 /** Select dropdown control */
 export interface SelectControl extends ControlBase {
   type: 'select'
@@ -84,6 +94,7 @@ export interface CustomControl extends ControlBase {
 /** Union of all control types */
 export type Control =
   | SliderControl
+  | InlineSliderControl
   | SelectControl
   | ColorSelectControl
   | ToggleControl
@@ -200,4 +211,6 @@ export interface PanelContextValue {
   isMinimized: boolean
   setIsMinimized: (minimized: boolean) => void
   toggleMinimized: () => void
+  /** Navigation direction: 1 = moving down (to later section), -1 = moving up (to earlier section) */
+  direction: 1 | -1
 }

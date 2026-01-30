@@ -8,8 +8,8 @@
 
 import React from 'react'
 import { cn } from '@/lib/utils'
-import { Badge } from '@/components/ui/prod/base/badge'
-import { Tooltip } from '@/components/ui/prod/base/tooltip'
+import { Badge } from '@/components/ui/core/primitives/badge'
+import { Tooltip } from '@/components/ui/core/feedback/tooltip'
 import Globe02Icon from '@hugeicons-pro/core-stroke-rounded/Globe02Icon'
 import StarIcon from '@hugeicons-pro/core-stroke-rounded/StarIcon'
 import Mail01Icon from '@hugeicons-pro/core-stroke-rounded/Mail01Icon'

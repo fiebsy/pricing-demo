@@ -39,7 +39,7 @@ import { ConfigurableToast } from '@/components/ui/features/success-toast'
 import type { SuccessToastConfig } from '@/components/ui/features/success-toast'
 
 // UI Components
-import { Button } from '@/components/ui/prod/base/button'
+import { Button } from '@/components/ui/core/primitives/button'
 import Logout03Icon from '@hugeicons-pro/core-stroke-rounded/Logout03Icon'
 import ViewIcon from '@hugeicons-pro/core-stroke-rounded/ViewIcon'
 import ViewOffIcon from '@hugeicons-pro/core-stroke-rounded/ViewOffIcon'

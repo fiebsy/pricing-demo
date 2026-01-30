@@ -12,7 +12,7 @@
 import * as React from 'react'
 import { motion } from 'motion/react'
 import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/prod/base/button'
+import { Button } from '@/components/ui/core/primitives/button'
 import { ConfidenceSignal } from './ConfidenceSignal'
 import type { ChatMessage } from '../../types'
 import type { SemanticBgColor, ShineStyle } from '@/components/ui/features/radial-blur'

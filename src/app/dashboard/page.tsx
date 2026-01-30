@@ -20,7 +20,7 @@ import {
   TableEmptyState,
   useColumnConfiguration,
   type SelectionState,
-} from '@/components/ui/prod/data/sticky-data-table'
+} from '@/components/ui/patterns/data-table'
 
 // Collections module imports
 import {

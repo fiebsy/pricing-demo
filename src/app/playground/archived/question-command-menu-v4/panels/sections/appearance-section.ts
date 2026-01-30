@@ -4,7 +4,7 @@
  * Configures visual appearance: background, shadow, shine, gradient.
  */
 
-import type { Section } from '@/components/ui/prod/base/control-panel'
+import type { Section } from '@/components/ui/patterns/control-panel'
 import type { PlaygroundState } from '../../types'
 import {
   BACKGROUND_WITH_NONE_OPTIONS,

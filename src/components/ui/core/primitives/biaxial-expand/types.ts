@@ -7,7 +7,7 @@
  */
 
 import type * as React from 'react'
-import type { MenuAppearance } from '@/components/ui/prod/base/menu/types'
+import type { MenuAppearance } from '@/components/ui/core/primitives/menu/types'
 
 // ============================================================================
 // SLOT TYPES

@@ -16,7 +16,7 @@
 'use client'
 
 import * as React from 'react'
-import { Button } from '@/components/ui/prod/base/button'
+import { Button } from '@/components/ui/core/primitives/button'
 import { cn } from '@/lib/utils'
 
 import { useStackContext, useLevelContext } from '../context'

@@ -6,7 +6,7 @@
  * @module playground/ratings-panel/panels
  */
 
-import type { Section, PanelConfig, Preset } from '@/components/ui/prod/base/control-panel'
+import type { Section, PanelConfig, Preset } from '@/components/ui/patterns/control-panel'
 import type { RatingsConfig, RatingsPreset } from '../config/types'
 import {
   BACKGROUND_OPTIONS,

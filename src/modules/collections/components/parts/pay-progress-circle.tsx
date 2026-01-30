@@ -7,8 +7,8 @@
 
 'use client'
 
-import { Tooltip } from '@/components/ui/prod/base/tooltip'
-import { HugeIcon } from '@/components/ui/prod/base/icon'
+import { Tooltip } from '@/components/ui/core/feedback/tooltip'
+import { HugeIcon } from '@/components/ui/core/primitives/icon'
 import Tick01Icon from '@hugeicons-pro/core-stroke-rounded/Tick01Icon'
 import { formatAmount } from '../../utils/formatters'
 import { cn } from '@/lib/utils'

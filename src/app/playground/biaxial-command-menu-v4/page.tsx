@@ -10,7 +10,7 @@
 import * as React from 'react'
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
-import { HugeIcon } from '@/components/ui/prod/base/icon'
+import { HugeIcon } from '@/components/ui/core/primitives/icon'
 import Add01Icon from '@hugeicons-pro/core-stroke-rounded/Add01Icon'
 import Settings01Icon from '@hugeicons-pro/core-stroke-rounded/Settings01Icon'
 import Home01Icon from '@hugeicons-pro/core-stroke-rounded/Home01Icon'
@@ -23,7 +23,7 @@ import {
   type CommandGroup,
   type CommandItemAction,
   type BiaxialExpandConfig,
-} from '@/components/ui/prod/base/biaxial-command-menu-v4'
+} from '@/components/ui/features/command-menu'
 
 // ============================================================================
 // SAMPLE DATA

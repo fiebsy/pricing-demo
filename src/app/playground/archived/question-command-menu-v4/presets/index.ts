@@ -4,7 +4,7 @@
  * Aggregates all presets and exports utilities.
  */
 
-import type { Preset } from '@/components/ui/prod/base/control-panel'
+import type { Preset } from '@/components/ui/patterns/control-panel'
 import type { PlaygroundState, QuestionCommandMenuV4Preset } from '../types'
 
 // Re-export individual presets

@@ -10,7 +10,7 @@
 
 import * as React from 'react'
 import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/prod/base/button'
+import { Button } from '@/components/ui/core/primitives/button'
 import Settings01Icon from '@hugeicons-pro/core-stroke-rounded/Settings01Icon'
 import Share01Icon from '@hugeicons-pro/core-stroke-rounded/Share01Icon'
 import { Z_INDEX } from '../../../profile-v2/config'

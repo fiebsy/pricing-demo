@@ -12,7 +12,7 @@
 import * as React from 'react'
 import { useEffect, useState } from 'react'
 import { cn } from '@/lib/utils'
-import { HugeIcon } from '@/components/ui/prod/base/icon'
+import { HugeIcon } from '@/components/ui/core/primitives/icon'
 import FolderAddIcon from '@hugeicons-pro/core-stroke-rounded/FolderAddIcon'
 import Tick01Icon from '@hugeicons-pro/core-stroke-rounded/Tick01Icon'
 import type { UploadState } from '../../types'

@@ -12,7 +12,7 @@
 
 import * as React from 'react'
 import { cn } from '@/lib/utils'
-import { HugeIcon } from '@/components/ui/prod/base/icon'
+import { HugeIcon } from '@/components/ui/core/primitives/icon'
 import Delete01Icon from '@hugeicons-pro/core-stroke-rounded/Delete01Icon'
 
 import { QuestionInput } from '../questions/QuestionInput'

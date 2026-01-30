@@ -5,7 +5,7 @@
  * Perfect for dashboard metrics, stats, and feature displays.
  *
  * @example
- * import { DisplayCard } from '@/components/ui/prod/features/display-card'
+ * import { DisplayCard } from '@/components/ui/features/display-card'
  *
  * <DisplayCard>
  *   <DisplayCard.Content>

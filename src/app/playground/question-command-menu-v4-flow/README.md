@@ -493,7 +493,7 @@ import Alert02Icon from '@hugeicons-pro/core-stroke-rounded/Alert02Icon'
 
 In `ChatContent.tsx`:
 ```tsx
-import { Badge } from '@/components/ui/prod/base/badge'
+import { Badge } from '@/components/ui/core/primitives/badge'
 
 {message.confidence !== undefined && message.confidence <= 0.1 && (
   <div className="mt-2">

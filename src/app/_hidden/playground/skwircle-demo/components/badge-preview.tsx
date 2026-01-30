@@ -16,7 +16,7 @@ import {
   getBadgeTextStyle,
   BADGE_SIZE_CONFIGS,
 } from '@/components/ui/deprecated/skwircle/config/badge'
-import { HugeIcon } from '@/components/ui/prod/base/icon'
+import { HugeIcon } from '@/components/ui/core/primitives/icon'
 import CheckmarkCircle01Icon from '@hugeicons-pro/core-stroke-rounded/CheckmarkCircle01Icon'
 import AlertCircleIcon from '@hugeicons-pro/core-stroke-rounded/AlertCircleIcon'
 

@@ -12,7 +12,7 @@ import React from 'react'
 import { ArrowLeft01Icon } from '@hugeicons-pro/core-stroke-rounded'
 
 import { cn } from '@/lib/utils'
-import { HugeIcon } from '@/components/ui/prod/base/icon'
+import { HugeIcon } from '@/components/ui/core/primitives/icon'
 
 // ============================================================================
 // Types

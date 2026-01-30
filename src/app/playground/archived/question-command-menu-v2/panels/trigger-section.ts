@@ -4,7 +4,7 @@
  * Configuration for the input trigger including buttons.
  */
 
-import type { Section } from '@/components/ui/prod/base/control-panel'
+import type { Section } from '@/components/ui/patterns/control-panel'
 import type { PlaygroundState } from '../config/types'
 import {
   BACKGROUND_WITH_NONE_OPTIONS,

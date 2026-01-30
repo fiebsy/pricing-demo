@@ -17,7 +17,7 @@ import {
   type ControlChangeEvent,
   type Section as ControlSection,
   type UnifiedControlPanelProps,
-} from '@/components/ui/prod/base/control-panel'
+} from '@/components/ui/patterns/control-panel'
 import {
   FilterSelectChipMotion,
   type FilterChipData,
@@ -38,7 +38,7 @@ import {
   ROUNDNESS_OPTIONS,
   PRESET_OPTIONS,
   getPresetConfig,
-} from '@/components/ui/prod/base/filter/filter-select-chip-motion'
+} from '@/components/ui/patterns/filter/filter-select-chip-motion'
 
 // Icons for sample filters
 import FilterIcon from '@hugeicons-pro/core-stroke-rounded/FilterIcon'

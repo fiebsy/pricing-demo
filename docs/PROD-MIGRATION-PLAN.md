@@ -88,20 +88,20 @@ This is the bulk of the work, but it's mechanical. Every import follows a predic
 
 | Find | Replace |
 |------|---------|
-| `@/components/ui/prod/base/icon` | `@/components/ui/core/primitives/icon` |
-| `@/components/ui/prod/base/badge` | `@/components/ui/core/primitives/badge` |
-| `@/components/ui/prod/base/button'` | `@/components/ui/core/primitives/button'` |
-| `@/components/ui/prod/base/button/` | `@/components/ui/core/primitives/button/` |
-| `@/components/ui/prod/base/button-utility` | `@/components/ui/core/primitives/button-utility` |
-| `@/components/ui/prod/base/checkbox` | `@/components/ui/core/inputs/checkbox` |
-| `@/components/ui/prod/base/menu` | `@/components/ui/core/primitives/menu` |
-| `@/components/ui/prod/base/tooltip` | `@/components/ui/core/feedback/tooltip` |
-| `@/components/ui/prod/base/filter` | `@/components/ui/patterns/filter` |
-| `@/components/ui/prod/base/control-panel` | `@/components/ui/patterns/control-panel` |
-| `@/components/ui/prod/base/biaxial-command-menu-v4` | `@/components/ui/features/command-menu` |
-| `@/components/ui/prod/base/button-animation-v2` | `@/components/ui/features/button-animation` |
-| `@/components/ui/prod/features/metric-card` | `@/components/ui/features/metric-card` |
-| `@/components/ui/prod/data/sticky-data-table` | `@/components/ui/patterns/data-table` |
+| `@/components/ui/core/primitives/icon` | `@/components/ui/core/primitives/icon` |
+| `@/components/ui/core/primitives/badge` | `@/components/ui/core/primitives/badge` |
+| `@/components/ui/core/primitives/button'` | `@/components/ui/core/primitives/button'` |
+| `@/components/ui/core/primitives/button/` | `@/components/ui/core/primitives/button/` |
+| `@/components/ui/core/primitives/button-utility` | `@/components/ui/core/primitives/button-utility` |
+| `@/components/ui/core/inputs/checkbox` | `@/components/ui/core/inputs/checkbox` |
+| `@/components/ui/core/primitives/menu` | `@/components/ui/core/primitives/menu` |
+| `@/components/ui/core/feedback/tooltip` | `@/components/ui/core/feedback/tooltip` |
+| `@/components/ui/patterns/filter` | `@/components/ui/patterns/filter` |
+| `@/components/ui/patterns/control-panel` | `@/components/ui/patterns/control-panel` |
+| `@/components/ui/features/command-menu` | `@/components/ui/features/command-menu` |
+| `@/components/ui/features/button-animation` | `@/components/ui/features/button-animation` |
+| `@/components/ui/features/metric-card` | `@/components/ui/features/metric-card` |
+| `@/components/ui/patterns/data-table` | `@/components/ui/patterns/data-table` |
 
 **Important:** Do `button-utility` and `button-animation` before `button` to avoid partial matches. Same with `biaxial-command-menu-v4` before `menu`.
 

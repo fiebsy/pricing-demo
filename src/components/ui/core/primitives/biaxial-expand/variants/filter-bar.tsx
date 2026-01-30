@@ -10,7 +10,7 @@
 import * as React from 'react'
 import { useState, useCallback } from 'react'
 import { cn } from '@/lib/utils'
-import { HugeIcon } from '@/components/ui/prod/base/icon'
+import { HugeIcon } from '@/components/ui/core/primitives/icon'
 
 export interface FilterOption {
   id: string

@@ -9,7 +9,7 @@
 import * as React from 'react'
 import { useCallback } from 'react'
 import { cn } from '@/lib/utils'
-import { HugeIcon } from '@/components/ui/prod/base/icon'
+import { HugeIcon } from '@/components/ui/core/primitives/icon'
 import { useV4Context } from '../state'
 import { DEFAULT_FILTER_OPTIONS, DEFAULT_TAB_OPTIONS } from '../data'
 import type { SlotPosition, ContentTypeId } from '../types'

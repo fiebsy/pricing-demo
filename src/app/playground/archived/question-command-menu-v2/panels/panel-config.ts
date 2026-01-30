@@ -4,7 +4,7 @@
  * Modular assembly of control panel sections.
  */
 
-import type { PanelConfig } from '@/components/ui/prod/base/control-panel'
+import type { PanelConfig } from '@/components/ui/patterns/control-panel'
 import type { PlaygroundState } from '../config/types'
 import { PRESETS } from '../config/presets'
 

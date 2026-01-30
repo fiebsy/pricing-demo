@@ -11,7 +11,7 @@
 
 import * as React from 'react'
 import { useCallback, useRef, useEffect } from 'react'
-import { useBiaxialExpand } from '@/components/ui/prod/base/biaxial-command-menu-v4'
+import { useBiaxialExpand } from '@/components/ui/features/command-menu'
 import { useV4Context } from '../state'
 import { useFlowConfig } from '../hooks'
 import { TriggerDisplay } from './TriggerDisplay'

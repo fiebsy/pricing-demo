@@ -10,7 +10,7 @@ import {
   CheckmarkCircle02Icon,
   ArrowUp01Icon,
 } from '@hugeicons-pro/core-stroke-rounded'
-import { HugeIcon } from '@/components/ui/prod/base/icon'
+import { HugeIcon } from '@/components/ui/core/primitives/icon'
 
 // =============================================================================
 // FEED ITEM TYPE

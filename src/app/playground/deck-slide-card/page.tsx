@@ -11,7 +11,7 @@ import { useCallback, useMemo, useState } from 'react'
 import {
   UnifiedControlPanel,
   type ControlChangeEvent,
-} from '@/components/ui/prod/base/control-panel'
+} from '@/components/ui/patterns/control-panel'
 
 import { DeckSlideCard } from './core/deck-slide-card'
 import type { DeckSlideCardConfig } from './config/types'

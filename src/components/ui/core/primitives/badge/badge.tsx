@@ -1,10 +1,10 @@
 'use client'
 
-import React, { forwardRef, isValidElement, createElement, cloneElement } from 'react'
+import { forwardRef, isValidElement, createElement, cloneElement } from 'react'
 import type { FC, ReactNode, ReactElement } from 'react'
 import { cn } from '@/lib/utils'
 
-import { HugeIcon } from '@/components/ui/prod/base/icon'
+import { HugeIcon } from '@/components/ui/core/primitives/icon'
 import type { BadgeProps, BadgeIconProp } from './types'
 import {
   colorStyles,
@@ -173,12 +173,7 @@ export const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
         {!dot && renderIcon(iconLeading, cn(sizeConfig.icon, colorConfig.icon))}
 
         {/* Content */}
-        {React.Children.map(children, (child) => {
-          if (typeof child === 'string' || typeof child === 'number') {
-            return <span>{child}</span>
-          }
-          return child
-        })}
+        <span>{children}</span>
 
         {/* Trailing icon */}
         {!onRemove && renderIcon(iconTrailing, cn(sizeConfig.icon, colorConfig.icon))}

@@ -11,7 +11,7 @@
 import * as React from 'react'
 import { cn } from '@/lib/utils'
 import { getScoreColor } from '@/app/b/profile/constants'
-import { HugeIcon } from '@/components/ui/prod/base/icon'
+import { HugeIcon } from '@/components/ui/core/primitives/icon'
 import ArrowUp01Icon from '@hugeicons-pro/core-stroke-rounded/ArrowUp01Icon'
 import type { CategoryMetricsProps } from '../../types'
 

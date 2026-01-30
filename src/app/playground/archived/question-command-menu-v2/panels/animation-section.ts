@@ -2,7 +2,7 @@
  * Question Command Menu - Animation Section Config
  */
 
-import type { Section } from '@/components/ui/prod/base/control-panel'
+import type { Section } from '@/components/ui/patterns/control-panel'
 import type { PlaygroundState } from '../config/types'
 import { BACKDROP_MODE_OPTIONS, EXPAND_ORIGIN_OPTIONS } from '../config/options'
 

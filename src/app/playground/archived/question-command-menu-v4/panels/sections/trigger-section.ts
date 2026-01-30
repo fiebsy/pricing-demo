@@ -4,7 +4,7 @@
  * Configures trigger input, padding, and button settings.
  */
 
-import type { Section } from '@/components/ui/prod/base/control-panel'
+import type { Section } from '@/components/ui/patterns/control-panel'
 import type { PlaygroundState } from '../../types'
 import {
   CURSOR_OPTIONS,

@@ -5,7 +5,7 @@ import { forwardRef } from 'react'
 import { cn } from '@/lib/utils'
 import ArrowUp01Icon from '@hugeicons-pro/core-stroke-rounded/ArrowUp01Icon'
 import ArrowDown01Icon from '@hugeicons-pro/core-stroke-rounded/ArrowDown01Icon'
-import { HugeIcon } from '@/components/ui/prod/base/icon'
+import { HugeIcon } from '@/components/ui/core/primitives/icon'
 
 import type { DisplayCardMetricProps, DisplayCardStatProps, MetricFormat } from './types'
 import { metricSizeStyles, trendStyles } from './config'

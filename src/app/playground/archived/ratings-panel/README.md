@@ -114,9 +114,9 @@ import { MOCK_SCORES, DEFAULT_RATINGS_CONFIG } from './config'
 
 - `@base-ui/react/collapsible` - Accordion functionality
 - `@hugeicons-pro/*` - Icons
-- `@/components/ui/prod/base/badge` - Badge component
-- `@/components/ui/prod/base/filter/filter-menu-motion` - Filter menu
-- `@/components/ui/prod/base/icon` - HugeIcon wrapper
+- `@/components/ui/core/primitives/badge` - Badge component
+- `@/components/ui/patterns/filter/filter-menu-motion` - Filter menu
+- `@/components/ui/core/primitives/icon` - HugeIcon wrapper
 
 ## Animation Notes
 

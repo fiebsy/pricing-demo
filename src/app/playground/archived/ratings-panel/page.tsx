@@ -19,7 +19,7 @@ import { Breadcrumbs } from '@/components/ui/deprecated/nav'
 import {
   UnifiedControlPanel,
   type ControlChangeEvent,
-} from '@/components/ui/prod/base/control-panel'
+} from '@/components/ui/patterns/control-panel'
 
 import { RatingsPanel } from './core/RatingsPanel'
 import type { RatingsConfig, SectionType, CategoryType } from './config/types'

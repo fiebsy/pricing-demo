@@ -9,7 +9,7 @@
 
 import * as React from 'react'
 import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/prod/base/button'
+import { Button } from '@/components/ui/core/primitives/button'
 import type { ActionButtonConfig, ActionButtonIcon } from '../config/types'
 import Tick02Icon from '@hugeicons-pro/core-stroke-rounded/Tick02Icon'
 import Cancel01Icon from '@hugeicons-pro/core-stroke-rounded/Cancel01Icon'

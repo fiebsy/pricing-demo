@@ -18,8 +18,8 @@ import {
   UnifiedControlPanel,
   type ControlChangeEvent,
   type Section as ControlSection,
-} from '@/components/ui/prod/base/control-panel'
-import type { UnifiedControlPanelProps } from '@/components/ui/prod/base/control-panel'
+} from '@/components/ui/patterns/control-panel'
+import type { UnifiedControlPanelProps } from '@/components/ui/patterns/control-panel'
 type UnifiedControlPanelConfig = UnifiedControlPanelProps['config']
 
 // =============================================================================

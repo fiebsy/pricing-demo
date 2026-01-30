@@ -80,13 +80,13 @@ function CollapsibleGroup({ title, description, defaultOpen = true, children }: 
 
   // If no title, render children directly without collapse wrapper
   if (!title) {
-    return <div className="space-y-4">{children}</div>
+    return <>{children}</>
   }
 
   return (
     <div>
-      {/* Title header with secondary background and bottom border */}
-      <div className="-mx-3 -mt-3 border-b border-primary bg-secondary px-3 py-2">
+      {/* Title header with secondary background */}
+      <div className="bg-secondary px-3 py-2">
         <button
           type="button"
           onClick={() => setIsOpen(!isOpen)}
@@ -95,7 +95,7 @@ function CollapsibleGroup({ title, description, defaultOpen = true, children }: 
           aria-controls={contentId}
         >
           <div>
-            <h5 className="text-tertiary text-[10px] font-medium uppercase tracking-wider">
+            <h5 className="text-tertiary text-xs font-medium">
               {title}
             </h5>
             {description && (
@@ -115,8 +115,8 @@ function CollapsibleGroup({ title, description, defaultOpen = true, children }: 
           isOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
         )}
       >
-        <div className="overflow-hidden">
-          <div className="space-y-4 pt-3">{children}</div>
+        <div className="min-h-0 overflow-hidden">
+          <div>{children}</div>
         </div>
       </div>
     </div>
@@ -166,30 +166,25 @@ interface ActiveSectionContentProps {
 }
 
 export function ActiveSectionContent({ section, onChange }: ActiveSectionContentProps) {
-  const { id, title } = section
+  const { id } = section
   // Support both 'groups' and legacy 'subsections' naming
   const groups = section.groups || section.subsections || []
 
   return (
     <div className="space-y-2">
-      {/* Section Header */}
-      <h4 className="text-tertiary px-1 text-[10px] font-medium uppercase tracking-wider">{title}</h4>
-
       {/* Control Groups - Each group is its own card */}
-      <div className="space-y-2">
-        {groups.map((group, index) => (
-          <div
-            key={`${id}-group-${index}`}
-            className="bg-primary overflow-hidden rounded-lg border border-primary p-3 shadow-sm"
-          >
-            <ControlGroupRenderer
-              group={group}
-              sectionId={id}
-              onChange={onChange}
-            />
-          </div>
-        ))}
-      </div>
+      {groups.map((group, index) => (
+        <div
+          key={`${id}-group-${index}`}
+          className="bg-primary overflow-hidden rounded-lg border border-primary shadow-sm"
+        >
+          <ControlGroupRenderer
+            group={group}
+            sectionId={id}
+            onChange={onChange}
+          />
+        </div>
+      ))}
     </div>
   )
 }

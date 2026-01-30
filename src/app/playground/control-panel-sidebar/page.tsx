@@ -12,7 +12,7 @@ import {
   UnifiedControlPanel,
   type ControlChangeEvent,
   type PanelConfig,
-} from '@/components/ui/prod/base/control-panel'
+} from '@/components/ui/patterns/control-panel'
 import { InlineSlider } from '@/components/ui/core/primitives'
 import { cn } from '@/lib/utils'
 

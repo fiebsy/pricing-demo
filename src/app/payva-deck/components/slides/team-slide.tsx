@@ -3,7 +3,7 @@
 import { motion } from 'motion/react'
 import Image from 'next/image'
 import User02Icon from '@hugeicons-pro/core-stroke-rounded/User02Icon'
-import { HugeIcon } from '@/components/ui/prod/base/icon'
+import { HugeIcon } from '@/components/ui/core/primitives/icon'
 import { contentDelays } from '../../lib/animations'
 import { slideTypography } from '../../lib/typography'
 import { slideSpacing } from '../../lib/spacing'

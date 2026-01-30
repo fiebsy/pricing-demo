@@ -11,7 +11,7 @@
 'use client'
 
 import { useCallback, useMemo, useState } from 'react'
-import type { ControlChangeEvent } from '@/components/ui/prod/base/control-panel'
+import type { ControlChangeEvent } from '@/components/ui/patterns/control-panel'
 
 import type { RadialBlurConfig } from './config/types'
 import type { ChatOverlayState } from '@/app/b/profile/types'

@@ -13,12 +13,12 @@
 import { useCallback, useMemo, useState } from 'react'
 import { cn } from '@/lib/utils'
 import { Breadcrumbs } from '@/components/ui/deprecated/nav'
-import { Button } from '@/components/ui/prod/base/button'
+import { Button } from '@/components/ui/core/primitives/button'
 import {
   UnifiedControlPanel,
   type ControlChangeEvent,
-} from '@/components/ui/prod/base/control-panel'
-import { HugeIcon } from '@/components/ui/prod/base/icon'
+} from '@/components/ui/patterns/control-panel'
+import { HugeIcon } from '@/components/ui/core/primitives/icon'
 import ArrowRight01Icon from '@hugeicons-pro/core-stroke-rounded/ArrowRight01Icon'
 
 import type { QuickFixModalConfig } from './config/types'

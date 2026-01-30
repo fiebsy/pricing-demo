@@ -13,7 +13,7 @@ import * as React from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { Collapsible } from '@base-ui/react/collapsible'
 import { cn } from '@/lib/utils'
-import { HugeIcon } from '@/components/ui/prod/base/icon'
+import { HugeIcon } from '@/components/ui/core/primitives/icon'
 import ArrowDown01Icon from '@hugeicons-pro/core-solid-rounded/ArrowDown01Icon'
 // Mind category icons
 import Brain01Icon from '@hugeicons-pro/core-stroke-rounded/Brain01Icon'

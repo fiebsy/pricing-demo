@@ -11,7 +11,7 @@
 
 import * as React from 'react'
 import { cn } from '@/lib/utils'
-import { HugeIcon } from '@/components/ui/prod/base/icon'
+import { HugeIcon } from '@/components/ui/core/primitives/icon'
 import Brain01Icon from '@hugeicons-pro/core-stroke-rounded/Brain01Icon'
 import Mic01Icon from '@hugeicons-pro/core-stroke-rounded/Mic01Icon'
 import User03Icon from '@hugeicons-pro/core-stroke-rounded/User03Icon'

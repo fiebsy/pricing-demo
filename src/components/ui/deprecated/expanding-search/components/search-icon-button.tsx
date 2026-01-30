@@ -11,7 +11,7 @@
 
 import React from 'react'
 import { Search01Icon } from '@hugeicons-pro/core-stroke-rounded'
-import { HugeIcon } from '@/components/ui/prod/base/icon'
+import { HugeIcon } from '@/components/ui/core/primitives/icon'
 import { cn } from '@/lib/utils'
 
 import type { SearchIconButtonProps } from '../types'

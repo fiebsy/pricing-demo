@@ -5,7 +5,7 @@
  * Content assignment is explicit: { type, slot } pairs.
  */
 
-import type { Preset } from '@/components/ui/prod/base/control-panel'
+import type { Preset } from '@/components/ui/patterns/control-panel'
 import type {
   QuestionCommandMenuV3Config,
   QuestionCommandMenuV3Preset,

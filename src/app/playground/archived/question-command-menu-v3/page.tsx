@@ -17,7 +17,7 @@ import { cn } from '@/lib/utils'
 import {
   UnifiedControlPanel,
   type ControlChangeEvent,
-} from '@/components/ui/prod/base/control-panel'
+} from '@/components/ui/patterns/control-panel'
 
 // Config imports
 import type { PlaygroundState, ChatMessage } from './config/types'

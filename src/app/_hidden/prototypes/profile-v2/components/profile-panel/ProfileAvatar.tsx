@@ -11,7 +11,7 @@
 import * as React from 'react'
 import Image from 'next/image'
 import { cn } from '@/lib/utils'
-import { HugeIcon } from '@/components/ui/prod/base/icon'
+import { HugeIcon } from '@/components/ui/core/primitives/icon'
 import CheckmarkBadge02Icon from '@hugeicons-pro/core-solid-rounded/CheckmarkBadge02Icon'
 import type { ProfileAvatarProps } from '../../types'
 

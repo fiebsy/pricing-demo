@@ -9,7 +9,7 @@
 
 import * as React from 'react'
 import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/prod/base/button'
+import { Button } from '@/components/ui/core/primitives/button'
 import { useV3Context } from '../core'
 import type { ActionButtonConfig, ActionButtonIcon, SlotPosition } from '../config/types'
 

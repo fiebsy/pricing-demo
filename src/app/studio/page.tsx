@@ -17,7 +17,7 @@ import {
   FilterStatusBar,
   useColumnConfiguration,
   type SelectionState,
-} from '@/components/ui/prod/data/sticky-data-table'
+} from '@/components/ui/patterns/data-table'
 
 // Studio module imports
 import {

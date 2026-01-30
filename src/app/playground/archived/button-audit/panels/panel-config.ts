@@ -6,7 +6,7 @@
  * @module playground/button-audit/panels
  */
 
-import type { PanelConfig, Section } from '@/components/ui/prod/base/control-panel'
+import type { PanelConfig, Section } from '@/components/ui/patterns/control-panel'
 import type { ButtonAuditConfig, ButtonAuditPreset } from '../config/types'
 import {
   VARIANT_OPTIONS,

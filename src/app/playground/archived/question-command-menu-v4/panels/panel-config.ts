@@ -4,7 +4,7 @@
  * Main panel configuration assembly.
  */
 
-import type { PanelConfig } from '@/components/ui/prod/base/control-panel'
+import type { PanelConfig } from '@/components/ui/patterns/control-panel'
 import type { PlaygroundState, SlotPosition, ContentTypeId } from '../types'
 import { PRESETS } from '../presets'
 import {

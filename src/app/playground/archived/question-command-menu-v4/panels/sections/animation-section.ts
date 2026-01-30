@@ -4,7 +4,7 @@
  * Configures animation timing and behavior.
  */
 
-import type { Section } from '@/components/ui/prod/base/control-panel'
+import type { Section } from '@/components/ui/patterns/control-panel'
 import type { PlaygroundState } from '../../types'
 import { BACKDROP_MODE_OPTIONS } from '../../config/options'
 

@@ -16,7 +16,7 @@ import {
   type ControlChangeEvent,
   type Section as ControlSection,
   type UnifiedControlPanelProps,
-} from '@/components/ui/prod/base/control-panel'
+} from '@/components/ui/patterns/control-panel'
 import type { ProfileMode, ProfileFormData } from './types'
 import { EditProfileForm } from './components/edit-profile-form'
 import { ViewProfileContent } from './components/view-profile-content'

@@ -35,7 +35,7 @@ import {
   type Control,
   type Preset,
   type PresetConfig,
-} from '@/components/ui/prod/base/control-panel'
+} from '@/components/ui/patterns/control-panel'
 ```
 
 **Every playground MUST include:**
@@ -314,7 +314,7 @@ export const getPresetsByCategory = (category: string): $1PresetMeta[] =>
 ### `panels/panel-config.ts`
 
 ```typescript
-import type { PanelConfig, Section } from '@/components/ui/prod/base/control-panel'
+import type { PanelConfig, Section } from '@/components/ui/patterns/control-panel'
 import type { $1Config, $1PresetMeta } from '../config/types'
 import {
   BACKGROUND_OPTIONS,
@@ -593,7 +593,7 @@ import { useCallback, useMemo, useState } from 'react'
 import {
   UnifiedControlPanel,
   type ControlChangeEvent,
-} from '@/components/ui/prod/base/control-panel'
+} from '@/components/ui/patterns/control-panel'
 
 import { $1 } from './core/$1'
 import type { $1Config } from './config/types'
@@ -738,4 +738,4 @@ export default function $1Playground() {
 4. **Style Integration** - Include shine, depth, corners, semantic tokens
 5. **Sliders for Values** - Use sliders for numeric controls (radius, padding)
 6. **Migration Path** - Document how presets become production variants
-7. **Demo Repo Paths** - Use `@/components/ui/prod/base/control-panel` not frontend paths
+7. **Demo Repo Paths** - Use `@/components/ui/patterns/control-panel` not frontend paths

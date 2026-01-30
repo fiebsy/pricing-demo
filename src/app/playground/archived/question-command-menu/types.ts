@@ -7,7 +7,7 @@
  * @module playground/question-command-menu
  */
 
-import type { BiaxialExpandConfig } from '@/components/ui/prod/base/biaxial-command-menu-v4'
+import type { BiaxialExpandConfig } from '@/components/ui/features/command-menu'
 
 // =============================================================================
 // QUESTION TYPES

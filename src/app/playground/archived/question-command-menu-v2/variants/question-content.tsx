@@ -12,8 +12,8 @@ import * as React from 'react'
 import { useMemo, useState, useCallback } from 'react'
 import { ScrollArea } from '@base-ui/react/scroll-area'
 import { cn } from '@/lib/utils'
-import { HugeIcon } from '@/components/ui/prod/base/icon'
-import { useBiaxialExpand } from '@/components/ui/prod/base/biaxial-command-menu-v4'
+import { HugeIcon } from '@/components/ui/core/primitives/icon'
+import { useBiaxialExpand } from '@/components/ui/features/command-menu'
 import type {
   QuestionItem,
   QuestionGroup,

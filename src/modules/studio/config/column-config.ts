@@ -5,7 +5,7 @@
  * 5 columns: Name, Messages, Tags, Last Interacted, Access Group
  */
 
-import type { ColumnConfig } from '@/components/ui/prod/data/sticky-data-table'
+import type { ColumnConfig } from '@/components/ui/patterns/data-table'
 import type { AudienceSortField } from '../types'
 
 // =============================================================================

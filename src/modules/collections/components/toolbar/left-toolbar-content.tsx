@@ -18,7 +18,7 @@ import {
   FilterSelectChipMotion,
   type FilterChipData,
   type FilterOption,
-} from '@/components/ui/prod/base/filter'
+} from '@/components/ui/patterns/filter'
 
 import {
   RISK_FILTER_ITEMS,

@@ -2,7 +2,7 @@
  * Panel Configuration for Quick Fix Interactions
  */
 
-import type { PanelConfig } from '@/components/ui/prod/base/control-panel'
+import type { PanelConfig } from '@/components/ui/patterns/control-panel'
 import type { QuickFixInteractionsConfig } from '../config/types'
 
 export function buildQuickFixPanelConfig(

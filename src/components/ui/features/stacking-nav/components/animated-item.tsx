@@ -12,7 +12,7 @@
 import * as React from 'react'
 import { HugeIcon } from '@/components/ui/core/primitives/icon'
 import Cancel01Icon from '@hugeicons-pro/core-stroke-rounded/Cancel01Icon'
-import { Button } from '@/components/ui/prod/base/button'
+import { Button } from '@/components/ui/core/primitives/button'
 import { cn } from '@/lib/utils'
 
 import { useStackContext, useLevelContext } from '../context'

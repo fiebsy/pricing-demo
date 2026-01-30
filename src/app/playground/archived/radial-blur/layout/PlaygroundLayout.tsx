@@ -11,7 +11,7 @@ import {
   UnifiedControlPanel,
   type ControlChangeEvent,
   type PanelConfig,
-} from '@/components/ui/prod/base/control-panel'
+} from '@/components/ui/patterns/control-panel'
 import type { RadialBlurConfig } from '../config/types'
 
 // =============================================================================

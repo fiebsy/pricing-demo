@@ -17,8 +17,8 @@
 
 import * as React from 'react'
 import { cn } from '@/lib/utils'
-import { HugeIcon } from '@/components/ui/prod/base/icon'
-import { Badge } from '@/components/ui/prod/base/badge'
+import { HugeIcon } from '@/components/ui/core/primitives/icon'
+import { Badge } from '@/components/ui/core/primitives/badge'
 import RefreshIcon from '@hugeicons-pro/core-stroke-rounded/RefreshIcon'
 import Edit01Icon from '@hugeicons-pro/core-stroke-rounded/Edit01Icon'
 import AlertCircleIcon from '@hugeicons-pro/core-stroke-rounded/AlertCircleIcon'

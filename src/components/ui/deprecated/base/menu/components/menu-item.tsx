@@ -13,7 +13,7 @@ import { Menu } from '@base-ui/react/menu'
 import { ArrowRight01Icon } from '@hugeicons-pro/core-stroke-rounded'
 
 import { cn } from '@/lib/utils'
-import { HugeIcon } from '@/components/ui/prod/base/icon'
+import { HugeIcon } from '@/components/ui/core/primitives/icon'
 import type { MenuItem as MenuItemType, MenuVariant } from '../types'
 import { ITEM_HEIGHT_CLASSES, ICON_SIZES } from '../config'
 

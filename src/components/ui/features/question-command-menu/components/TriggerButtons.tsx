@@ -8,9 +8,9 @@
 
 import * as React from 'react'
 import { cn } from '@/lib/utils'
-import { HugeIcon } from '@/components/ui/prod/base/icon'
-import { Button } from '@/components/ui/prod/base/button'
-import type { ButtonVariant, ButtonRoundness } from '@/components/ui/prod/base/button/types'
+import { HugeIcon } from '@/components/ui/core/primitives/icon'
+import { Button } from '@/components/ui/core/primitives/button'
+import type { ButtonVariant, ButtonRoundness } from '@/components/ui/core/primitives/button/types'
 import { useButtonVisibility } from '../hooks'
 import type { TriggerButtonConfig, TriggerButtonVariant, SaveStatus } from '../types'
 

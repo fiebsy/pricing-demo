@@ -5,7 +5,7 @@ import type { FC, ReactNode } from 'react'
 import { cn } from '@/lib/utils'
 import ArrowRight01Icon from '@hugeicons-pro/core-stroke-rounded/ArrowRight01Icon'
 
-import { HugeIcon } from '@/components/ui/prod/base/icon'
+import { HugeIcon } from '@/components/ui/core/primitives/icon'
 import type { BadgeGroupProps, BadgeIconProp } from './types'
 import {
   badgeGroupThemeStyles,

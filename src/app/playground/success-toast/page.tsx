@@ -12,7 +12,7 @@ import { useCallback, useMemo, useState, useEffect } from 'react'
 import {
   UnifiedControlPanel,
   type ControlChangeEvent,
-} from '@/components/ui/prod/base/control-panel'
+} from '@/components/ui/patterns/control-panel'
 
 import { ConfigurableToast } from './core/ConfigurableToast'
 import type { SuccessToastConfig } from './config/types'
