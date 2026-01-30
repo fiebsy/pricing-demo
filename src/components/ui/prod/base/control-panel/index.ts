@@ -43,6 +43,7 @@ export { SidebarNavigation } from './components/sidebar-navigation'
 export { SectionRenderer, ActiveSectionContent } from './components/section-renderer'
 export { ActionBar } from './components/action-bar'
 export { MinimizedHeader } from './components/minimized-header'
+export { PanelToggleButton } from './components/panel-toggle-button'
 
 // Control primitives
 export {

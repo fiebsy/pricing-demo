@@ -90,6 +90,9 @@ export type EasingType =
   | 'backOut'
   | 'backInOut'
   | 'anticipate'
+  | 'expoIn'
+  | 'expoOut'
+  | 'expoInOut'
 
 /** Animation type - spring physics or duration-based easing */
 export type AnimationType = 'spring' | 'tween'

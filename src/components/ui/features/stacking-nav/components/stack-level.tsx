@@ -22,7 +22,7 @@ import { AnimatedItem } from './animated-item'
 import { LevelAllItem } from './level-all-item'
 import type { StackItem, StackLevelProps } from '../types'
 import { getChildEntryOffset, getChildDelay, getExitAnimation, getTransition } from '../utils/animations'
-import { ROOT_ANCHOR_ID, getAnchoredZIndex, createLevelAllId } from '../config'
+import { ROOT_ANCHOR_ID, getAnchoredZIndex, createLevelAllId, isLevelAllId } from '../config'
 
 /**
  * Renders items at a specific level of the navigation tree.
@@ -133,6 +133,15 @@ export function StackLevel({
   // This means the parent at level-1 is expanded and showing children, but user hasn't drilled deeper
   const levelAllIsActive = showLevelAll && !hasActiveAtThisLevel
   
+  // Create virtual level-all item and prepend to items so it renders as a sibling
+  const levelAllItem: StackItem = { id: levelAllId, label: styleConfig.levelAllLabel }
+  const itemsWithLevelAll = showLevelAll ? [levelAllItem, ...regularItems] : regularItems
+  
+  // Calculate offset for items to clear anchored items (needed for both Level-All and regular items)
+  const rootAnchorVisible = level === 0 && hasActiveAtThisLevel && activeId !== ROOT_ANCHOR_ID
+  const totalAnchorCount = anchorCount + (rootAnchorVisible ? 1 : 0)
+  const baseParentOffset = totalAnchorCount > 0 ? styleConfig.peekOffset * totalAnchorCount : 0
+  
   return (
     <>
       {/* Root Anchor (All button) - only at level 0 */}
@@ -165,21 +174,40 @@ export function StackLevel({
         )
       })()}
       
-      {/* Level-All Button - appears at child levels (L1+) with no animation */}
-      {showLevelAll && (
-        <div className="inline-flex" style={{ zIndex: 100 }}>
-          <LevelAllItem
-            levelAllId={levelAllId}
-            isActive={levelAllIsActive}
-          />
-        </div>
-      )}
-      
-      {/* Regular Items */}
+      {/* Regular Items (including Level-All as first item when enabled) */}
       <AnimatePresence mode="popLayout">
-        {regularItems.map((item, index) => {
+        {itemsWithLevelAll.map((item, index) => {
+          // Check if this is the level-all virtual item
+          const isLevelAllItem = isLevelAllId(item.id)
+          
+          // For level-all item, use special rendering but same positioning as children
+          // Lower z-index (90) so it appears behind other children (100) during overlaps
+          if (isLevelAllItem) {
+            const animationDelay = getChildDelay(0, animationConfig)
+            
+            return (
+              <motion.div
+                key={item.id}
+                layout="position"
+                className="inline-flex"
+                style={{ zIndex: 90 }}
+                initial={shouldReduceMotion ? undefined : { opacity: 0, ...entryOffset, scale: animationConfig.entryScale }}
+                animate={{ opacity: 1, x: baseParentOffset, y: 0, scale: 1 }}
+                exit={shouldReduceMotion ? undefined : getExitAnimation(animationConfig)}
+                transition={getTransition(animationConfig, animationDelay)}
+              >
+                <LevelAllItem
+                  levelAllId={item.id}
+                  isActive={levelAllIsActive}
+                />
+              </motion.div>
+            )
+          }
+          
+          // Regular item rendering (adjust index to account for level-all)
+          const adjustedIndex = showLevelAll ? index - 1 : index
           const isActive = item.id === activeId
-          const itemIndex = anchorItem ? index + 1 : index
+          const itemIndex = anchorItem ? adjustedIndex + 1 : adjustedIndex
           const itemLevelIndices = [...parentLevelIndices, itemIndex]
           
           // Check if this specific item is a leaf node
@@ -215,7 +243,7 @@ export function StackLevel({
           // Position strategy
           const shouldUseAbsolute = isAnchored
           
-          // Animation delay
+          // Animation delay (use original index in itemsWithLevelAll for proper stagger)
           const isInitialEntry = level > 0 && !isActive
           const animationDelay = isInitialEntry ? getChildDelay(index, animationConfig) : 0
           

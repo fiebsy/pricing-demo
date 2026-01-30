@@ -32,135 +32,256 @@ import {
 type UnifiedControlPanelConfig = UnifiedControlPanelProps['config']
 
 // =============================================================================
-// DEMO DATA
+// DEMO DATA - THREE NAVIGATION VARIANTS
 // =============================================================================
 
-const DEMO_ITEMS: StackItem[] = [
+/**
+ * NAMING CONVENTION FOR STACKING NAV LEVELS:
+ * 
+ * L0 (Root):     "All" button - resets to show everything
+ * L1 (Primary):  Core category (6-10 chars) - broad filter type
+ * L2 (Secondary): State/Type filter (6-10 chars) - narrows down L1
+ * L3 (Tertiary): Specific detail (6-10 chars) - final drill-down
+ * 
+ * All button labels (except "All") should be 6-10 characters for proper stacking.
+ */
+
+/**
+ * VARIANT 1: Orders - Progressive order filtering
+ * Use case: Filtering orders by type → status → sub-status
+ * 
+ * L0: All
+ * L1: Order Type (Invoice, Refund, Payment, etc.)
+ * L2: Order Status (Pending, Active, Complete, etc.)
+ * L3: Sub-status details (specific states within status)
+ */
+const ORDERS_ITEMS: StackItem[] = [
+  { id: 'all', label: 'All' },
   {
-    id: 'all',
-    label: 'All',
-  },
-  {
-    id: 'design',
-    label: 'Design',
+    id: 'invoices',
+    label: 'Invoices', // 8 chars
     children: [
       {
-        id: 'figma',
-        label: 'Figma',
+        id: 'inv-pending',
+        label: 'Pending', // 7 chars
         children: [
-          {
-            id: 'components',
-            label: 'Components',
-            children: [
-              { id: 'buttons', label: 'Buttons' },
-              { id: 'inputs', label: 'Inputs' },
-              { id: 'cards', label: 'Cards' },
-            ],
-          },
-          {
-            id: 'prototypes',
-            label: 'Prototypes',
-            children: [
-              { id: 'mobile', label: 'Mobile' },
-              { id: 'desktop', label: 'Desktop' },
-            ],
-          },
-          { id: 'design-tokens', label: 'Tokens' },
+          { id: 'inv-draft', label: 'Draft' },      // 5 chars (short, but okay for L3)
+          { id: 'inv-review', label: 'Review' },    // 6 chars
+          { id: 'inv-awaiting', label: 'Awaiting' }, // 8 chars
         ],
       },
       {
-        id: 'sketch',
-        label: 'Sketch',
+        id: 'inv-active',
+        label: 'Active', // 6 chars
         children: [
-          { id: 'symbols', label: 'Symbols' },
-          { id: 'libraries', label: 'Libraries' },
+          { id: 'inv-sent', label: 'Sent' },        // 4 chars
+          { id: 'inv-viewed', label: 'Viewed' },    // 6 chars
+          { id: 'inv-partial', label: 'Partial' },  // 7 chars
         ],
       },
-      { id: 'adobe', label: 'Adobe XD' },
+      { id: 'inv-paid', label: 'Paid' },            // 4 chars (leaf)
+      { id: 'inv-overdue', label: 'Overdue' },      // 7 chars (leaf)
     ],
   },
   {
-    id: 'develop',
-    label: 'Develop',
+    id: 'payments',
+    label: 'Payments', // 8 chars
     children: [
       {
-        id: 'react',
-        label: 'React',
+        id: 'pay-process',
+        label: 'Process', // 7 chars
         children: [
-          {
-            id: 'hooks',
-            label: 'Hooks',
-            children: [
-              { id: 'use-state', label: 'useState' },
-              { id: 'use-effect', label: 'useEffect' },
-              { id: 'use-memo', label: 'useMemo' },
-            ],
-          },
-          { id: 'components-lib', label: 'Components' },
-          { id: 'state-mgmt', label: 'State' },
+          { id: 'pay-init', label: 'Started' },     // 7 chars
+          { id: 'pay-verify', label: 'Verify' },    // 6 chars
+          { id: 'pay-confirm', label: 'Confirm' },  // 7 chars
         ],
       },
       {
-        id: 'vue',
-        label: 'Vue',
+        id: 'pay-complete',
+        label: 'Complete', // 8 chars
         children: [
-          { id: 'composition', label: 'Composition' },
-          { id: 'pinia', label: 'Pinia' },
+          { id: 'pay-cleared', label: 'Cleared' },  // 7 chars
+          { id: 'pay-settled', label: 'Settled' },  // 7 chars
         ],
       },
-      { id: 'svelte', label: 'Svelte' },
+      { id: 'pay-failed', label: 'Failed' },        // 6 chars (leaf)
     ],
   },
   {
-    id: 'deploy',
-    label: 'Deploy',
+    id: 'refunds',
+    label: 'Refunds', // 7 chars
     children: [
-      { id: 'vercel', label: 'Vercel' },
-      { id: 'netlify', label: 'Netlify' },
-      {
-        id: 'aws',
-        label: 'AWS',
-        children: [
-          { id: 'lambda', label: 'Lambda' },
-          { id: 's3', label: 'S3' },
-          { id: 'cloudfront', label: 'CloudFront' },
-        ],
-      },
+      { id: 'ref-request', label: 'Request' },      // 7 chars
+      { id: 'ref-approved', label: 'Approved' },    // 8 chars
+      { id: 'ref-issued', label: 'Issued' },        // 6 chars
     ],
   },
 ]
 
-// Filter list demo items
-const FILTER_ITEMS: StackItem[] = [
+/**
+ * VARIANT 2: Products - E-commerce product filtering
+ * Use case: Shopping/catalog filtering by category → brand → type
+ * 
+ * L0: All
+ * L1: Product Category (Apparel, Footwear, etc.)
+ * L2: Brand/Collection (specific brands)
+ * L3: Product Type (specific items)
+ */
+const PRODUCTS_ITEMS: StackItem[] = [
   { id: 'all', label: 'All' },
   {
-    id: 'status',
-    label: 'Status',
+    id: 'apparel',
+    label: 'Apparel', // 7 chars
     children: [
-      { id: 'active', label: 'Active' },
-      { id: 'pending', label: 'Pending' },
-      { id: 'completed', label: 'Completed' },
+      {
+        id: 'tops',
+        label: 'Tops', // 4 chars (short but acceptable)
+        children: [
+          { id: 't-shirts', label: 'T-Shirts' },    // 8 chars
+          { id: 'blouses', label: 'Blouses' },      // 7 chars
+          { id: 'sweaters', label: 'Sweaters' },    // 8 chars
+        ],
+      },
+      {
+        id: 'bottoms',
+        label: 'Bottoms', // 7 chars
+        children: [
+          { id: 'jeans', label: 'Jeans' },          // 5 chars
+          { id: 'trousers', label: 'Trousers' },    // 8 chars
+          { id: 'shorts', label: 'Shorts' },        // 6 chars
+        ],
+      },
+      { id: 'dresses', label: 'Dresses' },          // 7 chars (leaf)
+      { id: 'jackets', label: 'Jackets' },          // 7 chars (leaf)
     ],
   },
   {
-    id: 'priority',
-    label: 'Priority',
+    id: 'footwear',
+    label: 'Footwear', // 8 chars
     children: [
-      { id: 'high', label: 'High' },
-      { id: 'medium', label: 'Medium' },
-      { id: 'low', label: 'Low' },
+      {
+        id: 'sneakers',
+        label: 'Sneakers', // 8 chars
+        children: [
+          { id: 'running', label: 'Running' },      // 7 chars
+          { id: 'casual', label: 'Casual' },        // 6 chars
+          { id: 'training', label: 'Training' },    // 8 chars
+        ],
+      },
+      {
+        id: 'boots',
+        label: 'Boots', // 5 chars
+        children: [
+          { id: 'ankle', label: 'Ankle' },          // 5 chars
+          { id: 'chelsea', label: 'Chelsea' },      // 7 chars
+          { id: 'combat', label: 'Combat' },        // 6 chars
+        ],
+      },
+      { id: 'sandals', label: 'Sandals' },          // 7 chars (leaf)
     ],
   },
   {
-    id: 'type',
-    label: 'Type',
+    id: 'accessor',
+    label: 'Accessor', // 8 chars (truncated "Accessories" for length)
     children: [
-      { id: 'bug', label: 'Bug' },
-      { id: 'feature', label: 'Feature' },
-      { id: 'enhancement', label: 'Enhancement' },
+      { id: 'bags', label: 'Bags' },                // 4 chars
+      { id: 'watches', label: 'Watches' },          // 7 chars
+      { id: 'jewelry', label: 'Jewelry' },          // 7 chars
     ],
   },
 ]
+
+/**
+ * VARIANT 3: Content - Content management navigation
+ * Use case: CMS/documentation filtering by section → format → status
+ * 
+ * L0: All
+ * L1: Content Section (Guides, Media, Pages, etc.)
+ * L2: Content Format (specific types within section)
+ * L3: Content Status (publication states)
+ */
+const CONTENT_ITEMS: StackItem[] = [
+  { id: 'all', label: 'All' },
+  {
+    id: 'articles',
+    label: 'Articles', // 8 chars
+    children: [
+      {
+        id: 'guides',
+        label: 'Guides', // 6 chars
+        children: [
+          { id: 'getting', label: 'Getting' },      // 7 chars (getting started)
+          { id: 'advanced', label: 'Advanced' },    // 8 chars
+          { id: 'reference', label: 'Ref' },        // 3 chars (reference - shortened)
+        ],
+      },
+      {
+        id: 'tutorials',
+        label: 'Tutorial', // 8 chars (truncated)
+        children: [
+          { id: 'beginner', label: 'Beginner' },    // 8 chars
+          { id: 'intermed', label: 'Intermed' },    // 8 chars (intermediate)
+          { id: 'expert', label: 'Expert' },        // 6 chars
+        ],
+      },
+      { id: 'updates', label: 'Updates' },          // 7 chars (leaf)
+    ],
+  },
+  {
+    id: 'media',
+    label: 'Media', // 5 chars
+    children: [
+      {
+        id: 'images',
+        label: 'Images', // 6 chars
+        children: [
+          { id: 'photos', label: 'Photos' },        // 6 chars
+          { id: 'graphics', label: 'Graphics' },    // 8 chars
+          { id: 'icons', label: 'Icons' },          // 5 chars
+        ],
+      },
+      {
+        id: 'videos',
+        label: 'Videos', // 6 chars
+        children: [
+          { id: 'demos', label: 'Demos' },          // 5 chars
+          { id: 'webinars', label: 'Webinars' },    // 8 chars
+          { id: 'shorts', label: 'Shorts' },        // 6 chars
+        ],
+      },
+      { id: 'audio', label: 'Audio' },              // 5 chars (leaf)
+    ],
+  },
+  {
+    id: 'pages',
+    label: 'Pages', // 5 chars
+    children: [
+      { id: 'landing', label: 'Landing' },          // 7 chars
+      { id: 'product', label: 'Product' },          // 7 chars
+      { id: 'support', label: 'Support' },          // 7 chars
+    ],
+  },
+]
+
+/**
+ * Map of all navigation variants
+ */
+type NavVariant = 'orders' | 'products' | 'content'
+
+const NAV_VARIANTS: Record<NavVariant, { items: StackItem[]; description: string }> = {
+  orders: {
+    items: ORDERS_ITEMS,
+    description: 'Order filtering: Type → Status → Sub-status',
+  },
+  products: {
+    items: PRODUCTS_ITEMS,
+    description: 'Product catalog: Category → Type → Style',
+  },
+  content: {
+    items: CONTENT_ITEMS,
+    description: 'Content management: Section → Format → Status',
+  },
+}
 
 // =============================================================================
 // CONFIG INTERFACE
@@ -169,6 +290,8 @@ const FILTER_ITEMS: StackItem[] = [
 type ConfigPreset = 'default' | 'spring' | 'custom'
 
 type EntryDirection = 'up' | 'down' | 'left' | 'right' | 'up-left' | 'up-right' | 'down-left' | 'down-right' | 'none' | 'custom'
+
+type PageBackground = 'primary' | 'secondary' | 'tertiary' | 'brand' | 'black' | 'white'
 
 interface PlaygroundConfig {
   // Config Preset
@@ -217,8 +340,11 @@ interface PlaygroundConfig {
   showNumbers: boolean
   showDebug: boolean
   
-  // Demo
-  demoType: 'navigation' | 'filters'
+  // Navigation Variant (replaces demoType)
+  navVariant: NavVariant
+  
+  // Page Layout
+  pageBackground: PageBackground
   
   // Level All Button
   showLevelAll: boolean
@@ -244,6 +370,9 @@ const EASING_OPTIONS: { value: EasingType; label: string }[] = [
   { value: 'circIn', label: 'Circ In' },
   { value: 'circOut', label: 'Circ Out' },
   { value: 'circInOut', label: 'Circ In-Out' },
+  { value: 'expoIn', label: 'Expo In' },
+  { value: 'expoOut', label: 'Expo Out' },
+  { value: 'expoInOut', label: 'Expo In-Out' },
   { value: 'backIn', label: 'Back In' },
   { value: 'backOut', label: 'Back Out' },
   { value: 'backInOut', label: 'Back In-Out' },
@@ -295,39 +424,41 @@ const BUTTON_VARIANT_OPTIONS: { value: ButtonVariant; label: string }[] = [
 // =============================================================================
 
 /** Default preset - optimized tween animation */
-const PRESET_DEFAULT: Omit<PlaygroundConfig, 'configPreset' | 'demoType'> = {
+const PRESET_DEFAULT: Omit<PlaygroundConfig, 'configPreset' | 'navVariant'> = {
   animationType: 'tween',
   springStiffness: 500,
   springDamping: 30,
   springPreset: 'smooth',
-  tweenDuration: 150, // 0.15s
-  tweenEase: 'easeOut',
+  tweenDuration: 200, // 0.2s
+  tweenEase: 'expoOut',
   promotionDuration: 100, // 0.1s
   promotionScale: 1,
   childStagger: 45, // 0.045s
   entryDirection: 'custom',
-  entryOffsetX: 12,
+  entryOffsetX: 6,
   entryOffsetY: 10,
   childEntryDelay: 0,
   childEntryScale: 0.95,
-  exitDuration: 150, // 0.15s
+  exitDuration: 75, // 0.075s
   exitScale: 0.95,
-  skipLeafAnimation: false,
-  selectedLeafVariant: 'primary',
+  skipLeafAnimation: true,
+  selectedLeafVariant: 'tab',
   peekOffset: 8,
   anchoredOpacity: 1,
   gap: 'md',
   showNumbers: false,
   showDebug: false,
-  // Level All Button - off by default
-  showLevelAll: false,
+  // Page Layout
+  pageBackground: 'primary',
+  // Level All Button
+  showLevelAll: true,
   levelAllLabel: 'All',
   levelAllActiveVariant: 'tab',
-  levelAllInactiveVariant: 'tertiary',
+  levelAllInactiveVariant: 'tab',
 }
 
 /** Spring preset - physics-based spring animation */
-const PRESET_SPRING: Omit<PlaygroundConfig, 'configPreset' | 'demoType'> = {
+const PRESET_SPRING: Omit<PlaygroundConfig, 'configPreset' | 'navVariant'> = {
   animationType: 'spring',
   springStiffness: 500,
   springDamping: 30,
@@ -351,6 +482,8 @@ const PRESET_SPRING: Omit<PlaygroundConfig, 'configPreset' | 'demoType'> = {
   gap: 'md',
   showNumbers: false,
   showDebug: false,
+  // Page Layout
+  pageBackground: 'primary',
   // Level All Button - off by default
   showLevelAll: false,
   levelAllLabel: 'All',
@@ -358,7 +491,7 @@ const PRESET_SPRING: Omit<PlaygroundConfig, 'configPreset' | 'demoType'> = {
   levelAllInactiveVariant: 'tertiary',
 }
 
-const CONFIG_PRESETS: Record<ConfigPreset, Omit<PlaygroundConfig, 'configPreset' | 'demoType'> | null> = {
+const CONFIG_PRESETS: Record<ConfigPreset, Omit<PlaygroundConfig, 'configPreset' | 'navVariant'> | null> = {
   default: PRESET_DEFAULT,
   spring: PRESET_SPRING,
   custom: null, // Custom means user has modified settings
@@ -367,7 +500,7 @@ const CONFIG_PRESETS: Record<ConfigPreset, Omit<PlaygroundConfig, 'configPreset'
 const DEFAULT_PLAYGROUND_CONFIG: PlaygroundConfig = {
   configPreset: 'default',
   ...PRESET_DEFAULT,
-  demoType: 'navigation',
+  navVariant: 'orders', // Default to orders variant
 }
 
 // =============================================================================
@@ -678,6 +811,22 @@ function createPanelConfig(config: PlaygroundConfig): UnifiedControlPanelConfig 
         tabLabel: 'Display',
         groups: [
           {
+            title: 'Navigation Variant',
+            controls: [
+              {
+                id: 'navVariant',
+                type: 'select',
+                label: 'Variant',
+                value: config.navVariant,
+                options: [
+                  { value: 'orders', label: 'Orders (Filter)' },
+                  { value: 'products', label: 'Products (Shop)' },
+                  { value: 'content', label: 'Content (CMS)' },
+                ],
+              },
+            ],
+          },
+          {
             title: 'Layout',
             controls: [
               {
@@ -692,13 +841,17 @@ function createPanelConfig(config: PlaygroundConfig): UnifiedControlPanelConfig 
                 ],
               },
               {
-                id: 'demoType',
+                id: 'pageBackground',
                 type: 'select',
-                label: 'Demo Type',
-                value: config.demoType,
+                label: 'Background',
+                value: config.pageBackground,
                 options: [
-                  { value: 'navigation', label: 'Navigation' },
-                  { value: 'filters', label: 'Filters' },
+                  { value: 'primary', label: 'Primary' },
+                  { value: 'secondary', label: 'Secondary' },
+                  { value: 'tertiary', label: 'Tertiary' },
+                  { value: 'brand', label: 'Brand' },
+                  { value: 'black', label: 'Black' },
+                  { value: 'white', label: 'White' },
                 ],
               },
             ],
@@ -812,8 +965,8 @@ export default function StackingNavPlayground() {
     [config]
   )
 
-  // Get demo items based on type
-  const demoItems = config.demoType === 'filters' ? FILTER_ITEMS : DEMO_ITEMS
+  // Get demo items based on variant
+  const demoItems = NAV_VARIANTS[config.navVariant].items
 
   // Panel config
   const panelConfig = useMemo(() => createPanelConfig(config), [config])
@@ -830,7 +983,7 @@ export default function StackingNavPlayground() {
           ...prev,
           ...preset,
           configPreset: value as ConfigPreset,
-          demoType: prev.demoType, // Keep demo type
+          navVariant: prev.navVariant, // Keep nav variant
         }))
         return
       }
@@ -905,9 +1058,10 @@ export default function StackingNavPlayground() {
     // Any other change marks config as custom
     // Level-all options and display options don't affect the preset status
     const nonPresetFields = [
-      'demoType', 
+      'navVariant', 
       'showNumbers', 
       'showDebug',
+      'pageBackground',
       'showLevelAll',
       'levelAllLabel',
       'levelAllActiveVariant',
@@ -944,8 +1098,18 @@ export default function StackingNavPlayground() {
     }
   }, [animationConfig, styleConfig, config.showNumbers, config.showDebug])
 
+  // Background class mapping
+  const bgClasses: Record<PageBackground, string> = {
+    primary: 'bg-primary',
+    secondary: 'bg-secondary',
+    tertiary: 'bg-tertiary',
+    brand: 'bg-brand-solid',
+    black: 'bg-black',
+    white: 'bg-white',
+  }
+
   return (
-    <div className="min-h-screen bg-primary">
+    <div className={`min-h-screen ${bgClasses[config.pageBackground]}`}>
       {/* Centered Demo - fixed width container prevents shift */}
       <div className="pr-[352px] min-h-screen flex items-center justify-center">
         <div className="w-[800px] flex justify-start pl-24">
