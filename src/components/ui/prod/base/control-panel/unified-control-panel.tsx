@@ -64,9 +64,9 @@ const sectionSlideVariants = {
 }
 
 const sectionSlideTransition = {
-  y: { duration: 0.15, ease: 'easeOut' },
-  scale: { duration: 0.15, ease: 'easeOut' },
-  opacity: { duration: 0.1, ease: 'easeOut' },
+  y: { duration: 0.25, ease: [0.16, 1, 0.3, 1] },
+  scale: { duration: 0.25, ease: [0.16, 1, 0.3, 1] },
+  opacity: { duration: 0.25, ease: [0.16, 1, 0.3, 1] },
 }
 
 // -----------------------------------------------------------------------------
