@@ -238,7 +238,7 @@ function PanelInner<T>({
           {/* Main Panel */}
           <div
             className={cx(
-              'flex flex-col bg-tertiary rounded-xl shadow-xl',
+              'flex flex-col overflow-hidden bg-tertiary rounded-xl shadow-xl',
             )}
             style={{
               width: 'var(--panel-width, 260px)',
@@ -246,7 +246,7 @@ function PanelInner<T>({
             }}
           >
             {/* Active Section Content - Flex-based height, scrolls when needed */}
-            <ScrollArea.Root className="flex-1 min-h-0 relative">
+            <ScrollArea.Root className="flex-1 min-h-0 relative overflow-hidden">
               <ScrollArea.Viewport className="h-full w-full overscroll-contain">
                 <ScrollArea.Content>
                   <div className="p-2.5">
