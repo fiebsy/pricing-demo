@@ -143,11 +143,15 @@ function SidebarItem({ section, isActive, isExpanded, onClick }: SidebarItemProp
   // Use short label for sidebar, fallback to title
   const label = section.label || section.tabLabel || section.title
 
+  const handleClick = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    onClick()
+  }
+
   return (
-    <motion.button
+    <button
       type="button"
-      variants={itemVariants}
-      onClick={onClick}
+      onClick={handleClick}
       className={cx(
         'group relative flex w-full items-center h-10 px-3',
         'rounded-l-lg',
@@ -165,7 +169,7 @@ function SidebarItem({ section, isActive, isExpanded, onClick }: SidebarItemProp
             animate="expanded"
             exit="collapsed"
             className={cx(
-              'relative z-10 truncate text-left text-xs font-medium transition-colors',
+              'relative z-10 truncate text-left text-xs font-medium transition-colors pointer-events-none',
               isActive 
                 ? 'text-primary' 
                 : 'text-tertiary group-hover:text-secondary'
@@ -175,7 +179,7 @@ function SidebarItem({ section, isActive, isExpanded, onClick }: SidebarItemProp
           </motion.span>
         )}
       </AnimatePresence>
-    </motion.button>
+    </button>
   )
 }
 

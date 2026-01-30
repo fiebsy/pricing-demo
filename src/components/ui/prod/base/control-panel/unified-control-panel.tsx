@@ -4,12 +4,17 @@
 // Control panel with sidebar navigation that expands on hover.
 //
 // Features:
-// - Sidebar navigation that slides out on hover
+// - Sidebar navigation that expands on hover (width animation)
 // - Section icons/labels for quick navigation
 // - Minimize/expand functionality with smooth animations
 // - Preset management and copy functionality
 // - Base UI ScrollArea for zero layout shift scrolling
 // - Unified toggle button that morphs between + and - states
+//
+// Architecture:
+// - Sidebar sits OUTSIDE the panel (to the left) using flex layout
+// - Sidebar animates WIDTH (not position) to avoid clipping issues
+// - ScrollArea uses flex-based height constraints for proper scrolling
 // =============================================================================
 
 'use client'
@@ -35,8 +40,10 @@ const DEFAULT_POSITION = {
   width: '260px',
 }
 
-// Layout constants - single source of truth for header alignment
-const PANEL_HEADER_HEIGHT = 36 // h-9 = 36px
+// Sidebar constants
+const SIDEBAR_EXPANDED_WIDTH = 140
+const SIDEBAR_COLLAPSED_WIDTH = 0
+const SIDEBAR_GAP = 8 // Gap between sidebar and panel when expanded
 
 // -----------------------------------------------------------------------------
 // Section Slide Animation Variants
@@ -148,11 +155,13 @@ function PanelInner<T>({
     '--panel-bottom': position.bottom,
     '--panel-right': position.right,
     '--panel-width': position.width,
-    '--panel-header-height': `${PANEL_HEADER_HEIGHT}px`,
   } as React.CSSProperties
 
   // Calculate available height for panel content
   const panelMaxHeight = `calc(100vh - var(--panel-top, 90px) - var(--panel-bottom, 90px) - 48px)` // 48px for toggle button row
+
+  // Calculate sidebar width based on hover state
+  const sidebarWidth = isPanelHovered ? SIDEBAR_EXPANDED_WIDTH + SIDEBAR_GAP : SIDEBAR_COLLAPSED_WIDTH
 
   // Unified layout - toggle button is ALWAYS in the same spot (top-right of container)
   // Panel content expands/collapses below it
@@ -164,8 +173,6 @@ function PanelInner<T>({
         top: 'var(--panel-top, 90px)',
         right: 'var(--panel-right, 16px)',
       }}
-      onMouseEnter={!isMinimized ? handleMouseEnter : undefined}
-      onMouseLeave={!isMinimized ? handleMouseLeave : undefined}
     >
       {/* Toggle Button Row - Always in same position (top-right) */}
       <div className="flex items-center justify-end gap-2 mb-2">
@@ -199,94 +206,104 @@ function PanelInner<T>({
       {/* Panel Content - Expands below the toggle button */}
       {!isMinimized && (
         <div
-          className={cx(
-            'relative bg-tertiary rounded-xl overflow-hidden shadow-xl',
-            'animate-in fade-in slide-in-from-top-1 duration-200'
-          )}
-          style={{
-            width: 'var(--panel-width, 260px)',
-            maxHeight: panelMaxHeight,
-          }}
+          className="flex items-start animate-in fade-in slide-in-from-top-1 duration-200"
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
         >
-          {/* Sidebar Navigation - Slides out from behind panel */}
-          <AnimatePresence>
-            {isPanelHovered && (
-              <motion.div
-                initial={{ x: 140 }}
-                animate={{ x: 8 }}
-                exit={{ x: 140 }}
-                transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
-                className="absolute right-full top-0 bottom-0 z-[-1]"
-              >
-                <SidebarNavigation
-                  sections={sections}
-                  activeTabId={activeTab}
-                  onTabChange={setActiveTab}
-                  forceExpanded
-                  headerOffset={0}
-                />
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          {/* Active Section Content - Auto height, scrolls when needed */}
-          <ScrollArea.Root className="max-h-[inherit] overflow-hidden">
-            <ScrollArea.Viewport className="max-h-[inherit] overscroll-contain">
-              <ScrollArea.Content>
-                <div className="p-2.5">
-                  <AnimatePresence mode="wait" initial={false} custom={direction}>
-                    {activeSection && (
-                      <motion.div
-                        key={activeSection.id}
-                        custom={direction}
-                        variants={sectionSlideVariants}
-                        initial="enter"
-                        animate="center"
-                        exit="exit"
-                        transition={sectionSlideTransition}
-                      >
-                        <ActiveSectionContent
-                          section={activeSection}
-                          onChange={handleControlChange}
-                        />
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              </ScrollArea.Content>
-            </ScrollArea.Viewport>
-            
-            {/* Scrollbar */}
-            <ScrollArea.Scrollbar
-              orientation="vertical"
-              className={cx(
-                'absolute top-1 right-0.5 bottom-1 flex w-1.5',
-                'touch-none select-none rounded-full p-px',
-                'opacity-0 transition-opacity duration-150',
-                'data-[hovering]:opacity-100 data-[scrolling]:opacity-100'
-              )}
-            >
-              <ScrollArea.Thumb 
-                className={cx(
-                  'relative flex-1 rounded-full',
-                  'bg-fg-quaternary hover:bg-fg-quaternary_hover',
-                  'transition-colors duration-150'
-                )}
+          {/* Sidebar Navigation - Animates width on hover */}
+          <motion.div
+            initial={false}
+            animate={{ 
+              width: sidebarWidth,
+              opacity: isPanelHovered ? 1 : 0,
+            }}
+            transition={{ 
+              width: { duration: 0.2, ease: [0.4, 0, 0.2, 1] },
+              opacity: { duration: 0.15 },
+            }}
+            className="overflow-hidden shrink-0"
+            style={{ height: panelMaxHeight }}
+          >
+            <div style={{ width: SIDEBAR_EXPANDED_WIDTH }}>
+              <SidebarNavigation
+                sections={sections}
+                activeTabId={activeTab}
+                onTabChange={setActiveTab}
+                forceExpanded
+                headerOffset={0}
               />
-            </ScrollArea.Scrollbar>
-          </ScrollArea.Root>
+            </div>
+          </motion.div>
 
-          {/* Action Bar */}
-          {showActionBar && (
-            <ActionBar
-              presetConfig={presetConfig}
-              showReset={showReset}
-              resetLabel={resetLabel}
-              onReset={onReset}
-              onPresetChange={onPresetChange}
-              getConfigForCopy={getConfigForCopy}
-            />
-          )}
+          {/* Main Panel */}
+          <div
+            className={cx(
+              'flex flex-col bg-tertiary rounded-xl shadow-xl',
+            )}
+            style={{
+              width: 'var(--panel-width, 260px)',
+              maxHeight: panelMaxHeight,
+            }}
+          >
+            {/* Active Section Content - Flex-based height, scrolls when needed */}
+            <ScrollArea.Root className="flex-1 min-h-0 relative">
+              <ScrollArea.Viewport className="h-full w-full overscroll-contain">
+                <ScrollArea.Content>
+                  <div className="p-2.5">
+                    <AnimatePresence mode="wait" initial={false} custom={direction}>
+                      {activeSection && (
+                        <motion.div
+                          key={activeSection.id}
+                          custom={direction}
+                          variants={sectionSlideVariants}
+                          initial="enter"
+                          animate="center"
+                          exit="exit"
+                          transition={sectionSlideTransition}
+                        >
+                          <ActiveSectionContent
+                            section={activeSection}
+                            onChange={handleControlChange}
+                          />
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                </ScrollArea.Content>
+              </ScrollArea.Viewport>
+              
+              {/* Scrollbar - positioned absolutely to overlay content */}
+              <ScrollArea.Scrollbar
+                orientation="vertical"
+                className={cx(
+                  'absolute top-1 right-0.5 bottom-1 flex w-1.5',
+                  'touch-none select-none rounded-full p-px',
+                  'opacity-0 transition-opacity duration-150',
+                  'data-[hovering]:opacity-100 data-[scrolling]:opacity-100'
+                )}
+              >
+                <ScrollArea.Thumb 
+                  className={cx(
+                    'relative flex-1 rounded-full',
+                    'bg-fg-quaternary hover:bg-fg-quaternary_hover',
+                    'transition-colors duration-150'
+                  )}
+                />
+              </ScrollArea.Scrollbar>
+            </ScrollArea.Root>
+
+            {/* Action Bar */}
+            {showActionBar && (
+              <ActionBar
+                presetConfig={presetConfig}
+                showReset={showReset}
+                resetLabel={resetLabel}
+                onReset={onReset}
+                onPresetChange={onPresetChange}
+                getConfigForCopy={getConfigForCopy}
+              />
+            )}
+          </div>
         </div>
       )}
     </div>
