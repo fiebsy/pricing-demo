@@ -2,35 +2,36 @@
  * UI Component Library
  * =====================
  *
- * Organized structure:
+ * Import directly from each category for full type access:
  *
- * @module core - Stable primitives (badges, icons, feedback)
- * @module features - Composed feature components
- * @module patterns - Complex UI patterns (control panel)
- * @module deprecated - Legacy components (do not use for new code)
- *
- * Import examples:
  * ```ts
  * // Core primitives
- * import { Badge, HugeIcon } from '@/components/ui/core'
+ * import { Badge, HugeIcon } from '@/components/ui/core/primitives'
+ * import { Button } from '@/components/ui/core/primitives/button'
+ * import { Checkbox } from '@/components/ui/core/inputs/checkbox'
+ * import { Tooltip } from '@/components/ui/core/feedback/tooltip'
  *
  * // Features
- * import { DisplayCard, StackingNav } from '@/components/ui/features'
+ * import { DisplayCard } from '@/components/ui/features/display-card'
+ * import { MetricCard } from '@/components/ui/features/metric-card'
  *
  * // Patterns
- * import { ControlPanel } from '@/components/ui/patterns'
+ * import { UnifiedControlPanel } from '@/components/ui/patterns/control-panel'
+ * import { FilterMenu } from '@/components/ui/patterns/filter'
+ * import { StickyDataTable } from '@/components/ui/patterns/data-table'
  * ```
+ *
+ * Note: Barrel re-exports are intentionally limited to avoid name collisions.
+ * Prefer direct imports from the specific component path.
  */
 
-// Core - Stable primitives
-export * from './core'
+// Core - Stable primitives (limited re-export for common components)
+export { Badge, BadgeGroup, HugeIcon, Icon, InlineSlider } from './core'
 
-// Features - Composed components
-export * from './features'
-
-// Patterns - Complex UI patterns
-export * from './patterns'
-
-// Note: Deprecated components are NOT re-exported here
-// Import them directly when needed:
-// - @/components/ui/deprecated
+// Note: Import other components directly from their paths
+// - @/components/ui/core/primitives/button
+// - @/components/ui/core/primitives/menu
+// - @/components/ui/core/inputs/checkbox
+// - @/components/ui/core/feedback/tooltip
+// - @/components/ui/features/*
+// - @/components/ui/patterns/*

@@ -54,13 +54,6 @@ export const corePrimitives: ComponentEntry[] = [
     description: 'Icon wrapper for Hugeicons',
   },
   {
-    name: 'Accordion',
-    path: '@/components/ui/core/primitives/accordion',
-    category: 'primitive',
-    status: 'stable',
-    description: 'Expandable/collapsible content sections',
-  },
-  {
     name: 'Menu',
     path: '@/components/ui/core/primitives/menu',
     category: 'primitive',
@@ -135,18 +128,18 @@ export const featureComponents: ComponentEntry[] = [
     description: 'Content display card component',
   },
   {
-    name: 'ExpandingSearch',
-    path: '@/components/ui/features/expanding-search',
+    name: 'CommandMenu',
+    path: '@/components/ui/features/command-menu',
     category: 'feature',
     status: 'stable',
-    description: 'Animated expanding search input',
+    description: 'Biaxial command menu with keyboard navigation',
   },
   {
-    name: 'FeaturedIcon',
-    path: '@/components/ui/features/featured-icon',
+    name: 'ButtonAnimation',
+    path: '@/components/ui/features/button-animation',
     category: 'feature',
     status: 'stable',
-    description: 'Highlighted icon display',
+    description: 'Animated button with interaction effects',
   },
   {
     name: 'MetricCard',
@@ -199,28 +192,6 @@ export const patternComponents: ComponentEntry[] = [
 ]
 
 /**
- * Experimental Components - WIP
- */
-export const experimentalComponents: ComponentEntry[] = [
-  {
-    name: 'CommandMenu',
-    path: '@/components/ui/experimental/command-menu',
-    category: 'pattern',
-    status: 'experimental',
-    description: 'Biaxial command menu with keyboard navigation',
-    latestVersion: 'v4',
-  },
-  {
-    name: 'ButtonAnimation',
-    path: '@/components/ui/experimental/button-animation',
-    category: 'primitive',
-    status: 'experimental',
-    description: 'Animated button with interaction effects',
-    latestVersion: 'v2',
-  },
-]
-
-/**
  * All Components
  */
 export const allComponents: ComponentEntry[] = [
@@ -229,7 +200,6 @@ export const allComponents: ComponentEntry[] = [
   ...coreFeedback,
   ...featureComponents,
   ...patternComponents,
-  ...experimentalComponents,
 ]
 
 /**

@@ -21,7 +21,10 @@ export * from './stacking-nav'
 // Success Toast
 export * from './success-toast'
 
-// Note: The following are exported as namespaces to avoid conflicts:
+// Note: The following should be imported directly to avoid name collisions:
+// - metric-card (overlapping type names with display-card)
+// - command-menu (import directly for types)
+// - button-animation (import directly for types)
 // - question-command-menu (import directly for types)
 // - expandable-input (import directly for types)
 // - edit-questions (import directly for types)
