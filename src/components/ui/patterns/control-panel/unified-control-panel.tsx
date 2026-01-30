@@ -41,9 +41,9 @@ const DEFAULT_POSITION = {
 }
 
 // Sidebar constants
-const SIDEBAR_EXPANDED_WIDTH = 140
+const SIDEBAR_EXPANDED_WIDTH = 150
 const SIDEBAR_COLLAPSED_WIDTH = 0
-const SIDEBAR_GAP = 8 // Gap between sidebar and panel when expanded
+const SIDEBAR_GAP = -20 // Negative gap - sidebar tucks under panel
 
 // -----------------------------------------------------------------------------
 // Section Slide Animation Variants
@@ -242,12 +242,12 @@ function PanelInner<T>({
             )}
             style={{
               width: 'var(--panel-width, 260px)',
-              maxHeight: panelMaxHeight,
+              height: panelMaxHeight,
             }}
           >
             {/* Active Section Content - Flex-based height, scrolls when needed */}
-            <ScrollArea.Root className="flex-1 min-h-0 relative overflow-hidden">
-              <ScrollArea.Viewport className="h-full w-full overscroll-contain">
+            <ScrollArea.Root className="flex-1 min-h-0 overflow-hidden">
+              <ScrollArea.Viewport className="size-full overflow-auto overscroll-contain">
                 <ScrollArea.Content>
                   <div className="p-2.5">
                     <AnimatePresence mode="wait" initial={false} custom={direction}>

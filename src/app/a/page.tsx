@@ -341,6 +341,18 @@ function QuestionsWrapper({
 // =============================================================================
 
 export default function ProfilePage() {
+  return (
+    <React.Suspense fallback={
+      <div className="flex min-h-screen items-center justify-center bg-primary">
+        <div className="size-8 animate-spin rounded-full border-2 border-primary border-t-brand-primary" />
+      </div>
+    }>
+      <ProfilePageContent />
+    </React.Suspense>
+  )
+}
+
+function ProfilePageContent() {
   // Auth
   const { isAuthenticated, isLoading, showLoginModal, signIn, signOut, closeLoginModal } = useAuth()
 
