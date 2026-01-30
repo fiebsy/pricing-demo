@@ -41,9 +41,9 @@ const DEFAULT_POSITION = {
 }
 
 // Sidebar constants
-const SIDEBAR_EXPANDED_WIDTH = 150
+const SIDEBAR_EXPANDED_WIDTH = 140
 const SIDEBAR_COLLAPSED_WIDTH = 0
-const SIDEBAR_GAP = -20 // Negative gap - sidebar tucks under panel
+const SIDEBAR_GAP = 0 // No gap - sidebar connects to panel
 
 // -----------------------------------------------------------------------------
 // Section Slide Animation Variants
@@ -189,7 +189,7 @@ function PanelInner<T>({
               <span className="text-tertiary">Controls</span>
               <span className="text-quaternary">/</span>
               <span className="text-primary font-medium truncate max-w-[120px]">
-                {activeSection?.title || activeSection?.label}
+                {activeSection?.label || activeSection?.tabLabel || activeSection?.title}
               </span>
             </motion.div>
           )}
@@ -221,7 +221,7 @@ function PanelInner<T>({
               width: { duration: 0.2, ease: [0.4, 0, 0.2, 1] },
               opacity: { duration: 0.15 },
             }}
-            className="overflow-hidden shrink-0"
+            className="overflow-visible shrink-0 z-0"
             style={{ height: panelMaxHeight }}
           >
             <div className="h-full" style={{ width: SIDEBAR_EXPANDED_WIDTH }}>
@@ -230,7 +230,7 @@ function PanelInner<T>({
                 activeTabId={activeTab}
                 onTabChange={setActiveTab}
                 forceExpanded
-                headerOffset={0}
+                headerOffset={38}
               />
             </div>
           </motion.div>
@@ -238,7 +238,7 @@ function PanelInner<T>({
           {/* Main Panel */}
           <div
             className={cx(
-              'flex flex-col overflow-hidden bg-tertiary rounded-xl shadow-xl',
+              'flex flex-col overflow-hidden bg-tertiary rounded-xl shadow-xl z-10',
             )}
             style={{
               width: 'var(--panel-width, 260px)',

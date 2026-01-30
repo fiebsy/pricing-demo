@@ -136,6 +136,8 @@ export interface AnimationConfig {
   exitScale: number
   /** Skip animation for leaf nodes (items without children) - keeps them in place */
   skipLeafAnimation: boolean
+  /** Time scale for slow-mo debugging (1 = normal, 0.1 = 10x slower). Scales internal hardcoded durations. */
+  timeScale: number
 }
 
 /**
@@ -254,6 +256,10 @@ export interface StackContextValue {
   showDebug: boolean
   /** Reduced motion preference */
   shouldReduceMotion: boolean
+  /** Whether currently collapsing (snapshot at render time) */
+  isCollapsing: boolean
+  /** Get live collapse state (reads ref, not captured value) */
+  getIsCollapsing: () => boolean
   /** Select an item handler */
   selectItem: (level: number, id: string, hasChildren: boolean) => void
   /** Collapse to level handler */

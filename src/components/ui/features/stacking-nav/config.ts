@@ -45,6 +45,9 @@ export const DEFAULT_ANIMATION_CONFIG: AnimationConfig = {
   
   // Leaf node behavior
   skipLeafAnimation: false,
+
+  // Debug
+  timeScale: 1,
 }
 
 /**

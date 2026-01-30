@@ -169,9 +169,19 @@ export function ActiveSectionContent({ section, onChange }: ActiveSectionContent
   const { id } = section
   // Support both 'groups' and legacy 'subsections' naming
   const groups = section.groups || section.subsections || []
+  
+  // Section title - same priority as sidebar: label > tabLabel > title
+  const sectionTitle = section.label || section.tabLabel || section.title
 
   return (
     <div className="space-y-2">
+      {/* Section Title */}
+      {sectionTitle && (
+        <h4 className="text-sm font-medium text-tertiary px-1">
+          {sectionTitle}
+        </h4>
+      )}
+      
       {/* Control Groups - Each group is its own card */}
       {groups.map((group, index) => (
         <div

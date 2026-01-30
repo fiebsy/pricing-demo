@@ -127,10 +127,18 @@ export const AnimatedItem = React.memo(function AnimatedItem({
     }
   }, [isAnchored, level, item.id, hasChildren, selectItem])
 
-  // Handle remove
+  // Handle remove (demotion)
   const handleRemove = React.useCallback(() => {
+    if (showDebug && typeof window !== 'undefined') {
+      console.group(`🔻 [DEMOTION] ${item.id} at L${level}`)
+      console.log('Timestamp:', performance.now().toFixed(2), 'ms')
+      console.log('Current path:', activePath)
+      console.log('Will collapse to level:', level)
+      console.log('Expected new path:', activePath.slice(0, level))
+      console.groupEnd()
+    }
     collapseToLevel(level)
-  }, [level, collapseToLevel])
+  }, [level, collapseToLevel, showDebug, item.id, activePath])
 
   // Number label
   const numberLabel = showNumbers ? getNumberLabel(levelIndices) : undefined
@@ -158,7 +166,10 @@ export const AnimatedItem = React.memo(function AnimatedItem({
         onClick={handleSelect}
         disabled={isAnchored}
         className={cn(
-          'relative transition-all duration-300',
+          'relative',
+          // Only transition colors/opacity - NOT layout properties
+          // Layout is handled by Motion's layout animation
+          'transition-[background-color,border-color,color,box-shadow,opacity] duration-150',
           heightClass,
           anchoredShadow,
           isAnchored && 'pointer-events-none'
@@ -189,9 +200,10 @@ export const AnimatedItem = React.memo(function AnimatedItem({
         <span className="select-none">{item.label}</span>
       </Button>
       
-      {/* Debug Status Badge */}
+      {/* Debug Status Badge - Above with arrow pointing down */}
       {(showNumbers || showDebug) && (
-        <div className="absolute -top-2 -right-2 pointer-events-none">
+        <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-1 pointer-events-none flex flex-col items-center">
+          {/* Badge */}
           <div className={cn(
             'px-1.5 py-0.5 rounded-md text-[10px] font-mono font-semibold border shadow-sm',
             isPromoting ? 'bg-purple-500 text-white border-purple-600' :
@@ -216,12 +228,39 @@ export const AnimatedItem = React.memo(function AnimatedItem({
               </div>
             </div>
           </div>
+          {/* Arrow and line pointing down */}
+          <div className="flex flex-col items-center">
+            <div className={cn(
+              'w-px h-2',
+              isPromoting ? 'bg-purple-500/60' :
+              isAnchored ? 'bg-yellow-500/60' :
+              isSelected ? 'bg-green-500/60' :
+              isExpanded ? 'bg-blue-500/60' :
+              isChildItem ? 'bg-gray-500/60' :
+              'bg-gray-400/60'
+            )} />
+            <div className={cn(
+              'w-0 h-0 border-l-[4px] border-r-[4px] border-t-[5px] border-l-transparent border-r-transparent',
+              isPromoting ? 'border-t-purple-500/60' :
+              isAnchored ? 'border-t-yellow-500/60' :
+              isSelected ? 'border-t-green-500/60' :
+              isExpanded ? 'border-t-blue-500/60' :
+              isChildItem ? 'border-t-gray-500/60' :
+              'border-t-gray-400/60'
+            )} />
+          </div>
         </div>
       )}
       
-      {/* Position Debug Info */}
+      {/* Position Debug Info - Below with arrow pointing up */}
       {showDebug && (
-        <div className="absolute -bottom-6 left-0 pointer-events-none">
+        <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1 pointer-events-none flex flex-col items-center">
+          {/* Arrow pointing up */}
+          <div className="flex flex-col items-center">
+            <div className="w-0 h-0 border-l-[4px] border-r-[4px] border-b-[5px] border-l-transparent border-r-transparent border-b-black/60" />
+            <div className="w-px h-1 bg-black/60" />
+          </div>
+          {/* ID label */}
           <div className="px-1 py-0.5 bg-black/80 text-white text-[8px] font-mono rounded whitespace-nowrap">
             {item.id}
           </div>

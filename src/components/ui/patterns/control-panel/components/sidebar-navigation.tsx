@@ -112,7 +112,7 @@ function SlidingIndicator({ activeIndex }: SlidingIndicatorProps) {
   return (
     <motion.div
       className={cx(
-        'absolute left-0.5 right-0 rounded-l-lg pointer-events-none',
+        'absolute left-0 right-0 rounded-l-lg pointer-events-none',
         'bg-tertiary', // Main background color
         'z-0' // Behind the text content (which has z-10)
       )}
@@ -157,7 +157,10 @@ function SidebarItem({ section, isActive, isExpanded, onClick }: SidebarItemProp
         'rounded-l-lg',
         'outline-none focus-visible:ring-2 focus-visible:ring-brand-primary',
         // Transparent bg - the sliding indicator provides the active state
-        'bg-transparent hover:bg-secondary/40 transition-colors duration-150'
+        // No hover bg when active
+        isActive
+          ? 'bg-transparent'
+          : 'bg-transparent hover:bg-secondary/40 transition-colors duration-150'
       )}
     >
       {/* Label content - z-10 to stay above indicator */}
@@ -237,13 +240,21 @@ export function SidebarNavigation({
       )}
 
       {/* Section items with Base UI ScrollArea */}
-      <ScrollArea.Root className="relative min-h-0 flex-1 overflow-hidden">
+      <ScrollArea.Root className="relative min-h-0 flex-1 overflow-visible">
         <ScrollArea.Viewport className="h-full w-full overscroll-contain">
           <ScrollArea.Content>
-            <div className="relative flex flex-col gap-1 pl-0.5 pb-1">
+            <div className="relative flex flex-col gap-1 pb-1 overflow-visible">
               {/* Sliding active indicator - positioned absolutely within items container */}
               {activeIndex >= 0 && <SlidingIndicator activeIndex={activeIndex} />}
-              
+
+              {/* Top edge container - 40x40 layered square */}
+              <div className="absolute top-0 right-0 z-20 h-10 w-10 translate-x-1/2 -translate-y-1/2 pointer-events-none">
+                {/* Square background layer */}
+                <div className="absolute inset-0 bg-[#E53E3E]" />
+                {/* Rounded overlay layer */}
+                <div className="absolute inset-0 rounded-lg border-2 border-[#F56565] bg-[#1A1A2E]/80" />
+              </div>
+
               {sections.map((section) => (
                 <SidebarItem
                   key={section.id}
@@ -253,6 +264,14 @@ export function SidebarNavigation({
                   onClick={() => onTabChange(section.id)}
                 />
               ))}
+
+              {/* Bottom edge container - 40x40 layered square */}
+              <div className="absolute bottom-0 right-0 z-20 h-10 w-10 translate-x-1/2 translate-y-1/2 pointer-events-none">
+                {/* Square background layer */}
+                <div className="absolute inset-0 bg-[#E53E3E]" />
+                {/* Rounded overlay layer */}
+                <div className="absolute inset-0 rounded-lg border-2 border-[#F56565] bg-[#1A1A2E]/80" />
+              </div>
             </div>
           </ScrollArea.Content>
         </ScrollArea.Viewport>

@@ -351,6 +351,9 @@ interface PlaygroundConfig {
   levelAllLabel: string
   levelAllActiveVariant: ButtonVariant
   levelAllInactiveVariant: ButtonVariant
+  
+  // Debug/Inspection
+  timeScale: number // 1 = normal, 0.1 = 10x slower (slow-mo), 2 = 2x faster
 }
 
 // Spring presets (for spring animation tuning)
@@ -439,7 +442,7 @@ const PRESET_DEFAULT: Omit<PlaygroundConfig, 'configPreset' | 'navVariant'> = {
   entryOffsetY: 10,
   childEntryDelay: 0,
   childEntryScale: 0.95,
-  exitDuration: 75, // 0.075s
+  exitDuration: 50, // 0.05s
   exitScale: 0.95,
   skipLeafAnimation: true,
   selectedLeafVariant: 'tab',
@@ -455,6 +458,8 @@ const PRESET_DEFAULT: Omit<PlaygroundConfig, 'configPreset' | 'navVariant'> = {
   levelAllLabel: 'All',
   levelAllActiveVariant: 'tab',
   levelAllInactiveVariant: 'tab',
+  // Debug/Inspection
+  timeScale: 1, // Normal speed
 }
 
 /** Spring preset - physics-based spring animation */
@@ -489,6 +494,8 @@ const PRESET_SPRING: Omit<PlaygroundConfig, 'configPreset' | 'navVariant'> = {
   levelAllLabel: 'All',
   levelAllActiveVariant: 'tab',
   levelAllInactiveVariant: 'tertiary',
+  // Debug/Inspection
+  timeScale: 1, // Normal speed
 }
 
 const CONFIG_PRESETS: Record<ConfigPreset, Omit<PlaygroundConfig, 'configPreset' | 'navVariant'> | null> = {
@@ -904,6 +911,24 @@ function createPanelConfig(config: PlaygroundConfig): UnifiedControlPanelConfig 
               },
             ],
           },
+          {
+            title: 'Slow-Mo Mode',
+            controls: [
+              {
+                id: 'timeScale',
+                type: 'slider',
+                label: 'Time Scale',
+                value: config.timeScale,
+                min: 0.1,
+                max: 2,
+                step: 0.1,
+                formatLabel: (v: number) => 
+                  v === 1 ? '1x (Normal)' :
+                  v < 1 ? `${v.toFixed(1)}x (${Math.round(1/v)}x Slower)` :
+                  `${v.toFixed(1)}x Faster`,
+              },
+            ],
+          },
         ],
       },
     ],
@@ -929,24 +954,37 @@ export default function StackingNavPlayground() {
   const [currentPath, setCurrentPath] = useState<ActivePath>([])
 
   // Transform config for component
+  // Apply timeScale to all duration-based values (lower timeScale = slower animation)
   const animationConfig: Partial<AnimationConfig> = useMemo(
-    () => ({
-      type: config.animationType,
-      stiffness: config.springStiffness,
-      damping: config.springDamping,
-      duration: config.tweenDuration / 1000,
-      ease: config.tweenEase,
-      promotionDuration: config.promotionDuration / 1000,
-      promotionScale: config.promotionScale,
-      stagger: config.childStagger / 1000,
-      entryOffsetX: config.entryOffsetX,
-      entryOffsetY: config.entryOffsetY,
-      childEntryDelay: config.childEntryDelay / 1000,
-      entryScale: config.childEntryScale,
-      exitDuration: config.exitDuration / 1000,
-      exitScale: config.exitScale,
-      skipLeafAnimation: config.skipLeafAnimation,
-    }),
+    () => {
+      const scale = config.timeScale
+      
+      // For spring animations, lower stiffness and damping = slower
+      // timeScale < 1 means slower, so we reduce stiffness proportionally
+      const springMultiplier = scale * scale // Quadratic for more noticeable effect
+      
+      return {
+        type: config.animationType,
+        // Spring: lower stiffness = slower animation
+        stiffness: config.springStiffness * springMultiplier,
+        // Spring: proportionally lower damping to maintain feel
+        damping: config.springDamping * scale,
+        // Tween: higher duration = slower (divide by scale)
+        duration: (config.tweenDuration / 1000) / scale,
+        ease: config.tweenEase,
+        promotionDuration: (config.promotionDuration / 1000) / scale,
+        promotionScale: config.promotionScale,
+        stagger: (config.childStagger / 1000) / scale,
+        entryOffsetX: config.entryOffsetX,
+        entryOffsetY: config.entryOffsetY,
+        childEntryDelay: (config.childEntryDelay / 1000) / scale,
+        entryScale: config.childEntryScale,
+        exitDuration: (config.exitDuration / 1000) / scale,
+        exitScale: config.exitScale,
+        skipLeafAnimation: config.skipLeafAnimation,
+        timeScale: config.timeScale,
+      }
+    },
     [config]
   )
 
@@ -1056,7 +1094,7 @@ export default function StackingNavPlayground() {
     }
     
     // Any other change marks config as custom
-    // Level-all options and display options don't affect the preset status
+    // Level-all options, display options, and debug options don't affect the preset status
     const nonPresetFields = [
       'navVariant', 
       'showNumbers', 
@@ -1066,6 +1104,7 @@ export default function StackingNavPlayground() {
       'levelAllLabel',
       'levelAllActiveVariant',
       'levelAllInactiveVariant',
+      'timeScale', // Debug feature - doesn't affect preset
     ]
     if (!nonPresetFields.includes(controlId)) {
       setConfig((prev) => ({ ...prev, [controlId]: value, configPreset: 'custom' }))

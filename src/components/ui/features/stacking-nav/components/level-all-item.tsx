@@ -88,11 +88,12 @@ export const LevelAllItem = React.memo(function LevelAllItem({
         <span className="select-none">{styleConfig.levelAllLabel}</span>
       </Button>
       
-      {/* Debug Status Badge */}
+      {/* Debug Status Badge - Above with arrow pointing down */}
       {(showNumbers || showDebug) && (
-        <div className="absolute -top-2 -right-2 pointer-events-none">
+        <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-1 pointer-events-none flex flex-col items-center">
+          {/* Badge */}
           <div className={cn(
-            'px-1.5 py-0.5 rounded-md text-[10px] font-mono font-semibold border shadow-sm',
+            'px-1.5 py-0.5 rounded-md text-[10px] font-mono font-semibold border shadow-sm whitespace-nowrap',
             isActive 
               ? 'bg-teal-500 text-white border-teal-600'
               : 'bg-gray-400 text-white border-gray-500'
@@ -106,12 +107,29 @@ export const LevelAllItem = React.memo(function LevelAllItem({
               </div>
             </div>
           </div>
+          {/* Arrow and line pointing down */}
+          <div className="flex flex-col items-center">
+            <div className={cn(
+              'w-px h-3',
+              isActive ? 'bg-teal-500/20' : 'bg-gray-400/20'
+            )} />
+            <div className={cn(
+              'w-2 h-2 rounded-full',
+              isActive ? 'bg-teal-500/20' : 'bg-gray-400/20'
+            )} />
+          </div>
         </div>
       )}
       
-      {/* Position Debug Info */}
+      {/* Position Debug Info - Below with arrow pointing up */}
       {showDebug && (
-        <div className="absolute -bottom-6 left-0 pointer-events-none">
+        <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1 pointer-events-none flex flex-col items-center">
+          {/* Arrow pointing up */}
+          <div className="flex flex-col items-center">
+            <div className="w-2 h-2 rounded-full bg-black/15" />
+            <div className="w-px h-2 bg-black/15" />
+          </div>
+          {/* ID label */}
           <div className="px-1 py-0.5 bg-black/80 text-white text-[8px] font-mono rounded whitespace-nowrap">
             {levelAllId}
           </div>

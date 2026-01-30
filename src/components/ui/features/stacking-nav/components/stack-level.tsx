@@ -15,14 +15,14 @@
 'use client'
 
 import { useRef, useEffect, useState } from 'react'
-import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
+import { AnimatePresence, motion } from 'motion/react'
 
 import { useStackContext, useLevelContext, LevelContext } from '../context'
 import { AnimatedItem } from './animated-item'
 import { LevelAllItem } from './level-all-item'
 import type { StackItem, StackLevelProps } from '../types'
 import { getChildEntryOffset, getChildDelay, getExitAnimation, getTransition } from '../utils/animations'
-import { ROOT_ANCHOR_ID, getAnchoredZIndex, createLevelAllId, isLevelAllId } from '../config'
+import { ROOT_ANCHOR_ID, Z_INDEX, getAnchoredZIndex, createLevelAllId, isLevelAllId } from '../config'
 
 /**
  * Renders items at a specific level of the navigation tree.
@@ -37,6 +37,7 @@ export function StackLevel({
     styleConfig,
     shouldReduceMotion,
     showDebug,
+    getIsCollapsing, // Function to get live collapse state
   } = useStackContext()
   
   const { level, anchorCount } = useLevelContext()
@@ -98,17 +99,20 @@ export function StackLevel({
   // we want different behavior: don't anchor parents, don't hide siblings
   const skipLeafBehavior = animationConfig.skipLeafAnimation && (activeItemIsLeaf || activeChildIsLeaf)
   
+  // Time scale for slow-mo — scales all hardcoded internal durations
+  const timeScale = animationConfig.timeScale
+
   // Detect promotion - only when a NEW item with children is selected
   useEffect(() => {
     if (activeId !== previousActiveIdRef.current && activeId) {
       const item = items.find(i => i.id === activeId)
       if (level > 0 && item?.children?.length) {
         setPromotingId(activeId)
-        setTimeout(() => setPromotingId(null), 400)
+        setTimeout(() => setPromotingId(null), 400 / timeScale)
       }
     }
     previousActiveIdRef.current = activeId
-  }, [activeId, level, items])
+  }, [activeId, level, items, timeScale])
   
   // Calculate anchored offset for peek-behind effect
   const getAnchoredOffset = (depth: number) => {
@@ -141,13 +145,23 @@ export function StackLevel({
   const rootAnchorVisible = level === 0 && hasActiveAtThisLevel && activeId !== ROOT_ANCHOR_ID
   const totalAnchorCount = anchorCount + (rootAnchorVisible ? 1 : 0)
   const baseParentOffset = totalAnchorCount > 0 ? styleConfig.peekOffset * totalAnchorCount : 0
-  
+
+  // Read collapse state once for all items in this level.
+  // During collapse, we skip stagger delays so all items animate simultaneously
+  // (matching the fluid L0 demotion behavior).
+  const isCollapsingNow = getIsCollapsing()
+
   return (
     <>
       {/* Root Anchor (All button) - only at level 0 */}
       {anchorItem && (() => {
         const isAnchored = hasActiveAtThisLevel && activeId !== ROOT_ANCHOR_ID
         const anchorOffset = getAnchoredOffset(0)
+
+        // Fast layout during collapse
+        const anchorTransition = isCollapsingNow
+          ? { ...getTransition(animationConfig), layout: { duration: 0.1 / timeScale, ease: 'easeOut' as const } }
+          : getTransition(animationConfig)
 
         return (
           <motion.div
@@ -162,7 +176,7 @@ export function StackLevel({
               opacity: 1,
               x: isAnchored ? anchorOffset : 0,
             }}
-            transition={getTransition(animationConfig)}
+            transition={anchorTransition}
           >
             <AnimatedItem
               item={anchorItem}
@@ -183,7 +197,23 @@ export function StackLevel({
           // For level-all item, use special rendering but same positioning as children
           // Lower z-index (90) so it appears behind other children (100) during overlaps
           if (isLevelAllItem) {
-            const animationDelay = getChildDelay(0, animationConfig)
+            const animationDelay = isCollapsingNow ? 0 : getChildDelay(0, animationConfig)
+
+            // Fast exit for Level-All during collapse
+            const levelAllExit = shouldReduceMotion
+              ? undefined
+              : isCollapsingNow
+                ? { 
+                    opacity: 0, 
+                    scale: animationConfig.exitScale,
+                    transition: { duration: Math.min(animationConfig.exitDuration, 0.05 / timeScale), ease: 'easeOut' as const }
+                  }
+                : getExitAnimation(animationConfig)
+            
+            // Fast layout during collapse
+            const levelAllTransition = isCollapsingNow
+              ? { ...getTransition(animationConfig, animationDelay), layout: { duration: 0.1 / timeScale, ease: 'easeOut' as const } }
+              : getTransition(animationConfig, animationDelay)
             
             return (
               <motion.div
@@ -193,8 +223,8 @@ export function StackLevel({
                 style={{ zIndex: 90 }}
                 initial={shouldReduceMotion ? undefined : { opacity: 0, ...entryOffset, scale: animationConfig.entryScale }}
                 animate={{ opacity: 1, x: baseParentOffset, y: 0, scale: 1 }}
-                exit={shouldReduceMotion ? undefined : getExitAnimation(animationConfig)}
-                transition={getTransition(animationConfig, animationDelay)}
+                exit={levelAllExit}
+                transition={levelAllTransition}
               >
                 <LevelAllItem
                   levelAllId={item.id}
@@ -244,7 +274,9 @@ export function StackLevel({
           const shouldUseAbsolute = isAnchored
           
           // Animation delay (use original index in itemsWithLevelAll for proper stagger)
-          const isInitialEntry = level > 0 && !isActive
+          // Skip stagger during collapse — all items should animate simultaneously
+          // This is why L0 demotion feels fluid (L0 items never get stagger since level=0)
+          const isInitialEntry = level > 0 && !isActive && !isCollapsingNow
           const animationDelay = isInitialEntry ? getChildDelay(index, animationConfig) : 0
           
           // Debug logging
@@ -262,6 +294,12 @@ export function StackLevel({
               positioning: shouldUseAbsolute ? 'absolute (anchored)' : 'inline-flex (flow)',
               anchoredDepth: isAnchored ? anchoredDepth : 'N/A',
               anchoredOffset: isAnchored ? `${getAnchoredOffset(anchoredDepth)}px` : 'N/A',
+            })
+            console.log('Animation:', {
+              isCollapsingNow,
+              isInitialEntry,
+              animationDelay: `${animationDelay * 1000}ms`,
+              staggerSkipped: level > 0 && !isActive && isCollapsingNow ? 'YES (collapse)' : 'no',
             })
             console.groupEnd()
           }
@@ -321,16 +359,47 @@ export function StackLevel({
             ? undefined // Don't set initial - let it stay where it is
             : (shouldReduceMotion ? undefined : { opacity: 0, ...entryOffset, scale: animationConfig.entryScale })
           
+          // Use faster exit when collapsing to reduce demotion delay
+          // This allows the parent's position animation to start sooner
+          // Uses isCollapsingNow computed once per render above
+          const isCurrentlyCollapsing = isCollapsingNow
+          
+          // During collapse, use faster layout transition so position shifts happen quickly
+          const collapseLayoutTransition = isCurrentlyCollapsing
+            ? { layout: { duration: 0.1 / timeScale, ease: 'easeOut' as const } }
+            : {}
+          
           const leafTransition = skipAnyAnimation
             ? { duration: 0 }
             : {
                 ...getTransition(animationConfig, animationDelay),
+                ...collapseLayoutTransition, // Override layout timing during collapse
                 scale: isPromoting ? {
                   duration: animationConfig.promotionDuration,
                   times: [0, 0.5, 1],
                   ease: 'easeInOut',
                 } : undefined,
               }
+          
+          const fastExitDuration = Math.min(animationConfig.exitDuration, 0.05 / timeScale)
+          const exitAnimation = shouldReduceMotion 
+            ? undefined 
+            : isCurrentlyCollapsing
+              ? { 
+                  // Fast exit during collapse - minimal delay
+                  opacity: 0, 
+                  scale: animationConfig.exitScale,
+                  transition: {
+                    duration: fastExitDuration,
+                    ease: 'easeOut' as const,
+                  }
+                }
+              : getExitAnimation(animationConfig)
+          
+          // Debug: Log exit animation being used
+          if (showDebug && typeof window !== 'undefined' && !isActive) {
+            console.log(`🚪 [EXIT] ${item.id}: ${isCurrentlyCollapsing ? `FAST exit(${fastExitDuration * 1000}ms) + layout(100ms)` : `NORMAL (${animationConfig.exitDuration * 1000}ms)`}`)
+          }
           
           return (
             <motion.div
@@ -341,11 +410,17 @@ export function StackLevel({
               layout={!isAnchored ? 'position' : false}
               className={shouldUseAbsolute ? 'absolute top-0 left-0 inline-flex' : 'inline-flex'}
               style={{
-                zIndex: isAnchored ? getAnchoredZIndex(anchoredDepth) : 100,
+                zIndex: isAnchored
+                  ? getAnchoredZIndex(anchoredDepth)
+                  : isPromoting
+                    ? Z_INDEX.PROMOTING
+                    : isActive
+                      ? Z_INDEX.ACTIVE + 10
+                      : Z_INDEX.ACTIVE,
               }}
               initial={leafInitial}
               animate={animateState}
-              exit={shouldReduceMotion || skipAnyAnimation ? undefined : getExitAnimation(animationConfig)}
+              exit={exitAnimation}
               transition={leafTransition}
               data-item-expected-offset={shouldUseAbsolute ? anchoredOffset : 0}
             >
