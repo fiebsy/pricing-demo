@@ -3,7 +3,7 @@
 import Search01Icon from '@hugeicons-pro/core-stroke-rounded/Search01Icon'
 import InboxIcon from '@hugeicons-pro/core-stroke-rounded/InboxIcon'
 import { cn } from '@/lib/utils'
-import { FeaturedIcon } from '@/components/ui/prod/features/featured-icon'
+import { HugeIcon } from '@/components/ui/prod/base/icon'
 import { Button } from '@/components/ui/prod/base/button'
 
 /**
@@ -77,12 +77,9 @@ export function TableEmptyState({
     >
       {/* Icon */}
       <div className="mb-4">
-        <FeaturedIcon
-          icon={IconComponent}
-          color="gray"
-          theme="modern"
-          size="lg"
-        />
+        <div className="relative flex shrink-0 items-center justify-center size-12 rounded-xl bg-primary shadow-xs-skeumorphic ring-1 ring-inset ring-primary corner-squircle text-fg-secondary">
+          <HugeIcon icon={IconComponent} size={24} className="z-1" data-icon />
+        </div>
       </div>
 
       {/* Content */}

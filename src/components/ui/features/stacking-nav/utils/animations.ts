@@ -25,6 +25,9 @@ export function getEasingValue(ease: EasingType): Easing {
     backOut: 'backOut',
     backInOut: 'backInOut',
     anticipate: 'anticipate',
+    expoIn: [0.7, 0, 0.84, 0],
+    expoOut: [0.16, 1, 0.3, 1],
+    expoInOut: [0.87, 0, 0.13, 1],
   }
   return easingMap[ease] || 'easeOut'
 }

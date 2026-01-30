@@ -9,7 +9,7 @@
 import * as React from 'react'
 import { cn } from '@/lib/utils'
 
-import { ExpandingSearch } from '@/components/ui/prod/features/expanding-search'
+import { ExpandingSearch } from '@/components/ui/deprecated/expanding-search'
 import { HARDENED_SEARCH_CONFIG } from '../../config/hardened-preset'
 
 // =============================================================================

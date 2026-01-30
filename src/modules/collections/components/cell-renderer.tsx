@@ -9,7 +9,7 @@
 import React from 'react'
 import { format } from 'date-fns'
 import { cn } from '@/lib/utils'
-import { ClawbackTimer } from '@/components/ui/prod/base/clawback-timer'
+import { ClawbackTimer } from '@/components/ui/core/feedback/clawback-timer'
 import { Badge } from '@/components/ui/prod/base/badge'
 import { Tooltip } from '@/components/ui/prod/base/tooltip'
 import { PayProgressCircle } from './parts/pay-progress-circle'
