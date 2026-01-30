@@ -86,6 +86,7 @@ function getVariantLabel(variant: ButtonVariant): string {
     'primary-success': 'Primary Success',
     'secondary-success': 'Secondary Success',
     'tertiary-success': 'Tertiary Success',
+    tab: 'Tab',
   }
   return labels[variant] || variant
 }

@@ -4,26 +4,21 @@
  *
  * Organized structure:
  *
- * @module core - Stable primitives (buttons, badges, inputs, feedback)
+ * @module core - Stable primitives (badges, icons, feedback)
  * @module features - Composed feature components
- * @module patterns - Complex UI patterns (data table, filters, control panel)
- * @module experimental - WIP components with version tracking
+ * @module patterns - Complex UI patterns (control panel)
  * @module deprecated - Legacy components (do not use for new code)
  *
  * Import examples:
  * ```ts
  * // Core primitives
- * import { Button, Badge, Icon } from '@/components/ui/core'
+ * import { Badge, HugeIcon } from '@/components/ui/core'
  *
  * // Features
- * import { MetricCard, ExpandingSearch } from '@/components/ui/features'
+ * import { DisplayCard, StackingNav } from '@/components/ui/features'
  *
  * // Patterns
- * import { ControlPanel, Filter } from '@/components/ui/patterns'
- *
- * // Experimental (always specify version or use default latest)
- * import { CommandMenu } from '@/components/ui/experimental' // Latest
- * import { CommandMenuV3 } from '@/components/ui/experimental' // Specific version
+ * import { ControlPanel } from '@/components/ui/patterns'
  * ```
  */
 
@@ -36,7 +31,6 @@ export * from './features'
 // Patterns - Complex UI patterns
 export * from './patterns'
 
-// Note: Experimental and deprecated are NOT re-exported here
+// Note: Deprecated components are NOT re-exported here
 // Import them directly when needed:
-// - @/components/ui/experimental
 // - @/components/ui/deprecated

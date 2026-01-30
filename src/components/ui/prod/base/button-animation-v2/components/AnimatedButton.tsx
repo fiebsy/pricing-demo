@@ -352,7 +352,7 @@ export function AnimatedButton({
             scale: {
               duration: animationConfig.terminalDuration ?? 0.35,
               times: [0, 0.5, 1],
-              ease: [0.34, 1.56, 0.64, 1], // Custom bounce ease
+              ease: [0.34, 1.56, 0.64, 1] as [number, number, number, number],
             },
             opacity: { duration: 0.15 },
             default: fastSpring,
@@ -371,7 +371,7 @@ export function AnimatedButton({
               scale: {
                 duration: 0.3,
                 times: [0, 0.6, 1],
-                ease: 'easeOut',
+                ease: 'easeOut' as const,
               },
               opacity: { duration: 0.15 },
               default: fastSpring,
@@ -430,11 +430,11 @@ export function AnimatedButton({
       y: -(animationConfig.entryDistance ?? 6),
       transition: {
         duration: 0.15,
-        ease: 'easeOut',
+        ease: 'easeOut' as const,
       },
     }
   }
-  
+
   // ============================================================================
   // RENDER
   // ============================================================================

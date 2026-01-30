@@ -22,14 +22,14 @@ const sidebarVariants = {
     width: 44,
     transition: {
       duration: 0.2,
-      ease: [0.4, 0, 0.2, 1],
+      ease: [0.4, 0, 0.2, 1] as [number, number, number, number],
     },
   },
   expanded: {
     width: 140,
     transition: {
       duration: 0.25,
-      ease: [0.4, 0, 0.2, 1],
+      ease: [0.4, 0, 0.2, 1] as [number, number, number, number],
       staggerChildren: 0.03,
       delayChildren: 0.05,
     },

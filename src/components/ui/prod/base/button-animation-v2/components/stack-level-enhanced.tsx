@@ -55,7 +55,7 @@ export function EnhancedStackLevel({
   
   // Track which item is transitioning from child to parent
   const [promotingItemId, setPromotingItemId] = useState<string | null>(null)
-  const previousActiveIdRef = useRef<string | undefined>()
+  const previousActiveIdRef = useRef<string | undefined>(undefined)
 
   // Separate "All" from regular items at root
   const anchorItem = level === 0 ? items.find((i) => i.id === ROOT_ANCHOR_ID) : null
@@ -208,7 +208,7 @@ function EnhancedChildrenLevel({
   
   // Track promoting item
   const [promotingItemId, setPromotingItemId] = useState<string | null>(null)
-  const previousActiveIdRef = useRef<string | undefined>()
+  const previousActiveIdRef = useRef<string | undefined>(undefined)
 
   // Generate unique mount ID
   const [mountId] = useState(() => Math.random().toString(36).slice(2))

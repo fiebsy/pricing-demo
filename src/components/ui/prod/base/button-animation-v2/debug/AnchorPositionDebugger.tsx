@@ -260,7 +260,7 @@ export function AnchorPositionDebugger({
   const renderConnections = () => {
     if (!showConnections) return null
     
-    const connections = []
+    const connections: React.ReactNode[] = []
     
     // Draw connections between anchored items
     anchorStack.forEach((item, index) => {

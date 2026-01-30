@@ -15,18 +15,6 @@
 // Display Card
 export * from './display-card'
 
-// Expanding Search
-export * from './expanding-search'
-
-// Featured Icon
-export * from './featured-icon'
-
-// Metric Card
-export * from './metric-card'
-
-// Order Details
-export * from './order-details'
-
 // Stacking Nav
 export * from './stacking-nav'
 

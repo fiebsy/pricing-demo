@@ -121,8 +121,13 @@ export function StackLevel({
     : getChildEntryOffset(animationConfig)
   
   // Level-all button state
-  // Shows as "active" when no child at this level is selected yet
-  const showLevelAll = styleConfig.showLevelAll && level > 0
+  // The Level-All should only appear when:
+  // 1. showLevelAll is enabled
+  // 2. We're not at root level (level > 0)  
+  // 3. We haven't drilled deeper into a child with its own children
+  //    (i.e., hide Level-All when this level's active item has children being shown)
+  const childrenAreBeingShown = hasActiveAtThisLevel && activeItem?.children && activeItem.children.length > 0
+  const showLevelAll = styleConfig.showLevelAll && level > 0 && !childrenAreBeingShown
   const levelAllId = createLevelAllId(level)
   // Level-all is active when: we're at this level but no specific child is selected
   // This means the parent at level-1 is expanded and showing children, but user hasn't drilled deeper
@@ -320,7 +325,7 @@ export function StackLevel({
                 item={item}
                 index={itemIndex}
                 levelIndices={itemLevelIndices}
-                isAnchored={isAnchored}
+                isAnchored={isAnchored ?? false}
                 isPromoting={isPromoting}
               />
             </motion.div>

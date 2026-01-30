@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
-import { HugeIcon } from '@/components/ui/deprecated/base/icon/huge-icons/huge-icons'
+import { HugeIcon } from '@/components/ui/core/primitives/icon'
 import Clock01Icon from '@hugeicons-pro/core-stroke-rounded/Clock01Icon'
 
 import { InfoCard } from './info-card'

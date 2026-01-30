@@ -82,7 +82,7 @@ export function SimpleDebugger() {
         
         for (const buttonText of sequence) {
           clickButton(buttonText)
-          await new Promise(r => setTimeout(r, 500)) // Wait for animation
+          await new Promise(r => setTimeout(r, 500)); // Wait for animation
           (window as any).debugPositions()
           await new Promise(r => setTimeout(r, 1000))
         }

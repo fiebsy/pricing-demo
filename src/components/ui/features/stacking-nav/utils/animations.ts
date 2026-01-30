@@ -6,13 +6,14 @@
  * @module features/stacking-nav/utils
  */
 
+import type { Easing } from 'motion/react'
 import type { AnimationConfig, EasingType } from '../types'
 
 /**
  * Map easing type to Framer Motion easing values.
  */
-export function getEasingValue(ease: EasingType): string | number[] {
-  const easingMap: Record<EasingType, string | number[]> = {
+export function getEasingValue(ease: EasingType): Easing {
+  const easingMap: Record<EasingType, Easing> = {
     linear: 'linear',
     easeIn: 'easeIn',
     easeOut: 'easeOut',
