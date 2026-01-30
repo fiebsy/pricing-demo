@@ -19,9 +19,10 @@ import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 
 import { useStackContext, useLevelContext, LevelContext } from '../context'
 import { AnimatedItem } from './animated-item'
+import { LevelAllItem } from './level-all-item'
 import type { StackItem, StackLevelProps } from '../types'
 import { getChildEntryOffset, getChildDelay, getExitAnimation, getTransition } from '../utils/animations'
-import { ROOT_ANCHOR_ID, getAnchoredZIndex } from '../config'
+import { ROOT_ANCHOR_ID, getAnchoredZIndex, createLevelAllId } from '../config'
 
 /**
  * Renders items at a specific level of the navigation tree.
@@ -119,13 +120,21 @@ export function StackLevel({
     ? { x: 0, y: 0 }
     : getChildEntryOffset(animationConfig)
   
+  // Level-all button state
+  // Shows as "active" when no child at this level is selected yet
+  const showLevelAll = styleConfig.showLevelAll && level > 0
+  const levelAllId = createLevelAllId(level)
+  // Level-all is active when: we're at this level but no specific child is selected
+  // This means the parent at level-1 is expanded and showing children, but user hasn't drilled deeper
+  const levelAllIsActive = showLevelAll && !hasActiveAtThisLevel
+  
   return (
     <>
       {/* Root Anchor (All button) - only at level 0 */}
       {anchorItem && (() => {
         const isAnchored = hasActiveAtThisLevel && activeId !== ROOT_ANCHOR_ID
         const anchorOffset = getAnchoredOffset(0)
-        
+
         return (
           <motion.div
             key={anchorItem.id}
@@ -135,7 +144,7 @@ export function StackLevel({
               zIndex: isAnchored ? getAnchoredZIndex(0) : 100,
             }}
             initial={shouldReduceMotion ? undefined : { opacity: 0 }}
-            animate={{ 
+            animate={{
               opacity: 1,
               x: isAnchored ? anchorOffset : 0,
             }}
@@ -150,6 +159,16 @@ export function StackLevel({
           </motion.div>
         )
       })()}
+      
+      {/* Level-All Button - appears at child levels (L1+) with no animation */}
+      {showLevelAll && (
+        <div className="inline-flex" style={{ zIndex: 100 }}>
+          <LevelAllItem
+            levelAllId={levelAllId}
+            isActive={levelAllIsActive}
+          />
+        </div>
+      )}
       
       {/* Regular Items */}
       <AnimatePresence mode="popLayout">
@@ -231,12 +250,16 @@ export function StackLevel({
           const skipAnyAnimation = shouldSkipAnimation || skipAllAnimationAtLevel || shouldSkipParentAnimation
           
           // Calculate animate state - leaf nodes stay in place when skipLeafAnimation is enabled
+          // IMPORTANT: Always set explicit x/y positions even when skipping animation.
+          // Using undefined would cause framer-motion to lose position tracking, breaking
+          // subsequent animations when transitioning back to normal state (e.g., on collapse).
           const animateState = skipAnyAnimation
             ? {
-                // Item stays exactly where it is - no transform
+                // Item stays exactly where it is with instant transition (duration: 0)
+                // but we still track the position explicitly for proper animation on collapse
                 opacity: 1,
-                x: undefined, // Don't set x to preserve current position
-                y: undefined,
+                x: activeParentOffset,
+                y: 0,
                 scale: 1,
               }
             : isAnchored 
@@ -279,7 +302,10 @@ export function StackLevel({
           return (
             <motion.div
               key={item.id}
-              layout={!isAnchored && !skipAnyAnimation ? 'position' : false}
+              // IMPORTANT: Always track layout for non-anchored items so collapse animations work.
+              // The transition duration (instant vs normal) controls whether changes animate,
+              // but we need layout tracking enabled to know WHERE to animate from/to.
+              layout={!isAnchored ? 'position' : false}
               className={shouldUseAbsolute ? 'absolute top-0 left-0 inline-flex' : 'inline-flex'}
               style={{
                 zIndex: isAnchored ? getAnchoredZIndex(anchoredDepth) : 100,

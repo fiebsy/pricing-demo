@@ -39,6 +39,37 @@ const DEFAULT_POSITION = {
 const PANEL_HEADER_HEIGHT = 36 // h-9 = 36px
 
 // -----------------------------------------------------------------------------
+// Section Slide Animation Variants
+// -----------------------------------------------------------------------------
+// Slides content up or down based on navigation direction
+
+const SLIDE_DISTANCE = 12 // pixels to slide
+
+const sectionSlideVariants = {
+  enter: (direction: number) => ({
+    y: direction > 0 ? SLIDE_DISTANCE : -SLIDE_DISTANCE,
+    scale: 0.97,
+    opacity: 0,
+  }),
+  center: {
+    y: 0,
+    scale: 1,
+    opacity: 1,
+  },
+  exit: (direction: number) => ({
+    y: direction > 0 ? -8 : 8,
+    opacity: 0,
+    transition: { duration: 0.075, ease: 'easeIn' },
+  }),
+}
+
+const sectionSlideTransition = {
+  y: { duration: 0.15, ease: 'easeOut' },
+  scale: { duration: 0.15, ease: 'easeOut' },
+  opacity: { duration: 0.1, ease: 'easeOut' },
+}
+
+// -----------------------------------------------------------------------------
 // Panel Inner Component (uses context)
 // -----------------------------------------------------------------------------
 
@@ -66,7 +97,7 @@ function PanelInner<T>({
   onPresetChange,
   getConfigForCopy,
 }: PanelInnerProps<T>) {
-  const { isMinimized, activeTab, setActiveTab, toggleMinimized } = usePanelContext()
+  const { isMinimized, activeTab, setActiveTab, toggleMinimized, direction } = usePanelContext()
 
   // Handle control changes
   const handleControlChange = useCallback(
@@ -194,12 +225,24 @@ function PanelInner<T>({
           <ScrollArea.Viewport className="h-full w-full overscroll-contain">
             <ScrollArea.Content>
               <div className="p-2.5">
-                {activeSection && (
-                  <ActiveSectionContent
-                    section={activeSection}
-                    onChange={handleControlChange}
-                  />
-                )}
+                <AnimatePresence mode="wait" initial={false} custom={direction}>
+                  {activeSection && (
+                    <motion.div
+                      key={activeSection.id}
+                      custom={direction}
+                      variants={sectionSlideVariants}
+                      initial="enter"
+                      animate="center"
+                      exit="exit"
+                      transition={sectionSlideTransition}
+                    >
+                      <ActiveSectionContent
+                        section={activeSection}
+                        onChange={handleControlChange}
+                      />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             </ScrollArea.Content>
           </ScrollArea.Viewport>
@@ -273,6 +316,8 @@ export function UnifiedControlPanel<T>({
 
   const pos = { ...DEFAULT_POSITION, ...position }
   const initialTab = defaultActiveTab || sections[0]?.id || ''
+  // Extract section IDs for direction calculation
+  const sectionOrder = sections.map((s) => s.id)
 
   return (
     <PanelProvider
@@ -280,6 +325,7 @@ export function UnifiedControlPanel<T>({
       defaultMinimized={defaultMinimized}
       minimized={minimized}
       onMinimizedChange={onMinimizedChange}
+      sectionOrder={sectionOrder}
     >
       <PanelInner
         sections={sections}

@@ -4,6 +4,7 @@
 // Shared state management for the control panel including:
 // - Active tab state
 // - Minimize/expand state
+// - Navigation direction for slide animations
 // =============================================================================
 
 'use client'
@@ -13,6 +14,7 @@ import {
   useCallback,
   useContext,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from 'react'
@@ -27,6 +29,8 @@ interface PanelProviderProps {
   defaultMinimized?: boolean
   minimized?: boolean
   onMinimizedChange?: (minimized: boolean) => void
+  /** Ordered list of section IDs to determine navigation direction */
+  sectionOrder?: string[]
 }
 
 export function PanelProvider({
@@ -35,9 +39,14 @@ export function PanelProvider({
   defaultMinimized = false,
   minimized: controlledMinimized,
   onMinimizedChange,
+  sectionOrder = [],
 }: PanelProviderProps) {
-  const [activeTab, setActiveTab] = useState(defaultActiveTab)
+  const [activeTab, setActiveTabState] = useState(defaultActiveTab)
   const [uncontrolledMinimized, setUncontrolledMinimized] = useState(defaultMinimized)
+  
+  // Track navigation direction: 1 = down (next section), -1 = up (previous section)
+  const [direction, setDirection] = useState<1 | -1>(1)
+  const previousTabRef = useRef(defaultActiveTab)
 
   // Support both controlled and uncontrolled minimize state
   const isMinimized = controlledMinimized ?? uncontrolledMinimized
@@ -57,6 +66,23 @@ export function PanelProvider({
     setIsMinimized(!isMinimized)
   }, [isMinimized, setIsMinimized])
 
+  // Enhanced setActiveTab that calculates direction
+  const setActiveTab = useCallback(
+    (newTab: string) => {
+      const prevIndex = sectionOrder.indexOf(previousTabRef.current)
+      const newIndex = sectionOrder.indexOf(newTab)
+      
+      // Determine direction: positive index change = down, negative = up
+      if (prevIndex !== -1 && newIndex !== -1) {
+        setDirection(newIndex > prevIndex ? 1 : -1)
+      }
+      
+      previousTabRef.current = newTab
+      setActiveTabState(newTab)
+    },
+    [sectionOrder]
+  )
+
   const value = useMemo<PanelContextValue>(
     () => ({
       activeTab,
@@ -64,8 +90,9 @@ export function PanelProvider({
       isMinimized,
       setIsMinimized,
       toggleMinimized,
+      direction,
     }),
-    [activeTab, isMinimized, setIsMinimized, toggleMinimized]
+    [activeTab, setActiveTab, isMinimized, setIsMinimized, toggleMinimized, direction]
   )
 
   return <PanelContext.Provider value={value}>{children}</PanelContext.Provider>

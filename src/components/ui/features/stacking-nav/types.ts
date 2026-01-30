@@ -151,6 +151,18 @@ export interface StyleConfig {
   childVariant: ButtonVariant
   /** Button variant for anchored items */
   anchoredVariant: ButtonVariant
+  /** Button variant for selected leaf nodes (items without children) */
+  selectedLeafVariant: ButtonVariant
+  
+  // Level All Button Configuration
+  /** Show "All" button in child levels (L1+) - defaults to false */
+  showLevelAll: boolean
+  /** Label for level-all buttons - defaults to "All" */
+  levelAllLabel: string
+  /** Button variant for level-all when active (no specific child selected) */
+  levelAllActiveVariant: ButtonVariant
+  /** Button variant for level-all when inactive (a child is selected) */
+  levelAllInactiveVariant: ButtonVariant
 }
 
 /**
@@ -161,6 +173,7 @@ export type ButtonVariant =
   | 'secondary'
   | 'tertiary'
   | 'shine'
+  | 'tab'
   | 'link-gray'
   | 'link-color'
 

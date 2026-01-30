@@ -89,6 +89,46 @@ function SectionIcon({ sectionId, isActive }: SectionIconProps) {
 }
 
 // -----------------------------------------------------------------------------
+// Layout Constants
+// -----------------------------------------------------------------------------
+
+const ITEM_HEIGHT = 40 // h-10 = 40px
+const ITEM_GAP = 4 // gap-1 = 4px
+
+// -----------------------------------------------------------------------------
+// Sliding Active Indicator
+// -----------------------------------------------------------------------------
+// A single indicator element that slides to the active item position
+
+interface SlidingIndicatorProps {
+  activeIndex: number
+}
+
+function SlidingIndicator({ activeIndex }: SlidingIndicatorProps) {
+  // Calculate Y position based on active index
+  // Each item is ITEM_HEIGHT tall with ITEM_GAP gap between them
+  const yOffset = activeIndex * (ITEM_HEIGHT + ITEM_GAP)
+
+  return (
+    <motion.div
+      className={cx(
+        'absolute left-0.5 right-0 rounded-l-lg pointer-events-none',
+        'bg-tertiary', // Main background color
+        'z-0' // Behind the text content (which has z-10)
+      )}
+      style={{ height: ITEM_HEIGHT, top: 0 }}
+      initial={false}
+      animate={{ y: yOffset }}
+      transition={{
+        type: 'tween',
+        duration: 0.25,
+        ease: [0.16, 1, 0.3, 1], // Expo out
+      }}
+    />
+  )
+}
+
+// -----------------------------------------------------------------------------
 // Sidebar Item
 // -----------------------------------------------------------------------------
 
@@ -109,16 +149,14 @@ function SidebarItem({ section, isActive, isExpanded, onClick }: SidebarItemProp
       variants={itemVariants}
       onClick={onClick}
       className={cx(
-        'group flex w-full items-center h-10 px-3', // Match panel header height
-        'rounded-l-lg', // Only round left side, right connects to panel
-        'transition-all duration-150',
+        'group relative flex w-full items-center h-10 px-3',
+        'rounded-l-lg',
         'outline-none focus-visible:ring-2 focus-visible:ring-brand-primary',
-        'backdrop-blur-sm',
-        isActive
-          ? 'bg-tertiary'
-          : 'bg-secondary/30 hover:bg-secondary/70'
+        // Transparent bg - the sliding indicator provides the active state
+        'bg-transparent hover:bg-secondary/40 transition-colors duration-150'
       )}
     >
+      {/* Label content - z-10 to stay above indicator */}
       <AnimatePresence>
         {isExpanded && (
           <motion.span
@@ -127,7 +165,7 @@ function SidebarItem({ section, isActive, isExpanded, onClick }: SidebarItemProp
             animate="expanded"
             exit="collapsed"
             className={cx(
-              'truncate text-left text-xs font-medium transition-colors',
+              'relative z-10 truncate text-left text-xs font-medium transition-colors',
               isActive 
                 ? 'text-primary' 
                 : 'text-tertiary group-hover:text-secondary'
@@ -169,6 +207,9 @@ export function SidebarNavigation({
   const [isHovered, setIsHovered] = useState(false)
   const isExpanded = forceExpanded || isHovered
 
+  // Calculate active index for the sliding indicator
+  const activeIndex = sections.findIndex((s) => s.id === activeTabId)
+
   return (
     <motion.div
       variants={sidebarVariants}
@@ -195,7 +236,10 @@ export function SidebarNavigation({
       <ScrollArea.Root className="relative flex-1 overflow-hidden">
         <ScrollArea.Viewport className="h-full w-full overscroll-contain">
           <ScrollArea.Content>
-            <div className="flex flex-col gap-1 pl-0.5 pb-1">
+            <div className="relative flex flex-col gap-1 pl-0.5 pb-1">
+              {/* Sliding active indicator - positioned absolutely within items container */}
+              {activeIndex >= 0 && <SlidingIndicator activeIndex={activeIndex} />}
+              
               {sections.map((section) => (
                 <SidebarItem
                   key={section.id}

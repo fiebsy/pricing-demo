@@ -79,6 +79,22 @@ export const variantStyles: Record<ButtonVariant, string> = {
     '[&_[data-icon]]:text-fg-quaternary hover:[&_[data-icon]]:text-fg-tertiary',
   ].join(' '),
 
+  // Tab - tertiary with underline on active (for nav/tab buttons)
+  // Keeps tertiary padding (no layout shift), shows underline when data-active or aria-current
+  tab: [
+    'text-tertiary',
+    'hover:text-tertiary_hover',
+    'data-[pressed]:scale-[0.98]',
+    'data-[disabled]:text-fg-disabled',
+    '[&_[data-icon]]:text-fg-quaternary hover:[&_[data-icon]]:text-fg-quaternary_hover',
+    // Underline: transparent by default, visible on hover or active
+    '[&_[data-text]]:underline [&_[data-text]]:decoration-transparent [&_[data-text]]:underline-offset-4 [&_[data-text]]:decoration-2',
+    'hover:[&_[data-text]]:decoration-current/50',
+    // Active state: solid underline (via data-active attribute or aria-current)
+    'data-[active]:[&_[data-text]]:decoration-current data-[active]:text-primary',
+    'aria-[current]:[&_[data-text]]:decoration-current aria-[current]:text-primary',
+  ].join(' '),
+
   // Link gray - gray text link with underline
   'link-gray': [
     'justify-normal rounded p-0! text-tertiary',

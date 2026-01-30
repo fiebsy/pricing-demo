@@ -11,7 +11,6 @@
 
 import * as React from 'react'
 import { useCallback, useMemo, useState } from 'react'
-import { Breadcrumbs } from '@/components/ui/deprecated/nav'
 import {
   UnifiedControlPanel,
   type ControlChangeEvent,
@@ -25,6 +24,7 @@ import {
   type ActivePath,
   type AnimationType,
   type EasingType,
+  type ButtonVariant,
   DEFAULT_ANIMATION_CONFIG,
   DEFAULT_STYLE_CONFIG,
 } from '@/components/ui/features/stacking-nav'
@@ -204,6 +204,7 @@ interface PlaygroundConfig {
   
   // Leaf Node Behavior
   skipLeafAnimation: boolean
+  selectedLeafVariant: ButtonVariant
   
   // Stacking
   peekOffset: number
@@ -218,6 +219,12 @@ interface PlaygroundConfig {
   
   // Demo
   demoType: 'navigation' | 'filters'
+  
+  // Level All Button
+  showLevelAll: boolean
+  levelAllLabel: string
+  levelAllActiveVariant: ButtonVariant
+  levelAllInactiveVariant: ButtonVariant
 }
 
 // Spring presets (for spring animation tuning)
@@ -272,6 +279,17 @@ const ENTRY_DIRECTION_OPTIONS: { value: EntryDirection; label: string }[] = [
   { value: 'custom', label: 'Custom' },
 ]
 
+// Button variant options for styling
+const BUTTON_VARIANT_OPTIONS: { value: ButtonVariant; label: string }[] = [
+  { value: 'primary', label: 'Primary' },
+  { value: 'secondary', label: 'Secondary' },
+  { value: 'tertiary', label: 'Tertiary' },
+  { value: 'shine', label: 'Shine' },
+  { value: 'tab', label: 'Tab' },
+  { value: 'link-gray', label: 'Link Gray' },
+  { value: 'link-color', label: 'Link Color' },
+]
+
 // =============================================================================
 // FULL CONFIG PRESETS
 // =============================================================================
@@ -295,11 +313,17 @@ const PRESET_DEFAULT: Omit<PlaygroundConfig, 'configPreset' | 'demoType'> = {
   exitDuration: 150, // 0.15s
   exitScale: 0.95,
   skipLeafAnimation: false,
+  selectedLeafVariant: 'primary',
   peekOffset: 8,
   anchoredOpacity: 1,
   gap: 'md',
   showNumbers: false,
   showDebug: false,
+  // Level All Button - off by default
+  showLevelAll: false,
+  levelAllLabel: 'All',
+  levelAllActiveVariant: 'tab',
+  levelAllInactiveVariant: 'tertiary',
 }
 
 /** Spring preset - physics-based spring animation */
@@ -321,11 +345,17 @@ const PRESET_SPRING: Omit<PlaygroundConfig, 'configPreset' | 'demoType'> = {
   exitDuration: 150,
   exitScale: 0.95,
   skipLeafAnimation: false,
+  selectedLeafVariant: 'primary',
   peekOffset: 8,
   anchoredOpacity: 0.6,
   gap: 'md',
   showNumbers: false,
   showDebug: false,
+  // Level All Button - off by default
+  showLevelAll: false,
+  levelAllLabel: 'All',
+  levelAllActiveVariant: 'tab',
+  levelAllInactiveVariant: 'tertiary',
 }
 
 const CONFIG_PRESETS: Record<ConfigPreset, Omit<PlaygroundConfig, 'configPreset' | 'demoType'> | null> = {
@@ -599,6 +629,13 @@ function createPanelConfig(config: PlaygroundConfig): UnifiedControlPanelConfig 
                 label: 'Skip Animation',
                 value: config.skipLeafAnimation,
               },
+              {
+                id: 'selectedLeafVariant',
+                type: 'select',
+                label: 'Selected Variant',
+                value: config.selectedLeafVariant,
+                options: BUTTON_VARIANT_OPTIONS,
+              },
             ],
           },
         ],
@@ -663,6 +700,37 @@ function createPanelConfig(config: PlaygroundConfig): UnifiedControlPanelConfig 
                   { value: 'navigation', label: 'Navigation' },
                   { value: 'filters', label: 'Filters' },
                 ],
+              },
+            ],
+          },
+          {
+            title: 'Level All Button',
+            controls: [
+              {
+                id: 'showLevelAll',
+                type: 'toggle',
+                label: 'Show Level All',
+                value: config.showLevelAll,
+              },
+              {
+                id: 'levelAllLabel',
+                type: 'text',
+                label: 'Label',
+                value: config.levelAllLabel,
+              },
+              {
+                id: 'levelAllActiveVariant',
+                type: 'select',
+                label: 'Active Variant',
+                value: config.levelAllActiveVariant,
+                options: BUTTON_VARIANT_OPTIONS,
+              },
+              {
+                id: 'levelAllInactiveVariant',
+                type: 'select',
+                label: 'Inactive Variant',
+                value: config.levelAllInactiveVariant,
+                options: BUTTON_VARIANT_OPTIONS,
               },
             ],
           },
@@ -734,6 +802,12 @@ export default function StackingNavPlayground() {
       peekOffset: config.peekOffset,
       anchoredOpacity: config.anchoredOpacity,
       gap: config.gap,
+      selectedLeafVariant: config.selectedLeafVariant,
+      // Level All Button
+      showLevelAll: config.showLevelAll,
+      levelAllLabel: config.levelAllLabel,
+      levelAllActiveVariant: config.levelAllActiveVariant,
+      levelAllInactiveVariant: config.levelAllInactiveVariant,
     }),
     [config]
   )
@@ -829,7 +903,16 @@ export default function StackingNavPlayground() {
     }
     
     // Any other change marks config as custom
-    const nonPresetFields = ['demoType', 'showNumbers', 'showDebug']
+    // Level-all options and display options don't affect the preset status
+    const nonPresetFields = [
+      'demoType', 
+      'showNumbers', 
+      'showDebug',
+      'showLevelAll',
+      'levelAllLabel',
+      'levelAllActiveVariant',
+      'levelAllInactiveVariant',
+    ]
     if (!nonPresetFields.includes(controlId)) {
       setConfig((prev) => ({ ...prev, [controlId]: value, configPreset: 'custom' }))
     } else {
@@ -863,121 +946,19 @@ export default function StackingNavPlayground() {
 
   return (
     <div className="min-h-screen bg-primary">
-      {/* Breadcrumbs */}
-      <div className="nav-clearance px-6">
-        <div className="flex items-center justify-between">
-          <Breadcrumbs
-            items={[
-              { label: 'Playground', href: '/playground' },
-              { label: 'Stacking Nav' },
-            ]}
+      {/* Centered Demo - fixed width container prevents shift */}
+      <div className="pr-[352px] min-h-screen flex items-center justify-center">
+        <div className="w-[800px] flex justify-start pl-24">
+          <StackingNav
+            key={resetKey}
+            items={demoItems}
+            animationConfig={animationConfig}
+            styleConfig={styleConfig}
+            showNumbers={config.showNumbers}
+            showDebug={config.showDebug}
+            onReset={handleComponentReset}
+            onSelectionChange={handleSelectionChange}
           />
-          <div className="text-xs text-tertiary">
-            Migrated from ButtonAnimationV3
-          </div>
-        </div>
-      </div>
-
-      {/* Preview Area */}
-      <div className="pr-[352px] pb-24 md:pb-0">
-        <div className="flex flex-col min-h-[calc(100vh-120px)] p-8">
-          {/* Description */}
-          <div className="mb-8 max-w-2xl">
-            <h1 className="text-2xl font-semibold text-primary mb-2">
-              Stacking Nav
-            </h1>
-            <p className="text-tertiary">
-              Multi-level navigation with smooth stacking animations. Items "peek behind"
-              as you navigate deeper, creating a breadcrumb-like trail. Perfect for filter
-              lists and hierarchical navigation.
-            </p>
-          </div>
-
-          {/* Use Cases */}
-          <div className="mb-6 p-4 bg-secondary rounded-xl">
-            <h3 className="text-sm font-medium text-primary mb-2">
-              Use Cases:
-            </h3>
-            <ul className="text-sm text-tertiary space-y-1">
-              <li>✅ Filter lists with nested options</li>
-              <li>✅ Category drilling interfaces</li>
-              <li>✅ Breadcrumb-style navigation</li>
-              <li>✅ Tag hierarchies</li>
-              <li>✅ Multi-level menus</li>
-            </ul>
-          </div>
-
-          {/* Component Preview */}
-          <div className="bg-secondary rounded-2xl p-8 mb-6">
-            <div className="mb-4 flex items-center justify-between">
-              <span className="text-sm font-medium text-primary">
-                {config.demoType === 'filters' ? 'Filter List Demo' : 'Navigation Demo'}
-              </span>
-              <button
-                onClick={handleComponentReset}
-                className="px-3 py-1 text-xs rounded-lg bg-tertiary text-secondary hover:text-primary transition-colors"
-              >
-                Reset State
-              </button>
-            </div>
-
-            <StackingNav
-              key={resetKey}
-              items={demoItems}
-              animationConfig={animationConfig}
-              styleConfig={styleConfig}
-              showNumbers={config.showNumbers}
-              showDebug={config.showDebug}
-              onReset={handleComponentReset}
-              onSelectionChange={handleSelectionChange}
-            />
-          </div>
-
-          {/* Current Path Display */}
-          <div className="mb-6 p-4 bg-tertiary rounded-xl">
-            <h3 className="text-sm font-medium text-secondary mb-2">
-              Current Selection Path:
-            </h3>
-            <code className="text-xs text-tertiary font-mono">
-              {currentPath.length > 0 ? currentPath.join(' → ') : '(none)'}
-            </code>
-          </div>
-
-          {/* Test Scenarios */}
-          <div className="mb-6 p-4 bg-tertiary rounded-xl">
-            <h3 className="text-sm font-medium text-secondary mb-2">
-              Test the animations:
-            </h3>
-            <ol className="text-xs text-tertiary font-mono space-y-1">
-              <li>1. Click Design → Figma → Components</li>
-              <li>2. Watch Components animate smoothly into parent position</li>
-              <li>3. Try deeper: Components → Buttons (4th level)</li>
-              <li className="text-brand">→ All levels animate correctly!</li>
-            </ol>
-          </div>
-
-          {/* Import Example */}
-          <div className="mb-6 p-4 bg-tertiary rounded-xl">
-            <h3 className="text-sm font-medium text-secondary mb-2">
-              Import:
-            </h3>
-            <code className="text-xs text-tertiary font-mono">
-              {`import { StackingNav } from '@/components/ui/features/stacking-nav'`}
-            </code>
-          </div>
-
-          {/* Technical Notes */}
-          <div className="text-xs text-quaternary space-y-1">
-            <p>
-              <strong>Animation States:</strong> idle, parent, anchored, child, promoting
-            </p>
-            <p>
-              <strong>Key Feature:</strong> Explicit "promoting" state handles child-to-parent transition
-            </p>
-            <p>
-              <strong>Performance:</strong> GPU-only transforms, high-damping springs
-            </p>
-          </div>
         </div>
       </div>
 

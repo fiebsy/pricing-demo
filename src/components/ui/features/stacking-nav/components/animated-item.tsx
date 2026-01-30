@@ -106,7 +106,7 @@ export const AnimatedItem = React.memo(function AnimatedItem({
   const isRootAnchor = level === 0 && item.id === ROOT_ANCHOR_ID
   
   // Determine variant
-  let variant: 'primary' | 'secondary' | 'tertiary' | 'shine' | 'link-gray' | 'link-color' = 'tertiary'
+  let variant: 'primary' | 'secondary' | 'tertiary' | 'shine' | 'tab' | 'link-gray' | 'link-color' = 'tertiary'
   if (isRootAnchor && !isAnchored) {
     variant = 'shine'
   } else if (isAnchored) {
@@ -114,7 +114,8 @@ export const AnimatedItem = React.memo(function AnimatedItem({
   } else if (isExpanded) {
     variant = styleConfig.expandedVariant
   } else if (isSelected) {
-    variant = styleConfig.expandedVariant
+    // Use selectedLeafVariant for leaf nodes that are selected
+    variant = styleConfig.selectedLeafVariant
   } else if (isChildItem) {
     variant = styleConfig.childVariant
   }
@@ -165,6 +166,8 @@ export const AnimatedItem = React.memo(function AnimatedItem({
         style={{
           opacity: isAnchored ? styleConfig.anchoredOpacity : 1,
         }}
+        // Active state for tab variant underline
+        data-active={isSelected || undefined}
         // Debug data attributes
         data-item-id={item.id}
         data-item-label={item.label}

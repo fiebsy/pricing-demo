@@ -57,6 +57,12 @@ export const DEFAULT_STYLE_CONFIG: StyleConfig = {
   expandedVariant: 'shine',
   childVariant: 'tertiary',
   anchoredVariant: 'secondary',
+  selectedLeafVariant: 'primary',
+  // Level All Button - disabled by default
+  showLevelAll: false,
+  levelAllLabel: 'All',
+  levelAllActiveVariant: 'tab',
+  levelAllInactiveVariant: 'tertiary',
 }
 
 /**
@@ -90,6 +96,36 @@ export const DEFAULT_STACK_ITEMS: StackItem[] = [
  * Root anchor ID (typically an "All" or "Clear" button).
  */
 export const ROOT_ANCHOR_ID = 'all'
+
+/**
+ * Prefix for level-all button IDs.
+ * These are auto-generated "All" buttons at each child level.
+ * Format: `__level_all_{level}` e.g., `__level_all_1` for L1
+ */
+export const LEVEL_ALL_PREFIX = '__level_all_'
+
+/**
+ * Check if an ID is a level-all button ID.
+ */
+export function isLevelAllId(id: string): boolean {
+  return id.startsWith(LEVEL_ALL_PREFIX)
+}
+
+/**
+ * Get the level from a level-all ID.
+ */
+export function getLevelFromLevelAllId(id: string): number | null {
+  if (!isLevelAllId(id)) return null
+  const level = parseInt(id.replace(LEVEL_ALL_PREFIX, ''), 10)
+  return isNaN(level) ? null : level
+}
+
+/**
+ * Create a level-all ID for a given level.
+ */
+export function createLevelAllId(level: number): string {
+  return `${LEVEL_ALL_PREFIX}${level}`
+}
 
 /**
  * Z-index values for proper layering.

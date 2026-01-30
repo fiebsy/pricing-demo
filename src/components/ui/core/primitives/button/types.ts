@@ -22,6 +22,7 @@ export type ButtonVariant =
   | 'secondary'
   | 'tertiary'
   | 'shine'
+  | 'tab'
   | 'link-gray'
   | 'link-color'
   | 'primary-destructive'

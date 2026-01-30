@@ -211,4 +211,6 @@ export interface PanelContextValue {
   isMinimized: boolean
   setIsMinimized: (minimized: boolean) => void
   toggleMinimized: () => void
+  /** Navigation direction: 1 = moving down (to later section), -1 = moving up (to earlier section) */
+  direction: 1 | -1
 }
