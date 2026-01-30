@@ -198,6 +198,12 @@ export interface UnifiedControlPanelProps<T = unknown> {
   minimized?: boolean
   /** Callback when minimized state changes */
   onMinimizedChange?: (minimized: boolean) => void
+  /** Size of the sidebar inverse corner squares in pixels */
+  cornerSize?: number
+  /** Radius of the sidebar inverse corner clip in pixels */
+  cornerRadius?: number
+  /** Enable corner-squircle on the sliding indicator */
+  cornerSquircle?: boolean
 }
 
 // -----------------------------------------------------------------------------

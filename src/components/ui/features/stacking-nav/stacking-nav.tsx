@@ -88,30 +88,40 @@ export function StackingNav({
   // Use a ref for the flag to avoid render timing issues - exits check the ref directly
   const isCollapsingRef = useRef(false)
   const previousPathLengthRef = useRef(0)
+  const previousPathKeyRef = useRef('')
   const collapseTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  // Stable key for detecting ANY path change (content or length)
+  const activePathKey = activePath.join('/')
 
   // Eagerly detect collapse DURING render so StackLevel children see it immediately.
   // useEffect runs after paint, which is too late — animations are already configured
   // during render. Setting the ref here ensures getIsCollapsing() returns true
   // on the first render after a collapse.
   const isCollapseRender = activePath.length < previousPathLengthRef.current
+  const isNewPath = activePathKey !== previousPathKeyRef.current
   if (isCollapseRender) {
     isCollapsingRef.current = true
+  } else if (isNewPath && isCollapsingRef.current) {
+    // Any non-collapse path change (expansion or same-level switch) clears stale flag.
+    // Without this, switching L0 items after a collapse would suppress stagger
+    // because the flag lingers until the timeout fires.
+    isCollapsingRef.current = false
   }
 
-  // Effect handles debug logging, timeout reset, and previousPathLengthRef update
+  // Effect handles debug logging, timeout reset, and ref updates.
+  // Depends on activePathKey (not just length) so same-level switches also trigger it.
   useEffect(() => {
     const wasCollapse = activePath.length < previousPathLengthRef.current
-    const wasExpansion = activePath.length > previousPathLengthRef.current
-    
+
     if (wasCollapse) {
       // Clear any existing timeout
       if (collapseTimeoutRef.current) {
         clearTimeout(collapseTimeoutRef.current)
       }
-      
+
       isCollapsingRef.current = true
-      
+
       if (showDebug && typeof window !== 'undefined') {
         console.group(`⏬ [COLLAPSE DETECTED] Global`)
         console.log('Timestamp:', performance.now().toFixed(2), 'ms')
@@ -119,7 +129,7 @@ export function StackingNav({
         console.log('All levels will use FAST exit mode')
         console.groupEnd()
       }
-      
+
       // Reset collapse flag after a longer delay to ensure all AnimatePresence exits complete
       // AnimatePresence may trigger exits across multiple React render cycles
       // Scale by timeScale so slow-mo keeps the flag active long enough
@@ -130,20 +140,25 @@ export function StackingNav({
           console.log(`✅ [COLLAPSE TIMEOUT] @ ${performance.now().toFixed(2)}ms - flag reset`)
         }
       }, collapseResetDelay)
-    } else if (wasExpansion) {
-      // Expansion clears the collapse flag immediately
+    } else {
+      // Any non-collapse path change (expansion or same-level switch)
+      // clears the collapse flag and cancels the timeout
       if (collapseTimeoutRef.current) {
         clearTimeout(collapseTimeoutRef.current)
       }
       isCollapsingRef.current = false
-      
+
       if (showDebug && typeof window !== 'undefined') {
-        console.log(`🔼 [EXPANSION] Path grew, collapse flag cleared`)
+        const wasExpansion = activePath.length > previousPathLengthRef.current
+        if (wasExpansion) {
+          console.log(`🔼 [EXPANSION] Path grew, collapse flag cleared`)
+        }
       }
     }
-    
+
     previousPathLengthRef.current = activePath.length
-  }, [activePath.length, showDebug])
+    previousPathKeyRef.current = activePathKey
+  }, [activePathKey, showDebug, animationConfig.timeScale])
   
   // Cleanup timeout on unmount
   useEffect(() => {

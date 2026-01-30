@@ -199,16 +199,12 @@ export function StackLevel({
           if (isLevelAllItem) {
             const animationDelay = isCollapsingNow ? 0 : getChildDelay(0, animationConfig)
 
-            // Fast exit for Level-All during collapse
+            // Exit for Level-All — uses configured exitDuration in all cases.
+            // popLayout takes exiting items out of flow immediately, so exit duration
+            // doesn't block layout — no need to cap it.
             const levelAllExit = shouldReduceMotion
               ? undefined
-              : isCollapsingNow
-                ? { 
-                    opacity: 0, 
-                    scale: animationConfig.exitScale,
-                    transition: { duration: Math.min(animationConfig.exitDuration, 0.05 / timeScale), ease: 'easeOut' as const }
-                  }
-                : getExitAnimation(animationConfig)
+              : getExitAnimation(animationConfig)
             
             // Fast layout during collapse
             const levelAllTransition = isCollapsingNow
@@ -354,10 +350,18 @@ export function StackLevel({
                     scale: 1,
                   }
           
+          // L0 siblings re-appearing during collapse should fade in without
+          // positional offset or scale shift — they were just hidden, not new.
+          const isCollapseReentry = isCollapsingNow && level === 0 && !isActive
+
           // Skip all animation for leaf nodes when configured - stays in place
           const leafInitial = skipAnyAnimation
             ? undefined // Don't set initial - let it stay where it is
-            : (shouldReduceMotion ? undefined : { opacity: 0, ...entryOffset, scale: animationConfig.entryScale })
+            : shouldReduceMotion
+              ? undefined
+              : isCollapseReentry
+                ? { opacity: 0 } // Fade only — no slide/scale
+                : { opacity: 0, ...entryOffset, scale: animationConfig.entryScale }
           
           // Use faster exit when collapsing to reduce demotion delay
           // This allows the parent's position animation to start sooner
@@ -381,24 +385,16 @@ export function StackLevel({
                 } : undefined,
               }
           
-          const fastExitDuration = Math.min(animationConfig.exitDuration, 0.05 / timeScale)
-          const exitAnimation = shouldReduceMotion 
-            ? undefined 
-            : isCurrentlyCollapsing
-              ? { 
-                  // Fast exit during collapse - minimal delay
-                  opacity: 0, 
-                  scale: animationConfig.exitScale,
-                  transition: {
-                    duration: fastExitDuration,
-                    ease: 'easeOut' as const,
-                  }
-                }
-              : getExitAnimation(animationConfig)
-          
+          // Exit animation — always uses configured exitDuration.
+          // popLayout takes exiting items out of flow immediately, so exit duration
+          // doesn't block the parent's layout animation. No cap needed.
+          const exitAnimation = shouldReduceMotion
+            ? undefined
+            : getExitAnimation(animationConfig)
+
           // Debug: Log exit animation being used
           if (showDebug && typeof window !== 'undefined' && !isActive) {
-            console.log(`🚪 [EXIT] ${item.id}: ${isCurrentlyCollapsing ? `FAST exit(${fastExitDuration * 1000}ms) + layout(100ms)` : `NORMAL (${animationConfig.exitDuration * 1000}ms)`}`)
+            console.log(`🚪 [EXIT] ${item.id}: duration=${(animationConfig.exitDuration * 1000).toFixed(0)}ms, collapsing=${isCurrentlyCollapsing}`)
           }
           
           return (

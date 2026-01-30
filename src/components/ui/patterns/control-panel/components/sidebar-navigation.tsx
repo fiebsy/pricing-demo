@@ -102,19 +102,49 @@ const ITEM_GAP = 4 // gap-1 = 4px
 
 interface SlidingIndicatorProps {
   activeIndex: number
+  /** Size of the inverse corner squares in pixels */
+  cornerSize?: number
+  /** Radius of the inverse corner clip in pixels */
+  cornerRadius?: number
+  /** Enable corner-squircle on the sliding indicator */
+  cornerSquircle?: boolean
 }
 
-function SlidingIndicator({ activeIndex }: SlidingIndicatorProps) {
+function SlidingIndicator({ activeIndex, cornerSize = 40, cornerRadius = 16, cornerSquircle = false }: SlidingIndicatorProps) {
   // Calculate Y position based on active index
   // Each item is ITEM_HEIGHT tall with ITEM_GAP gap between them
   const yOffset = activeIndex * (ITEM_HEIGHT + ITEM_GAP)
 
+  // Generate clip paths based on dynamic size and radius
+  const s = cornerSize
+  const r = Math.min(cornerRadius, cornerSize) // clamp radius to size
+
+  let topClip: string
+  let bottomClip: string
+
+  if (cornerSquircle) {
+    // Superellipse (squircle) curve using cubic bezier
+    // Control points sit closer to the corner for a flatter, more continuous curve
+    const k = r * 0.448 // squircle control point factor
+    // Top clip: bottom-right inverse corner
+    // Start at (s, s-r), curve to (s-r, s), line to (s, s), close
+    topClip = `path('M ${s} ${s - r} C ${s} ${s - k}, ${s - k} ${s}, ${s - r} ${s} L ${s} ${s} Z')`
+    // Bottom clip: top-right inverse corner
+    // Start at (s-r, 0), curve to (s, r), line to (s, 0), close
+    bottomClip = `path('M ${s - r} 0 C ${s - k} 0, ${s} ${k}, ${s} ${r} L ${s} 0 Z')`
+  } else {
+    // Standard circular arc
+    topClip = `path('M ${s} ${s - r} A ${r} ${r} 0 0 1 ${s - r} ${s} L ${s} ${s} Z')`
+    bottomClip = `path('M ${s - r} 0 A ${r} ${r} 0 0 1 ${s} ${r} L ${s} 0 Z')`
+  }
+
   return (
     <motion.div
       className={cx(
-        'absolute left-0 right-0 rounded-l-lg pointer-events-none',
+        'absolute left-0 right-0 rounded-l-lg pointer-events-none overflow-visible',
         'bg-tertiary', // Main background color
-        'z-0' // Behind the text content (which has z-10)
+        'z-0', // Behind the text content (which has z-10)
+        cornerSquircle && 'corner-squircle'
       )}
       style={{ height: ITEM_HEIGHT, top: 0 }}
       initial={false}
@@ -124,7 +154,19 @@ function SlidingIndicator({ activeIndex }: SlidingIndicatorProps) {
         duration: 0.25,
         ease: [0.16, 1, 0.3, 1], // Expo out
       }}
-    />
+    >
+      {/* Top edge — clipped to bottom-right inverse corner */}
+      <div
+        className="absolute right-0 top-0 z-20 -translate-y-full bg-tertiary"
+        style={{ width: s, height: s, clipPath: topClip }}
+      />
+
+      {/* Bottom edge — clipped to top-right inverse corner */}
+      <div
+        className="absolute right-0 bottom-0 z-20 translate-y-full bg-tertiary"
+        style={{ width: s, height: s, clipPath: bottomClip }}
+      />
+    </motion.div>
   )
 }
 
@@ -158,9 +200,7 @@ function SidebarItem({ section, isActive, isExpanded, onClick }: SidebarItemProp
         'outline-none focus-visible:ring-2 focus-visible:ring-brand-primary',
         // Transparent bg - the sliding indicator provides the active state
         // No hover bg when active
-        isActive
-          ? 'bg-transparent'
-          : 'bg-transparent hover:bg-secondary/40 transition-colors duration-150'
+        'bg-transparent'
       )}
     >
       {/* Label content - z-10 to stay above indicator */}
@@ -200,6 +240,12 @@ export interface SidebarNavigationProps {
   forceExpanded?: boolean
   /** Offset from top to align with panel content (below header). In pixels. */
   headerOffset?: number
+  /** Size of the inverse corner squares in pixels */
+  cornerSize?: number
+  /** Radius of the inverse corner clip in pixels */
+  cornerRadius?: number
+  /** Enable corner-squircle on the sliding indicator */
+  cornerSquircle?: boolean
 }
 
 export function SidebarNavigation({
@@ -210,6 +256,9 @@ export function SidebarNavigation({
   footer,
   forceExpanded = false,
   headerOffset = 0,
+  cornerSize,
+  cornerRadius,
+  cornerSquircle,
 }: SidebarNavigationProps) {
   const [isHovered, setIsHovered] = useState(false)
   const isExpanded = forceExpanded || isHovered
@@ -225,7 +274,7 @@ export function SidebarNavigation({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       className={cx(
-        'flex h-full flex-col overflow-hidden'
+        'flex h-full flex-col overflow-visible'
       )}
       style={{
         // Apply header offset as padding-top to align items with panel content
@@ -241,19 +290,11 @@ export function SidebarNavigation({
 
       {/* Section items with Base UI ScrollArea */}
       <ScrollArea.Root className="relative min-h-0 flex-1 overflow-visible">
-        <ScrollArea.Viewport className="h-full w-full overscroll-contain">
+        <ScrollArea.Viewport className="h-full w-full overscroll-contain overflow-visible!">
           <ScrollArea.Content>
-            <div className="relative flex flex-col gap-1 pb-1 overflow-visible">
+            <div className="relative flex flex-col gap-1 pb-1">
               {/* Sliding active indicator - positioned absolutely within items container */}
-              {activeIndex >= 0 && <SlidingIndicator activeIndex={activeIndex} />}
-
-              {/* Top edge container - 40x40 layered square */}
-              <div className="absolute top-0 right-0 z-20 h-10 w-10 translate-x-1/2 -translate-y-1/2 pointer-events-none">
-                {/* Square background layer */}
-                <div className="absolute inset-0 bg-[#E53E3E]" />
-                {/* Rounded overlay layer */}
-                <div className="absolute inset-0 rounded-lg border-2 border-[#F56565] bg-[#1A1A2E]/80" />
-              </div>
+              {activeIndex >= 0 && <SlidingIndicator activeIndex={activeIndex} cornerSize={cornerSize} cornerRadius={cornerRadius} cornerSquircle={cornerSquircle} />}
 
               {sections.map((section) => (
                 <SidebarItem
@@ -264,14 +305,6 @@ export function SidebarNavigation({
                   onClick={() => onTabChange(section.id)}
                 />
               ))}
-
-              {/* Bottom edge container - 40x40 layered square */}
-              <div className="absolute bottom-0 right-0 z-20 h-10 w-10 translate-x-1/2 translate-y-1/2 pointer-events-none">
-                {/* Square background layer */}
-                <div className="absolute inset-0 bg-[#E53E3E]" />
-                {/* Rounded overlay layer */}
-                <div className="absolute inset-0 rounded-lg border-2 border-[#F56565] bg-[#1A1A2E]/80" />
-              </div>
             </div>
           </ScrollArea.Content>
         </ScrollArea.Viewport>

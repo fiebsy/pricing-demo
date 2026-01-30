@@ -43,6 +43,11 @@ interface DemoConfig {
     showBorders: boolean
     highlightHover: boolean
   }
+  sidebar: {
+    cornerSize: number
+    cornerRadius: number
+    cornerSquircle: boolean
+  }
 }
 
 const DEFAULT_CONFIG: DemoConfig = {
@@ -71,6 +76,11 @@ const DEFAULT_CONFIG: DemoConfig = {
     showBorders: false,
     highlightHover: false,
   },
+  sidebar: {
+    cornerSize: 30,
+    cornerRadius: 20,
+    cornerSquircle: false,
+  },
 }
 
 function setNestedValue<T>(obj: T, path: string, value: unknown): T {
@@ -90,6 +100,44 @@ function setNestedValue<T>(obj: T, path: string, value: unknown): T {
 function buildPanelConfig(config: DemoConfig): PanelConfig {
   return {
     sections: [
+      {
+        id: 'sidebar',
+        label: 'Sidebar',
+        title: 'Sidebar',
+        groups: [
+          {
+            title: 'Inverse corners',
+            controls: [
+              {
+                id: 'sidebar.cornerSize',
+                type: 'inline-slider',
+                label: 'Corner size',
+                value: config.sidebar.cornerSize,
+                min: 8,
+                max: 80,
+                step: 2,
+                formatLabel: (v: number) => `${v}px`,
+              },
+              {
+                id: 'sidebar.cornerRadius',
+                type: 'inline-slider',
+                label: 'Corner radius',
+                value: config.sidebar.cornerRadius,
+                min: 2,
+                max: 400,
+                step: 1,
+                formatLabel: (v: number) => `${v}px`,
+              },
+              {
+                id: 'sidebar.cornerSquircle',
+                type: 'toggle',
+                label: 'Corner squircle',
+                value: config.sidebar.cornerSquircle,
+              },
+            ],
+          },
+        ],
+      },
       {
         id: 'layout',
         label: 'Layout',
@@ -471,6 +519,9 @@ export default function ControlPanelSidebarPlayground() {
         onChange={handleChange}
         onReset={handleReset}
         getConfigForCopy={() => config}
+        cornerSize={config.sidebar.cornerSize}
+        cornerRadius={config.sidebar.cornerRadius}
+        cornerSquircle={config.sidebar.cornerSquircle}
       />
 
       {/* Preview Area */}
