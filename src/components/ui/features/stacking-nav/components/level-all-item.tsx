@@ -20,6 +20,7 @@ import { Button } from '@/components/ui/core/primitives/button'
 import { cn } from '@/lib/utils'
 
 import { useStackContext, useLevelContext } from '../context'
+import { HEIGHT_CLASSES } from '../config'
 
 // =============================================================================
 // LEVEL ALL ITEM COMPONENT
@@ -62,14 +63,14 @@ export const LevelAllItem = React.memo(function LevelAllItem({
   }, [level, collapseToLevel])
 
   // Height class for consistent sizing
-  const heightClass = 'h-10' // md size
+  const heightClass = HEIGHT_CLASSES[styleConfig.buttonSize]
 
   return (
     <div className="relative">
       <Button
         variant={variant}
-        size="md"
-        roundness="default"
+        size={styleConfig.buttonSize}
+        roundness={styleConfig.buttonRoundness}
         onClick={handleClick}
         className={cn(
           'relative',

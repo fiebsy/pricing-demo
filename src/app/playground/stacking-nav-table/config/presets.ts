@@ -11,7 +11,7 @@ export const PRESET_DEFAULT: PlaygroundConfig = {
   enableSelection: true,
   showColumnControl: true,
   showCount: true,
-  headerGap: 12,
+  toolbarGap: 12,
   navVariant: 'default',
   showNavDebug: false,
 }
@@ -21,7 +21,7 @@ export const PRESET_COMPACT: PlaygroundConfig = {
   enableSelection: false,
   showColumnControl: false,
   showCount: false,
-  headerGap: 8,
+  toolbarGap: 8,
   navVariant: 'default',
   showNavDebug: false,
 }

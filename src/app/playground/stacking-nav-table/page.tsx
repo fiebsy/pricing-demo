@@ -48,21 +48,25 @@ import type { Employee } from './config/types'
 // =============================================================================
 
 /**
- * Toolbar layout with enough height for the stacking nav.
+ * Build toolbar layout config with dynamic toolbar-to-header gap.
  * The nav buttons are ~32px tall so 48px gives breathing room.
+ * `toolbarGap` controls integratedPadding.bottom — the space
+ * between the nav toolbar and the column headers below it.
  */
-const NAV_TOOLBAR_CONFIG: ToolbarLayoutConfig = {
-  position: 'integrated',
-  toolbarBottomMargin: 16,
-  toolbarToCountGap: 0,
-  headerGap: 12,
-  integratedToolbarHeight: 48,
-  integratedPadding: {
-    top: 8,
-    bottom: 8,
-    left: 12,
-    right: 0,
-  },
+function createToolbarConfig(toolbarGap: number): ToolbarLayoutConfig {
+  return {
+    position: 'integrated',
+    toolbarBottomMargin: 16,
+    toolbarToCountGap: 0,
+    headerGap: 12,
+    integratedToolbarHeight: 48,
+    integratedPadding: {
+      top: 8,
+      bottom: toolbarGap,
+      left: 12,
+      right: 0,
+    },
+  }
 }
 
 // =============================================================================
@@ -104,6 +108,9 @@ export default function StackingNavTablePlayground() {
     if (config.navVariant === 'spring') return SPRING_ANIMATION
     return undefined
   }, [config.navVariant])
+
+  // Toolbar config (reacts to toolbarGap changes)
+  const toolbarConfig = useMemo(() => createToolbarConfig(config.toolbarGap), [config.toolbarGap])
 
   // Panel config
   const panelConfig = useMemo(() => createPanelConfig(config), [config])
@@ -168,7 +175,7 @@ export default function StackingNavTablePlayground() {
   return (
     <div className={`min-h-screen ${bgClasses[config.pageBackground]}`}>
       <div className="pr-[352px] min-h-screen">
-        <div className="mx-auto max-w-[1200px] px-6 pt-12">
+        <div className="mx-auto max-w-[800px] px-6 pt-12">
           {/* Page Header */}
           <div className="mb-6">
             <h1 className="text-primary text-xl font-semibold">Corporate Directory</h1>
@@ -186,7 +193,7 @@ export default function StackingNavTablePlayground() {
             rowHeight={HARDENED_DIMENSIONS.rowHeight}
             borderConfig={HARDENED_BORDER_CONFIG}
             backgroundConfig={HARDENED_BACKGROUND_CONFIG}
-            toolbarLayout={NAV_TOOLBAR_CONFIG}
+            toolbarLayout={toolbarConfig}
             leftToolbar={navToolbar}
             enableSelection={config.enableSelection}
             showColumnControl={config.showColumnControl}

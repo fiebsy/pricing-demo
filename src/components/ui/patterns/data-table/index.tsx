@@ -298,8 +298,8 @@ export function StickyDataTable<T extends Record<string, unknown>>({
   // Determine if toolbar should be integrated into sticky header
   const isToolbarIntegrated = toolbarLayout.position === 'integrated'
 
-  // Header gap is always the base gap - toolbar space is handled inside the sticky wrapper
-  const effectiveHeaderGap = TABLE_CONFIG.HEADER_GAP
+  // Header gap controls spacing above the sticky header wrapper
+  const effectiveHeaderGap = toolbarLayout.headerGap ?? TABLE_CONFIG.HEADER_GAP
 
   // Calculate gradient top offset when toolbar is integrated
   // The gradient should start where the table header begins (after the toolbar area)

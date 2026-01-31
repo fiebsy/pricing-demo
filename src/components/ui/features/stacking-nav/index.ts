@@ -39,6 +39,8 @@ export type {
   AnimationConfig,
   StyleConfig,
   ButtonVariant,
+  ButtonSize,
+  ButtonRoundness,
   AnimationType,
   EasingType,
   
@@ -70,6 +72,7 @@ export {
   ROOT_ANCHOR_ID,
   Z_INDEX,
   GAP_CLASSES,
+  HEIGHT_CLASSES,
   SPRING_PRESETS,
   
   // Helpers

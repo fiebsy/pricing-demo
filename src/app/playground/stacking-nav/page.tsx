@@ -25,6 +25,8 @@ import {
   type AnimationType,
   type EasingType,
   type ButtonVariant,
+  type ButtonSize,
+  type ButtonRoundness,
   DEFAULT_ANIMATION_CONFIG,
   DEFAULT_STYLE_CONFIG,
 } from '@/components/ui/features/stacking-nav'
@@ -322,13 +324,26 @@ interface PlaygroundConfig {
   childEntryScale: number
   
   // Exit Animation
-  exitDuration: number
   exitScale: number
-  
+  exitUseCustomTiming: boolean
+  exitDuration: number        // ms in playground
+  exitEase: EasingType
+  exitDelay: number           // ms in playground
+  collapseLayoutDuration: number  // ms in playground
+
   // Leaf Node Behavior
   skipLeafAnimation: boolean
+
+  // Button Style
+  buttonSize: ButtonSize
+  buttonRoundness: ButtonRoundness
+
+  // Button Variants
+  expandedVariant: ButtonVariant
+  childVariant: ButtonVariant
+  anchoredVariant: ButtonVariant
   selectedLeafVariant: ButtonVariant
-  
+
   // Stacking
   peekOffset: number
   anchoredOpacity: number
@@ -352,6 +367,9 @@ interface PlaygroundConfig {
   levelAllActiveVariant: ButtonVariant
   levelAllInactiveVariant: ButtonVariant
   
+  // Interaction
+  hoverDelay: number // ms in playground
+
   // Debug/Inspection
   timeScale: number // 1 = normal, 0.1 = 10x slower (slow-mo), 2 = 2x faster
 }
@@ -442,9 +460,18 @@ const PRESET_DEFAULT: Omit<PlaygroundConfig, 'configPreset' | 'navVariant'> = {
   entryOffsetY: 10,
   childEntryDelay: 0,
   childEntryScale: 0.95,
-  exitDuration: 50, // 0.05s
   exitScale: 0.95,
+  exitUseCustomTiming: false,
+  exitDuration: 250,        // 0.25s
+  exitEase: 'easeIn',
+  exitDelay: 0,
+  collapseLayoutDuration: 150,  // 0.15s
   skipLeafAnimation: true,
+  buttonSize: 'md',
+  buttonRoundness: 'default',
+  expandedVariant: 'shine',
+  childVariant: 'tertiary',
+  anchoredVariant: 'secondary',
   selectedLeafVariant: 'tab',
   peekOffset: 8,
   anchoredOpacity: 1,
@@ -458,6 +485,8 @@ const PRESET_DEFAULT: Omit<PlaygroundConfig, 'configPreset' | 'navVariant'> = {
   levelAllLabel: 'All',
   levelAllActiveVariant: 'tab',
   levelAllInactiveVariant: 'tab',
+  // Interaction
+  hoverDelay: 200,  // 0.2s
   // Debug/Inspection
   timeScale: 1, // Normal speed
 }
@@ -478,9 +507,18 @@ const PRESET_SPRING: Omit<PlaygroundConfig, 'configPreset' | 'navVariant'> = {
   entryOffsetY: 12,
   childEntryDelay: 50, // 0.05s
   childEntryScale: 0.95,
-  exitDuration: 150,
   exitScale: 0.95,
+  exitUseCustomTiming: false,
+  exitDuration: 300,        // 0.3s — slightly longer for spring feel
+  exitEase: 'easeIn',
+  exitDelay: 0,
+  collapseLayoutDuration: 150,  // 0.15s
   skipLeafAnimation: false,
+  buttonSize: 'md',
+  buttonRoundness: 'default',
+  expandedVariant: 'shine',
+  childVariant: 'tertiary',
+  anchoredVariant: 'secondary',
   selectedLeafVariant: 'primary',
   peekOffset: 8,
   anchoredOpacity: 0.6,
@@ -494,6 +532,8 @@ const PRESET_SPRING: Omit<PlaygroundConfig, 'configPreset' | 'navVariant'> = {
   levelAllLabel: 'All',
   levelAllActiveVariant: 'tab',
   levelAllInactiveVariant: 'tertiary',
+  // Interaction
+  hoverDelay: 200,  // 0.2s
   // Debug/Inspection
   timeScale: 1, // Normal speed
 }
@@ -659,12 +699,12 @@ function createPanelConfig(config: PlaygroundConfig): UnifiedControlPanelConfig 
         ],
       },
       {
-        id: 'children',
-        title: 'Children',
+        id: 'entry',
+        title: 'Child Entry',
         tabLabel: 'Entry',
         groups: [
           {
-            title: 'Direction Presets',
+            title: 'Direction',
             controls: [
               {
                 id: 'entryDirection',
@@ -676,7 +716,7 @@ function createPanelConfig(config: PlaygroundConfig): UnifiedControlPanelConfig 
             ],
           },
           {
-            title: 'Position Offset',
+            title: 'Offset',
             controls: [
               {
                 id: 'entryOffsetX',
@@ -701,7 +741,7 @@ function createPanelConfig(config: PlaygroundConfig): UnifiedControlPanelConfig 
             ],
           },
           {
-            title: 'Entry Timing',
+            title: 'Timing',
             controls: [
               {
                 id: 'childEntryDelay',
@@ -726,33 +766,8 @@ function createPanelConfig(config: PlaygroundConfig): UnifiedControlPanelConfig 
               {
                 id: 'childEntryScale',
                 type: 'slider',
-                label: 'Entry Scale',
+                label: 'Scale',
                 value: config.childEntryScale,
-                min: 0.8,
-                max: 1.0,
-                step: 0.01,
-                formatLabel: (v: number) => `${v.toFixed(2)}`,
-              },
-            ],
-          },
-          {
-            title: 'Exit Animation',
-            controls: [
-              {
-                id: 'exitDuration',
-                type: 'slider',
-                label: 'Duration',
-                value: config.exitDuration,
-                min: 50,
-                max: 400,
-                step: 25,
-                formatLabel: (v: number) => `${v}ms`,
-              },
-              {
-                id: 'exitScale',
-                type: 'slider',
-                label: 'Exit Scale',
-                value: config.exitScale,
                 min: 0.8,
                 max: 1.0,
                 step: 0.01,
@@ -769,12 +784,92 @@ function createPanelConfig(config: PlaygroundConfig): UnifiedControlPanelConfig 
                 label: 'Skip Animation',
                 value: config.skipLeafAnimation,
               },
+            ],
+          },
+          {
+            title: 'Interaction',
+            controls: [
               {
-                id: 'selectedLeafVariant',
-                type: 'select',
-                label: 'Selected Variant',
-                value: config.selectedLeafVariant,
-                options: BUTTON_VARIANT_OPTIONS,
+                id: 'hoverDelay',
+                type: 'slider',
+                label: 'Hover Delay',
+                value: config.hoverDelay,
+                min: 0,
+                max: 500,
+                step: 25,
+                formatLabel: (v: number) => v === 0 ? 'None' : `${v}ms`,
+              },
+            ],
+          },
+        ],
+      },
+      {
+        id: 'exit',
+        title: 'Exit & Collapse',
+        tabLabel: 'Exit',
+        groups: [
+          {
+            title: 'Child Exit — items leaving the DOM',
+            controls: [
+              {
+                id: 'exitScale',
+                type: 'slider',
+                label: 'Scale',
+                value: config.exitScale,
+                min: 0.8,
+                max: 1.0,
+                step: 0.01,
+                formatLabel: (v: number) => `${v.toFixed(2)}`,
+              },
+              {
+                id: 'exitUseCustomTiming',
+                type: 'toggle',
+                label: 'Custom Timing',
+                value: config.exitUseCustomTiming,
+              },
+              ...(config.exitUseCustomTiming ? [
+                {
+                  id: 'exitDuration',
+                  type: 'slider' as const,
+                  label: 'Duration',
+                  value: config.exitDuration,
+                  min: 0,
+                  max: 800,
+                  step: 25,
+                  formatLabel: (v: number) => v === 0 ? 'Instant' : `${v}ms`,
+                },
+                {
+                  id: 'exitEase',
+                  type: 'select' as const,
+                  label: 'Easing',
+                  value: config.exitEase,
+                  options: EASING_OPTIONS,
+                },
+                {
+                  id: 'exitDelay',
+                  type: 'slider' as const,
+                  label: 'Hold Delay',
+                  value: config.exitDelay,
+                  min: 0,
+                  max: 300,
+                  step: 10,
+                  formatLabel: (v: number) => v === 0 ? 'None' : `${v}ms`,
+                },
+              ] : []),
+            ],
+          },
+          {
+            title: 'Collapse Layout — parent repositioning',
+            controls: [
+              {
+                id: 'collapseLayoutDuration',
+                type: 'slider',
+                label: 'Duration',
+                value: config.collapseLayoutDuration,
+                min: 25,
+                max: 400,
+                step: 25,
+                formatLabel: (v: number) => `${v}ms`,
               },
             ],
           },
@@ -813,28 +908,12 @@ function createPanelConfig(config: PlaygroundConfig): UnifiedControlPanelConfig 
         ],
       },
       {
-        id: 'display',
-        title: 'Display',
-        tabLabel: 'Display',
+        id: 'layout',
+        title: 'Layout',
+        tabLabel: 'Layout',
         groups: [
           {
-            title: 'Navigation Variant',
-            controls: [
-              {
-                id: 'navVariant',
-                type: 'select',
-                label: 'Variant',
-                value: config.navVariant,
-                options: [
-                  { value: 'orders', label: 'Orders (Filter)' },
-                  { value: 'products', label: 'Products (Shop)' },
-                  { value: 'content', label: 'Content (CMS)' },
-                ],
-              },
-            ],
-          },
-          {
-            title: 'Layout',
+            title: 'Spacing',
             controls: [
               {
                 id: 'gap',
@@ -860,6 +939,68 @@ function createPanelConfig(config: PlaygroundConfig): UnifiedControlPanelConfig 
                   { value: 'black', label: 'Black' },
                   { value: 'white', label: 'White' },
                 ],
+              },
+            ],
+          },
+          {
+            title: 'Button Style',
+            controls: [
+              {
+                id: 'buttonSize',
+                type: 'select',
+                label: 'Size',
+                value: config.buttonSize,
+                options: [
+                  { value: 'xs', label: 'Extra Small' },
+                  { value: 'sm', label: 'Small' },
+                  { value: 'md', label: 'Medium' },
+                  { value: 'lg', label: 'Large' },
+                  { value: 'xl', label: 'Extra Large' },
+                ],
+              },
+              {
+                id: 'buttonRoundness',
+                type: 'select',
+                label: 'Roundness',
+                value: config.buttonRoundness,
+                options: [
+                  { value: 'default', label: 'Default' },
+                  { value: 'pill', label: 'Pill' },
+                  { value: 'squircle', label: 'Squircle' },
+                ],
+              },
+            ],
+          },
+          {
+            title: 'Button Variants',
+            controls: [
+              {
+                id: 'expandedVariant',
+                type: 'select',
+                label: 'Expanded',
+                value: config.expandedVariant,
+                options: BUTTON_VARIANT_OPTIONS,
+              },
+              {
+                id: 'childVariant',
+                type: 'select',
+                label: 'Child',
+                value: config.childVariant,
+                options: BUTTON_VARIANT_OPTIONS,
+              },
+              {
+                id: 'anchoredVariant',
+                type: 'select',
+                label: 'Anchored',
+                value: config.anchoredVariant,
+                options: BUTTON_VARIANT_OPTIONS,
+              },
+              {
+                id: 'selectedLeafVariant',
+                type: 'select',
+                label: 'Selected Leaf',
+                value: config.selectedLeafVariant,
+                options: BUTTON_VARIANT_OPTIONS,
               },
             ],
           },
@@ -894,6 +1035,29 @@ function createPanelConfig(config: PlaygroundConfig): UnifiedControlPanelConfig 
               },
             ],
           },
+        ],
+      },
+      {
+        id: 'display',
+        title: 'Display',
+        tabLabel: 'Display',
+        groups: [
+          {
+            title: 'Navigation Variant',
+            controls: [
+              {
+                id: 'navVariant',
+                type: 'select',
+                label: 'Variant',
+                value: config.navVariant,
+                options: [
+                  { value: 'orders', label: 'Orders (Filter)' },
+                  { value: 'products', label: 'Products (Shop)' },
+                  { value: 'content', label: 'Content (CMS)' },
+                ],
+              },
+            ],
+          },
           {
             title: 'Debug',
             controls: [
@@ -922,7 +1086,7 @@ function createPanelConfig(config: PlaygroundConfig): UnifiedControlPanelConfig 
                 min: 0.1,
                 max: 2,
                 step: 0.1,
-                formatLabel: (v: number) => 
+                formatLabel: (v: number) =>
                   v === 1 ? '1x (Normal)' :
                   v < 1 ? `${v.toFixed(1)}x (${Math.round(1/v)}x Slower)` :
                   `${v.toFixed(1)}x Faster`,
@@ -979,9 +1143,14 @@ export default function StackingNavPlayground() {
         entryOffsetY: config.entryOffsetY,
         childEntryDelay: (config.childEntryDelay / 1000) / scale,
         entryScale: config.childEntryScale,
-        exitDuration: (config.exitDuration / 1000) / scale,
         exitScale: config.exitScale,
+        exitUseCustomTiming: config.exitUseCustomTiming,
+        exitDuration: (config.exitDuration / 1000) / scale,
+        exitEase: config.exitEase,
+        exitDelay: (config.exitDelay / 1000) / scale,
+        collapseLayoutDuration: (config.collapseLayoutDuration / 1000),
         skipLeafAnimation: config.skipLeafAnimation,
+        hoverDelay: config.hoverDelay / 1000,
         timeScale: config.timeScale,
       }
     },
@@ -993,6 +1162,11 @@ export default function StackingNavPlayground() {
       peekOffset: config.peekOffset,
       anchoredOpacity: config.anchoredOpacity,
       gap: config.gap,
+      buttonSize: config.buttonSize,
+      buttonRoundness: config.buttonRoundness,
+      expandedVariant: config.expandedVariant,
+      childVariant: config.childVariant,
+      anchoredVariant: config.anchoredVariant,
       selectedLeafVariant: config.selectedLeafVariant,
       // Level All Button
       showLevelAll: config.showLevelAll,
@@ -1096,8 +1270,8 @@ export default function StackingNavPlayground() {
     // Any other change marks config as custom
     // Level-all options, display options, and debug options don't affect the preset status
     const nonPresetFields = [
-      'navVariant', 
-      'showNumbers', 
+      'navVariant',
+      'showNumbers',
       'showDebug',
       'pageBackground',
       'showLevelAll',
@@ -1106,6 +1280,7 @@ export default function StackingNavPlayground() {
       'levelAllInactiveVariant',
       'timeScale', // Debug feature - doesn't affect preset
     ]
+    // Button style & variant fields DO affect preset status (not in nonPresetFields)
     if (!nonPresetFields.includes(controlId)) {
       setConfig((prev) => ({ ...prev, [controlId]: value, configPreset: 'custom' }))
     } else {

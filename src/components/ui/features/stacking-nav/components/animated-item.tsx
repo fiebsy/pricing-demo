@@ -16,7 +16,7 @@ import { Button } from '@/components/ui/core/primitives/button'
 import { cn } from '@/lib/utils'
 
 import { useStackContext, useLevelContext } from '../context'
-import { getNumberLabel, ROOT_ANCHOR_ID } from '../config'
+import { getNumberLabel, ROOT_ANCHOR_ID, HEIGHT_CLASSES } from '../config'
 import type { StackItem } from '../types'
 
 // =============================================================================
@@ -152,16 +152,16 @@ export const AnimatedItem = React.memo(function AnimatedItem({
   const anchoredShadow = isAnchored
     ? 'shadow-[4px_0_8px_-2px_rgba(0,0,0,0.3)]'
     : ''
-  
+
   // Height class for consistent sizing
-  const heightClass = 'h-10' // md size
+  const heightClass = HEIGHT_CLASSES[styleConfig.buttonSize]
 
   return (
     <div className="relative">
       <Button
         variant={variant}
-        size="md"
-        roundness="default"
+        size={styleConfig.buttonSize}
+        roundness={styleConfig.buttonRoundness}
         iconTrailing={trailingElement}
         onClick={handleSelect}
         disabled={isAnchored}

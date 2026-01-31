@@ -6,7 +6,7 @@
  * @module features/stacking-nav/utils
  */
 
-import type { Easing } from 'motion/react'
+import type { Easing, TargetAndTransition } from 'motion/react'
 import type { AnimationConfig, EasingType } from '../types'
 
 /**
@@ -98,15 +98,23 @@ export function getPromotionAnimation(config: AnimationConfig) {
 }
 
 /**
- * Get exit animation config for items leaving the DOM.
+ * Get exit animation target values for items leaving the DOM.
+ * When exitUseCustomTiming is false, inherits from the component-level transition prop.
+ * When true, embeds its own transition for independent exit timing.
  */
-export function getExitAnimation(config: AnimationConfig) {
-  return {
+export function getExitAnimation(config: AnimationConfig): TargetAndTransition {
+  const exit: TargetAndTransition = {
     opacity: 0,
     scale: config.exitScale,
-    transition: {
-      duration: config.exitDuration,
-      ease: getEasingValue(config.ease),
-    },
   }
+
+  if (config.exitUseCustomTiming) {
+    exit.transition = {
+      duration: config.exitDuration,
+      ease: getEasingValue(config.exitEase),
+      delay: config.exitDelay,
+    }
+  }
+
+  return exit
 }

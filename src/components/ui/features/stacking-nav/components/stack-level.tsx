@@ -17,6 +17,7 @@
 import { useRef, useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 
+import { cn } from '@/lib/utils'
 import { useStackContext, useLevelContext, LevelContext } from '../context'
 import { AnimatedItem } from './animated-item'
 import { LevelAllItem } from './level-all-item'
@@ -45,6 +46,27 @@ export function StackLevel({
   // Track which item was just selected for promotion animation
   const [promotingId, setPromotingId] = useState<string | null>(null)
   const previousActiveIdRef = useRef<string | undefined>(undefined)
+
+  // Hover suppression — prevent hover flash on newly appearing child items.
+  // Uses a data attribute to suppress hover visuals via CSS, keeping items fully
+  // clickable. When the attribute is removed, the button's existing CSS transition
+  // (duration-100) smoothly fades in the hover state if the cursor is already there.
+  const hoverDelay = animationConfig.hoverDelay
+  const [isHoverSuppressed, setIsHoverSuppressed] = useState(level > 0 && hoverDelay > 0)
+
+  useEffect(() => {
+    if (level === 0 || hoverDelay <= 0) {
+      setIsHoverSuppressed(false)
+      return
+    }
+    setIsHoverSuppressed(true)
+    const timer = setTimeout(
+      () => setIsHoverSuppressed(false),
+      (hoverDelay * 1000) / animationConfig.timeScale
+    )
+    return () => clearTimeout(timer)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items, hoverDelay])
   
   // Separate root anchor from regular items at root level
   const anchorItem = level === 0 ? items.find((i) => i.id === ROOT_ANCHOR_ID) : null
@@ -160,7 +182,7 @@ export function StackLevel({
 
         // Fast layout during collapse
         const anchorTransition = isCollapsingNow
-          ? { ...getTransition(animationConfig), layout: { duration: 0.1 / timeScale, ease: 'easeOut' as const } }
+          ? { ...getTransition(animationConfig), layout: { duration: animationConfig.collapseLayoutDuration / timeScale, ease: 'easeOut' as const } }
           : getTransition(animationConfig)
 
         return (
@@ -199,24 +221,24 @@ export function StackLevel({
           if (isLevelAllItem) {
             const animationDelay = isCollapsingNow ? 0 : getChildDelay(0, animationConfig)
 
-            // Exit for Level-All — uses configured exitDuration in all cases.
-            // popLayout takes exiting items out of flow immediately, so exit duration
-            // doesn't block layout — no need to cap it.
+            // Exit for Level-All — inherits transition from main animation controls.
+            // popLayout takes exiting items out of flow immediately.
             const levelAllExit = shouldReduceMotion
               ? undefined
               : getExitAnimation(animationConfig)
             
             // Fast layout during collapse
             const levelAllTransition = isCollapsingNow
-              ? { ...getTransition(animationConfig, animationDelay), layout: { duration: 0.1 / timeScale, ease: 'easeOut' as const } }
+              ? { ...getTransition(animationConfig, animationDelay), layout: { duration: animationConfig.collapseLayoutDuration / timeScale, ease: 'easeOut' as const } }
               : getTransition(animationConfig, animationDelay)
             
             return (
               <motion.div
                 key={item.id}
                 layout="position"
-                className="inline-flex"
+                className={isHoverSuppressed ? 'inline-flex [&_button]:!pointer-events-none' : 'inline-flex'}
                 style={{ zIndex: 90 }}
+                data-hover-suppressed={isHoverSuppressed || undefined}
                 initial={shouldReduceMotion ? undefined : { opacity: 0, ...entryOffset, scale: animationConfig.entryScale }}
                 animate={{ opacity: 1, x: baseParentOffset, y: 0, scale: 1 }}
                 exit={levelAllExit}
@@ -370,7 +392,7 @@ export function StackLevel({
           
           // During collapse, use faster layout transition so position shifts happen quickly
           const collapseLayoutTransition = isCurrentlyCollapsing
-            ? { layout: { duration: 0.1 / timeScale, ease: 'easeOut' as const } }
+            ? { layout: { duration: animationConfig.collapseLayoutDuration / timeScale, ease: 'easeOut' as const } }
             : {}
           
           const leafTransition = skipAnyAnimation
@@ -385,16 +407,15 @@ export function StackLevel({
                 } : undefined,
               }
           
-          // Exit animation — always uses configured exitDuration.
-          // popLayout takes exiting items out of flow immediately, so exit duration
-          // doesn't block the parent's layout animation. No cap needed.
+          // Exit animation — inherits transition from main animation controls.
+          // popLayout takes exiting items out of flow immediately.
           const exitAnimation = shouldReduceMotion
             ? undefined
             : getExitAnimation(animationConfig)
 
           // Debug: Log exit animation being used
           if (showDebug && typeof window !== 'undefined' && !isActive) {
-            console.log(`🚪 [EXIT] ${item.id}: duration=${(animationConfig.exitDuration * 1000).toFixed(0)}ms, collapsing=${isCurrentlyCollapsing}`)
+            console.log(`🚪 [EXIT] ${item.id}: scale=${animationConfig.exitScale}, collapsing=${isCurrentlyCollapsing}`)
           }
           
           return (
@@ -404,16 +425,20 @@ export function StackLevel({
               // The transition duration (instant vs normal) controls whether changes animate,
               // but we need layout tracking enabled to know WHERE to animate from/to.
               layout={!isAnchored ? 'position' : false}
-              className={shouldUseAbsolute ? 'absolute top-0 left-0 inline-flex' : 'inline-flex'}
+              className={cn(
+                shouldUseAbsolute ? 'absolute top-0 left-0 inline-flex' : 'inline-flex',
+                isHoverSuppressed && !isAnchored && '[&_button]:!pointer-events-none'
+              )}
               style={{
                 zIndex: isAnchored
                   ? getAnchoredZIndex(anchoredDepth)
                   : isPromoting
                     ? Z_INDEX.PROMOTING
                     : isActive
-                      ? Z_INDEX.ACTIVE + 10
-                      : Z_INDEX.ACTIVE,
+                      ? Z_INDEX.ACTIVE + 10 + level * 10
+                      : Z_INDEX.ACTIVE + level * 10,
               }}
+              data-hover-suppressed={isHoverSuppressed && !isAnchored || undefined}
               initial={leafInitial}
               animate={animateState}
               exit={exitAnimation}

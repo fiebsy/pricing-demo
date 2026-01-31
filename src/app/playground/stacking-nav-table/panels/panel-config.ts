@@ -81,10 +81,10 @@ export function createPanelConfig(config: PlaygroundConfig): PanelConfig {
             title: 'Spacing',
             controls: [
               {
-                id: 'headerGap',
+                id: 'toolbarGap',
                 type: 'slider',
-                label: 'Header Gap',
-                value: config.headerGap,
+                label: 'Toolbar Gap',
+                value: config.toolbarGap,
                 min: 0,
                 max: 32,
                 step: 2,

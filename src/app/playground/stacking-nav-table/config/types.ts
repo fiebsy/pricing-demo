@@ -67,7 +67,7 @@ export interface PlaygroundConfig {
   enableSelection: boolean
   showColumnControl: boolean
   showCount: boolean
-  headerGap: number
+  toolbarGap: number
   // Nav
   navVariant: NavVariant
   showNavDebug: boolean

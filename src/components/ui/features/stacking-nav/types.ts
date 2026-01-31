@@ -130,12 +130,22 @@ export interface AnimationConfig {
   childEntryDelay: number
   /** Child entry scale (0.95 = start at 95% size) */
   entryScale: number
-  /** Exit animation duration in seconds */
-  exitDuration: number
   /** Exit scale (0.95 = shrink to 95% on exit) */
   exitScale: number
+  /** Whether exit uses its own timing (true) or inherits main transition (false) */
+  exitUseCustomTiming: boolean
+  /** Exit duration in seconds (used when exitUseCustomTiming = true) */
+  exitDuration: number
+  /** Exit easing function (used when exitUseCustomTiming = true) */
+  exitEase: EasingType
+  /** Delay before exit starts in seconds (holds button visible before fade) */
+  exitDelay: number
+  /** Collapse layout transition duration in seconds (currently hardcoded 0.1s) */
+  collapseLayoutDuration: number
   /** Skip animation for leaf nodes (items without children) - keeps them in place */
   skipLeafAnimation: boolean
+  /** Delay before new child items become interactive in seconds (prevents accidental hover) */
+  hoverDelay: number
   /** Time scale for slow-mo debugging (1 = normal, 0.1 = 10x slower). Scales internal hardcoded durations. */
   timeScale: number
 }
@@ -150,6 +160,10 @@ export interface StyleConfig {
   anchoredOpacity: number
   /** Gap between items */
   gap: 'sm' | 'md' | 'lg'
+  /** Button size */
+  buttonSize: ButtonSize
+  /** Button roundness */
+  buttonRoundness: ButtonRoundness
   /** Button variant for expanded parent */
   expandedVariant: ButtonVariant
   /** Button variant for child items */
@@ -173,7 +187,7 @@ export interface StyleConfig {
 /**
  * Button visual variants.
  */
-export type ButtonVariant = 
+export type ButtonVariant =
   | 'primary'
   | 'secondary'
   | 'tertiary'
@@ -181,6 +195,16 @@ export type ButtonVariant =
   | 'tab'
   | 'link-gray'
   | 'link-color'
+
+/**
+ * Button size options.
+ */
+export type ButtonSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl'
+
+/**
+ * Button roundness options.
+ */
+export type ButtonRoundness = 'default' | 'pill' | 'squircle'
 
 // =============================================================================
 // COMPONENT PROPS

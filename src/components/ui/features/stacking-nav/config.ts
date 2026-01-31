@@ -6,7 +6,7 @@
  * @module features/stacking-nav
  */
 
-import type { AnimationConfig, StyleConfig, StackItem } from './types'
+import type { AnimationConfig, StyleConfig, StackItem, ButtonSize } from './types'
 
 // =============================================================================
 // DEFAULT CONFIGURATION
@@ -19,32 +19,39 @@ import type { AnimationConfig, StyleConfig, StackItem } from './types'
 export const DEFAULT_ANIMATION_CONFIG: AnimationConfig = {
   // Animation type - tween by default for smoother feel
   type: 'tween',
-  
+
   // Spring settings - used when type = 'spring'
   stiffness: 500,
   damping: 30,
-  
+
   // Tween settings - duration-based easing
-  duration: 0.15,
-  ease: 'easeOut',
-  
+  duration: 0.2,
+  ease: 'expoOut',
+
   // Promotion animation - disabled by default (scale = 1)
   promotionDuration: 0.1,
   promotionScale: 1,
-  
+
   // Child animations - staggered entry with diagonal slide
   stagger: 0.045,
-  entryOffsetX: 12,
+  entryOffsetX: 6,
   entryOffsetY: 10,
   childEntryDelay: 0,
   entryScale: 0.95,
-  
+
   // Exit animation
-  exitDuration: 0.15,
   exitScale: 0.95,
-  
+  exitUseCustomTiming: false,
+  exitDuration: 0.25,
+  exitEase: 'easeIn',
+  exitDelay: 0,
+  collapseLayoutDuration: 0.15,
+
   // Leaf node behavior
-  skipLeafAnimation: false,
+  skipLeafAnimation: true,
+
+  // Interaction
+  hoverDelay: 0.2,
 
   // Debug
   timeScale: 1,
@@ -57,15 +64,17 @@ export const DEFAULT_STYLE_CONFIG: StyleConfig = {
   peekOffset: 8,
   anchoredOpacity: 1,
   gap: 'md',
+  buttonSize: 'md',
+  buttonRoundness: 'default',
   expandedVariant: 'shine',
   childVariant: 'tertiary',
   anchoredVariant: 'secondary',
-  selectedLeafVariant: 'primary',
-  // Level All Button - disabled by default
-  showLevelAll: false,
+  selectedLeafVariant: 'tab',
+  // Level All Button - enabled by default
+  showLevelAll: true,
   levelAllLabel: 'All',
   levelAllActiveVariant: 'tab',
-  levelAllInactiveVariant: 'tertiary',
+  levelAllInactiveVariant: 'tab',
 }
 
 /**
@@ -148,6 +157,17 @@ export const GAP_CLASSES: Record<'sm' | 'md' | 'lg', string> = {
   sm: 'gap-2',
   md: 'gap-3',
   lg: 'gap-4',
+}
+
+/**
+ * Height classes per button size for consistent sizing.
+ */
+export const HEIGHT_CLASSES: Record<ButtonSize, string> = {
+  xs: 'h-7',
+  sm: 'h-8',
+  md: 'h-10',
+  lg: 'h-11',
+  xl: 'h-12',
 }
 
 /**
