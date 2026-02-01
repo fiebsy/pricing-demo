@@ -25,7 +25,7 @@ export const DEFAULT_ANIMATION_CONFIG: AnimationConfig = {
   damping: 30,
 
   // Tween settings - duration-based easing
-  duration: 0.2,
+  duration: 0.275,
   ease: 'expoOut',
 
   // Promotion animation - disabled by default (scale = 1)
@@ -33,19 +33,19 @@ export const DEFAULT_ANIMATION_CONFIG: AnimationConfig = {
   promotionScale: 1,
 
   // Child animations - staggered entry with diagonal slide
-  stagger: 0.045,
+  stagger: 0,
   entryOffsetX: 6,
   entryOffsetY: 10,
-  childEntryDelay: 0,
+  childEntryDelay: 0.05,
   entryScale: 0.95,
 
   // Exit animation
-  exitScale: 0.95,
-  exitUseCustomTiming: false,
-  exitDuration: 0.25,
-  exitEase: 'easeIn',
+  exitScale: 1,
+  exitUseCustomTiming: true,
+  exitDuration: 0.025,
+  exitEase: 'expoOut',
   exitDelay: 0,
-  collapseLayoutDuration: 0.15,
+  collapseLayoutDuration: 0.175,
 
   // Leaf node behavior
   skipLeafAnimation: true,
@@ -65,7 +65,7 @@ export const DEFAULT_STYLE_CONFIG: StyleConfig = {
   anchoredOpacity: 1,
   gap: 'md',
   buttonSize: 'md',
-  buttonRoundness: 'default',
+  buttonRoundness: 'pill',
   expandedVariant: 'shine',
   childVariant: 'tertiary',
   anchoredVariant: 'secondary',

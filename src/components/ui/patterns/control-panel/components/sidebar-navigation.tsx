@@ -143,7 +143,7 @@ function SlidingIndicator({ activeIndex, cornerSize = 40, cornerRadius = 16, cor
       className={cx(
         'absolute left-0 right-0 rounded-l-lg pointer-events-none overflow-visible',
         'bg-tertiary', // Main background color
-        'z-0', // Behind the text content (which has z-10)
+        'z-[2]', // Above non-active button backgrounds, below text content (z-10)
         cornerSquircle && 'corner-squircle'
       )}
       style={{ height: ITEM_HEIGHT, top: 0 }}
@@ -197,12 +197,17 @@ function SidebarItem({ section, isActive, isExpanded, onClick }: SidebarItemProp
       className={cx(
         'group relative flex w-full items-center h-10 px-3',
         'rounded-l-lg',
-        'outline-none focus-visible:ring-2 focus-visible:ring-brand-primary',
-        // Transparent bg - the sliding indicator provides the active state
-        // No hover bg when active
-        'bg-transparent'
+        'outline-none focus-visible:ring-2 focus-visible:ring-brand-primary'
       )}
     >
+      {/* Background layer — inner span so button has no stacking context (z-10 labels escape) */}
+      <span
+        className={cx(
+          'absolute inset-0 rounded-l-lg pointer-events-none',
+          'transition-[background-color,backdrop-filter] duration-200',
+          isActive ? 'bg-transparent backdrop-blur-none' : 'bg-secondary_subtle backdrop-blur-sm'
+        )}
+      />
       {/* Label content - z-10 to stay above indicator */}
       <AnimatePresence>
         {isExpanded && (
@@ -212,7 +217,7 @@ function SidebarItem({ section, isActive, isExpanded, onClick }: SidebarItemProp
             animate="expanded"
             exit="collapsed"
             className={cx(
-              'relative z-10 truncate text-left text-xs font-medium transition-colors pointer-events-none',
+              'relative z-10 truncate text-left text-xs font-medium transition-colors duration-200 pointer-events-none',
               isActive 
                 ? 'text-primary' 
                 : 'text-tertiary group-hover:text-secondary'

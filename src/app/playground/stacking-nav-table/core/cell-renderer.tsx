@@ -1,7 +1,7 @@
 /**
  * Stacking Nav + Table Playground - Cell Renderer
  *
- * Badge-heavy cell rendering for the corporate directory table.
+ * Minimal cell rendering — badges only for status, muted text elsewhere.
  */
 
 'use client'
@@ -10,18 +10,12 @@ import React from 'react'
 import { Badge } from '@/components/ui/core/primitives/badge'
 import type { BadgeColor } from '@/components/ui/core/primitives/badge'
 import type { Employee } from '../config/types'
-import { EmployeeStatus, SeniorityLevel, PerformanceRating } from '../config/types'
-import { formatCurrency, formatDate } from '../utils/formatters'
+import { EmployeeStatus, SeniorityLevel } from '../config/types'
+import { formatCurrency } from '../utils/formatters'
 
 // =============================================================================
-// COLOR MAPS
+// STATUS (only column that still uses badges)
 // =============================================================================
-
-const COMPANY_COLORS: Record<string, BadgeColor> = {
-  'Acme Corp': 'brand',
-  Globex: 'info',
-  Initech: 'success',
-}
 
 const STATUS_COLORS: Record<EmployeeStatus, BadgeColor> = {
   [EmployeeStatus.Active]: 'success',
@@ -37,13 +31,9 @@ const STATUS_LABELS: Record<EmployeeStatus, string> = {
   [EmployeeStatus.Contractor]: 'Contract',
 }
 
-const LEVEL_COLORS: Record<SeniorityLevel, BadgeColor> = {
-  [SeniorityLevel.Junior]: 'gray',
-  [SeniorityLevel.Mid]: 'info',
-  [SeniorityLevel.Senior]: 'success',
-  [SeniorityLevel.Lead]: 'brand',
-  [SeniorityLevel.Director]: 'warning',
-}
+// =============================================================================
+// LABEL MAPS (plain text)
+// =============================================================================
 
 const LEVEL_LABELS: Record<SeniorityLevel, string> = {
   [SeniorityLevel.Junior]: 'Junior',
@@ -53,18 +43,15 @@ const LEVEL_LABELS: Record<SeniorityLevel, string> = {
   [SeniorityLevel.Director]: 'Director',
 }
 
-const PERFORMANCE_COLORS: Record<PerformanceRating, BadgeColor> = {
-  [PerformanceRating.Exceeds]: 'success',
-  [PerformanceRating.Meets]: 'info',
-  [PerformanceRating.Developing]: 'warning',
-  [PerformanceRating.New]: 'gray',
-}
+// =============================================================================
+// HELPERS
+// =============================================================================
 
-const PERFORMANCE_LABELS: Record<PerformanceRating, string> = {
-  [PerformanceRating.Exceeds]: 'Exceeds',
-  [PerformanceRating.Meets]: 'Meets',
-  [PerformanceRating.Developing]: 'Develop',
-  [PerformanceRating.New]: 'New',
+/** "Paul Ramirez" → "Paul R." */
+function formatShortName(fullName: string): string {
+  const parts = fullName.trim().split(/\s+/)
+  if (parts.length < 2) return fullName
+  return `${parts[0]} ${parts[parts.length - 1][0]}.`
 }
 
 // =============================================================================
@@ -77,31 +64,23 @@ export const renderCell = (
   _index: number
 ): React.ReactNode => {
   switch (columnKey) {
-    case 'employee':
+    case 'employee': {
+      const initial = item.name.charAt(0).toUpperCase()
       return (
-        <div className="min-w-0">
-          <div className="text-primary truncate text-sm font-medium">{item.name}</div>
-          <div className="text-tertiary truncate text-xs">{item.email}</div>
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="bg-tertiary text-tertiary flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-medium">
+            {initial}
+          </div>
+          <span className="text-secondary truncate text-sm font-medium">
+            {formatShortName(item.name)}
+          </span>
         </div>
       )
+    }
 
     case 'role':
       return (
-        <span className="text-primary truncate text-sm">{item.role}</span>
-      )
-
-    case 'company':
-      return (
-        <Badge size="xs" shape="rounded" color={COMPANY_COLORS[item.companyLabel] ?? 'gray'}>
-          {item.companyLabel}
-        </Badge>
-      )
-
-    case 'department':
-      return (
-        <Badge size="xs" shape="rounded" color="gray">
-          {item.departmentLabel}
-        </Badge>
+        <span className="text-tertiary truncate text-sm">{item.role}</span>
       )
 
     case 'status':
@@ -113,36 +92,13 @@ export const renderCell = (
 
     case 'level':
       return (
-        <Badge size="xs" shape="rounded" color={LEVEL_COLORS[item.level]}>
-          {LEVEL_LABELS[item.level]}
-        </Badge>
+        <span className="text-tertiary truncate text-sm">{LEVEL_LABELS[item.level]}</span>
       )
 
     case 'salary':
       return (
-        <span className="text-primary tabular-nums text-sm">
+        <span className="text-tertiary tabular-nums text-sm">
           {formatCurrency(item.salary)}
-        </span>
-      )
-
-    case 'review':
-      return (
-        <Badge size="xs" shape="rounded" color={PERFORMANCE_COLORS[item.performance]}>
-          {PERFORMANCE_LABELS[item.performance]}
-        </Badge>
-      )
-
-    case 'projects':
-      return (
-        <span className="text-primary tabular-nums text-sm">
-          {item.projectCount}
-        </span>
-      )
-
-    case 'startDate':
-      return (
-        <span className="text-tertiary text-sm">
-          {formatDate(item.startDate)}
         </span>
       )
 

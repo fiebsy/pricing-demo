@@ -30,11 +30,11 @@ export { StackingNav } from './stacking-nav'
 export type {
   // Props
   StackingNavProps,
-  
+
   // Data structures
   StackItem,
   ActivePath,
-  
+
   // Configuration
   AnimationConfig,
   StyleConfig,
@@ -43,20 +43,15 @@ export type {
   ButtonRoundness,
   AnimationType,
   EasingType,
-  
-  // States
-  StateContext,
-  
+
   // Component props (internal)
   StackLevelProps,
   AnimatedItemProps,
-  
+
   // Context
   StackContextValue,
   LevelContextValue,
 } from './types'
-
-export { AnimationState } from './types'
 
 // =============================================================================
 // CONFIGURATION
@@ -67,14 +62,14 @@ export {
   DEFAULT_ANIMATION_CONFIG,
   DEFAULT_STYLE_CONFIG,
   DEFAULT_STACK_ITEMS,
-  
+
   // Constants
   ROOT_ANCHOR_ID,
   Z_INDEX,
   GAP_CLASSES,
   HEIGHT_CLASSES,
   SPRING_PRESETS,
-  
+
   // Helpers
   getAnchoredZIndex,
   getNumberLabel,
@@ -86,26 +81,11 @@ export {
 
 export {
   // Animation utilities
-  getSpringTransition,
   getChildEntryOffset,
   getChildDelay,
   getPromotionAnimation,
   getExitAnimation,
 } from './utils/animations'
-
-export {
-  // State utilities
-  determineItemState,
-  isPromotionTransition,
-  getStateVisualProps,
-  getTransitionDuration,
-} from './utils/states'
-
-// =============================================================================
-// HOOKS
-// =============================================================================
-
-export { useStackAnimation } from './hooks/use-stack-animation'
 
 // =============================================================================
 // CONTEXT

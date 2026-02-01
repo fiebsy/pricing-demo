@@ -59,15 +59,35 @@ export interface Employee extends Record<string, unknown> {
 
 export type PageBackground = 'primary' | 'secondary' | 'tertiary'
 export type NavVariant = 'default' | 'spring'
+export type BorderColor = 'primary' | 'secondary' | 'tertiary'
 
 export interface PlaygroundConfig {
   // Layout
   pageBackground: PageBackground
+  pageTopGap: number
+  pageMaxWidth: number
   // Table
   enableSelection: boolean
   showColumnControl: boolean
   showCount: boolean
-  toolbarGap: number
+  toolbarPaddingTop: number
+  toolbarPaddingBottom: number
+  toolbarPaddingLeft: number
+  toolbarPaddingRight: number
+  navToCountGap: number
+  tableOpacity: number
+  tableMuted: boolean
+  enableColumnReorder: boolean
+  // Borders
+  borderRadius: number
+  showOuterBorder: boolean
+  showRowBorders: boolean
+  showCellBorders: boolean
+  outerBorderColor: BorderColor
+  rowBorderColor: BorderColor
+  rowBorderOpacity: number
+  cellBorderColor: BorderColor
+  cellBorderOpacity: number
   // Nav
   navVariant: NavVariant
   showNavDebug: boolean

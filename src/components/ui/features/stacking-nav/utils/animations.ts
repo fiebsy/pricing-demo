@@ -54,18 +54,6 @@ export function getTransition(config: AnimationConfig, delay?: number) {
 }
 
 /**
- * Get spring transition config for motion.
- * @deprecated Use getTransition instead
- */
-export function getSpringTransition(config: AnimationConfig) {
-  return {
-    type: 'spring' as const,
-    stiffness: config.stiffness,
-    damping: config.damping,
-  }
-}
-
-/**
  * Get child entry offset for staggered appearance.
  */
 export function getChildEntryOffset(config: AnimationConfig) {
