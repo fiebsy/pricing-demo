@@ -1,0 +1,492 @@
+/**
+ * StackingNav - Stack Level Component
+ *
+ * Renders items at a specific level with proper animations.
+ * Uses flex flow for natural positioning with anchored items using absolute positioning.
+ *
+ * KEY POSITIONING MODEL:
+ * - Anchored items: absolute position (peek-behind stack)
+ * - Active parent: inline-flex (normal flow)
+ * - Children: inline-flex (flow naturally to the right of parent)
+ *
+ * @module features/stacking-nav/components
+ */
+
+'use client'
+
+import { useRef, useEffect, useState } from 'react'
+import { AnimatePresence, motion } from 'motion/react'
+
+import { cn } from '@/lib/utils'
+import { useStackContext, useLevelContext, LevelContext } from '../context'
+import { AnimatedItem } from './animated-item'
+import { LevelAllItem } from './level-all-item'
+import type { StackItem, StackLevelProps } from '../types'
+import { getChildEntryOffset, getChildDelay, getExitAnimation, getTransition } from '../utils/animations'
+import { ROOT_ANCHOR_ID, Z_INDEX, getAnchoredZIndex, createLevelAllId, isLevelAllId } from '../config'
+
+/**
+ * Renders items at a specific level of the navigation tree.
+ */
+export function StackLevel({
+  items,
+  parentLevelIndices = [],
+}: StackLevelProps) {
+  const {
+    activePath,
+    animationConfig,
+    styleConfig,
+    shouldReduceMotion,
+    showDebug,
+    getIsCollapsing, // Function to get live collapse state
+  } = useStackContext()
+  
+  const { level, anchorCount } = useLevelContext()
+  
+  // Track which item was just selected for promotion animation
+  const [promotingId, setPromotingId] = useState<string | null>(null)
+  const previousActiveIdRef = useRef<string | undefined>(undefined)
+
+  // Hover suppression — prevent hover flash on newly appearing child items.
+  // Uses a data attribute to suppress hover visuals via CSS, keeping items fully
+  // clickable. When the attribute is removed, the button's existing CSS transition
+  // (duration-100) smoothly fades in the hover state if the cursor is already there.
+  const hoverDelay = animationConfig.hoverDelay
+  const [isHoverSuppressed, setIsHoverSuppressed] = useState(level > 0 && hoverDelay > 0)
+
+  useEffect(() => {
+    if (level === 0 || hoverDelay <= 0) {
+      setIsHoverSuppressed(false)
+      return
+    }
+    setIsHoverSuppressed(true)
+    const timer = setTimeout(
+      () => setIsHoverSuppressed(false),
+      (hoverDelay * 1000) / animationConfig.timeScale
+    )
+    return () => clearTimeout(timer)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items, hoverDelay])
+  
+  // Separate root anchor from regular items at root level
+  const anchorItem = level === 0 ? items.find((i) => i.id === ROOT_ANCHOR_ID) : null
+  const regularItems = level === 0 ? items.filter((i) => i.id !== ROOT_ANCHOR_ID) : items
+  
+  // Enhanced debug logging
+  useEffect(() => {
+    if (showDebug && typeof window !== 'undefined') {
+      console.group(`🔍 [StackLevel] Level ${level} Render`)
+      console.log('Items:', items.map(i => i.id))
+      console.log('Active Path:', activePath)
+      console.log('Active ID at this level:', activePath[level])
+      console.log('Has active at this level:', activePath[level] !== undefined)
+      console.log('Has child in path:', activePath.length > level + 1)
+      console.log('Anchor item:', anchorItem?.id || 'none')
+      
+      // Visual positioning table
+      console.log('%c=== POSITIONING STATE ===', 'font-weight: bold; color: #3b82f6')
+      const positionData = items.map(item => ({
+        item: item.id,
+        level,
+        isActive: item.id === activePath[level],
+        hasChildren: !!(item.children?.length),
+        wouldBeAnchored: item.id === activePath[level] && activePath.length > level + 1 && !!(item.children?.length),
+        expectedPosition: 'TBD'
+      }))
+      console.table(positionData)
+      
+      console.groupEnd()
+    }
+  }, [level, items, activePath, anchorItem, showDebug])
+  
+  // State at this level
+  const activeId = activePath[level]
+  const activeItem = items.find((i) => i.id === activeId)
+  const hasActiveAtThisLevel = activeId !== undefined
+  const hasActiveChild = activePath.length > level + 1
+  
+  // Check if the active item at this level is a leaf node (for skipLeafAnimation behavior)
+  const activeItemIsLeaf = activeItem && (!activeItem.children || activeItem.children.length === 0)
+  
+  // Check if the active child in the path (one level deeper) is a leaf node
+  // This is used to prevent anchoring the parent when a leaf is selected
+  const activeChildIsLeaf = (() => {
+    if (!hasActiveChild || !activeItem?.children) return false
+    const childActiveId = activePath[level + 1]
+    const childItem = activeItem.children.find(c => c.id === childActiveId)
+    return childItem && (!childItem.children || childItem.children.length === 0)
+  })()
+  
+  // When skipLeafAnimation is enabled and we're dealing with leaf selections,
+  // we want different behavior: don't anchor parents, don't hide siblings
+  const skipLeafBehavior = animationConfig.skipLeafAnimation && (activeItemIsLeaf || activeChildIsLeaf)
+  
+  // Time scale for slow-mo — scales all hardcoded internal durations
+  const timeScale = animationConfig.timeScale
+
+  // Detect promotion - only when a NEW item with children is selected
+  useEffect(() => {
+    if (activeId !== previousActiveIdRef.current && activeId) {
+      const item = items.find(i => i.id === activeId)
+      if (level > 0 && item?.children?.length) {
+        setPromotingId(activeId)
+        setTimeout(() => setPromotingId(null), 400 / timeScale)
+      }
+    }
+    previousActiveIdRef.current = activeId
+  }, [activeId, level, items, timeScale])
+  
+  // Calculate anchored offset for peek-behind effect
+  const getAnchoredOffset = (depth: number) => {
+    return styleConfig.peekOffset * depth
+  }
+  
+  // Entry animation
+  const entryOffset = shouldReduceMotion
+    ? { x: 0, y: 0 }
+    : getChildEntryOffset(animationConfig)
+  
+  // Level-all button state
+  // The Level-All should only appear when:
+  // 1. showLevelAll is enabled
+  // 2. We're not at root level (level > 0)  
+  // 3. We haven't drilled deeper into a child with its own children
+  //    (i.e., hide Level-All when this level's active item has children being shown)
+  const childrenAreBeingShown = hasActiveAtThisLevel && activeItem?.children && activeItem.children.length > 0
+  const showLevelAll = styleConfig.showLevelAll && level > 0 && !childrenAreBeingShown
+  const levelAllId = createLevelAllId(level)
+  // Level-all is active when: we're at this level but no specific child is selected
+  // This means the parent at level-1 is expanded and showing children, but user hasn't drilled deeper
+  const levelAllIsActive = showLevelAll && !hasActiveAtThisLevel
+  
+  // Create virtual level-all item and prepend to items so it renders as a sibling
+  const levelAllItem: StackItem = { id: levelAllId, label: styleConfig.levelAllLabel }
+  const itemsWithLevelAll = showLevelAll ? [levelAllItem, ...regularItems] : regularItems
+  
+  // Calculate offset for items to clear anchored items (needed for both Level-All and regular items)
+  const rootAnchorVisible = level === 0 && hasActiveAtThisLevel && activeId !== ROOT_ANCHOR_ID
+  const totalAnchorCount = anchorCount + (rootAnchorVisible ? 1 : 0)
+  const baseParentOffset = totalAnchorCount > 0 ? styleConfig.peekOffset * totalAnchorCount : 0
+
+  // Read collapse state once for all items in this level.
+  // During collapse, we skip stagger delays so all items animate simultaneously
+  // (matching the fluid L0 demotion behavior).
+  const isCollapsingNow = getIsCollapsing()
+
+  return (
+    <>
+      {/* Root Anchor (All button) - only at level 0 */}
+      {anchorItem && (() => {
+        const isAnchored = hasActiveAtThisLevel && activeId !== ROOT_ANCHOR_ID
+        const anchorOffset = getAnchoredOffset(0)
+
+        // Fast layout during collapse
+        const anchorTransition = isCollapsingNow
+          ? { ...getTransition(animationConfig), layout: { duration: animationConfig.collapseLayoutDuration / timeScale, ease: 'easeOut' as const } }
+          : getTransition(animationConfig)
+
+        return (
+          <motion.div
+            key={anchorItem.id}
+            layout="position"
+            className={isAnchored ? 'absolute top-0 left-0 inline-flex' : 'inline-flex'}
+            style={{
+              zIndex: isAnchored ? getAnchoredZIndex(0) : 100,
+            }}
+            initial={shouldReduceMotion ? undefined : { opacity: 0 }}
+            animate={{
+              opacity: 1,
+              x: isAnchored ? anchorOffset : 0,
+            }}
+            transition={anchorTransition}
+          >
+            <AnimatedItem
+              item={anchorItem}
+              index={0}
+              levelIndices={[0]}
+              isAnchored={isAnchored}
+            />
+          </motion.div>
+        )
+      })()}
+      
+      {/* Regular Items (including Level-All as first item when enabled) */}
+      <AnimatePresence mode="popLayout">
+        {itemsWithLevelAll.map((item, index) => {
+          // Check if this is the level-all virtual item
+          const isLevelAllItem = isLevelAllId(item.id)
+          
+          // For level-all item, use special rendering but same positioning as children
+          // Lower z-index (90) so it appears behind other children (100) during overlaps
+          if (isLevelAllItem) {
+            const animationDelay = isCollapsingNow ? 0 : getChildDelay(0, animationConfig)
+
+            // Exit for Level-All — inherits transition from main animation controls.
+            // popLayout takes exiting items out of flow immediately.
+            const levelAllExit = shouldReduceMotion
+              ? undefined
+              : getExitAnimation(animationConfig)
+            
+            // Fast layout during collapse
+            const levelAllTransition = isCollapsingNow
+              ? { ...getTransition(animationConfig, animationDelay), layout: { duration: animationConfig.collapseLayoutDuration / timeScale, ease: 'easeOut' as const } }
+              : getTransition(animationConfig, animationDelay)
+            
+            return (
+              <motion.div
+                key={item.id}
+                layout="position"
+                className={isHoverSuppressed ? 'inline-flex [&_button]:!pointer-events-none' : 'inline-flex'}
+                style={{ zIndex: 90 }}
+                data-hover-suppressed={isHoverSuppressed || undefined}
+                initial={shouldReduceMotion ? undefined : { opacity: 0, ...entryOffset, scale: animationConfig.entryScale }}
+                animate={{ opacity: 1, x: baseParentOffset, y: 0, scale: 1 }}
+                exit={levelAllExit}
+                transition={levelAllTransition}
+              >
+                <LevelAllItem
+                  levelAllId={item.id}
+                  isActive={levelAllIsActive}
+                />
+              </motion.div>
+            )
+          }
+          
+          // Regular item rendering (adjust index to account for level-all)
+          const adjustedIndex = showLevelAll ? index - 1 : index
+          const isActive = item.id === activeId
+          const itemIndex = anchorItem ? adjustedIndex + 1 : adjustedIndex
+          const itemLevelIndices = [...parentLevelIndices, itemIndex]
+          
+          // Check if this specific item is a leaf node
+          const isLeafNode = !item.children || item.children.length === 0
+          
+          // Hide non-active siblings when something is active
+          // EXCEPTION: When skipLeafAnimation is enabled and the active item is a leaf,
+          // we keep siblings visible so the leaf stays in its natural position
+          const shouldHideSibling = hasActiveAtThisLevel && !isActive && 
+            !(animationConfig.skipLeafAnimation && activeItemIsLeaf)
+          if (shouldHideSibling) return null
+          
+          // Determine if this item should be anchored
+          // EXCEPTION: When skipLeafAnimation is enabled and the active child is a leaf,
+          // don't anchor this item - the leaf should stay in place
+          const isAnchored = isActive && hasActiveChild && item.children && item.children.length > 0 &&
+            !(animationConfig.skipLeafAnimation && activeChildIsLeaf)
+          
+          // Check if promoting
+          const isPromoting = item.id === promotingId || false
+          
+          // Skip animation for leaf nodes if configured
+          // When a leaf is selected with skipLeafAnimation, it stays in place with no animation
+          const shouldSkipAnimation = animationConfig.skipLeafAnimation && isLeafNode && isActive
+          
+          // Also skip animation for parent items when their active child is a leaf with skipLeafAnimation
+          // This prevents the parent from moving when a leaf child is selected
+          const shouldSkipParentAnimation = animationConfig.skipLeafAnimation && activeChildIsLeaf && isActive && !isLeafNode
+          
+          // Calculate anchored depth
+          const anchoredDepth = level === 0 ? 1 : level + 1
+          
+          // Position strategy
+          const shouldUseAbsolute = isAnchored
+          
+          // Animation delay (use original index in itemsWithLevelAll for proper stagger)
+          // Skip stagger during collapse — all items should animate simultaneously
+          // This is why L0 demotion feels fluid (L0 items never get stagger since level=0)
+          const isInitialEntry = level > 0 && !isActive && !isCollapsingNow
+          const animationDelay = isInitialEntry ? getChildDelay(index, animationConfig) : 0
+          
+          // Debug logging
+          if (showDebug && typeof window !== 'undefined') {
+            console.group(`📍 [Item] ${item.id}`)
+            console.log('Level:', level)
+            console.log('State:', {
+              isActive,
+              hasActiveChild,
+              isAnchored,
+              hasChildren: item.children?.length || 0,
+              isPromoting,
+            })
+            console.log('Position Strategy:', {
+              positioning: shouldUseAbsolute ? 'absolute (anchored)' : 'inline-flex (flow)',
+              anchoredDepth: isAnchored ? anchoredDepth : 'N/A',
+              anchoredOffset: isAnchored ? `${getAnchoredOffset(anchoredDepth)}px` : 'N/A',
+            })
+            console.log('Animation:', {
+              isCollapsingNow,
+              isInitialEntry,
+              animationDelay: `${animationDelay * 1000}ms`,
+              staggerSkipped: level > 0 && !isActive && isCollapsingNow ? 'YES (collapse)' : 'no',
+            })
+            console.groupEnd()
+          }
+          
+          // Calculate anchored offset
+          const anchoredOffset = getAnchoredOffset(anchoredDepth)
+          
+          // Calculate offset for active parent to clear anchored items
+          const rootAnchorVisible = level === 0 && hasActiveAtThisLevel && activeId !== ROOT_ANCHOR_ID
+          const totalAnchorCount = anchorCount + (rootAnchorVisible ? 1 : 0)
+          const activeParentOffset = totalAnchorCount > 0 ? getAnchoredOffset(totalAnchorCount) : 0
+          
+          // When skipLeafAnimation is enabled and a leaf is selected at this level,
+          // ALL items at this level should skip animation to prevent any movement
+          const levelHasActiveLeaf = animationConfig.skipLeafAnimation && activeItemIsLeaf
+          const skipAllAnimationAtLevel = levelHasActiveLeaf
+          
+          // Combine all skip conditions
+          const skipAnyAnimation = shouldSkipAnimation || skipAllAnimationAtLevel || shouldSkipParentAnimation
+          
+          // Calculate animate state - leaf nodes stay in place when skipLeafAnimation is enabled
+          // IMPORTANT: Always set explicit x/y positions even when skipping animation.
+          // Using undefined would cause framer-motion to lose position tracking, breaking
+          // subsequent animations when transitioning back to normal state (e.g., on collapse).
+          const animateState = skipAnyAnimation
+            ? {
+                // Item stays exactly where it is with instant transition (duration: 0)
+                // but we still track the position explicitly for proper animation on collapse
+                opacity: 1,
+                x: activeParentOffset,
+                y: 0,
+                scale: 1,
+              }
+            : isAnchored 
+              ? { 
+                  opacity: 1, 
+                  x: anchoredOffset,
+                  y: 0,
+                  scale: 1,
+                }
+              : isPromoting
+                ? {
+                    opacity: 1,
+                    x: activeParentOffset,
+                    y: 0,
+                    scale: [1, animationConfig.promotionScale, 1],
+                  }
+                : { 
+                    opacity: 1, 
+                    x: activeParentOffset,
+                    y: 0,
+                    scale: 1,
+                  }
+          
+          // L0 siblings re-appearing during collapse should fade in without
+          // positional offset or scale shift — they were just hidden, not new.
+          const isCollapseReentry = isCollapsingNow && level === 0 && !isActive
+
+          // Skip all animation for leaf nodes when configured - stays in place
+          const leafInitial = skipAnyAnimation
+            ? undefined // Don't set initial - let it stay where it is
+            : shouldReduceMotion
+              ? undefined
+              : isCollapseReentry
+                ? { opacity: 0 } // Fade only — no slide/scale
+                : { opacity: 0, ...entryOffset, scale: animationConfig.entryScale }
+          
+          // Use faster exit when collapsing to reduce demotion delay
+          // This allows the parent's position animation to start sooner
+          // Uses isCollapsingNow computed once per render above
+          const isCurrentlyCollapsing = isCollapsingNow
+          
+          // During collapse, use faster layout transition so position shifts happen quickly
+          const collapseLayoutTransition = isCurrentlyCollapsing
+            ? { layout: { duration: animationConfig.collapseLayoutDuration / timeScale, ease: 'easeOut' as const } }
+            : {}
+          
+          const leafTransition = skipAnyAnimation
+            ? { duration: 0 }
+            : {
+                ...getTransition(animationConfig, animationDelay),
+                ...collapseLayoutTransition, // Override layout timing during collapse
+                scale: isPromoting ? {
+                  duration: animationConfig.promotionDuration,
+                  times: [0, 0.5, 1],
+                  ease: 'easeInOut',
+                } : undefined,
+              }
+          
+          // Exit animation — inherits transition from main animation controls.
+          // popLayout takes exiting items out of flow immediately.
+          const exitAnimation = shouldReduceMotion
+            ? undefined
+            : getExitAnimation(animationConfig)
+
+          // Debug: Log exit animation being used
+          if (showDebug && typeof window !== 'undefined' && !isActive) {
+            console.log(`🚪 [EXIT] ${item.id}: scale=${animationConfig.exitScale}, collapsing=${isCurrentlyCollapsing}`)
+          }
+          
+          return (
+            <motion.div
+              key={item.id}
+              // IMPORTANT: Always track layout for non-anchored items so collapse animations work.
+              // The transition duration (instant vs normal) controls whether changes animate,
+              // but we need layout tracking enabled to know WHERE to animate from/to.
+              layout={!isAnchored ? 'position' : false}
+              className={cn(
+                shouldUseAbsolute ? 'absolute top-0 left-0 inline-flex' : 'inline-flex',
+                isHoverSuppressed && !isAnchored && '[&_button]:!pointer-events-none'
+              )}
+              style={{
+                zIndex: isAnchored
+                  ? getAnchoredZIndex(anchoredDepth)
+                  : isPromoting
+                    ? Z_INDEX.PROMOTING
+                    : isActive
+                      ? Z_INDEX.ACTIVE + 10 + level * 10
+                      : Z_INDEX.ACTIVE + level * 10,
+              }}
+              data-hover-suppressed={isHoverSuppressed && !isAnchored || undefined}
+              initial={leafInitial}
+              animate={animateState}
+              exit={exitAnimation}
+              transition={leafTransition}
+              data-item-expected-offset={shouldUseAbsolute ? anchoredOffset : 0}
+            >
+              <AnimatedItem
+                item={item}
+                index={itemIndex}
+                levelIndices={itemLevelIndices}
+                isAnchored={isAnchored ?? false}
+                isPromoting={isPromoting}
+              />
+            </motion.div>
+          )
+        })}
+      </AnimatePresence>
+      
+      {/* Children of Active Item */}
+      {activeItem?.children && activeItem.children.length > 0 && (() => {
+        const rootAnchorCount = level === 0 && activeId !== ROOT_ANCHOR_ID ? 1 : 0
+        // When skipLeafAnimation is enabled and the active child is a leaf, 
+        // the current item doesn't become anchored, so don't add to anchor count
+        const currentItemBecomesAnchor = hasActiveChild && activeItem.children && activeItem.children.length > 0 &&
+          !(animationConfig.skipLeafAnimation && activeChildIsLeaf) ? 1 : 0
+        const childAnchorCount = anchorCount + rootAnchorCount + currentItemBecomesAnchor
+        
+        return (
+          <LevelContext.Provider
+            value={{
+              level: level + 1,
+              parentId: activeItem.id,
+              isParentAnchored: hasActiveChild,
+              anchorCount: childAnchorCount,
+            }}
+          >
+            <StackLevel
+              items={activeItem.children}
+              parentLevelIndices={[
+                ...parentLevelIndices,
+                anchorItem
+                  ? regularItems.findIndex((i) => i.id === activeId) + 1
+                  : regularItems.findIndex((i) => i.id === activeId),
+              ]}
+            />
+          </LevelContext.Provider>
+        )
+      })()}
+    </>
+  )
+}
