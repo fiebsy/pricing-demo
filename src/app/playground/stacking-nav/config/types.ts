@@ -90,6 +90,10 @@ export interface PlaygroundConfig {
   // Stacking
   peekOffset: number
   anchoredOpacity: number
+  clipAnchored: boolean
+  clipOffset: number
+  clipSide: 'left' | 'right' | 'center'
+  clipDelay: number // ms in playground
 
   // Layout
   gap: 'sm' | 'md' | 'lg'

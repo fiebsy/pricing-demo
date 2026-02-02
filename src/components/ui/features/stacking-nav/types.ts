@@ -172,6 +172,14 @@ export interface StyleConfig {
   anchoredVariant: ButtonVariant
   /** Button variant for selected leaf nodes (items without children) */
   selectedLeafVariant: ButtonVariant
+  /** Clip anchored items to only show the peek sliver (hides full pill outline) */
+  clipAnchored: boolean
+  /** Width in px of the visible clip area for anchored items (defaults to peekOffset) */
+  clipOffset: number
+  /** Which side of the anchored button remains visible after clipping */
+  clipSide: 'left' | 'right' | 'center'
+  /** Delay in seconds before clip starts on entry (lets position animation lead) */
+  clipDelay: number
   
   // Level All Button Configuration
   /** Show "All" button in child levels (L1+) - defaults to false */

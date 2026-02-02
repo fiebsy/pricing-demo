@@ -85,6 +85,10 @@ export default function StackingNavPlayground() {
     () => ({
       peekOffset: config.peekOffset,
       anchoredOpacity: config.anchoredOpacity,
+      clipAnchored: config.clipAnchored,
+      clipOffset: config.clipOffset,
+      clipSide: config.clipSide,
+      clipDelay: config.clipDelay / 1000,
       gap: config.gap,
       buttonSize: config.buttonSize,
       buttonRoundness: config.buttonRoundness,

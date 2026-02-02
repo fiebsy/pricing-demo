@@ -65,6 +65,10 @@ function configFromProdDefaults(): Omit<PlaygroundConfig, 'configPreset' | 'navV
     selectedLeafVariant: s.selectedLeafVariant,
     peekOffset: s.peekOffset,
     anchoredOpacity: s.anchoredOpacity,
+    clipAnchored: s.clipAnchored,
+    clipOffset: s.clipOffset,
+    clipSide: s.clipSide,
+    clipDelay: s.clipDelay * 1000,
     gap: s.gap,
 
     // Level All
@@ -124,6 +128,10 @@ const PRESET_SPRING: Omit<PlaygroundConfig, 'configPreset' | 'navVariant'> = {
   selectedLeafVariant: 'primary',
   peekOffset: 8,
   anchoredOpacity: 0.6,
+  clipAnchored: true,
+  clipOffset: 8,
+  clipSide: 'left',
+  clipDelay: 0,
   gap: 'md',
   showNumbers: false,
   showDebug: false,

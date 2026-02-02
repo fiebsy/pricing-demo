@@ -16,7 +16,7 @@
 
 'use client'
 
-import { useState, useMemo, useCallback, useTransition } from 'react'
+import { useState, useMemo, useCallback, useTransition, useRef, useEffect } from 'react'
 import {
   UnifiedControlPanel,
   type ControlChangeEvent,
@@ -124,11 +124,47 @@ export default function StackingNavTablePlayground() {
   const [resetKey, setResetKey] = useState(0)
   const [columnOrder, setColumnOrder] = useState<string[]>(DEFAULT_COLUMN_ORDER)
 
+  // Prevent sticky disengage when filtering shrinks content below viewport.
+  // Locks the wrapper's minHeight before data changes, then smoothly releases.
+  const contentWrapperRef = useRef<HTMLDivElement>(null)
+  const heightLockRef = useRef(false)
+
   // Filter employees based on nav path
   const filteredData = useMemo(
     () => filterByPath([...EMPLOYEE_DATA] as Employee[], currentPath),
     [currentPath]
   )
+
+  // After filtered data renders, smoothly release the height lock
+  useEffect(() => {
+    const wrapper = contentWrapperRef.current
+    if (!heightLockRef.current || !wrapper) return
+    heightLockRef.current = false
+
+    requestAnimationFrame(() => {
+      // Read the locked height, then measure the natural content height
+      const locked = parseFloat(wrapper.style.minHeight) || 0
+      wrapper.style.minHeight = ''
+      const natural = wrapper.offsetHeight
+
+      if (natural >= locked) return // content grew — nothing to do
+
+      // Content shrank — transition smoothly from locked → natural
+      wrapper.style.minHeight = `${locked}px`
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+      wrapper.offsetHeight // force reflow before transition
+      wrapper.style.transition = 'min-height 250ms ease-out'
+      wrapper.style.minHeight = `${natural}px`
+
+      const cleanup = () => {
+        wrapper.style.transition = ''
+        wrapper.style.minHeight = ''
+      }
+      wrapper.addEventListener('transitionend', cleanup, { once: true })
+      // Safety timeout in case transitionend doesn't fire
+      setTimeout(cleanup, 300)
+    })
+  }, [filteredData])
 
   // Nav animation config based on variant
   const navAnimationConfig = useMemo(() => {
@@ -178,10 +214,22 @@ export default function StackingNavTablePlayground() {
 
   // Handlers
   const handleSelectionChange = useCallback((path: ActivePath) => {
+    if (config.showNavDebug) {
+      console.log(`[NAV CLICK] path=[${path}] scrollY=${window.scrollY}`)
+    }
+
+    // Lock container height to prevent scroll jump when data shrinks
+    const wrapper = contentWrapperRef.current
+    if (wrapper) {
+      wrapper.style.transition = ''
+      wrapper.style.minHeight = `${wrapper.offsetHeight}px`
+      heightLockRef.current = true
+    }
+
     startTransition(() => {
       setCurrentPath(path)
     })
-  }, [startTransition])
+  }, [startTransition, config.showNavDebug])
 
   const handleReorderColumns = useCallback((fromKey: string, toKey: string) => {
     setColumnOrder((prev) => {
@@ -275,7 +323,7 @@ export default function StackingNavTablePlayground() {
       <style dangerouslySetInnerHTML={{ __html: tableScopedCSS }} />
 
       <div className="pr-[352px] min-h-screen">
-        <div className="mx-auto px-6" style={{ paddingTop: config.pageTopGap, maxWidth: config.pageMaxWidth }}>
+        <div ref={contentWrapperRef} className="mx-auto px-6" style={{ paddingTop: config.pageTopGap, maxWidth: config.pageMaxWidth }}>
           {/* Data Table with Nav in Toolbar */}
           <StickyDataTable<Employee>
             data={filteredData}

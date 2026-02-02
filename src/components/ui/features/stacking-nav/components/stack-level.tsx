@@ -72,32 +72,12 @@ export function StackLevel({
   const anchorItem = level === 0 ? items.find((i) => i.id === ROOT_ANCHOR_ID) : null
   const regularItems = level === 0 ? items.filter((i) => i.id !== ROOT_ANCHOR_ID) : items
   
-  // Enhanced debug logging
+  // Debug logging
   useEffect(() => {
     if (showDebug && typeof window !== 'undefined') {
-      console.group(`🔍 [StackLevel] Level ${level} Render`)
-      console.log('Items:', items.map(i => i.id))
-      console.log('Active Path:', activePath)
-      console.log('Active ID at this level:', activePath[level])
-      console.log('Has active at this level:', activePath[level] !== undefined)
-      console.log('Has child in path:', activePath.length > level + 1)
-      console.log('Anchor item:', anchorItem?.id || 'none')
-      
-      // Visual positioning table
-      console.log('%c=== POSITIONING STATE ===', 'font-weight: bold; color: #3b82f6')
-      const positionData = items.map(item => ({
-        item: item.id,
-        level,
-        isActive: item.id === activePath[level],
-        hasChildren: !!(item.children?.length),
-        wouldBeAnchored: item.id === activePath[level] && activePath.length > level + 1 && !!(item.children?.length),
-        expectedPosition: 'TBD'
-      }))
-      console.table(positionData)
-      
-      console.groupEnd()
+      console.log(`[StackLevel] L${level} items=[${items.map(i => i.id)}] active=${activePath[level] ?? 'none'}`)
     }
-  }, [level, items, activePath, anchorItem, showDebug])
+  }, [level, items, activePath, showDebug])
   
   // State at this level
   const activeId = activePath[level]
@@ -140,6 +120,14 @@ export function StackLevel({
   const getAnchoredOffset = (depth: number) => {
     return styleConfig.peekOffset * depth
   }
+
+  // Clip-path expression based on clipSide
+  const clipExpr = `calc(var(--clip-progress) * (100% - ${styleConfig.clipOffset}px))`
+  const clipPathValue = styleConfig.clipSide === 'left'
+    ? `inset(0px ${clipExpr} 0px 0px)`
+    : styleConfig.clipSide === 'right'
+      ? `inset(0px 0px 0px ${clipExpr})`
+      : `inset(0px ${clipExpr} 0px ${clipExpr})`
   
   // Entry animation
   const entryOffset = shouldReduceMotion
@@ -180,26 +168,46 @@ export function StackLevel({
         const isAnchored = hasActiveAtThisLevel && activeId !== ROOT_ANCHOR_ID
         const anchorOffset = getAnchoredOffset(0)
 
-        // Fast layout during collapse
-        const anchorTransition = isCollapsingNow
-          ? { ...getTransition(animationConfig), layout: { duration: animationConfig.collapseLayoutDuration / timeScale, ease: 'easeOut' as const } }
-          : getTransition(animationConfig)
+        const anchorTransition = getTransition(animationConfig)
+
+        // Delay clip on entry only — lets position animation lead visually
+        const anchorClipOverride = styleConfig.clipDelay > 0 && isAnchored
+          ? { '--clip-progress': { ...getTransition(animationConfig), delay: styleConfig.clipDelay } }
+          : {}
 
         return (
           <motion.div
             key={anchorItem.id}
-            layout="position"
             className={isAnchored ? 'absolute top-0 left-0 inline-flex' : 'inline-flex'}
             style={{
               zIndex: isAnchored ? getAnchoredZIndex(0) : 100,
+              ...(styleConfig.clipAnchored && !showDebug ? { clipPath: clipPathValue } : {}),
             }}
-            initial={shouldReduceMotion ? undefined : { opacity: 0 }}
+            initial={shouldReduceMotion ? undefined : { opacity: 0, '--clip-progress': 0 }}
             animate={{
               opacity: 1,
               x: isAnchored ? anchorOffset : 0,
+              '--clip-progress': isAnchored ? 1 : 0,
             }}
-            transition={anchorTransition}
+            transition={{ ...anchorTransition, ...anchorClipOverride }}
           >
+            {isAnchored && showDebug && styleConfig.clipAnchored && (
+              <>
+                <div
+                  className="pointer-events-none absolute top-0 h-full w-px bg-red-500"
+                  style={{
+                    [styleConfig.clipSide === 'right' ? 'right' : 'left']: `${styleConfig.clipOffset}px`,
+                    zIndex: 9999,
+                  }}
+                />
+                {styleConfig.clipSide === 'center' && (
+                  <div
+                    className="pointer-events-none absolute top-0 h-full w-px bg-red-500"
+                    style={{ right: `${styleConfig.clipOffset}px`, zIndex: 9999 }}
+                  />
+                )}
+              </>
+            )}
             <AnimatedItem
               item={anchorItem}
               index={0}
@@ -227,15 +235,11 @@ export function StackLevel({
               ? undefined
               : getExitAnimation(animationConfig)
             
-            // Fast layout during collapse
-            const levelAllTransition = isCollapsingNow
-              ? { ...getTransition(animationConfig, animationDelay), layout: { duration: animationConfig.collapseLayoutDuration / timeScale, ease: 'easeOut' as const } }
-              : getTransition(animationConfig, animationDelay)
+            const levelAllTransition = getTransition(animationConfig, animationDelay)
             
             return (
               <motion.div
                 key={item.id}
-                layout="position"
                 className={isHoverSuppressed ? 'inline-flex [&_button]:!pointer-events-none' : 'inline-flex'}
                 style={{ zIndex: 90 }}
                 data-hover-suppressed={isHoverSuppressed || undefined}
@@ -299,27 +303,7 @@ export function StackLevel({
           
           // Debug logging
           if (showDebug && typeof window !== 'undefined') {
-            console.group(`📍 [Item] ${item.id}`)
-            console.log('Level:', level)
-            console.log('State:', {
-              isActive,
-              hasActiveChild,
-              isAnchored,
-              hasChildren: item.children?.length || 0,
-              isPromoting,
-            })
-            console.log('Position Strategy:', {
-              positioning: shouldUseAbsolute ? 'absolute (anchored)' : 'inline-flex (flow)',
-              anchoredDepth: isAnchored ? anchoredDepth : 'N/A',
-              anchoredOffset: isAnchored ? `${getAnchoredOffset(anchoredDepth)}px` : 'N/A',
-            })
-            console.log('Animation:', {
-              isCollapsingNow,
-              isInitialEntry,
-              animationDelay: `${animationDelay * 1000}ms`,
-              staggerSkipped: level > 0 && !isActive && isCollapsingNow ? 'YES (collapse)' : 'no',
-            })
-            console.groupEnd()
+            console.log(`[Item] ${item.id} L${level} anchored=${isAnchored} collapse=${isCollapsingNow} delay=${(animationDelay * 1000).toFixed(0)}ms`)
           }
           
           // Calculate anchored offset
@@ -342,6 +326,8 @@ export function StackLevel({
           // IMPORTANT: Always set explicit x/y positions even when skipping animation.
           // Using undefined would cause framer-motion to lose position tracking, breaking
           // subsequent animations when transitioning back to normal state (e.g., on collapse).
+          const clipProgress = isAnchored ? 1 : 0
+
           const animateState = skipAnyAnimation
             ? {
                 // Item stays exactly where it is with instant transition (duration: 0)
@@ -350,13 +336,15 @@ export function StackLevel({
                 x: activeParentOffset,
                 y: 0,
                 scale: 1,
+                '--clip-progress': clipProgress,
               }
-            : isAnchored 
-              ? { 
-                  opacity: 1, 
+            : isAnchored
+              ? {
+                  opacity: 1,
                   x: anchoredOffset,
                   y: 0,
                   scale: 1,
+                  '--clip-progress': clipProgress,
                 }
               : isPromoting
                 ? {
@@ -364,12 +352,14 @@ export function StackLevel({
                     x: activeParentOffset,
                     y: 0,
                     scale: [1, animationConfig.promotionScale, 1],
+                    '--clip-progress': clipProgress,
                   }
-                : { 
-                    opacity: 1, 
+                : {
+                    opacity: 1,
                     x: activeParentOffset,
                     y: 0,
                     scale: 1,
+                    '--clip-progress': clipProgress,
                   }
           
           // L0 siblings re-appearing during collapse should fade in without
@@ -382,24 +372,13 @@ export function StackLevel({
             : shouldReduceMotion
               ? undefined
               : isCollapseReentry
-                ? { opacity: 0 } // Fade only — no slide/scale
-                : { opacity: 0, ...entryOffset, scale: animationConfig.entryScale }
-          
-          // Use faster exit when collapsing to reduce demotion delay
-          // This allows the parent's position animation to start sooner
-          // Uses isCollapsingNow computed once per render above
-          const isCurrentlyCollapsing = isCollapsingNow
-          
-          // During collapse, use faster layout transition so position shifts happen quickly
-          const collapseLayoutTransition = isCurrentlyCollapsing
-            ? { layout: { duration: animationConfig.collapseLayoutDuration / timeScale, ease: 'easeOut' as const } }
-            : {}
+                ? { opacity: 0, '--clip-progress': 0 } // Fade only — no slide/scale
+                : { opacity: 0, ...entryOffset, scale: animationConfig.entryScale, '--clip-progress': 0 }
           
           const leafTransition = skipAnyAnimation
             ? { duration: 0 }
             : {
                 ...getTransition(animationConfig, animationDelay),
-                ...collapseLayoutTransition, // Override layout timing during collapse
                 scale: isPromoting ? {
                   duration: animationConfig.promotionDuration,
                   times: [0, 0.5, 1],
@@ -413,18 +392,19 @@ export function StackLevel({
             ? undefined
             : getExitAnimation(animationConfig)
 
+          // Delay clip on entry only — lets position animation lead visually
+          const itemClipOverride = styleConfig.clipDelay > 0 && isAnchored
+            ? { '--clip-progress': { ...getTransition(animationConfig), delay: styleConfig.clipDelay } }
+            : {}
+
           // Debug: Log exit animation being used
           if (showDebug && typeof window !== 'undefined' && !isActive) {
-            console.log(`🚪 [EXIT] ${item.id}: scale=${animationConfig.exitScale}, collapsing=${isCurrentlyCollapsing}`)
+            console.log(`🚪 [EXIT] ${item.id}: scale=${animationConfig.exitScale}, collapsing=${isCollapsingNow}`)
           }
-          
+
           return (
             <motion.div
               key={item.id}
-              // IMPORTANT: Always track layout for non-anchored items so collapse animations work.
-              // The transition duration (instant vs normal) controls whether changes animate,
-              // but we need layout tracking enabled to know WHERE to animate from/to.
-              layout={!isAnchored ? 'position' : false}
               className={cn(
                 shouldUseAbsolute ? 'absolute top-0 left-0 inline-flex' : 'inline-flex',
                 isHoverSuppressed && !isAnchored && '[&_button]:!pointer-events-none'
@@ -437,14 +417,24 @@ export function StackLevel({
                     : isActive
                       ? Z_INDEX.ACTIVE + 10 + level * 10
                       : Z_INDEX.ACTIVE + level * 10,
+                ...(styleConfig.clipAnchored && !showDebug ? { clipPath: clipPathValue } : {}),
               }}
               data-hover-suppressed={isHoverSuppressed && !isAnchored || undefined}
               initial={leafInitial}
               animate={animateState}
               exit={exitAnimation}
-              transition={leafTransition}
+              transition={{ ...leafTransition, ...itemClipOverride }}
               data-item-expected-offset={shouldUseAbsolute ? anchoredOffset : 0}
             >
+              {isAnchored && showDebug && styleConfig.clipAnchored && (
+                <div
+                  className="pointer-events-none absolute top-0 h-full w-px bg-red-500"
+                  style={{
+                    [styleConfig.clipSide === 'left' ? 'left' : 'right']: `${styleConfig.clipOffset}px`,
+                    zIndex: 9999,
+                  }}
+                />
+              )}
               <AnimatedItem
                 item={item}
                 index={itemIndex}
