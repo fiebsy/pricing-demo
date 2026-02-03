@@ -120,6 +120,22 @@ export interface AnimationConfig {
   promotionDuration: number
   /** Scale factor during promotion (1 = no scale, 1.08 = 8% larger) */
   promotionScale: number
+  /** Delay before promotion animation starts in seconds */
+  promotionDelay: number
+  /** Opacity to pulse to during promotion (1 = no effect, 0.5 = fade to 50% and back) */
+  promotionOpacity: number
+  /** Button variant to flash during promotion ('none' = no variant change) */
+  promotionVariant: ButtonVariant | 'none'
+  /** Duration for demotion animation in seconds */
+  demotionDuration: number
+  /** Scale factor during demotion (1 = no scale, 0.95 = 5% smaller) */
+  demotionScale: number
+  /** Delay before demotion animation starts in seconds */
+  demotionDelay: number
+  /** Opacity to pulse to during demotion (1 = no effect, 0.5 = fade to 50% and back) */
+  demotionOpacity: number
+  /** Button variant to flash during demotion ('none' = no variant change) */
+  demotionVariant: ButtonVariant | 'none'
   /** Child entry stagger delay in seconds */
   stagger: number
   /** Child entry X offset in pixels (positive = from right, negative = from left) */
@@ -174,6 +190,8 @@ export interface StyleConfig {
   selectedLeafVariant: ButtonVariant
   /** Clip anchored items to only show the peek sliver (hides full pill outline) */
   clipAnchored: boolean
+  /** Animate the clip transition (false = snap instantly) */
+  clipAnimated: boolean
   /** Width in px of the visible clip area for anchored items (defaults to peekOffset) */
   clipOffset: number
   /** Which side of the anchored button remains visible after clipping */
@@ -266,6 +284,8 @@ export interface AnimatedItemProps {
   isAnchored: boolean
   /** Whether item is being promoted */
   isPromoting?: boolean
+  /** Whether item is being demoted */
+  isDemoting?: boolean
 }
 
 // =============================================================================

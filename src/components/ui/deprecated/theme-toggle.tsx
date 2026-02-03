@@ -19,7 +19,7 @@ export function ThemeToggle() {
   }, [])
 
   if (!mounted) {
-    return <div className="fixed bottom-4 right-4 z-50 h-8 w-14" />
+    return <div className="fixed bottom-4 left-4 z-50 h-8 w-14" />
   }
 
   const isDark = theme === 'dark'
@@ -28,7 +28,7 @@ export function ThemeToggle() {
     <Switch
       isSelected={isDark}
       onChange={(selected) => setTheme(selected ? 'dark' : 'light')}
-      className="group fixed bottom-4 right-4 z-50 flex h-8 w-14 cursor-pointer items-center rounded-full bg-tertiary p-1 transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary selected:bg-quaternary"
+      className="group fixed bottom-4 left-4 z-50 flex h-8 w-14 cursor-pointer items-center rounded-full bg-tertiary p-1 transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary selected:bg-quaternary"
       aria-label="Toggle dark mode"
     >
       <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary shadow-sm transition-transform duration-200 ease-out group-selected:translate-x-6">

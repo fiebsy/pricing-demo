@@ -1,10 +1,13 @@
 'use client'
 
 /**
- * Control Panel Sidebar Experiment
+ * Control Panel Sidebar - Enhanced Playground
  *
- * Testing the sidebar navigation variant that fans out on hover.
- * Comparing UX between tab-based and sidebar-based navigation.
+ * Demonstrates the new UnifiedControlPanel framework enhancements:
+ * - Builder functions for rapid section creation
+ * - Design token constants (colors, typography, radius, shine, animation)
+ * - Section icons via sectionType automatic mapping
+ * - Enhanced visual controls (font-weight, color-enhanced, radius-preview)
  */
 
 import { useCallback, useMemo, useState } from 'react'
@@ -12,78 +15,110 @@ import {
   UnifiedControlPanel,
   type ControlChangeEvent,
   type PanelConfig,
+  type Section,
+  // Builders
+  createTypographySection,
+  createColorsSection,
+  createBorderRadiusSection,
+  createShineSection,
+  createAnimationSection,
+  createSpacingSection,
+  // Tokens
+  getShineClassName,
+  getRadiusClassName,
+  getFontWeight,
+  getEasingCssValue,
+  getDurationSeconds,
+  getSpacingPixels,
 } from '@/components/ui/patterns/control-panel'
-import { InlineSlider } from '@/components/ui/core/primitives'
+import { InlineSlider, TickSlider } from '@/components/ui/core/primitives'
 import { cn } from '@/lib/utils'
 
-// Sample configuration for testing
+// =============================================================================
+// Config Types
+// =============================================================================
+
 interface DemoConfig {
-  layout: {
-    columns: number
-    gap: number
-    padding: number
-  }
-  appearance: {
-    background: string
-    borderRadius: number
-    shadow: string
-  }
-  typography: {
-    fontSize: number
-    fontWeight: string
-    lineHeight: number
-  }
-  animation: {
-    duration: number
-    easing: string
-    delay: number
-  }
-  debug: {
-    showGrid: boolean
-    showBorders: boolean
-    highlightHover: boolean
-  }
-  sidebar: {
-    cornerSize: number
-    cornerRadius: number
-    cornerSquircle: boolean
-  }
+  // Typography
+  fontWeight: string
+  fontSize: string
+  lineHeight: string
+  letterSpacing: string
+  // Colors
+  textColor: string
+  bgColor: string
+  borderColor: string
+  // Border Radius
+  borderRadius: string
+  // Shine & Effects
+  shinePreset: string
+  shineIntensity: 'subtle' | 'normal' | 'intense'
+  shadow: string
+  // Animation
+  easing: string
+  duration: string
+  delay: string
+  // Spacing
+  gap: string
+  padding: string
+  // Layout (manual section)
+  columns: number
+  // Debug (manual section)
+  showGrid: boolean
+  showBorders: boolean
+  highlightHover: boolean
+  // Sidebar corners
+  cornerSize: number
+  cornerRadius: number
+  cornerSquircle: boolean
 }
 
 const DEFAULT_CONFIG: DemoConfig = {
-  layout: {
-    columns: 3,
-    gap: 16,
-    padding: 24,
-  },
-  appearance: {
-    background: 'primary',
-    borderRadius: 12,
-    shadow: 'md',
-  },
-  typography: {
-    fontSize: 14,
-    fontWeight: 'medium',
-    lineHeight: 1.5,
-  },
-  animation: {
-    duration: 200,
-    easing: 'ease-out',
-    delay: 0,
-  },
-  debug: {
-    showGrid: false,
-    showBorders: false,
-    highlightHover: false,
-  },
-  sidebar: {
-    cornerSize: 30,
-    cornerRadius: 20,
-    cornerSquircle: false,
-  },
+  // Typography
+  fontWeight: '500',
+  fontSize: 'md',
+  lineHeight: 'normal',
+  letterSpacing: 'normal',
+  // Colors
+  textColor: 'primary',
+  bgColor: 'primary',
+  borderColor: 'primary',
+  // Border Radius
+  borderRadius: 'lg',
+  // Shine
+  shinePreset: '2',
+  shineIntensity: 'subtle',
+  shadow: 'md',
+  // Animation
+  easing: 'expo-out',
+  duration: '200',
+  delay: '0',
+  // Spacing
+  gap: '4',
+  padding: '6',
+  // Layout
+  columns: 3,
+  // Debug
+  showGrid: false,
+  showBorders: false,
+  highlightHover: false,
+  // Sidebar corners
+  cornerSize: 30,
+  cornerRadius: 20,
+  cornerSquircle: false,
 }
 
+// =============================================================================
+// Helper Functions
+// =============================================================================
+
 function setNestedValue<T>(obj: T, path: string, value: unknown): T {
+  // Handle simple key (no dot notation)
+  if (!path.includes('.')) {
+    return { ...obj, [path]: value } as T
+  }
+  
+  // Handle nested path
   const keys = path.split('.')
   const result = { ...obj } as Record<string, unknown>
   let current = result
@@ -97,384 +132,177 @@ function setNestedValue<T>(obj: T, path: string, value: unknown): T {
   return result as T
 }
 
+// =============================================================================
+// Panel Config Builder
+// =============================================================================
+
 function buildPanelConfig(config: DemoConfig): PanelConfig {
+  // Use builder functions for standard sections
+  const typographySection = createTypographySection({
+    values: {
+      fontWeight: config.fontWeight,
+      fontSize: config.fontSize,
+      lineHeight: config.lineHeight,
+      letterSpacing: config.letterSpacing,
+    },
+    options: {
+      useCommonWeights: true,
+    },
+  })
+
+  const colorsSection = createColorsSection({
+    values: {
+      textColor: config.textColor,
+      bgColor: config.bgColor,
+      borderColor: config.borderColor,
+    },
+  })
+
+  const radiusSection = createBorderRadiusSection({
+    values: {
+      borderRadius: config.borderRadius,
+    },
+    options: {
+      useCommonOptions: true,
+    },
+  })
+
+  const shineSection = createShineSection({
+    values: {
+      shinePreset: config.shinePreset,
+      shineIntensity: config.shineIntensity,
+      shadow: config.shadow,
+    },
+  })
+
+  const animationSection = createAnimationSection({
+    values: {
+      easing: config.easing,
+      duration: config.duration,
+      delay: config.delay,
+    },
+    options: {
+      useCommonEasings: true,
+    },
+  })
+
+  const spacingSection = createSpacingSection({
+    values: {
+      gap: config.gap,
+      padding: config.padding,
+    },
+    options: {
+      include: ['gap', 'padding'],
+    },
+  })
+
+  // Manual sections for sidebar corners and debug
+  const sidebarSection: Section = {
+    id: 'sidebar',
+    label: 'Sidebar',
+    title: 'Sidebar Corners',
+    sectionType: 'settings',
+    groups: [
+      {
+        title: 'Inverse corners',
+        controls: [
+          {
+            id: 'cornerSize',
+            type: 'inline-slider',
+            label: 'Corner size',
+            value: config.cornerSize,
+            min: 8,
+            max: 80,
+            step: 2,
+            formatLabel: (v: number) => `${v}px`,
+          },
+          {
+            id: 'cornerRadius',
+            type: 'inline-slider',
+            label: 'Corner radius',
+            value: config.cornerRadius,
+            min: 2,
+            max: 400,
+            step: 1,
+            formatLabel: (v: number) => `${v}px`,
+          },
+          {
+            id: 'cornerSquircle',
+            type: 'toggle',
+            label: 'Corner squircle',
+            value: config.cornerSquircle,
+          },
+        ],
+      },
+    ],
+  }
+
+  const layoutSection: Section = {
+    id: 'layout',
+    label: 'Layout',
+    title: 'Layout',
+    sectionType: 'layout',
+    groups: [
+      {
+        title: 'Grid configuration',
+        controls: [
+          {
+            id: 'columns',
+            type: 'inline-slider',
+            label: 'Columns',
+            value: config.columns,
+            min: 1,
+            max: 6,
+            step: 1,
+          },
+        ],
+      },
+    ],
+  }
+
+  const debugSection: Section = {
+    id: 'debug',
+    label: 'Debug',
+    title: 'Debug',
+    sectionType: 'debug',
+    groups: [
+      {
+        title: 'Visual debugging',
+        controls: [
+          {
+            id: 'showGrid',
+            type: 'toggle',
+            label: 'Show grid',
+            value: config.showGrid,
+          },
+          {
+            id: 'showBorders',
+            type: 'toggle',
+            label: 'Show borders',
+            value: config.showBorders,
+          },
+          {
+            id: 'highlightHover',
+            type: 'toggle',
+            label: 'Highlight on hover',
+            value: config.highlightHover,
+          },
+        ],
+      },
+    ],
+  }
+
   return {
     sections: [
-      {
-        id: 'sidebar',
-        label: 'Sidebar',
-        title: 'Sidebar',
-        groups: [
-          {
-            title: 'Inverse corners',
-            controls: [
-              {
-                id: 'sidebar.cornerSize',
-                type: 'inline-slider',
-                label: 'Corner size',
-                value: config.sidebar.cornerSize,
-                min: 8,
-                max: 80,
-                step: 2,
-                formatLabel: (v: number) => `${v}px`,
-              },
-              {
-                id: 'sidebar.cornerRadius',
-                type: 'inline-slider',
-                label: 'Corner radius',
-                value: config.sidebar.cornerRadius,
-                min: 2,
-                max: 400,
-                step: 1,
-                formatLabel: (v: number) => `${v}px`,
-              },
-              {
-                id: 'sidebar.cornerSquircle',
-                type: 'toggle',
-                label: 'Corner squircle',
-                value: config.sidebar.cornerSquircle,
-              },
-            ],
-          },
-        ],
-      },
-      {
-        id: 'layout',
-        label: 'Layout',
-        title: 'Layout',
-        groups: [
-          {
-            title: 'Grid configuration',
-            controls: [
-              {
-                id: 'layout.columns',
-                type: 'inline-slider',
-                label: 'Columns',
-                value: config.layout.columns,
-                min: 1,
-                max: 6,
-                step: 1,
-              },
-              {
-                id: 'layout.gap',
-                type: 'inline-slider',
-                label: 'Gap',
-                value: config.layout.gap,
-                min: 0,
-                max: 48,
-                step: 4,
-                formatLabel: (v: number) => `${v}px`,
-              },
-              {
-                id: 'layout.padding',
-                type: 'inline-slider',
-                label: 'Padding',
-                value: config.layout.padding,
-                min: 0,
-                max: 64,
-                step: 8,
-                formatLabel: (v: number) => `${v}px`,
-              },
-            ],
-          },
-        ],
-      },
-      {
-        id: 'appearance',
-        label: 'Appearance',
-        title: 'Appearance',
-        groups: [
-          {
-            title: 'Visual style',
-            controls: [
-              {
-                id: 'appearance.background',
-                type: 'select',
-                label: 'Background',
-                value: config.appearance.background,
-                options: [
-                  { label: 'Primary', value: 'primary' },
-                  { label: 'Secondary', value: 'secondary' },
-                  { label: 'Tertiary', value: 'tertiary' },
-                ],
-              },
-              {
-                id: 'appearance.borderRadius',
-                type: 'inline-slider',
-                label: 'Border radius',
-                value: config.appearance.borderRadius,
-                min: 0,
-                max: 32,
-                step: 4,
-                formatLabel: (v: number) => `${v}px`,
-              },
-              {
-                id: 'appearance.shadow',
-                type: 'select',
-                label: 'Shadow',
-                value: config.appearance.shadow,
-                options: [
-                  { label: 'None', value: 'none' },
-                  { label: 'Small', value: 'sm' },
-                  { label: 'Medium', value: 'md' },
-                  { label: 'Large', value: 'lg' },
-                ],
-              },
-            ],
-          },
-        ],
-      },
-      {
-        id: 'typography',
-        label: 'Typography',
-        title: 'Typography',
-        groups: [
-          {
-            title: 'Text styles',
-            controls: [
-              {
-                id: 'typography.fontSize',
-                type: 'inline-slider',
-                label: 'Font size',
-                value: config.typography.fontSize,
-                min: 10,
-                max: 24,
-                step: 1,
-                formatLabel: (v: number) => `${v}px`,
-              },
-              {
-                id: 'typography.fontWeight',
-                type: 'select',
-                label: 'Font weight',
-                value: config.typography.fontWeight,
-                options: [
-                  { label: 'Regular', value: 'regular' },
-                  { label: 'Medium', value: 'medium' },
-                  { label: 'Semibold', value: 'semibold' },
-                  { label: 'Bold', value: 'bold' },
-                ],
-              },
-              {
-                id: 'typography.lineHeight',
-                type: 'inline-slider',
-                label: 'Line height',
-                value: config.typography.lineHeight,
-                min: 1,
-                max: 2,
-                step: 0.1,
-                formatLabel: (v: number) => v.toFixed(1),
-              },
-            ],
-          },
-        ],
-      },
-      {
-        id: 'animation',
-        label: 'Animation',
-        title: 'Animation',
-        groups: [
-          {
-            title: 'Timing',
-            controls: [
-              {
-                id: 'animation.duration',
-                type: 'inline-slider',
-                label: 'Duration',
-                value: config.animation.duration,
-                min: 0,
-                max: 1000,
-                step: 50,
-                formatLabel: (v: number) => `${v}ms`,
-              },
-              {
-                id: 'animation.easing',
-                type: 'select',
-                label: 'Easing',
-                value: config.animation.easing,
-                options: [
-                  { label: 'Linear', value: 'linear' },
-                  { label: 'Ease', value: 'ease' },
-                  { label: 'Ease in', value: 'ease-in' },
-                  { label: 'Ease out', value: 'ease-out' },
-                  { label: 'Ease in out', value: 'ease-in-out' },
-                ],
-              },
-              {
-                id: 'animation.delay',
-                type: 'inline-slider',
-                label: 'Delay',
-                value: config.animation.delay,
-                min: 0,
-                max: 500,
-                step: 25,
-                formatLabel: (v: number) => `${v}ms`,
-              },
-            ],
-          },
-        ],
-      },
-      {
-        id: 'debug',
-        label: 'Debug',
-        title: 'Debug',
-        groups: [
-          {
-            title: 'Visual debugging',
-            controls: [
-              {
-                id: 'debug.showGrid',
-                type: 'toggle',
-                label: 'Show grid',
-                value: config.debug.showGrid,
-              },
-              {
-                id: 'debug.showBorders',
-                type: 'toggle',
-                label: 'Show borders',
-                value: config.debug.showBorders,
-              },
-              {
-                id: 'debug.highlightHover',
-                type: 'toggle',
-                label: 'Highlight on hover',
-                value: config.debug.highlightHover,
-              },
-            ],
-          },
-        ],
-      },
-      // Additional sections to test scroll behavior
-      {
-        id: 'spacing',
-        label: 'Spacing',
-        title: 'Spacing',
-        groups: [
-          {
-            title: 'Margins',
-            controls: [
-              {
-                id: 'spacing.marginTop',
-                type: 'inline-slider',
-                label: 'Margin top',
-                value: 16,
-                min: 0,
-                max: 64,
-                step: 4,
-                formatLabel: (v: number) => `${v}px`,
-              },
-              {
-                id: 'spacing.marginBottom',
-                type: 'inline-slider',
-                label: 'Margin bottom',
-                value: 16,
-                min: 0,
-                max: 64,
-                step: 4,
-                formatLabel: (v: number) => `${v}px`,
-              },
-            ],
-          },
-        ],
-      },
-      {
-        id: 'colors',
-        label: 'Colors',
-        title: 'Colors',
-        groups: [
-          {
-            title: 'Color scheme',
-            controls: [
-              {
-                id: 'colors.primary',
-                type: 'select',
-                label: 'Primary color',
-                value: 'blue',
-                options: [
-                  { label: 'Blue', value: 'blue' },
-                  { label: 'Green', value: 'green' },
-                  { label: 'Purple', value: 'purple' },
-                ],
-              },
-              {
-                id: 'colors.accent',
-                type: 'select',
-                label: 'Accent color',
-                value: 'orange',
-                options: [
-                  { label: 'Orange', value: 'orange' },
-                  { label: 'Pink', value: 'pink' },
-                  { label: 'Teal', value: 'teal' },
-                ],
-              },
-            ],
-          },
-        ],
-      },
-      {
-        id: 'effects',
-        label: 'Effects',
-        title: 'Effects',
-        groups: [
-          {
-            title: 'Visual effects',
-            controls: [
-              {
-                id: 'effects.blur',
-                type: 'inline-slider',
-                label: 'Blur',
-                value: 0,
-                min: 0,
-                max: 20,
-                step: 1,
-                formatLabel: (v: number) => `${v}px`,
-              },
-              {
-                id: 'effects.opacity',
-                type: 'inline-slider',
-                label: 'Opacity',
-                value: 100,
-                min: 0,
-                max: 100,
-                step: 5,
-                formatLabel: (v: number) => `${v}%`,
-              },
-            ],
-          },
-        ],
-      },
-      {
-        id: 'advanced',
-        label: 'Advanced',
-        title: 'Advanced',
-        groups: [
-          {
-            title: 'Advanced settings',
-            controls: [
-              {
-                id: 'advanced.zIndex',
-                type: 'inline-slider',
-                label: 'Z-index',
-                value: 1,
-                min: 0,
-                max: 100,
-                step: 1,
-              },
-              {
-                id: 'advanced.overflow',
-                type: 'select',
-                label: 'Overflow',
-                value: 'visible',
-                options: [
-                  { label: 'Visible', value: 'visible' },
-                  { label: 'Hidden', value: 'hidden' },
-                  { label: 'Scroll', value: 'scroll' },
-                  { label: 'Auto', value: 'auto' },
-                ],
-              },
-            ],
-          },
-        ],
-      },
+      sidebarSection,
+      layoutSection,
+      typographySection,
+      colorsSection,
+      radiusSection,
+      shineSection,
+      animationSection,
+      spacingSection,
+      debugSection,
     ],
     title: 'Control panel',
     showReset: true,
@@ -482,9 +310,14 @@ function buildPanelConfig(config: DemoConfig): PanelConfig {
   }
 }
 
+// =============================================================================
+// Main Component
+// =============================================================================
+
 export default function ControlPanelSidebarPlayground() {
   const [config, setConfig] = useState<DemoConfig>(DEFAULT_CONFIG)
   const [careerValue, setCareerValue] = useState(68)
+  const [tickValues, setTickValues] = useState({ width: 1, columns: 3, quality: 2, blur: 0 })
 
   const handleChange = useCallback((event: ControlChangeEvent) => {
     setConfig((prev) => setNestedValue(prev, event.controlId, event.value))
@@ -496,20 +329,26 @@ export default function ControlPanelSidebarPlayground() {
 
   const panelConfig = useMemo(() => buildPanelConfig(config), [config])
 
-  // Generate shadow class
-  const shadowClass = {
-    none: '',
-    sm: 'shadow-sm',
-    md: 'shadow-md',
-    lg: 'shadow-lg',
-  }[config.appearance.shadow]
+  // Derive styles from config using token utilities
+  const shineClass = getShineClassName(config.shinePreset, config.shineIntensity)
+  const radiusClass = getRadiusClassName(config.borderRadius)
+  const fontWeight = getFontWeight(config.fontWeight)
+  const easingCss = getEasingCssValue(config.easing)
+  const durationSec = getDurationSeconds(config.duration)
+  const gapPx = getSpacingPixels(config.gap)
+  const paddingPx = getSpacingPixels(config.padding)
 
-  // Generate background class
-  const bgClass = {
-    primary: 'bg-primary',
-    secondary: 'bg-secondary',
-    tertiary: 'bg-tertiary',
-  }[config.appearance.background]
+  // Shadow class from shadow value
+  const shadowClass = config.shadow !== 'none' ? `shadow-${config.shadow}` : ''
+
+  // Background class from bgColor
+  const bgClass = `bg-${config.bgColor}`
+
+  // Text class from textColor
+  const textClass = `text-${config.textColor}`
+
+  // Border class from borderColor
+  const borderClass = `border-${config.borderColor}`
 
   return (
     <div className="relative min-h-screen bg-secondary">
@@ -519,9 +358,9 @@ export default function ControlPanelSidebarPlayground() {
         onChange={handleChange}
         onReset={handleReset}
         getConfigForCopy={() => config}
-        cornerSize={config.sidebar.cornerSize}
-        cornerRadius={config.sidebar.cornerRadius}
-        cornerSquircle={config.sidebar.cornerSquircle}
+        cornerSize={config.cornerSize}
+        cornerRadius={config.cornerRadius}
+        cornerSquircle={config.cornerSquircle}
       />
 
       {/* Preview Area */}
@@ -530,18 +369,21 @@ export default function ControlPanelSidebarPlayground() {
         <div className="flex items-center justify-between border-b border-primary bg-primary px-6 py-4">
           <div>
             <h1 className="text-lg font-semibold text-primary">
-              Sidebar Navigation Experiment
+              Enhanced Control Panel Demo
             </h1>
             <p className="text-sm text-secondary">
-              Hover over the sidebar to see section labels fan out
+              Demonstrating builders, tokens, icons, and enhanced controls
             </p>
           </div>
           <div className="flex items-center gap-2 text-xs text-tertiary">
             <span className="rounded bg-secondary px-2 py-1">
-              {config.layout.columns} cols
+              {config.columns} cols
             </span>
             <span className="rounded bg-secondary px-2 py-1">
-              {config.layout.gap}px gap
+              {gapPx}px gap
+            </span>
+            <span className="rounded bg-secondary px-2 py-1">
+              {shineClass || 'no shine'}
             </span>
           </div>
         </div>
@@ -550,8 +392,23 @@ export default function ControlPanelSidebarPlayground() {
         <div className="flex-1 overflow-auto p-8">
           <div
             className="mx-auto max-w-4xl"
-            style={{ padding: config.layout.padding }}
+            style={{ padding: paddingPx }}
           >
+            {/* Config Summary */}
+            <div className="mb-6 rounded-lg bg-tertiary p-4 text-xs">
+              <h3 className="mb-2 font-medium text-secondary">Active Configuration</h3>
+              <div className="grid grid-cols-2 gap-x-8 gap-y-1 text-tertiary md:grid-cols-4">
+                <div><span className="text-quaternary">Font:</span> {config.fontWeight} / {config.fontSize}</div>
+                <div><span className="text-quaternary">Radius:</span> {radiusClass}</div>
+                <div><span className="text-quaternary">Shine:</span> {shineClass || 'none'}</div>
+                <div><span className="text-quaternary">Easing:</span> {config.easing}</div>
+                <div><span className="text-quaternary">Duration:</span> {durationSec}s</div>
+                <div><span className="text-quaternary">Gap:</span> {gapPx}px</div>
+                <div><span className="text-quaternary">Padding:</span> {paddingPx}px</div>
+                <div><span className="text-quaternary">Text:</span> {config.textColor}</div>
+              </div>
+            </div>
+
             {/* Inline Slider Demo */}
             <div className="mb-8 space-y-3">
               <h3 className="text-sm font-medium text-secondary">Inline Slider Demo</h3>
@@ -581,51 +438,87 @@ export default function ControlPanelSidebarPlayground() {
               </div>
             </div>
 
-            <div
-              className="grid"
-              style={{
-                gridTemplateColumns: `repeat(${config.layout.columns}, 1fr)`,
-                gap: config.layout.gap,
-              }}
-            >
-              {Array.from({ length: 9 }).map((_, i) => (
-                <div
-                  key={i}
-                  className={cn(
-                    'flex aspect-square items-center justify-center transition-all',
-                    bgClass,
-                    shadowClass,
-                    config.debug.showBorders && 'border-2 border-dashed border-brand-primary',
-                    config.debug.highlightHover && 'hover:ring-2 hover:ring-brand-primary'
-                  )}
-                  style={{
-                    borderRadius: config.appearance.borderRadius,
-                    fontSize: config.typography.fontSize,
-                    lineHeight: config.typography.lineHeight,
-                    transitionDuration: `${config.animation.duration}ms`,
-                    transitionTimingFunction: config.animation.easing,
-                    transitionDelay: `${config.animation.delay}ms`,
-                  }}
-                >
-                  <span
+            {/* Tick Slider Demo */}
+            <div className="mb-8 space-y-3">
+              <h3 className="text-sm font-medium text-secondary">Tick Slider Demo</h3>
+              <div className="max-w-sm space-y-2">
+                <TickSlider
+                  label="Width"
+                  value={tickValues.width}
+                  min={1}
+                  max={6}
+                  step={1}
+                  onChange={(v) => setTickValues((prev) => ({ ...prev, width: v }))}
+                />
+                <TickSlider
+                  label="Columns"
+                  value={tickValues.columns}
+                  min={1}
+                  max={6}
+                  step={1}
+                  onChange={(v) => setTickValues((prev) => ({ ...prev, columns: v }))}
+                />
+                <TickSlider
+                  label="Quality"
+                  value={tickValues.quality}
+                  min={0}
+                  max={5}
+                  step={1}
+                  onChange={(v) => setTickValues((prev) => ({ ...prev, quality: v }))}
+                />
+                <TickSlider
+                  label="Blur"
+                  value={tickValues.blur}
+                  min={0}
+                  max={8}
+                  step={1}
+                  onChange={(v) => setTickValues((prev) => ({ ...prev, blur: v }))}
+                  formatLabel={(v) => `${v}px`}
+                />
+              </div>
+            </div>
+
+            {/* Grid Preview */}
+            <div className="mb-8 space-y-3">
+              <h3 className="text-sm font-medium text-secondary">Grid Preview (with applied styles)</h3>
+              <div
+                className="grid"
+                style={{
+                  gridTemplateColumns: `repeat(${config.columns}, 1fr)`,
+                  gap: gapPx,
+                }}
+              >
+                {Array.from({ length: 9 }).map((_, i) => (
+                  <div
+                    key={i}
                     className={cn(
-                      'text-primary',
-                      config.typography.fontWeight === 'regular' && 'font-normal',
-                      config.typography.fontWeight === 'medium' && 'font-medium',
-                      config.typography.fontWeight === 'semibold' && 'font-semibold',
-                      config.typography.fontWeight === 'bold' && 'font-bold'
+                      'flex aspect-square items-center justify-center border',
+                      bgClass,
+                      borderClass,
+                      shadowClass,
+                      shineClass,
+                      radiusClass,
+                      config.showBorders && 'border-2 border-dashed border-brand-primary',
+                      config.highlightHover && 'hover:ring-2 hover:ring-brand-primary'
                     )}
+                    style={{
+                      fontWeight,
+                      transitionDuration: `${durationSec}s`,
+                      transitionTimingFunction: easingCss,
+                    }}
                   >
-                    Item {i + 1}
-                  </span>
-                </div>
-              ))}
+                    <span className={cn(textClass)}>
+                      Item {i + 1}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
 
             {/* Debug grid overlay */}
-            {config.debug.showGrid && (
+            {config.showGrid && (
               <div
-                className="pointer-events-none absolute inset-0"
+                className="pointer-events-none fixed inset-0 z-50"
                 style={{
                   backgroundImage:
                     'linear-gradient(to right, rgba(59, 130, 246, 0.1) 1px, transparent 1px), linear-gradient(to bottom, rgba(59, 130, 246, 0.1) 1px, transparent 1px)',

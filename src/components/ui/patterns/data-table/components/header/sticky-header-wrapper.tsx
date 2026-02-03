@@ -47,7 +47,7 @@ interface StickyHeaderWrapperProps {
   /** All columns */
   allColumns: ComputedColumn[]
   /** Column labels */
-  columnLabels: Record<string, string>
+  columnLabels: Record<string, ReactNode>
   /** Sort column */
   sortColumn: SortColumn
   /** Sort direction */

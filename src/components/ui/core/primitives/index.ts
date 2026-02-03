@@ -43,6 +43,6 @@ export * from './button-utility'
 export * from './menu'
 
 // Slider
-export { InlineSlider } from './slider'
+export { InlineSlider, TickSlider } from './slider'
 export type { InlineSliderProps, SliderBaseProps } from './slider'
-export { sliderConfig, inlineSliderStyles } from './slider'
+export { sliderConfig, inlineSliderStyles, tickSliderStyles } from './slider'

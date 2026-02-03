@@ -36,6 +36,7 @@ export function InlineSlider({
   const percentage = ((value - min) / (max - min)) * 100
   const [inputValue, setInputValue] = useState(() => formatLabel?.(value) ?? `${value}`)
   const [isEditing, setIsEditing] = useState(false)
+  const [isDragging, setIsDragging] = useState(false)
 
   useEffect(() => {
     if (!isEditing) {
@@ -62,7 +63,8 @@ export function InlineSlider({
     const container = e.currentTarget.closest('[data-slider-container]') as HTMLElement
     if (!container) return
     const rect = container.getBoundingClientRect()
-    
+    setIsDragging(true)
+
     const updateValue = (clientX: number) => {
       const x = Math.max(0, Math.min(clientX - rect.left, rect.width))
       const newValue = min + (x / rect.width) * (max - min)
@@ -74,6 +76,7 @@ export function InlineSlider({
 
     const onMove = (moveEvent: PointerEvent) => updateValue(moveEvent.clientX)
     const onUp = () => {
+      setIsDragging(false)
       document.removeEventListener('pointermove', onMove)
       document.removeEventListener('pointerup', onUp)
     }
@@ -92,23 +95,35 @@ export function InlineSlider({
     >
       {/* Fill with draggable edge */}
       <div
-        className={styles.fillWrapper}
+        className={cx(
+          styles.fillWrapper,
+          isDragging && styles.fillWrapperActive,
+        )}
         style={{ width: `${percentage}%` }}
       >
         {/* Fill background */}
-        <div className={styles.fillBackground} />
+        <div className={cx(
+          styles.fillBackground,
+          isDragging && styles.fillBackgroundActive,
+        )} />
         
         {/* Draggable edge indicator - vertical line with wide grab area */}
         <div
           className={styles.dragHandle}
           onPointerDown={handleDrag}
         >
-          <div className={styles.dragIndicator} />
+          <div className={cx(
+            styles.dragIndicator,
+            isDragging && styles.dragIndicatorActive,
+          )} />
         </div>
       </div>
 
       {/* Icon + Label - positioned on top */}
-      <div className={styles.labelContainer}>
+      <div className={cx(
+        styles.labelContainer,
+        isDragging && styles.labelContainerActive,
+      )}>
         {icon && <span className={styles.icon}>{icon}</span>}
         <span className={styles.label}>{label}</span>
       </div>

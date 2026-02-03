@@ -86,6 +86,21 @@ export function getPromotionAnimation(config: AnimationConfig) {
 }
 
 /**
+ * Get demotion animation config.
+ * Plays when a parent item loses its active status (children collapse).
+ */
+export function getDemotionAnimation(config: AnimationConfig) {
+  return {
+    scale: [1, config.demotionScale, 1],
+    transition: {
+      duration: config.demotionDuration,
+      times: [0, 0.5, 1],
+      ease: 'easeInOut' as const,
+    },
+  }
+}
+
+/**
  * Convert an easing type to a CSS-compatible easing string.
  * Maps framer-motion easing names to CSS cubic-bezier equivalents.
  */

@@ -57,6 +57,16 @@ export interface PlaygroundConfig {
   // Promotion Animation
   promotionDuration: number
   promotionScale: number
+  promotionDelay: number           // ms in playground
+  promotionOpacity: number
+  promotionVariant: ButtonVariant | 'none'
+
+  // Demotion Animation
+  demotionDuration: number
+  demotionScale: number
+  demotionDelay: number          // ms in playground
+  demotionOpacity: number
+  demotionVariant: ButtonVariant | 'none'
 
   // Child Animation
   childStagger: number
@@ -91,6 +101,7 @@ export interface PlaygroundConfig {
   peekOffset: number
   anchoredOpacity: number
   clipAnchored: boolean
+  clipAnimated: boolean
   clipOffset: number
   clipSide: 'left' | 'right' | 'center'
   clipDelay: number // ms in playground

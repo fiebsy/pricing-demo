@@ -11,6 +11,8 @@ import { useState, type ReactNode } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { ScrollArea } from '@base-ui/react/scroll-area'
 import { cx } from '@/components/utils/cx'
+import { HugeIcon } from '@/components/ui/core/primitives/icon'
+import { getSectionIcon } from '../icons'
 import type { Section } from '../types'
 
 // -----------------------------------------------------------------------------
@@ -49,43 +51,17 @@ const labelVariants = {
   },
 }
 
-const itemVariants = {
+const iconVariants = {
   collapsed: {
-    scale: 1,
+    opacity: 0,
+    scale: 0.8,
+    transition: { duration: 0.1 },
   },
   expanded: {
+    opacity: 1,
     scale: 1,
-    transition: { duration: 0.2 },
+    transition: { duration: 0.15, delay: 0.05 },
   },
-}
-
-// -----------------------------------------------------------------------------
-// Section Icon (Placeholder - can be extended with actual icons)
-// -----------------------------------------------------------------------------
-
-interface SectionIconProps {
-  sectionId: string
-  isActive: boolean
-}
-
-function SectionIcon({ sectionId, isActive }: SectionIconProps) {
-  // Generate a simple icon based on section ID first letter
-  const letter = sectionId.charAt(0).toUpperCase()
-  
-  return (
-    <div
-      className={cx(
-        'flex h-7 w-7 shrink-0 items-center justify-center rounded-md',
-        'text-xs font-medium',
-        'transition-colors duration-150',
-        isActive
-          ? 'bg-secondary text-primary'
-          : 'text-tertiary group-hover:text-secondary'
-      )}
-    >
-      {letter}
-    </div>
-  )
 }
 
 // -----------------------------------------------------------------------------
@@ -110,7 +86,12 @@ interface SlidingIndicatorProps {
   cornerSquircle?: boolean
 }
 
-function SlidingIndicator({ activeIndex, cornerSize = 40, cornerRadius = 16, cornerSquircle = false }: SlidingIndicatorProps) {
+function SlidingIndicator({
+  activeIndex,
+  cornerSize = 40,
+  cornerRadius = 16,
+  cornerSquircle = false,
+}: SlidingIndicatorProps) {
   // Calculate Y position based on active index
   // Each item is ITEM_HEIGHT tall with ITEM_GAP gap between them
   const yOffset = activeIndex * (ITEM_HEIGHT + ITEM_GAP)
@@ -141,8 +122,8 @@ function SlidingIndicator({ activeIndex, cornerSize = 40, cornerRadius = 16, cor
   return (
     <motion.div
       className={cx(
-        'absolute left-0 right-0 rounded-l-lg pointer-events-none overflow-visible',
-        'bg-tertiary', // Main background color
+        'pointer-events-none absolute left-0 right-0 overflow-visible rounded-l-lg',
+        'bg-quaternary', // Main background color
         'z-[2]', // Above non-active button backgrounds, below text content (z-10)
         cornerSquircle && 'corner-squircle'
       )}
@@ -157,13 +138,13 @@ function SlidingIndicator({ activeIndex, cornerSize = 40, cornerRadius = 16, cor
     >
       {/* Top edge — clipped to bottom-right inverse corner */}
       <div
-        className="absolute right-0 top-0 z-20 -translate-y-full bg-tertiary"
+        className="absolute right-0 top-0 z-20 -translate-y-full bg-quaternary"
         style={{ width: s, height: s, clipPath: topClip }}
       />
 
       {/* Bottom edge — clipped to top-right inverse corner */}
       <div
-        className="absolute right-0 bottom-0 z-20 translate-y-full bg-tertiary"
+        className="absolute right-0 bottom-0 z-20 translate-y-full bg-quaternary"
         style={{ width: s, height: s, clipPath: bottomClip }}
       />
     </motion.div>
@@ -185,6 +166,9 @@ function SidebarItem({ section, isActive, isExpanded, onClick }: SidebarItemProp
   // Use short label for sidebar, fallback to title
   const label = section.label || section.tabLabel || section.title
 
+  // Resolve icon: explicit icon > sectionType mapping > none
+  const resolvedIcon = section.icon ?? (section.sectionType ? getSectionIcon(section.sectionType) : undefined)
+
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation()
     onClick()
@@ -195,7 +179,7 @@ function SidebarItem({ section, isActive, isExpanded, onClick }: SidebarItemProp
       type="button"
       onClick={handleClick}
       className={cx(
-        'group relative flex w-full items-center h-10 px-3',
+        'group relative flex h-10 w-full items-center px-3',
         'rounded-l-lg',
         'outline-none focus-visible:ring-2 focus-visible:ring-brand-primary'
       )}
@@ -203,7 +187,7 @@ function SidebarItem({ section, isActive, isExpanded, onClick }: SidebarItemProp
       {/* Background layer — inner span so button has no stacking context (z-10 labels escape) */}
       <span
         className={cx(
-          'absolute inset-0 rounded-l-lg pointer-events-none',
+          'pointer-events-none absolute inset-0 rounded-l-lg',
           'transition-[background-color,backdrop-filter] duration-200',
           isActive ? 'bg-transparent backdrop-blur-none' : 'bg-secondary_subtle backdrop-blur-sm'
         )}
@@ -217,13 +201,28 @@ function SidebarItem({ section, isActive, isExpanded, onClick }: SidebarItemProp
             animate="expanded"
             exit="collapsed"
             className={cx(
-              'relative z-10 truncate text-left text-xs font-medium transition-colors duration-200 pointer-events-none',
-              isActive 
-                ? 'text-primary' 
-                : 'text-tertiary group-hover:text-secondary'
+              'pointer-events-none relative z-10 flex items-center gap-2 truncate text-left text-xs font-medium transition-colors duration-200',
+              isActive ? 'text-primary' : 'text-tertiary group-hover:text-secondary'
             )}
           >
-            {label}
+            {/* Icon (only shown when expanded and section has icon) */}
+            {resolvedIcon && (
+              <motion.span
+                variants={iconVariants}
+                initial="collapsed"
+                animate="expanded"
+                exit="collapsed"
+                className="shrink-0"
+              >
+                <HugeIcon
+                  icon={resolvedIcon}
+                  size="sm"
+                  color={isActive ? 'primary' : 'tertiary'}
+                  className="transition-colors duration-200 group-hover:text-secondary"
+                />
+              </motion.span>
+            )}
+            <span className="truncate">{label}</span>
           </motion.span>
         )}
       </AnimatePresence>
@@ -278,9 +277,7 @@ export function SidebarNavigation({
       animate={isExpanded ? 'expanded' : 'collapsed'}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className={cx(
-        'flex h-full flex-col overflow-visible'
-      )}
+      className={cx('flex h-full flex-col overflow-visible')}
       style={{
         // Apply header offset as padding-top to align items with panel content
         paddingTop: headerOffset > 0 ? `${headerOffset}px` : undefined,
@@ -288,18 +285,23 @@ export function SidebarNavigation({
     >
       {/* Header slot (optional) */}
       {header && (
-        <div className="shrink-0 border-b border-primary p-2">
-          {header}
-        </div>
+        <div className="shrink-0 border-b border-primary p-2">{header}</div>
       )}
 
       {/* Section items with Base UI ScrollArea */}
       <ScrollArea.Root className="relative min-h-0 flex-1 overflow-visible">
-        <ScrollArea.Viewport className="h-full w-full overscroll-contain overflow-visible!">
+        <ScrollArea.Viewport className="overflow-visible! h-full w-full overscroll-contain">
           <ScrollArea.Content>
             <div className="relative flex flex-col gap-1 pb-1">
               {/* Sliding active indicator - positioned absolutely within items container */}
-              {activeIndex >= 0 && <SlidingIndicator activeIndex={activeIndex} cornerSize={cornerSize} cornerRadius={cornerRadius} cornerSquircle={cornerSquircle} />}
+              {activeIndex >= 0 && (
+                <SlidingIndicator
+                  activeIndex={activeIndex}
+                  cornerSize={cornerSize}
+                  cornerRadius={cornerRadius}
+                  cornerSquircle={cornerSquircle}
+                />
+              )}
 
               {sections.map((section) => (
                 <SidebarItem
@@ -323,9 +325,7 @@ export function SidebarNavigation({
 
       {/* Footer slot (optional) */}
       {footer && (
-        <div className="shrink-0 border-t border-primary p-2">
-          {footer}
-        </div>
+        <div className="shrink-0 border-t border-primary p-2">{footer}</div>
       )}
     </motion.div>
   )

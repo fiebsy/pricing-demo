@@ -32,7 +32,7 @@ export interface TableContextValue<T = Record<string, unknown>> {
   stickyColumns: ComputedColumn[]
   scrollableColumns: ComputedColumn[]
   allColumns: ComputedColumn[]
-  columnLabels: Record<string, string>
+  columnLabels: Record<string, ReactNode>
   totalStickyWidth: number
 
   // Column visibility

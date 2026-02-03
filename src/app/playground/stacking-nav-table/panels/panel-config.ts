@@ -16,6 +16,21 @@ export function createPanelConfig(config: PlaygroundConfig): PanelConfig {
         tabLabel: 'Layout',
         groups: [
           {
+            title: 'Data',
+            controls: [
+              {
+                id: 'dataVariant',
+                type: 'select',
+                label: 'Dataset',
+                value: config.dataVariant,
+                options: [
+                  { value: 'characters', label: 'Multiverse Characters' },
+                  { value: 'employees', label: 'Corporate Directory' },
+                ],
+              },
+            ],
+          },
+          {
             title: 'Appearance',
             controls: [
               {
@@ -26,6 +41,7 @@ export function createPanelConfig(config: PlaygroundConfig): PanelConfig {
                 options: [
                   { value: 'primary', label: 'Primary' },
                   { value: 'secondary', label: 'Secondary' },
+                  { value: 'secondary_alt', label: 'Secondary Alt' },
                   { value: 'tertiary', label: 'Tertiary' },
                 ],
               },
@@ -267,6 +283,204 @@ export function createPanelConfig(config: PlaygroundConfig): PanelConfig {
                 max: 32,
                 step: 2,
                 formatLabel: (v: number) => `${v}px`,
+              },
+            ],
+          },
+        ],
+      },
+      {
+        id: 'cells',
+        title: 'Cells',
+        tabLabel: 'Cells',
+        groups: [
+          {
+            title: 'Realm Badge',
+            controls: [
+              {
+                id: 'badgeStyle',
+                type: 'select',
+                label: 'Style',
+                value: config.badgeStyle,
+                options: [
+                  { value: 'default', label: 'Default' },
+                  { value: 'modern', label: 'Modern' },
+                ],
+              },
+              {
+                id: 'badgeShape',
+                type: 'select',
+                label: 'Shape',
+                value: config.badgeShape,
+                options: [
+                  { value: 'pill', label: 'Pill' },
+                  { value: 'rounded', label: 'Rounded' },
+                  { value: 'squircle', label: 'Squircle' },
+                ],
+              },
+              {
+                id: 'badgeNeutral',
+                type: 'toggle',
+                label: 'Neutral color',
+                value: config.badgeNeutral,
+              },
+            ],
+          },
+          {
+            title: 'Origin Avatar',
+            controls: [
+              {
+                id: 'originImageType',
+                type: 'select',
+                label: 'Image type',
+                value: config.originImageType,
+                options: [
+                  { value: 'poster', label: 'Poster' },
+                  { value: 'logo', label: 'Logo' },
+                  { value: 'backdrop', label: 'Backdrop' },
+                ],
+              },
+              {
+                id: 'originAvatarWidth',
+                type: 'slider',
+                label: 'Width',
+                value: config.originAvatarWidth,
+                min: 12,
+                max: 80,
+                step: 2,
+                formatLabel: (v: number) => `${v}px`,
+              },
+              {
+                id: 'originAvatarHeight',
+                type: 'slider',
+                label: 'Height',
+                value: config.originAvatarHeight,
+                min: 12,
+                max: 40,
+                step: 2,
+                formatLabel: (v: number) => `${v}px`,
+              },
+              ...(config.originImageType === 'logo'
+                ? [
+                    {
+                      id: 'originLogoBg',
+                      type: 'toggle' as const,
+                      label: 'Logo background',
+                      value: config.originLogoBg,
+                    },
+                    ...(config.originLogoBg
+                      ? [
+                          {
+                            id: 'originLogoBgColor',
+                            type: 'select' as const,
+                            label: 'Bg color',
+                            value: config.originLogoBgColor,
+                            options: [
+                              { value: 'bg-tertiary', label: 'Tertiary' },
+                              { value: 'bg-secondary', label: 'Secondary' },
+                              { value: 'bg-quaternary', label: 'Quaternary' },
+                              { value: 'bg-secondary_alt', label: 'Secondary Alt' },
+                              { value: 'bg-inverted-primary', label: 'Inverted Primary' },
+                              { value: 'bg-inverted-secondary', label: 'Inverted Secondary' },
+                            ],
+                          },
+                          {
+                            id: 'originLogoPaddingX',
+                            type: 'slider' as const,
+                            label: 'Pad X',
+                            value: config.originLogoPaddingX,
+                            min: 0,
+                            max: 16,
+                            step: 1,
+                            formatLabel: (v: number) => `${v}px`,
+                          },
+                          {
+                            id: 'originLogoPaddingY',
+                            type: 'slider' as const,
+                            label: 'Pad Y',
+                            value: config.originLogoPaddingY,
+                            min: 0,
+                            max: 16,
+                            step: 1,
+                            formatLabel: (v: number) => `${v}px`,
+                          },
+                          {
+                            id: 'originLogoShine',
+                            type: 'select' as const,
+                            label: 'Shine',
+                            value: config.originLogoShine,
+                            options: [
+                              { value: 'none', label: 'None' },
+                              { value: 'shine-0-subtle', label: '0 Subtle' },
+                              { value: 'shine-1', label: '1' },
+                              { value: 'shine-1-shadow-sm', label: '1 + Shadow SM' },
+                              { value: 'shine-2', label: '2' },
+                              { value: 'shine-3', label: '3' },
+                              { value: 'shine-3-shadow-sm', label: '3 + Shadow SM' },
+                            ],
+                          },
+                          {
+                            id: 'originLogoSquircle',
+                            type: 'toggle' as const,
+                            label: 'Squircle',
+                            value: config.originLogoSquircle,
+                          },
+                        ]
+                      : []),
+                    {
+                      id: 'originLogoInvert',
+                      type: 'slider' as const,
+                      label: 'Invert',
+                      value: config.originLogoInvert,
+                      min: 0,
+                      max: 1,
+                      step: 0.05,
+                      formatLabel: (v: number) => `${Math.round(v * 100)}%`,
+                    },
+                  ]
+                : []),
+            ],
+          },
+        ],
+      },
+      {
+        id: 'chart',
+        title: 'Chart',
+        tabLabel: 'Chart',
+        groups: [
+          {
+            title: '30d Sparkline',
+            controls: [
+              {
+                id: 'sparklineHeight',
+                type: 'slider',
+                label: 'Height',
+                value: config.sparklineHeight,
+                min: 12,
+                max: 40,
+                step: 2,
+                formatLabel: (v: number) => `${v}px`,
+              },
+              {
+                id: 'sparklineStrokeWidth',
+                type: 'slider',
+                label: 'Stroke Width',
+                value: config.sparklineStrokeWidth,
+                min: 0.5,
+                max: 3,
+                step: 0.5,
+                formatLabel: (v: number) => `${v}`,
+              },
+              {
+                id: 'sparklineShowFill',
+                type: 'toggle',
+                label: 'Fill Area',
+                value: config.sparklineShowFill,
+              },
+              {
+                id: 'sparklineShowDot',
+                type: 'toggle',
+                label: 'End Dot',
+                value: config.sparklineShowDot,
               },
             ],
           },

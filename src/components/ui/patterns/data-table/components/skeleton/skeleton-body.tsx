@@ -11,7 +11,7 @@
 import { useRef, useEffect } from 'react'
 import { TABLE_CONFIG } from '../../config'
 import type { SkeletonCellConfig } from '../../types'
-import { getBodyOuterBorders, getBodyOuterBorderStyles, type ProcessedColumnsResult } from '../../utils'
+import { getBodyOuterBorders, getBodyOuterBorderStyles, borderTokenToCssVar, type ProcessedColumnsResult } from '../../utils'
 import { SkeletonBodyCell } from './skeleton-cells'
 
 // ============================================================================
@@ -43,8 +43,12 @@ export const SkeletonRowSticky = ({
 }: SkeletonRowStickyProps) => {
   const { allColumns, gridTemplate, stickyState, borderConfig, backgroundConfig } = processed
 
-  // Row border (between rows)
-  const rowBorderClass = !isLast && borderConfig.showRows ? `border-b ${borderConfig.rowColor}` : ''
+  // Row border (between rows) — structural class + inline color
+  const showRowBorder = !isLast && borderConfig.showRows
+  const rowBorderClass = showRowBorder ? 'border-b' : ''
+  const rowBorderColorStyle = showRowBorder
+    ? { borderBottomColor: borderTokenToCssVar(borderConfig.rowColor) }
+    : {}
 
   return (
     <div
@@ -54,6 +58,7 @@ export const SkeletonRowSticky = ({
       style={{
         gridTemplateColumns: gridTemplate,
         height: `${rowHeight}px`,
+        ...rowBorderColorStyle,
       }}
     >
       {allColumns.map((col) => (

@@ -124,8 +124,13 @@ function shouldShowSide(config: BorderConfig, side: 'left' | 'right' | 'top' | '
 /**
  * Map semantic border token to CSS variable
  * e.g., 'border-primary' -> 'var(--border-color-primary)'
+ *       'border-secondary/40' -> 'color-mix(in srgb, var(--border-color-secondary) 40%, transparent)'
+ *
+ * Exported so consumers can build inline border-color styles that bypass
+ * the Tailwind v4 cascade issue where custom @utility border-* definitions
+ * lock the color to --border-color-DEFAULT.
  */
-function borderTokenToCssVar(token: string): string {
+export function borderTokenToCssVar(token: string): string {
   // Handle tokens like 'border-primary', 'border-secondary', 'border-tertiary/20'
   const match = token.match(/^border-(.+)$/)
   if (!match || !match[1]) return token
@@ -143,96 +148,115 @@ function borderTokenToCssVar(token: string): string {
 
 
 /**
- * Get outer border classes for header
- * Uses outerColor for all borders except bottom which may have headerBottomColor override.
- * When headerBottomColor is set, bottom border width is added but color comes from inline style.
+ * Get outer border classes for header (structural only — width + style)
+ *
+ * Colors are applied via inline styles from getHeaderOuterBorderStyles()
+ * to bypass the Tailwind v4 @utility cascade issue.
  */
 export function getHeaderOuterBorders(config: BorderConfig): string {
   const classes: string[] = []
-  const hasHeaderBottomColor = !!config.headerBottomColor
 
-  if (shouldShowSide(config, 'top')) {
-    classes.push(`border-t ${config.outerColor}`)
-  }
-  if (shouldShowSide(config, 'left')) {
-    classes.push(`border-l ${config.outerColor}`)
-  }
-  if (shouldShowSide(config, 'right')) {
-    classes.push(`border-r ${config.outerColor}`)
-  }
-  if (shouldShowSide(config, 'bottom')) {
-    // If headerBottomColor is set, add width class only (color via inline style)
-    classes.push(hasHeaderBottomColor ? 'border-b' : `border-b ${config.outerColor}`)
-  }
+  if (shouldShowSide(config, 'top')) classes.push('border-t')
+  if (shouldShowSide(config, 'left')) classes.push('border-l')
+  if (shouldShowSide(config, 'right')) classes.push('border-r')
+  if (shouldShowSide(config, 'bottom')) classes.push('border-b')
 
   return classes.join(' ')
 }
 
 /**
- * Get inline styles for header outer borders
- * Only applies headerBottomColor when set - all other sides use Tailwind classes.
+ * Get inline styles for header outer border colors
+ *
+ * All border colors are set via inline styles to bypass the Tailwind v4
+ * @utility cascade issue where custom border utilities lock the color.
  */
 export function getHeaderOuterBorderStyles(config: BorderConfig): CSSProperties {
-  if (!config.headerBottomColor) {
-    return {}
+  const styles: CSSProperties = {}
+  const outerVar = borderTokenToCssVar(config.outerColor)
+
+  if (shouldShowSide(config, 'top')) styles.borderTopColor = outerVar
+  if (shouldShowSide(config, 'left')) styles.borderLeftColor = outerVar
+  if (shouldShowSide(config, 'right')) styles.borderRightColor = outerVar
+  if (shouldShowSide(config, 'bottom')) {
+    styles.borderBottomColor = config.headerBottomColor
+      ? borderTokenToCssVar(config.headerBottomColor)
+      : outerVar
   }
 
-  // Only override bottom border color for header
-  return {
-    borderBottomColor: borderTokenToCssVar(config.headerBottomColor),
-  }
+  return styles
 }
 
 /**
- * Get outer border classes for body
- * Body always uses outerColor for all sides (no headerBottomColor here)
+ * Get outer border classes for body (structural only — width + style)
+ *
+ * Colors are applied via inline styles from getBodyOuterBorderStyles()
+ * to bypass the Tailwind v4 @utility cascade issue.
  */
 export function getBodyOuterBorders(config: BorderConfig): string {
   const classes: string[] = []
 
-  if (shouldShowSide(config, 'left')) {
-    classes.push(`border-l ${config.outerColor}`)
-  }
-  if (shouldShowSide(config, 'right')) {
-    classes.push(`border-r ${config.outerColor}`)
-  }
-  if (shouldShowSide(config, 'bottom')) {
-    classes.push(`border-b ${config.outerColor}`)
-  }
+  if (shouldShowSide(config, 'left')) classes.push('border-l')
+  if (shouldShowSide(config, 'right')) classes.push('border-r')
+  if (shouldShowSide(config, 'bottom')) classes.push('border-b')
 
   return classes.join(' ')
 }
 
 /**
- * Get inline styles for body outer borders
- * Body always uses Tailwind classes with outerColor, no inline overrides needed.
+ * Get inline styles for body outer border colors
+ *
+ * All border colors are set via inline styles to bypass the Tailwind v4
+ * @utility cascade issue where custom border utilities lock the color.
  */
-export function getBodyOuterBorderStyles(_config: BorderConfig): CSSProperties {
-  // Body always uses outerColor via Tailwind classes - no inline styles needed
-  return {}
+export function getBodyOuterBorderStyles(config: BorderConfig): CSSProperties {
+  const styles: CSSProperties = {}
+  const outerVar = borderTokenToCssVar(config.outerColor)
+
+  if (shouldShowSide(config, 'left')) styles.borderLeftColor = outerVar
+  if (shouldShowSide(config, 'right')) styles.borderRightColor = outerVar
+  if (shouldShowSide(config, 'bottom')) styles.borderBottomColor = outerVar
+
+  return styles
 }
 
 /**
- * Get row border class (between rows)
+ * Get row border class (between rows) — structural only
  */
 export function getRowBorder(config: BorderConfig): string {
   if (!config.showRows) return ''
-  return `border-b ${config.rowColor}`
+  return 'border-b'
 }
 
 /**
- * Get cell border class (between columns)
+ * Get row border inline style for color
+ */
+export function getRowBorderStyle(config: BorderConfig): CSSProperties {
+  if (!config.showRows) return {}
+  return { borderBottomColor: borderTokenToCssVar(config.rowColor) }
+}
+
+/**
+ * Get cell border class (between columns) — structural only
  */
 export function getCellBorder(config: BorderConfig, isLast: boolean, columnKey?: string): string {
   if (!config.showCells || isLast) return ''
-  if (columnKey && config.hideCellBordersForColumns?.includes(columnKey)) {
-    return 'border-r border-transparent'
-  }
-  return `border-r ${config.cellColor}`
+  // Hidden columns still need border-r for spacing, color handled via inline style
+  return 'border-r'
 }
 
 /**
- * Get sticky column right border when enhanced styling is active
+ * Get cell border inline style for color
+ */
+export function getCellBorderStyle(config: BorderConfig, isLast: boolean, columnKey?: string): CSSProperties {
+  if (!config.showCells || isLast) return {}
+  if (columnKey && config.hideCellBordersForColumns?.includes(columnKey)) {
+    return { borderRightColor: 'transparent' }
+  }
+  return { borderRightColor: borderTokenToCssVar(config.cellColor) }
+}
+
+/**
+ * Get sticky column right border class — structural only
  */
 export function getStickyColumnBorder(
   column: ComputedColumn,
@@ -243,15 +267,33 @@ export function getStickyColumnBorder(
     return ''
   }
 
-  // If only one sticky column, always show border
-  // If multiple, only show on last (not first)
   const isOnlySticky = column.isFirstSticky && column.isLastSticky
   if (!isOnlySticky && column.isFirstSticky) {
     return ''
   }
 
+  return 'border-r'
+}
+
+/**
+ * Get sticky column right border inline style for color
+ */
+export function getStickyColumnBorderStyle(
+  column: ComputedColumn,
+  stickyState: StickyState,
+  config: BorderConfig
+): CSSProperties {
+  if (!column.isSticky || !column.isLastSticky || !stickyState.useEnhancedStyling) {
+    return {}
+  }
+
+  const isOnlySticky = column.isFirstSticky && column.isLastSticky
+  if (!isOnlySticky && column.isFirstSticky) {
+    return {}
+  }
+
   const color = config.stickyColumnRightBorderColor ?? 'border-primary'
-  return `border-r ${color}`
+  return { borderRightColor: borderTokenToCssVar(color) }
 }
 
 // ============================================================================

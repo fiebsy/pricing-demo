@@ -17,9 +17,14 @@ export type {
   ColorControl,
   TextControl,
   CustomControl,
+  // Enhanced control types
+  FontWeightSelectControl,
+  ColorEnhancedSelectControl,
+  RadiusSelectControl,
   // Group & Section types
   ControlGroup,
   Section,
+  SectionType,
   // Preset types
   Preset,
   PresetConfig,
@@ -60,3 +65,28 @@ export {
   InlineSlider,
 } from './components/controls'
 export type { InlineSliderProps } from './components/controls'
+
+// =============================================================================
+// Framework Enhancements
+// =============================================================================
+
+// Icons - Section icon registry with pre-populated Hugeicon mappings
+export { getSectionIcon, SECTION_ICON_MAP, hasSectionIcon } from './icons'
+
+// Tokens - Design token constants for consistent styling options
+export * from './tokens'
+
+// Builders - Section builder functions for rapid playground creation
+export * from './builders'
+
+// Enhanced controls - Visual preview controls
+export {
+  FontWeightSelect,
+  ColorEnhancedSelect,
+  RadiusPreviewSelect,
+} from './controls'
+export type {
+  FontWeightSelectProps,
+  ColorEnhancedSelectProps,
+  RadiusPreviewSelectProps,
+} from './controls'

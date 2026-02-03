@@ -60,7 +60,7 @@ export interface ToolbarContentProps {
   /** Reset columns to default */
   resetColumns: () => void
   /** Column labels (including checkbox label) */
-  columnLabelsWithCheckbox: Record<string, string>
+  columnLabelsWithCheckbox: Record<string, ReactNode>
 }
 
 // ============================================================================

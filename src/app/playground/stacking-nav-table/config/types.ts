@@ -1,11 +1,48 @@
 /**
  * Stacking Nav + Table Playground - Types
  *
- * Core types for the corporate directory playground.
+ * Core types for the Multiverse Power Rankings playground.
  */
 
 // =============================================================================
 // ENUMS
+// =============================================================================
+
+export enum CharacterEnergy {
+  MainCharacter = 'main-character',
+  VillainArc = 'villain-arc',
+  SideQuest = 'side-quest',
+  NPCEnergy = 'npc-energy',
+}
+
+export enum ThreatLevel {
+  STier = 's-tier',
+  ATier = 'a-tier',
+  BTier = 'b-tier',
+  MemeTier = 'meme-tier',
+}
+
+// =============================================================================
+// CHARACTER INTERFACE
+// =============================================================================
+
+export interface Character extends Record<string, unknown> {
+  id: number
+  name: string
+  slug: string
+  realm: string
+  realmLabel: string
+  faction: string
+  factionLabel: string
+  energy: CharacterEnergy
+  threatLevel: ThreatLevel
+  origin: string
+  description: string
+  trend: number[]
+}
+
+// =============================================================================
+// EMPLOYEE ENUMS (Corporate Directory variant)
 // =============================================================================
 
 export enum EmployeeStatus {
@@ -13,21 +50,6 @@ export enum EmployeeStatus {
   OnLeave = 'on-leave',
   Remote = 'remote',
   Contractor = 'contractor',
-}
-
-export enum SeniorityLevel {
-  Junior = 'junior',
-  Mid = 'mid',
-  Senior = 'senior',
-  Lead = 'lead',
-  Director = 'director',
-}
-
-export enum PerformanceRating {
-  Exceeds = 'exceeds',
-  Meets = 'meets',
-  Developing = 'developing',
-  New = 'new',
 }
 
 // =============================================================================
@@ -41,27 +63,26 @@ export interface Employee extends Record<string, unknown> {
   role: string
   company: string
   companyLabel: string
-  department: string
-  departmentLabel: string
-  team: string
-  teamLabel: string
   status: EmployeeStatus
-  level: SeniorityLevel
-  salary: number
-  startDate: Date
-  performance: PerformanceRating
-  projectCount: number
+  trend: number[]
 }
 
 // =============================================================================
 // PLAYGROUND CONFIG
 // =============================================================================
 
-export type PageBackground = 'primary' | 'secondary' | 'tertiary'
+export type DataVariantId = 'characters' | 'employees'
+export type PageBackground = 'primary' | 'secondary' | 'secondary_alt' | 'tertiary'
 export type NavVariant = 'default' | 'spring'
 export type BorderColor = 'primary' | 'secondary' | 'tertiary'
+export type BadgeStyleVariant = 'default' | 'modern'
+export type BadgeShapeVariant = 'pill' | 'rounded' | 'squircle'
+
+export type OriginImageType = 'poster' | 'logo' | 'backdrop'
 
 export interface PlaygroundConfig {
+  // Data
+  dataVariant: DataVariantId
   // Layout
   pageBackground: PageBackground
   pageTopGap: number
@@ -88,6 +109,26 @@ export interface PlaygroundConfig {
   rowBorderOpacity: number
   cellBorderColor: BorderColor
   cellBorderOpacity: number
+  // Badge
+  badgeStyle: BadgeStyleVariant
+  badgeShape: BadgeShapeVariant
+  badgeNeutral: boolean
+  // Origin Avatar
+  originAvatarWidth: number
+  originAvatarHeight: number
+  originImageType: OriginImageType
+  originLogoBg: boolean
+  originLogoBgColor: string
+  originLogoPaddingX: number
+  originLogoPaddingY: number
+  originLogoShine: string
+  originLogoSquircle: boolean
+  originLogoInvert: number
+  // Chart
+  sparklineHeight: number
+  sparklineStrokeWidth: number
+  sparklineShowFill: boolean
+  sparklineShowDot: boolean
   // Nav
   navVariant: NavVariant
   showNavDebug: boolean

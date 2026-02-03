@@ -186,7 +186,7 @@ const TableHeaderBase = ({
               inlineOffset={inlineOffset}
               shiftAmount={shiftAmount}
               isInlineMode={isInlineDragMode}
-              onPointerDown={draggable ? (e) => handlePointerDown(e, col.key, label) : undefined}
+              onPointerDown={draggable ? (e) => handlePointerDown(e, col.key, typeof label === 'string' ? label : col.key) : undefined}
             />
           )
         })}

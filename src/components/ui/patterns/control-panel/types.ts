@@ -5,6 +5,14 @@
 // =============================================================================
 
 import type { ReactNode } from 'react'
+import type { SectionType } from './icons/types'
+import type { HugeIconData } from '@/components/ui/core/primitives/icon'
+import type { FontWeightOption } from './tokens/typography'
+import type { SemanticColorOption } from './tokens/colors'
+import type { RadiusOption } from './tokens/radius'
+
+// Re-export SectionType for convenience
+export type { SectionType } from './icons/types'
 
 // -----------------------------------------------------------------------------
 // Control Types
@@ -91,6 +99,39 @@ export interface CustomControl extends ControlBase {
   render: () => ReactNode
 }
 
+// -----------------------------------------------------------------------------
+// Enhanced Control Types (with visual previews)
+// -----------------------------------------------------------------------------
+
+/** Font weight select with visual weight preview */
+export interface FontWeightSelectControl extends ControlBase {
+  type: 'font-weight-select'
+  value: string
+  options: FontWeightOption[]
+  /** Preview text to render in each weight (default: "Aa") */
+  previewText?: string
+}
+
+/** Color enhanced select with larger swatches and grouping */
+export interface ColorEnhancedSelectControl extends ControlBase {
+  type: 'color-enhanced-select'
+  value: string
+  options: SemanticColorOption[]
+  /** Swatch size (default: "md") */
+  swatchSize?: 'sm' | 'md' | 'lg'
+  /** Show category group headers (default: true) */
+  showGroups?: boolean
+}
+
+/** Radius select with visual radius preview squares */
+export interface RadiusSelectControl extends ControlBase {
+  type: 'radius-select'
+  value: string
+  options: RadiusOption[]
+  /** Preview square size (default: "md") */
+  previewSize?: 'sm' | 'md' | 'lg'
+}
+
 /** Union of all control types */
 export type Control =
   | SliderControl
@@ -101,6 +142,10 @@ export type Control =
   | ColorControl
   | TextControl
   | CustomControl
+  // Enhanced controls
+  | FontWeightSelectControl
+  | ColorEnhancedSelectControl
+  | RadiusSelectControl
 
 // -----------------------------------------------------------------------------
 // Group & Section Types
@@ -113,6 +158,10 @@ export interface ControlGroup {
   controls: Control[]
   columns?: 1 | 2
   defaultCollapsed?: boolean
+  /** Section type for automatic icon mapping */
+  groupType?: SectionType
+  /** Override icon for this group header */
+  icon?: HugeIconData
 }
 
 /** A section containing groups of controls */
@@ -124,6 +173,10 @@ export interface Section {
   groups?: ControlGroup[]
   subsections?: ControlGroup[] // Legacy alias for groups
   defaultCollapsed?: boolean
+  /** Section type for automatic icon mapping */
+  sectionType?: SectionType
+  /** Override icon for this section (shown in sidebar when expanded) */
+  icon?: HugeIconData
 }
 
 // -----------------------------------------------------------------------------

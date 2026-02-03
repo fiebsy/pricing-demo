@@ -244,7 +244,7 @@ function PanelInner<T>({
           {/* Main Panel */}
           <div
             className={cx(
-              'flex flex-col overflow-hidden bg-tertiary rounded-xl shadow-xl z-10',
+              'flex flex-col overflow-hidden bg-quaternary rounded-xl z-10',
             )}
             style={{
               width: 'var(--panel-width, 260px)',

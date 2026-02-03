@@ -13,7 +13,9 @@ import { Checkbox } from '@/components/ui/core/inputs/checkbox'
 import {
   getAlignmentClasses,
   getCellBorder,
+  getCellBorderStyle,
   getStickyColumnBorder,
+  getStickyColumnBorderStyle,
   getColumnAnimationClass,
   getColumnAnimationDataAttrs,
   getCellStyle,
@@ -57,12 +59,16 @@ export const HeaderCell = memo(function HeaderCell({
   const effectiveAlign = column.isLast ? 'right' : column.align
   const alignment = getAlignmentClasses(effectiveAlign)
 
-  // Compute borders
+  // Compute borders (classes for width/style, inline styles for color)
   const stickyBorder = getStickyColumnBorder(column, stickyState, borderConfig)
+  const stickyBorderColorStyle = getStickyColumnBorderStyle(column, stickyState, borderConfig)
   const shouldSuppressRightBorder = column.isSticky && column.isFirstSticky && stickyState.useEnhancedStyling
   const cellBorder = stickyBorder || shouldSuppressRightBorder
     ? ''
     : getCellBorder(borderConfig, column.isLast, column.key)
+  const cellBorderColorStyle = stickyBorder || shouldSuppressRightBorder
+    ? {}
+    : getCellBorderStyle(borderConfig, column.isLast, column.key)
 
   // Compute animation class and data attributes
   const animationClass = getColumnAnimationClass(column.key, leavingColumnKeys, columnChange, enteringColumnKeys)
@@ -111,6 +117,9 @@ export const HeaderCell = memo(function HeaderCell({
     ? { borderRight: '1px solid var(--border-color-secondary)' }
     : {}
 
+  // Merge border color inline styles (sticky or cell, whichever is active)
+  const borderColorStyle = { ...stickyBorderColorStyle, ...cellBorderColorStyle }
+
   const cellStyle: React.CSSProperties = isDraggedCell
     ? {
         ...baseStyle,
@@ -124,10 +133,11 @@ export const HeaderCell = memo(function HeaderCell({
       ? {
           ...baseStyle,
           ...shiftingCellBorderFix,
+          ...borderColorStyle,
           transform: cellTransform,
           transition: 'transform 150ms ease-out',
         }
-      : baseStyle
+      : { ...baseStyle, ...borderColorStyle }
 
   // Content shift transform - ONLY used in floating mode
   // In floating mode: shifts content to make room for drop indicator (small gap)

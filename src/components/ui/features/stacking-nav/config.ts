@@ -28,12 +28,22 @@ export const DEFAULT_ANIMATION_CONFIG: AnimationConfig = {
   duration: 0.225,
   ease: 'expoOut',
 
-  // Promotion animation - disabled by default (scale = 1)
-  promotionDuration: 0.1,
-  promotionScale: 1,
+  // Promotion animation
+  promotionDuration: 0.2,
+  promotionScale: 1.04,
+  promotionDelay: 0,
+  promotionOpacity: 1,
+  promotionVariant: 'none',
+
+  // Demotion animation
+  demotionDuration: 0.2,
+  demotionScale: 0.97,
+  demotionDelay: 0,
+  demotionOpacity: 0.9,
+  demotionVariant: 'secondary',
 
   // Child animations - staggered entry with diagonal slide
-  stagger: 0,
+  stagger: 0.015,
   entryOffsetX: 0,
   entryOffsetY: 0,
   childEntryDelay: 0.12,
@@ -45,7 +55,7 @@ export const DEFAULT_ANIMATION_CONFIG: AnimationConfig = {
   exitDuration: 0.025,
   exitEase: 'expoOut',
   exitDelay: 0,
-  collapseLayoutDuration: 0.225,
+  collapseLayoutDuration: 0.2,
 
   // Leaf node behavior
   skipLeafAnimation: true,
@@ -71,7 +81,8 @@ export const DEFAULT_STYLE_CONFIG: StyleConfig = {
   anchoredVariant: 'secondary',
   selectedLeafVariant: 'tab',
   clipAnchored: true,
-  clipOffset: 8,
+  clipAnimated: false,
+  clipOffset: 52,
   clipSide: 'left',
   clipDelay: 0,
   // Level All Button - enabled by default

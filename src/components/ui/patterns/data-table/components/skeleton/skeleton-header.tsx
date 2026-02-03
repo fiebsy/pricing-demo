@@ -10,7 +10,7 @@
 
 import { TABLE_CONFIG, type ToolbarConfig, type ToolbarLayoutConfig } from '../../config'
 import type { SkeletonCellConfig } from '../../types'
-import { getHeaderOuterBorders, type ProcessedColumnsResult } from '../../utils'
+import { getHeaderOuterBorders, getHeaderOuterBorderStyles, type ProcessedColumnsResult } from '../../utils'
 import { SkeletonHeaderCell } from './skeleton-cells'
 import { IntegratedToolbarSkeleton } from './toolbar-skeleton'
 
@@ -52,6 +52,7 @@ export const SkeletonHeaderSticky = ({
   const { allColumns, gridTemplate, stickyState, borderConfig, backgroundConfig } = processed
 
   const outerBorderClasses = getHeaderOuterBorders(borderConfig)
+  const outerBorderStyles = getHeaderOuterBorderStyles(borderConfig)
 
   // Check if toolbar is integrated
   const isIntegrated = toolbarLayout?.position === 'integrated'
@@ -94,6 +95,7 @@ export const SkeletonHeaderSticky = ({
           borderTopLeftRadius: `${borderRadius}px`,
           borderTopRightRadius: `${borderRadius}px`,
           scrollbarWidth: 'none',
+          ...outerBorderStyles,
         }}
       >
         {allColumns.map((col) => (

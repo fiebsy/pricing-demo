@@ -36,6 +36,16 @@ function configFromProdDefaults(): Omit<PlaygroundConfig, 'configPreset' | 'navV
     // Promotion (ms)
     promotionDuration: toMs(a.promotionDuration),
     promotionScale: a.promotionScale,
+    promotionDelay: toMs(a.promotionDelay),
+    promotionOpacity: a.promotionOpacity,
+    promotionVariant: a.promotionVariant,
+
+    // Demotion (ms)
+    demotionDuration: toMs(a.demotionDuration),
+    demotionScale: a.demotionScale,
+    demotionDelay: toMs(a.demotionDelay),
+    demotionOpacity: a.demotionOpacity,
+    demotionVariant: a.demotionVariant,
 
     // Child entry (ms)
     childStagger: toMs(a.stagger),
@@ -66,6 +76,7 @@ function configFromProdDefaults(): Omit<PlaygroundConfig, 'configPreset' | 'navV
     peekOffset: s.peekOffset,
     anchoredOpacity: s.anchoredOpacity,
     clipAnchored: s.clipAnchored,
+    clipAnimated: s.clipAnimated,
     clipOffset: s.clipOffset,
     clipSide: s.clipSide,
     clipDelay: s.clipDelay * 1000,
@@ -107,6 +118,14 @@ const PRESET_SPRING: Omit<PlaygroundConfig, 'configPreset' | 'navVariant'> = {
   tweenEase: 'easeOut',
   promotionDuration: 400,
   promotionScale: 1,
+  promotionDelay: 0,
+  promotionOpacity: 1,
+  promotionVariant: 'none',
+  demotionDuration: 400,
+  demotionScale: 1,
+  demotionDelay: 0,
+  demotionOpacity: 1,
+  demotionVariant: 'none',
   childStagger: 25,
   entryDirection: 'up',
   entryOffsetX: 0,
@@ -129,6 +148,7 @@ const PRESET_SPRING: Omit<PlaygroundConfig, 'configPreset' | 'navVariant'> = {
   peekOffset: 8,
   anchoredOpacity: 0.6,
   clipAnchored: true,
+  clipAnimated: true,
   clipOffset: 8,
   clipSide: 'left',
   clipDelay: 0,

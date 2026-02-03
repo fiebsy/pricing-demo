@@ -88,18 +88,18 @@ export function PanelToggleButton({
       type="button"
       onClick={onClick}
       className={cx(
-        'flex items-center justify-center rounded-lg',
+        'flex items-center justify-center',
         'transition-all duration-150',
         'focus:outline-none',
         'motion-reduce:transition-none',
         'active:scale-95',
         // Variant-specific styles
         variant === 'standalone' && [
-          'bg-primary border-primary border p-2 shadow-lg',
+          'size-8 rounded-full bg-primary shine-2 shadow-lg',
           'hover:bg-secondary',
         ],
         variant === 'inline' && [
-          'text-tertiary hover:text-secondary p-1.5',
+          'rounded-lg text-tertiary hover:text-secondary p-1.5',
           'hover:bg-secondary',
         ],
         className

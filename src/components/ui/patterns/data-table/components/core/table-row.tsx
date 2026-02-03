@@ -24,7 +24,7 @@ import { memo, useCallback, type ReactNode, type MouseEvent } from 'react'
 import * as React from 'react'
 import { Checkbox } from '@/components/ui/core/inputs/checkbox'
 import type { ComputedColumn, StickyState, BorderConfig, BackgroundConfig, ColumnChange, SelectionState } from '../../types'
-import { generateGridTemplate, getRowBorder, getRowHoverClass } from '../../utils'
+import { generateGridTemplate, getRowBorder, getRowBorderStyle, getRowHoverClass } from '../../utils'
 import { TableCell } from './table-cell'
 import { ANIMATION_CONFIG, TABLE_CONFIG } from '../../config'
 
@@ -111,6 +111,7 @@ function TableRowBase<T extends Record<string, unknown>>({
   // Generate grid template (matches header)
   const gridTemplate = generateGridTemplate(stickyColumns, scrollableColumns)
   const rowBorderClass = getRowBorder(borderConfig)
+  const rowBorderColorStyle = getRowBorderStyle(borderConfig)
 
   // Handle click with exclusions for interactive elements
   const handleClick = useCallback(
@@ -142,6 +143,7 @@ function TableRowBase<T extends Record<string, unknown>>({
         transition: columnChange
           ? `background-color 0.2s ease, grid-template-columns ${ANIMATION_CONFIG.COLUMN_ANIMATION_DURATION}ms cubic-bezier(0.4, 0, 0.2, 1)`
           : 'background-color 0.2s ease',
+        ...rowBorderColorStyle,
       }}
       onClick={handleClick}
     >

@@ -28,6 +28,16 @@ import { ROOT_ANCHOR_ID, Z_INDEX, getAnchoredZIndex, createLevelAllId, isLevelAl
 /**
  * Renders items at a specific level of the navigation tree.
  */
+// ─── L0 vs L1+ Behavior Contract ───────────────────────────────────
+// L0 (root) items are always mounted — they never enter/exit via
+// AnimatePresence. On collapse they fade back via isCollapseReentry.
+// The root anchor ("All") is separated from regular items and rendered
+// independently with its own motion.div.
+//
+// L1+ items enter/exit through AnimatePresence with stagger delays,
+// hover suppression, and Level-All virtual items. Promotion animations
+// apply at ALL levels (L0 included) for items that have children.
+// ────────────────────────────────────────────────────────────────────
 export function StackLevel({
   items,
   parentLevelIndices = [],
@@ -43,8 +53,9 @@ export function StackLevel({
   
   const { level, anchorCount } = useLevelContext()
   
-  // Track which item was just selected for promotion animation
+  // Track which item was just selected for promotion/demotion animation
   const [promotingId, setPromotingId] = useState<string | null>(null)
+  const [demotingId, setDemotingId] = useState<string | null>(null)
   const previousActiveIdRef = useRef<string | undefined>(undefined)
 
   // Hover suppression — prevent hover flash on newly appearing child items.
@@ -104,17 +115,32 @@ export function StackLevel({
   // Time scale for slow-mo — scales all hardcoded internal durations
   const timeScale = animationConfig.timeScale
 
-  // Detect promotion - only when a NEW item with children is selected
+  // Detect promotion and demotion
+  const hasPromotionEffect = animationConfig.promotionScale !== 1 || animationConfig.promotionOpacity !== 1 || animationConfig.promotionVariant !== 'none'
+  const hasDemotionEffect = animationConfig.demotionScale !== 1 || animationConfig.demotionOpacity !== 1 || animationConfig.demotionVariant !== 'none'
   useEffect(() => {
-    if (activeId !== previousActiveIdRef.current && activeId) {
-      const item = items.find(i => i.id === activeId)
-      if (level > 0 && item?.children?.length) {
-        setPromotingId(activeId)
-        setTimeout(() => setPromotingId(null), 400 / timeScale)
+    if (activeId !== previousActiveIdRef.current) {
+      // Demotion — previous active item had children and is losing active status
+      if (previousActiveIdRef.current) {
+        const prevItem = items.find(i => i.id === previousActiveIdRef.current)
+        if (prevItem?.children?.length && hasDemotionEffect) {
+          setDemotingId(previousActiveIdRef.current)
+          const totalDuration = (animationConfig.demotionDuration + animationConfig.demotionDelay) * 1000 * 2
+          setTimeout(() => setDemotingId(null), totalDuration / timeScale)
+        }
+      }
+      // Promotion — new active item has children
+      if (activeId) {
+        const item = items.find(i => i.id === activeId)
+        if (item?.children?.length && hasPromotionEffect) {
+          setPromotingId(activeId)
+          const totalDuration = (animationConfig.promotionDuration + animationConfig.promotionDelay) * 1000 * 2
+          setTimeout(() => setPromotingId(null), totalDuration / timeScale)
+        }
       }
     }
     previousActiveIdRef.current = activeId
-  }, [activeId, level, items, timeScale])
+  }, [activeId, level, items, timeScale, hasPromotionEffect, hasDemotionEffect, animationConfig.promotionDuration, animationConfig.promotionDelay, animationConfig.demotionDuration, animationConfig.demotionDelay])
   
   // Calculate anchored offset for peek-behind effect
   const getAnchoredOffset = (depth: number) => {
@@ -171,9 +197,11 @@ export function StackLevel({
         const anchorTransition = getTransition(animationConfig)
 
         // Delay clip on entry only — lets position animation lead visually
-        const anchorClipOverride = styleConfig.clipDelay > 0 && isAnchored
-          ? { '--clip-progress': { ...getTransition(animationConfig), delay: styleConfig.clipDelay } }
-          : {}
+        const anchorClipOverride = !styleConfig.clipAnimated
+          ? { '--clip-progress': { duration: 0 } }
+          : styleConfig.clipDelay > 0 && isAnchored
+            ? { '--clip-progress': { ...getTransition(animationConfig), delay: styleConfig.clipDelay } }
+            : {}
 
         return (
           <motion.div
@@ -183,7 +211,7 @@ export function StackLevel({
               zIndex: isAnchored ? getAnchoredZIndex(0) : 100,
               ...(styleConfig.clipAnchored && !showDebug ? { clipPath: clipPathValue } : {}),
             }}
-            initial={shouldReduceMotion ? undefined : { opacity: 0, '--clip-progress': 0 }}
+            initial={shouldReduceMotion ? undefined : { opacity: 0, '--clip-progress': styleConfig.clipAnimated ? 0 : (isAnchored ? 1 : 0) }}
             animate={{
               opacity: 1,
               x: isAnchored ? anchorOffset : 0,
@@ -278,8 +306,9 @@ export function StackLevel({
           const isAnchored = isActive && hasActiveChild && item.children && item.children.length > 0 &&
             !(animationConfig.skipLeafAnimation && activeChildIsLeaf)
           
-          // Check if promoting
+          // Check if promoting or demoting
           const isPromoting = item.id === promotingId || false
+          const isDemoting = item.id === demotingId
           
           // Skip animation for leaf nodes if configured
           // When a leaf is selected with skipLeafAnimation, it stays in place with no animation
@@ -298,6 +327,8 @@ export function StackLevel({
           // Animation delay (use original index in itemsWithLevelAll for proper stagger)
           // Skip stagger during collapse — all items should animate simultaneously
           // This is why L0 demotion feels fluid (L0 items never get stagger since level=0)
+          // L0 items are always mounted (never enter via AnimatePresence), so they
+          // never need entry stagger — the level > 0 check reflects this invariant.
           const isInitialEntry = level > 0 && !isActive && !isCollapsingNow
           const animationDelay = isInitialEntry ? getChildDelay(index, animationConfig) : 0
           
@@ -348,19 +379,35 @@ export function StackLevel({
                 }
               : isPromoting
                 ? {
-                    opacity: 1,
+                    opacity: animationConfig.promotionOpacity !== 1
+                      ? [1, animationConfig.promotionOpacity, 1]
+                      : 1,
                     x: activeParentOffset,
                     y: 0,
-                    scale: [1, animationConfig.promotionScale, 1],
+                    scale: animationConfig.promotionScale !== 1
+                      ? [1, animationConfig.promotionScale, 1]
+                      : 1,
                     '--clip-progress': clipProgress,
                   }
-                : {
-                    opacity: 1,
-                    x: activeParentOffset,
-                    y: 0,
-                    scale: 1,
-                    '--clip-progress': clipProgress,
-                  }
+                : isDemoting
+                  ? {
+                      opacity: animationConfig.demotionOpacity !== 1
+                        ? [1, animationConfig.demotionOpacity, 1]
+                        : 1,
+                      x: activeParentOffset,
+                      y: 0,
+                      scale: animationConfig.demotionScale !== 1
+                        ? [1, animationConfig.demotionScale, 1]
+                        : 1,
+                      '--clip-progress': clipProgress,
+                    }
+                  : {
+                      opacity: 1,
+                      x: activeParentOffset,
+                      y: 0,
+                      scale: 1,
+                      '--clip-progress': clipProgress,
+                    }
           
           // L0 siblings re-appearing during collapse should fade in without
           // positional offset or scale shift — they were just hidden, not new.
@@ -372,15 +419,32 @@ export function StackLevel({
             : shouldReduceMotion
               ? undefined
               : isCollapseReentry
-                ? { opacity: 0, '--clip-progress': 0 } // Fade only — no slide/scale
-                : { opacity: 0, ...entryOffset, scale: animationConfig.entryScale, '--clip-progress': 0 }
+                ? { opacity: 0, '--clip-progress': styleConfig.clipAnimated ? 0 : clipProgress } // Fade only — no slide/scale
+                : { opacity: 0, ...entryOffset, scale: animationConfig.entryScale, '--clip-progress': styleConfig.clipAnimated ? 0 : clipProgress }
           
           const leafTransition = skipAnyAnimation
             ? { duration: 0 }
             : {
                 ...getTransition(animationConfig, animationDelay),
-                scale: isPromoting ? {
+                scale: isPromoting && animationConfig.promotionScale !== 1 ? {
                   duration: animationConfig.promotionDuration,
+                  delay: animationConfig.promotionDelay,
+                  times: [0, 0.5, 1],
+                  ease: 'easeInOut',
+                } : isDemoting && animationConfig.demotionScale !== 1 ? {
+                  duration: animationConfig.demotionDuration,
+                  delay: animationConfig.demotionDelay,
+                  times: [0, 0.5, 1],
+                  ease: 'easeInOut',
+                } : undefined,
+                opacity: isPromoting && animationConfig.promotionOpacity !== 1 ? {
+                  duration: animationConfig.promotionDuration,
+                  delay: animationConfig.promotionDelay,
+                  times: [0, 0.5, 1],
+                  ease: 'easeInOut',
+                } : isDemoting && animationConfig.demotionOpacity !== 1 ? {
+                  duration: animationConfig.demotionDuration,
+                  delay: animationConfig.demotionDelay,
                   times: [0, 0.5, 1],
                   ease: 'easeInOut',
                 } : undefined,
@@ -393,9 +457,11 @@ export function StackLevel({
             : getExitAnimation(animationConfig)
 
           // Delay clip on entry only — lets position animation lead visually
-          const itemClipOverride = styleConfig.clipDelay > 0 && isAnchored
-            ? { '--clip-progress': { ...getTransition(animationConfig), delay: styleConfig.clipDelay } }
-            : {}
+          const itemClipOverride = !styleConfig.clipAnimated
+            ? { '--clip-progress': { duration: 0 } }
+            : styleConfig.clipDelay > 0 && isAnchored
+              ? { '--clip-progress': { ...getTransition(animationConfig), delay: styleConfig.clipDelay } }
+              : {}
 
           // Debug: Log exit animation being used
           if (showDebug && typeof window !== 'undefined' && !isActive) {
@@ -441,6 +507,7 @@ export function StackLevel({
                 levelIndices={itemLevelIndices}
                 isAnchored={isAnchored ?? false}
                 isPromoting={isPromoting}
+                isDemoting={isDemoting}
               />
             </motion.div>
           )

@@ -6,7 +6,7 @@
  * @module components/table-header/types
  */
 
-import type { RefObject } from 'react'
+import type { ReactNode, RefObject } from 'react'
 import type {
   ComputedColumn,
   StickyState,
@@ -34,7 +34,7 @@ export interface TableHeaderProps {
   /** All visible columns */
   allColumns: ComputedColumn[]
   /** Column labels */
-  columnLabels: Record<string, string>
+  columnLabels: Record<string, ReactNode>
   /** Sticky state for styling */
   stickyState: StickyState
   /** Border configuration */
@@ -135,7 +135,7 @@ export interface PointerDragState {
  */
 export interface HeaderCellProps {
   column: ComputedColumn
-  label: string
+  label: ReactNode
   stickyState: StickyState
   borderConfig: BorderConfig
   backgroundConfig: BackgroundConfig

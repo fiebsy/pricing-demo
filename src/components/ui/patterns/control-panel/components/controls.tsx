@@ -10,7 +10,7 @@
 import { Children, useEffect, useState, type ReactNode } from 'react'
 import { cx } from '@/components/utils/cx'
 
-// Using deprecated primitives until prod/base/ Select is ready
+// Deprecated primitives (still used by ColorSelectControl)
 import {
   Select,
   SelectContent,
@@ -18,17 +18,26 @@ import {
   SelectTrigger,
 } from '@/components/ui/deprecated/base/primitives/select'
 
-// Prod components
-import { Checkbox } from '@/components/ui/core/inputs/checkbox'
+// React Aria
+import { Switch } from 'react-aria-components'
 
 // Core primitives
-import { InlineSlider } from '@/components/ui/core/primitives/slider'
+import { InlineSlider, TickSlider } from '@/components/ui/core/primitives/slider'
+import { InlineSelect } from '@/components/ui/core/primitives/select'
+
+// Enhanced controls
+import { FontWeightSelect } from '../controls/font-weight-select'
+import { ColorEnhancedSelect } from '../controls/color-enhanced-select'
+import { RadiusPreviewSelect } from '../controls/radius-preview-select'
 
 import type {
   ColorControl as ColorControlType,
   ColorSelectControl as ColorSelectControlType,
+  ColorEnhancedSelectControl as ColorEnhancedSelectControlType,
   Control,
+  FontWeightSelectControl as FontWeightSelectControlType,
   InlineSliderControl as InlineSliderControlType,
+  RadiusSelectControl as RadiusSelectControlType,
   SelectControl as SelectControlType,
   SliderControl as SliderControlType,
   TextControl as TextControlType,
@@ -171,33 +180,17 @@ interface SelectControlProps {
 }
 
 export function SelectControl({ control, onChange }: SelectControlProps) {
-  const { value, options, showColorSwatch, disabled } = control
+  const { label, value, options, disabled } = control
   const safeValue = value || options[0]?.value || ''
-  const selectedOption = options.find((opt) => opt.value === safeValue)
 
   return (
-    <Select value={safeValue || undefined} onValueChange={disabled ? undefined : onChange} disabled={disabled}>
-      <SelectTrigger
-        className={cx('h-8 w-full px-2 py-1 text-xs', disabled && 'cursor-not-allowed opacity-50')}
-      >
-        <span className="flex items-center gap-2">
-          {showColorSwatch && selectedOption?.color && (
-            <ColorSwatch color={selectedOption.color} size="xs" />
-          )}
-          <span className="truncate">{selectedOption?.label || 'Select...'}</span>
-        </span>
-      </SelectTrigger>
-      <SelectContent>
-        {options.map((option) => (
-          <SelectItem key={option.value} value={option.value} className="text-xs">
-            <span className="flex items-center gap-2">
-              {showColorSwatch && option.color && <ColorSwatch color={option.color} size="xs" />}
-              <span>{option.label}</span>
-            </span>
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
+    <InlineSelect
+      label={label}
+      value={safeValue}
+      options={options}
+      onChange={onChange}
+      disabled={disabled}
+    />
   )
 }
 
@@ -251,24 +244,42 @@ export function ColorSelectControl({ control, onChange }: ColorSelectControlProp
 interface ToggleControlProps {
   control: ToggleControlType
   onChange: (value: boolean) => void
-  inline?: boolean
 }
 
-export function ToggleControl({ control, onChange, inline = false }: ToggleControlProps) {
+export function ToggleControl({ control, onChange }: ToggleControlProps) {
   const { value, label, disabled } = control
-  // Ensure checked is always a boolean to prevent controlled/uncontrolled warning
   const checked = value ?? false
 
-  if (inline) {
-    return (
-      <div className={cx('flex items-center justify-between', disabled && 'opacity-50')}>
-        <span className="text-tertiary text-[11px] font-medium">{label}</span>
-        <Checkbox size="sm" checked={checked} onCheckedChange={onChange} disabled={disabled} />
-      </div>
-    )
-  }
-
-  return <Checkbox size="sm" checked={checked} onCheckedChange={onChange} disabled={disabled} />
+  return (
+    <Switch
+      isSelected={checked}
+      onChange={onChange}
+      isDisabled={disabled}
+      className={cx(
+        'group flex h-7 w-full cursor-pointer items-center justify-between rounded-md bg-tertiary px-2.5',
+        'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary',
+        disabled && 'pointer-events-none opacity-50'
+      )}
+    >
+      <span className="text-secondary whitespace-nowrap text-[11px] font-medium">{label}</span>
+      <span
+        className={cx(
+          'flex h-5 w-9 shrink-0 items-center rounded-full p-0.5 transition-colors duration-150',
+          'motion-reduce:transition-none',
+          checked ? 'bg-fg-tertiary/80 shine-2-subtle' : 'bg-quaternary shine-2-subtle'
+        )}
+      >
+        <span
+          className={cx(
+            'size-4 rounded-full transition-transform duration-150 ease-out',
+            'motion-reduce:transition-none',
+            checked ? 'bg-white shine-2' : 'bg-primary/80 shine-2-subtle',
+            checked && 'translate-x-4'
+          )}
+        />
+      </span>
+    </Switch>
+  )
 }
 
 // -----------------------------------------------------------------------------
@@ -321,7 +332,7 @@ export function TextControl({ control, onChange }: TextControlProps) {
       maxLength={maxLength}
       disabled={disabled}
       className={cx(
-        'text-primary border-primary bg-primary focus:ring-brand focus:border-brand w-full rounded border px-3 py-2 text-xs focus:ring-2 focus:outline-none',
+        'text-primary border-primary bg-primary focus:ring-brand focus:border-brand w-full rounded border px-3 py-2 text-xs focus:outline-none focus:ring-2',
         disabled && 'cursor-not-allowed opacity-50'
       )}
     />
@@ -346,11 +357,18 @@ export function ControlRenderer({ control, sectionId, onChange }: ControlRendere
     return <div key={control.id}>{control.render()}</div>
   }
 
-  // Slider controls render without wrapper (label is inside InlineSlider)
+  // Slider controls render without wrapper (label is inside slider)
+  // Auto-pick TickSlider when step count is ≤ 10
   if (control.type === 'slider' || control.type === 'inline-slider') {
     const sliderControl = control as SliderControlType | InlineSliderControlType
+    const sliderMin = sliderControl.min ?? 0
+    const sliderMax = sliderControl.max ?? 100
+    const sliderStep = sliderControl.step ?? 1
+    const stepCount = Math.round((sliderMax - sliderMin) / sliderStep)
+    const Slider = stepCount > 0 && stepCount <= 10 ? TickSlider : InlineSlider
+
     return (
-      <InlineSlider
+      <Slider
         label={sliderControl.label}
         value={sliderControl.value}
         min={sliderControl.min}
@@ -363,14 +381,67 @@ export function ControlRenderer({ control, sectionId, onChange }: ControlRendere
     )
   }
 
+  // Select controls render without wrapper (label is inside InlineSelect)
+  if (control.type === 'select') {
+    return <SelectControl control={control} onChange={handleChange as (v: string) => void} />
+  }
+
+  // Toggle controls render without wrapper (label is inside ToggleControl)
+  if (control.type === 'toggle') {
+    return <ToggleControl control={control} onChange={handleChange as (v: boolean) => void} />
+  }
+
+  // Enhanced control types with visual previews
+  if (control.type === 'font-weight-select') {
+    const fwControl = control as FontWeightSelectControlType
+    return (
+      <ControlGroupWrapper label={control.label} description={control.description}>
+        <FontWeightSelect
+          value={fwControl.value}
+          options={fwControl.options}
+          onChange={handleChange as (v: string) => void}
+          previewText={fwControl.previewText}
+          disabled={fwControl.disabled}
+        />
+      </ControlGroupWrapper>
+    )
+  }
+
+  if (control.type === 'color-enhanced-select') {
+    const ceControl = control as ColorEnhancedSelectControlType
+    return (
+      <ControlGroupWrapper label={control.label} description={control.description}>
+        <ColorEnhancedSelect
+          value={ceControl.value}
+          options={ceControl.options}
+          onChange={handleChange as (v: string) => void}
+          swatchSize={ceControl.swatchSize}
+          showGroups={ceControl.showGroups}
+          disabled={ceControl.disabled}
+        />
+      </ControlGroupWrapper>
+    )
+  }
+
+  if (control.type === 'radius-select') {
+    const rControl = control as RadiusSelectControlType
+    return (
+      <ControlGroupWrapper label={control.label} description={control.description}>
+        <RadiusPreviewSelect
+          value={rControl.value}
+          options={rControl.options}
+          onChange={handleChange as (v: string) => void}
+          previewSize={rControl.previewSize}
+          disabled={rControl.disabled}
+        />
+      </ControlGroupWrapper>
+    )
+  }
+
   const renderControl = () => {
     switch (control.type) {
-      case 'select':
-        return <SelectControl control={control} onChange={handleChange as (v: string) => void} />
       case 'color-select':
         return <ColorSelectControl control={control} onChange={handleChange as (v: string) => void} />
-      case 'toggle':
-        return <ToggleControl control={control} onChange={handleChange as (v: boolean) => void} />
       case 'color':
         return <ColorControl control={control} onChange={handleChange as (v: string) => void} />
       case 'text':

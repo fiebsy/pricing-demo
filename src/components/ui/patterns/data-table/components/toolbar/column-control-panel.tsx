@@ -9,7 +9,7 @@
  * @module components/column-control-panel
  */
 
-import { memo, useMemo } from 'react'
+import { memo, useMemo, type ReactNode } from 'react'
 import Layout2ColumnIcon from '@hugeicons-pro/core-stroke-rounded/Layout2ColumnIcon'
 import { Menu, type MenuItemType, MENU_ITEM_STYLES_SMALL } from '@/components/ui/core/primitives/menu'
 import { ButtonUtility } from '@/components/ui/core/primitives/button-utility'
@@ -26,7 +26,7 @@ interface ColumnControlPanelProps {
   /** Reset to default visibility */
   onResetColumns: () => void
   /** Column labels */
-  columnLabels: Record<string, string>
+  columnLabels: Record<string, ReactNode>
   /** Optional: Column grouping configuration */
   columnGroups?: Array<{
     label: string
@@ -58,7 +58,8 @@ const ColumnControlPanelBase = ({
     const createCheckboxItem = (col: ColumnConfig): MenuItemType => {
       const isVisible = visibleColumnKeys.has(col.key)
       const isSticky = col.isSticky ?? false
-      const baseLabel = columnLabels[col.key] || col.key
+      const rawLabel = columnLabels[col.key]
+      const baseLabel = typeof rawLabel === 'string' ? rawLabel : col.key
       const label = isSticky ? `${baseLabel} (Sticky)` : baseLabel
 
       return {

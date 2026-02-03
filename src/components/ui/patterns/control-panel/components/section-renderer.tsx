@@ -9,8 +9,11 @@
 
 import { useState, useId } from 'react'
 import { cx } from '@/components/utils/cx'
+import { HugeIcon } from '@/components/ui/core/primitives/icon'
+import type { HugeIconData } from '@/components/ui/core/primitives/icon'
 import { ControlGrid, ControlRenderer } from './controls'
-import type { ControlGroup, Section } from '../types'
+import { getSectionIcon } from '../icons'
+import type { ControlGroup, Section, SectionType } from '../types'
 
 // -----------------------------------------------------------------------------
 // Animated Plus/Minus Icon
@@ -71,10 +74,21 @@ interface CollapsibleGroupProps {
   title?: string
   description?: string
   defaultOpen?: boolean
+  /** Section type for automatic icon mapping */
+  groupType?: SectionType
+  /** Override icon for this group header */
+  icon?: HugeIconData
   children: React.ReactNode
 }
 
-function CollapsibleGroup({ title, description, defaultOpen = true, children }: CollapsibleGroupProps) {
+function CollapsibleGroup({
+  title,
+  description,
+  defaultOpen = true,
+  groupType,
+  icon,
+  children,
+}: CollapsibleGroupProps) {
   const [isOpen, setIsOpen] = useState(defaultOpen)
   const contentId = useId()
 
@@ -82,6 +96,9 @@ function CollapsibleGroup({ title, description, defaultOpen = true, children }: 
   if (!title) {
     return <>{children}</>
   }
+
+  // Resolve icon: explicit icon > groupType mapping > none
+  const resolvedIcon = icon ?? (groupType ? getSectionIcon(groupType) : undefined)
 
   return (
     <div>
@@ -94,13 +111,21 @@ function CollapsibleGroup({ title, description, defaultOpen = true, children }: 
           aria-expanded={isOpen}
           aria-controls={contentId}
         >
-          <div>
-            <h5 className="text-tertiary text-xs font-medium">
-              {title}
-            </h5>
-            {description && (
-              <p className="text-tertiary mt-0.5 text-[10px]">{description}</p>
+          <div className="flex items-center gap-1.5">
+            {resolvedIcon && (
+              <HugeIcon
+                icon={resolvedIcon}
+                size="xs"
+                color="tertiary"
+                className="shrink-0"
+              />
             )}
+            <div>
+              <h5 className="text-tertiary text-xs font-medium">{title}</h5>
+              {description && (
+                <p className="text-tertiary mt-0.5 text-[10px]">{description}</p>
+              )}
+            </div>
           </div>
           <AnimatedPlusMinus isOpen={isOpen} />
         </button>
@@ -134,13 +159,23 @@ interface ControlGroupRendererProps {
 }
 
 function ControlGroupRenderer({ group, sectionId, onChange }: ControlGroupRendererProps) {
-  const { title, description, controls, columns = 1, defaultCollapsed = false } = group
+  const {
+    title,
+    description,
+    controls,
+    columns = 1,
+    defaultCollapsed = false,
+    groupType,
+    icon,
+  } = group
 
   return (
     <CollapsibleGroup
       title={title}
       description={description}
       defaultOpen={!defaultCollapsed}
+      groupType={groupType}
+      icon={icon}
     >
       <ControlGrid columns={columns}>
         {controls.map((control) => (
@@ -169,7 +204,7 @@ export function ActiveSectionContent({ section, onChange }: ActiveSectionContent
   const { id } = section
   // Support both 'groups' and legacy 'subsections' naming
   const groups = section.groups || section.subsections || []
-  
+
   // Section title - same priority as sidebar: label > tabLabel > title
   const sectionTitle = section.label || section.tabLabel || section.title
 
@@ -177,22 +212,16 @@ export function ActiveSectionContent({ section, onChange }: ActiveSectionContent
     <div className="space-y-2">
       {/* Section Title */}
       {sectionTitle && (
-        <h4 className="text-sm font-medium text-tertiary px-1">
-          {sectionTitle}
-        </h4>
+        <h4 className="text-tertiary px-1 text-sm font-medium">{sectionTitle}</h4>
       )}
-      
+
       {/* Control Groups - Each group is its own card */}
       {groups.map((group, index) => (
         <div
           key={`${id}-group-${index}`}
-          className="bg-primary overflow-hidden rounded-lg border border-primary shadow-sm"
+          className="bg-primary overflow-hidden rounded-lg border border-primary"
         >
-          <ControlGroupRenderer
-            group={group}
-            sectionId={id}
-            onChange={onChange}
-          />
+          <ControlGroupRenderer group={group} sectionId={id} onChange={onChange} />
         </div>
       ))}
     </div>

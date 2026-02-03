@@ -49,7 +49,7 @@ export interface StickyDataTableProps<T extends Record<string, unknown>> {
   columns: ColumnConfig[]
 
   /** Column header labels */
-  columnLabels: Record<string, string>
+  columnLabels: Record<string, ReactNode>
 
   /**
    * Cell render function - MUST follow styling guidelines

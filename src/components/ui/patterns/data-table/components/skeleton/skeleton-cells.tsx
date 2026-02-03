@@ -14,7 +14,9 @@ import {
   getAlignmentClasses,
   getCellPadding,
   getCellBorder,
+  getCellBorderStyle,
   getStickyColumnBorder,
+  getStickyColumnBorderStyle,
   getCellStyle,
   getHeaderStickyBackground,
   getRowStickyBackground,
@@ -47,15 +49,19 @@ export const SkeletonHeaderCell = ({
   cellConfig = DEFAULT_HEADER_CELL_CONFIG,
 }: SkeletonHeaderCellProps) => {
   // Use same style utilities as real table
-  const style = getCellStyle(column, stickyState)
+  const baseStyle = getCellStyle(column, stickyState)
   const backgroundClass = getHeaderStickyBackground(backgroundConfig, stickyState, column.isSticky ?? false)
   const stickyBorder = getStickyColumnBorder(column, stickyState, borderConfig)
+  const stickyBorderColorStyle = getStickyColumnBorderStyle(column, stickyState, borderConfig)
 
   // Suppress right border for first sticky when enhanced styling active
   const shouldSuppressRightBorder = column.isSticky && column.isFirstSticky && stickyState.useEnhancedStyling
   const cellBorder = stickyBorder || shouldSuppressRightBorder
     ? ''
     : getCellBorder(borderConfig, column.isLast, column.key)
+  const cellBorderColorStyle = stickyBorder || shouldSuppressRightBorder
+    ? {}
+    : getCellBorderStyle(borderConfig, column.isLast, column.key)
 
   const paddingClass = getCellPadding(column.isFirst, column.isLast)
   const alignment = getAlignmentClasses(column.align)
@@ -65,6 +71,8 @@ export const SkeletonHeaderCell = ({
   const skeletonWidth = isCheckbox ? 20 : calculateSkeletonWidth(column, cellConfig)
   const skeletonHeight = isCheckbox ? 20 : cellConfig.height
   const skeletonBorderRadius = cellConfig.borderRadius
+
+  const style = { ...baseStyle, ...stickyBorderColorStyle, ...cellBorderColorStyle }
 
   return (
     <div
@@ -112,15 +120,19 @@ export const SkeletonBodyCell = ({
   cellConfig = DEFAULT_BODY_CELL_CONFIG,
 }: SkeletonBodyCellProps) => {
   // Use same style utilities as real table
-  const style = getCellStyle(column, stickyState)
+  const baseStyle = getCellStyle(column, stickyState)
   const backgroundClass = getRowStickyBackground(backgroundConfig, stickyState, column.isSticky ?? false)
   const stickyBorder = getStickyColumnBorder(column, stickyState, borderConfig)
+  const stickyBorderColorStyle = getStickyColumnBorderStyle(column, stickyState, borderConfig)
 
   // Suppress right border for first sticky when enhanced styling active
   const shouldSuppressRightBorder = column.isSticky && column.isFirstSticky && stickyState.useEnhancedStyling
   const cellBorder = stickyBorder || shouldSuppressRightBorder
     ? ''
     : getCellBorder(borderConfig, column.isLast, column.key)
+  const cellBorderColorStyle = stickyBorder || shouldSuppressRightBorder
+    ? {}
+    : getCellBorderStyle(borderConfig, column.isLast, column.key)
 
   const paddingClass = getCellPadding(column.isFirst, column.isLast)
   const alignment = getAlignmentClasses(column.align)
@@ -130,6 +142,8 @@ export const SkeletonBodyCell = ({
   const skeletonWidth = isCheckbox ? 16 : calculateSkeletonWidth(column, cellConfig)
   const skeletonHeight = isCheckbox ? 16 : cellConfig.height
   const skeletonBorderRadius = cellConfig.borderRadius
+
+  const style = { ...baseStyle, ...stickyBorderColorStyle, ...cellBorderColorStyle }
 
   return (
     <div

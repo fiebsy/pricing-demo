@@ -24,7 +24,7 @@ const ORDERS_ITEMS: StackItem[] = [
   { id: 'all', label: 'All' },
   {
     id: 'invoices',
-    label: 'Invoices',
+    label: 'Invoicesssss',
     children: [
       {
         id: 'inv-pending',

@@ -73,6 +73,7 @@ interface AnimatedItemProps {
   levelIndices: number[]
   isAnchored: boolean
   isPromoting?: boolean
+  isDemoting?: boolean
 }
 
 /**
@@ -84,9 +85,11 @@ export const AnimatedItem = React.memo(function AnimatedItem({
   levelIndices,
   isAnchored,
   isPromoting = false,
+  isDemoting = false,
 }: AnimatedItemProps) {
   const {
     activePath,
+    animationConfig,
     styleConfig,
     showNumbers,
     showDebug,
@@ -107,7 +110,11 @@ export const AnimatedItem = React.memo(function AnimatedItem({
   
   // Determine variant
   let variant: 'primary' | 'secondary' | 'tertiary' | 'shine' | 'tab' | 'link-gray' | 'link-color' = 'tertiary'
-  if (isRootAnchor && !isAnchored) {
+  if (isPromoting && animationConfig.promotionVariant !== 'none') {
+    variant = animationConfig.promotionVariant
+  } else if (isDemoting && animationConfig.demotionVariant !== 'none') {
+    variant = animationConfig.demotionVariant
+  } else if (isRootAnchor && !isAnchored) {
     variant = 'shine'
   } else if (isAnchored) {
     variant = styleConfig.anchoredVariant
@@ -185,6 +192,7 @@ export const AnimatedItem = React.memo(function AnimatedItem({
         data-item-level={level}
         data-item-state={
           isPromoting ? 'promoting' :
+          isDemoting ? 'demoting' :
           isAnchored ? 'anchored' :
           isSelected ? 'active' :
           isChildItem ? 'child' :
@@ -207,6 +215,7 @@ export const AnimatedItem = React.memo(function AnimatedItem({
           <div className={cn(
             'px-1.5 py-0.5 rounded-md text-[10px] font-mono font-semibold border shadow-sm',
             isPromoting ? 'bg-purple-500 text-white border-purple-600' :
+            isDemoting ? 'bg-orange-500 text-white border-orange-600' :
             isAnchored ? 'bg-yellow-500 text-black border-yellow-600' :
             isSelected ? 'bg-green-500 text-white border-green-600' :
             isExpanded ? 'bg-blue-500 text-white border-blue-600' :
@@ -216,6 +225,7 @@ export const AnimatedItem = React.memo(function AnimatedItem({
             <div className="flex flex-col items-center gap-0.5">
               <div>
                 {isPromoting ? 'PROMOTING' :
+                 isDemoting ? 'DEMOTING' :
                  isAnchored ? 'ANCHORED' :
                  isSelected ? 'ACTIVE' :
                  isExpanded ? 'EXPANDED' :
@@ -233,6 +243,7 @@ export const AnimatedItem = React.memo(function AnimatedItem({
             <div className={cn(
               'w-px h-2',
               isPromoting ? 'bg-purple-500/60' :
+              isDemoting ? 'bg-orange-500/60' :
               isAnchored ? 'bg-yellow-500/60' :
               isSelected ? 'bg-green-500/60' :
               isExpanded ? 'bg-blue-500/60' :
@@ -242,6 +253,7 @@ export const AnimatedItem = React.memo(function AnimatedItem({
             <div className={cn(
               'w-0 h-0 border-l-[4px] border-r-[4px] border-t-[5px] border-l-transparent border-r-transparent',
               isPromoting ? 'border-t-purple-500/60' :
+              isDemoting ? 'border-t-orange-500/60' :
               isAnchored ? 'border-t-yellow-500/60' :
               isSelected ? 'border-t-green-500/60' :
               isExpanded ? 'border-t-blue-500/60' :

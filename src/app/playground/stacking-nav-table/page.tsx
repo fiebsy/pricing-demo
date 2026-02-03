@@ -5,18 +5,18 @@
  * living inside the sticky data table toolbar. Drilling deeper
  * through the nav progressively narrows table results.
  *
- * Domain: Corporate Directory
- * L0: All (~80 employees)
- * L1: Company (~25-30 rows)
- * L2: Department (~8-12 rows)
- * L3: Team (~3-5 rows)
+ * Domain: Multiverse Power Rankings
+ * L0: All (~96 characters)
+ * L1: Realm (~24-28 rows)
+ * L2: Faction (~6-8 rows)
+ * L3: Energy (~1-4 rows)
  *
  * Route: /playground/stacking-nav-table
  */
 
 'use client'
 
-import { useState, useMemo, useCallback, useTransition, useRef, useEffect } from 'react'
+import { useState, useMemo, useCallback, useTransition, useRef, useEffect, type ReactNode } from 'react'
 import {
   UnifiedControlPanel,
   type ControlChangeEvent,
@@ -27,9 +27,10 @@ import {
   type ActivePath,
 } from '@/components/ui/features/stacking-nav'
 import { StickyDataTable } from '@/components/ui/patterns/data-table'
+import { TableEmptyState } from '@/components/ui/patterns/data-table/components/core/table-empty-state'
 import type { ToolbarLayoutConfig, ColumnConfig, BorderConfig } from '@/components/ui/patterns/data-table'
 
-import type { PlaygroundConfig, PageBackground, BorderColor } from './config/types'
+import type { PlaygroundConfig, PageBackground, BorderColor, DataVariantId } from './config/types'
 import { DIRECTORY_ITEMS } from './config/nav-items'
 import { DIRECTORY_COLUMNS, COLUMN_LABELS } from './config/columns'
 import {
@@ -37,11 +38,19 @@ import {
   HARDENED_BACKGROUND_CONFIG,
 } from './config/table-preset'
 import { PRESET_DEFAULT, PRESETS, type PresetId } from './config/presets'
-import { EMPLOYEE_DATA } from './core/mock-data'
-import { renderCell } from './core/cell-renderer'
+import { CHARACTER_DATA } from './core/mock-data'
+import { createRenderCell } from './core/cell-renderer'
 import { filterByPath } from './core/filter-utils'
+import {
+  EMPLOYEE_DATA,
+  EMPLOYEE_NAV_ITEMS,
+  EMPLOYEE_COLUMNS,
+  EMPLOYEE_COLUMN_LABELS,
+  EMPLOYEE_DEFAULT_COLUMN_ORDER,
+  createEmployeeRenderCell,
+  filterEmployeesByPath,
+} from './core/employee-variant'
 import { createPanelConfig } from './panels/panel-config'
-import type { Employee } from './config/types'
 
 // =============================================================================
 // TOOLBAR LAYOUT - Override for nav-in-toolbar
@@ -97,13 +106,18 @@ const toBorderToken = (color: BorderColor) => `border-${color}`
 // COLUMN REORDER HELPERS
 // =============================================================================
 
-const DEFAULT_COLUMN_ORDER = [
-  'employee',
-  'role',
-  'status',
-  'level',
-  'salary',
+const CHARACTER_COLUMN_ORDER = [
+  'character',
+  'realmBadge',
+  'origin',
+  'description',
+  'threatLevel',
+  'livesRescued',
 ]
+
+function getDefaultColumnOrder(variant: DataVariantId): string[] {
+  return variant === 'employees' ? EMPLOYEE_DEFAULT_COLUMN_ORDER : CHARACTER_COLUMN_ORDER
+}
 
 function reorderColumns(
   columns: ColumnConfig[],
@@ -122,18 +136,30 @@ export default function StackingNavTablePlayground() {
   const [currentPath, setCurrentPath] = useState<ActivePath>([])
   const [, startTransition] = useTransition()
   const [resetKey, setResetKey] = useState(0)
-  const [columnOrder, setColumnOrder] = useState<string[]>(DEFAULT_COLUMN_ORDER)
+  const [columnOrder, setColumnOrder] = useState<string[]>(getDefaultColumnOrder(PRESET_DEFAULT.dataVariant))
 
   // Prevent sticky disengage when filtering shrinks content below viewport.
   // Locks the wrapper's minHeight before data changes, then smoothly releases.
   const contentWrapperRef = useRef<HTMLDivElement>(null)
   const heightLockRef = useRef(false)
 
-  // Filter employees based on nav path
+  // Variant-aware: pick data source, filter function, nav items, columns, labels
+  const isEmployees = config.dataVariant === 'employees'
+
   const filteredData = useMemo(
-    () => filterByPath([...EMPLOYEE_DATA] as Employee[], currentPath),
-    [currentPath]
+    () => {
+      const data = isEmployees
+        ? filterEmployeesByPath([...EMPLOYEE_DATA], currentPath)
+        : filterByPath([...CHARACTER_DATA], currentPath)
+      return data.sort((a, b) => String(a.name).localeCompare(String(b.name)))
+    },
+    [currentPath, isEmployees]
   )
+
+  const activeNavItems = isEmployees ? EMPLOYEE_NAV_ITEMS : DIRECTORY_ITEMS
+  const activeColumns = isEmployees ? EMPLOYEE_COLUMNS : DIRECTORY_COLUMNS
+  const activeColumnLabels = isEmployees ? EMPLOYEE_COLUMN_LABELS : COLUMN_LABELS
+  const activeCountLabel = isEmployees ? 'employees' : 'characters'
 
   // After filtered data renders, smoothly release the height lock
   useEffect(() => {
@@ -172,10 +198,50 @@ export default function StackingNavTablePlayground() {
     return undefined
   }, [config.navVariant])
 
-  // Ordered columns — reacts to drag-and-drop reorder
+  // Cell renderer — rebuilds when sparkline config, avatar config, or variant changes
+  const sparklineConfig = useMemo(() => ({
+    height: config.sparklineHeight,
+    strokeWidth: config.sparklineStrokeWidth,
+    showFill: config.sparklineShowFill,
+    showDot: config.sparklineShowDot,
+  }), [config.sparklineHeight, config.sparklineStrokeWidth, config.sparklineShowFill, config.sparklineShowDot])
+
+  const avatarConfig = useMemo(() => ({
+    width: config.originAvatarWidth,
+    height: config.originAvatarHeight,
+    imageType: config.originImageType,
+    logoBg: config.originLogoBg,
+    logoBgColor: config.originLogoBgColor,
+    logoPaddingX: config.originLogoPaddingX,
+    logoPaddingY: config.originLogoPaddingY,
+    logoShine: config.originLogoShine,
+    logoSquircle: config.originLogoSquircle,
+    logoInvert: config.originLogoInvert,
+  }), [
+    config.originAvatarWidth, config.originAvatarHeight,
+    config.originImageType, config.originLogoBg, config.originLogoBgColor,
+    config.originLogoPaddingX, config.originLogoPaddingY,
+    config.originLogoShine, config.originLogoSquircle, config.originLogoInvert,
+  ])
+
+  const badgeConfig = useMemo(() => ({
+    style: config.badgeStyle,
+    shape: config.badgeShape,
+    neutral: config.badgeNeutral,
+  }), [config.badgeStyle, config.badgeShape, config.badgeNeutral])
+
+  type CellRenderer = (columnKey: string, row: Record<string, unknown>, index: number) => ReactNode
+  const cellRenderer = useMemo<CellRenderer>(
+    () => (isEmployees
+      ? createEmployeeRenderCell(sparklineConfig)
+      : createRenderCell(sparklineConfig, avatarConfig, badgeConfig)) as CellRenderer,
+    [sparklineConfig, avatarConfig, badgeConfig, isEmployees]
+  )
+
+  // Ordered columns — reacts to drag-and-drop reorder + variant
   const orderedColumns = useMemo(
-    () => reorderColumns(DIRECTORY_COLUMNS, columnOrder),
-    [columnOrder]
+    () => reorderColumns(activeColumns, columnOrder),
+    [activeColumns, columnOrder]
   )
 
   // Toolbar config (reacts to padding changes)
@@ -255,13 +321,23 @@ export default function StackingNavTablePlayground() {
       }
     }
 
+    // Handle data variant switch — reset nav, columns, and key synchronously
+    if (controlId === 'dataVariant') {
+      const variant = value as DataVariantId
+      setConfig((prev) => ({ ...prev, dataVariant: variant }))
+      setCurrentPath([])
+      setColumnOrder(getDefaultColumnOrder(variant))
+      setResetKey((k) => k + 1)
+      return
+    }
+
     setConfig((prev) => ({ ...prev, [controlId]: value }))
   }, [])
 
   const handleReset = useCallback(() => {
     setConfig(PRESET_DEFAULT)
     setCurrentPath([])
-    setColumnOrder(DEFAULT_COLUMN_ORDER)
+    setColumnOrder(getDefaultColumnOrder(PRESET_DEFAULT.dataVariant))
     setResetKey((k) => k + 1)
   }, [])
 
@@ -278,6 +354,7 @@ export default function StackingNavTablePlayground() {
   const bgClasses: Record<PageBackground, string> = {
     primary: 'bg-primary',
     secondary: 'bg-secondary',
+    secondary_alt: 'bg-secondary-alt',
     tertiary: 'bg-tertiary',
   }
 
@@ -307,7 +384,7 @@ export default function StackingNavTablePlayground() {
   const navToolbar = (
     <StackingNav
       key={resetKey}
-      items={DIRECTORY_ITEMS}
+      items={activeNavItems}
       animationConfig={navAnimationConfig}
       styleConfig={NAV_STYLE_CONFIG}
       showDebug={config.showNavDebug}
@@ -323,13 +400,13 @@ export default function StackingNavTablePlayground() {
       <style dangerouslySetInnerHTML={{ __html: tableScopedCSS }} />
 
       <div className="pr-[352px] min-h-screen">
-        <div ref={contentWrapperRef} className="mx-auto px-6" style={{ paddingTop: config.pageTopGap, maxWidth: config.pageMaxWidth }}>
+        <div ref={contentWrapperRef} className="mx-auto px-6 mb-20" style={{ paddingTop: config.pageTopGap, maxWidth: config.pageMaxWidth }}>
           {/* Data Table with Nav in Toolbar */}
-          <StickyDataTable<Employee>
+          <StickyDataTable<Record<string, unknown>>
             data={filteredData}
             columns={orderedColumns}
-            columnLabels={COLUMN_LABELS}
-            renderCell={renderCell}
+            columnLabels={activeColumnLabels}
+            renderCell={cellRenderer}
             borderRadius={config.borderRadius}
             headerHeight={HARDENED_DIMENSIONS.headerHeight}
             rowHeight={HARDENED_DIMENSIONS.rowHeight}
@@ -343,8 +420,27 @@ export default function StackingNavTablePlayground() {
             enableColumnReorder={config.enableColumnReorder}
             onReorderColumns={handleReorderColumns}
             totalCount={filteredData.length}
-            countLabel="employees"
+            countLabel={activeCountLabel}
             getRowId={(row) => String(row.id)}
+            hasActiveFilters={currentPath.length > 0}
+            noResultsState={
+              <TableEmptyState
+                variant="no-results"
+                title={`No ${activeCountLabel} found`}
+                description={`This filter combination has no matching ${activeCountLabel}.`}
+                action={{
+                  label: 'Clear Filters',
+                  onClick: handleComponentReset,
+                }}
+              />
+            }
+            emptyState={
+              <TableEmptyState
+                variant="empty"
+                title={`No ${activeCountLabel}`}
+                description={`There are no ${activeCountLabel} to display.`}
+              />
+            }
             className="snt-table relative"
           />
         </div>

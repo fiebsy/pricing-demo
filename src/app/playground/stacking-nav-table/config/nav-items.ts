@@ -1,14 +1,49 @@
 /**
  * Stacking Nav + Table Playground - Navigation Items
  *
- * 4-level corporate directory hierarchy:
- * L0: All employees
- * L1: Company (Acme Corp, Globex, Initech)
- * L2: Department (Engineering, Design, Sales, etc.)
- * L3: Team (Frontend, Backend, DevOps, etc.)
+ * 4-level multiverse hierarchy:
+ * L0: All Characters
+ * L1: Realm (Marvel, Anime, Westeros)
+ * L2: Faction (realm-specific, e.g. Avengers, X-Men, Dragon Ball, Pokemon)
+ * L3: Energy (Main, Villain, Side, NPC)
  */
 
 import type { StackItem } from '@/components/ui/features/stacking-nav'
+import { CharacterEnergy } from './types'
+
+// =============================================================================
+// ENERGY CHILDREN (shared L3 across all factions)
+// =============================================================================
+
+const ENERGY_CHILDREN: StackItem[] = [
+  { id: CharacterEnergy.MainCharacter, label: 'Main' },
+  { id: CharacterEnergy.VillainArc, label: 'Villain' },
+  { id: CharacterEnergy.SideQuest, label: 'Side' },
+  { id: CharacterEnergy.NPCEnergy, label: 'NPC' },
+]
+
+// =============================================================================
+// FACTION CHILDREN (realm-specific L2)
+// =============================================================================
+
+const MARVEL_FACTIONS: StackItem[] = [
+  { id: 'avengers', label: 'Avengers', children: ENERGY_CHILDREN },
+  { id: 'x-men', label: 'X-Men', children: ENERGY_CHILDREN },
+  { id: 'guardians', label: 'Guardians', children: ENERGY_CHILDREN },
+  { id: 'rogues-gallery', label: 'Rogues', children: ENERGY_CHILDREN },
+]
+
+const ANIME_FACTIONS: StackItem[] = [
+  { id: 'dragon-ball', label: 'Dragon Ball', children: ENERGY_CHILDREN },
+  { id: 'pokemon', label: 'Pokemon', children: ENERGY_CHILDREN },
+]
+
+const WESTEROS_FACTIONS: StackItem[] = [
+  { id: 'house-stark', label: 'Stark', children: ENERGY_CHILDREN },
+  { id: 'house-targaryen', label: 'Targaryen', children: ENERGY_CHILDREN },
+  { id: 'house-lannister', label: 'Lannister', children: ENERGY_CHILDREN },
+  { id: 'nights-watch', label: 'Watch', children: ENERGY_CHILDREN },
+]
 
 // =============================================================================
 // NAVIGATION HIERARCHY
@@ -17,105 +52,19 @@ import type { StackItem } from '@/components/ui/features/stacking-nav'
 export const DIRECTORY_ITEMS: StackItem[] = [
   { id: 'all', label: 'All' },
   {
-    id: 'acme',
-    label: 'Acme Corp', // 9 chars
-    children: [
-      {
-        id: 'acme-eng',
-        label: 'Engineer', // 8 chars
-        children: [
-          { id: 'acme-eng-fe', label: 'Frontend' },    // 8 chars
-          { id: 'acme-eng-be', label: 'Backend' },     // 7 chars
-          { id: 'acme-eng-devops', label: 'DevOps' },  // 6 chars
-        ],
-      },
-      {
-        id: 'acme-design',
-        label: 'Design', // 6 chars
-        children: [
-          { id: 'acme-design-product', label: 'Product' },  // 7 chars
-          { id: 'acme-design-brand', label: 'Brand' },      // 5 chars
-        ],
-      },
-      {
-        id: 'acme-sales',
-        label: 'Sales', // 5 chars
-        children: [
-          { id: 'acme-sales-ent', label: 'Enterprs' },   // 8 chars
-          { id: 'acme-sales-smb', label: 'SMB' },        // 3 chars
-        ],
-      },
-      {
-        id: 'acme-ops',
-        label: 'Operatns', // 8 chars
-        children: [
-          { id: 'acme-ops-hr', label: 'HR' },            // 2 chars
-          { id: 'acme-ops-finance', label: 'Finance' },   // 7 chars
-        ],
-      },
-    ],
+    id: 'marvel',
+    label: 'Marvel',
+    children: MARVEL_FACTIONS,
   },
   {
-    id: 'globex',
-    label: 'Globex', // 6 chars
-    children: [
-      {
-        id: 'globex-eng',
-        label: 'Engineer', // 8 chars
-        children: [
-          { id: 'globex-eng-platform', label: 'Platform' },  // 8 chars
-          { id: 'globex-eng-mobile', label: 'Mobile' },      // 6 chars
-          { id: 'globex-eng-data', label: 'Data' },          // 4 chars
-        ],
-      },
-      {
-        id: 'globex-product',
-        label: 'Product', // 7 chars
-        children: [
-          { id: 'globex-product-growth', label: 'Growth' },    // 6 chars
-          { id: 'globex-product-core', label: 'Core' },        // 4 chars
-        ],
-      },
-      {
-        id: 'globex-mktg',
-        label: 'Marketng', // 8 chars
-        children: [
-          { id: 'globex-mktg-content', label: 'Content' },    // 7 chars
-          { id: 'globex-mktg-demand', label: 'Demand' },      // 6 chars
-        ],
-      },
-    ],
+    id: 'anime',
+    label: 'Anime',
+    children: ANIME_FACTIONS,
   },
   {
-    id: 'initech',
-    label: 'Initech', // 7 chars
-    children: [
-      {
-        id: 'initech-eng',
-        label: 'Engineer', // 8 chars
-        children: [
-          { id: 'initech-eng-infra', label: 'Infra' },        // 5 chars
-          { id: 'initech-eng-security', label: 'Security' },  // 8 chars
-          { id: 'initech-eng-qa', label: 'QA' },              // 2 chars
-        ],
-      },
-      {
-        id: 'initech-support',
-        label: 'Support', // 7 chars
-        children: [
-          { id: 'initech-support-tier1', label: 'Tier 1' },   // 6 chars
-          { id: 'initech-support-tier2', label: 'Tier 2' },   // 6 chars
-        ],
-      },
-      {
-        id: 'initech-legal',
-        label: 'Legal', // 5 chars
-        children: [
-          { id: 'initech-legal-contracts', label: 'Contract' }, // 8 chars
-          { id: 'initech-legal-compliance', label: 'Complnc' }, // 7 chars
-        ],
-      },
-    ],
+    id: 'westeros',
+    label: 'Westeros',
+    children: WESTEROS_FACTIONS,
   },
 ]
 
@@ -123,49 +72,26 @@ export const DIRECTORY_ITEMS: StackItem[] = [
 // LABEL LOOKUPS
 // =============================================================================
 
-/**
- * Maps nav item IDs to display labels for breadcrumb rendering.
- * Includes full names (not truncated versions used in nav buttons).
- */
 export const NAV_LABELS: Record<string, string> = {
-  all: 'All Employees',
-  // L1 - Companies
-  acme: 'Acme Corp',
-  globex: 'Globex',
-  initech: 'Initech',
-  // L2 - Departments
-  'acme-eng': 'Engineering',
-  'acme-design': 'Design',
-  'acme-sales': 'Sales',
-  'acme-ops': 'Operations',
-  'globex-eng': 'Engineering',
-  'globex-product': 'Product',
-  'globex-mktg': 'Marketing',
-  'initech-eng': 'Engineering',
-  'initech-support': 'Support',
-  'initech-legal': 'Legal',
-  // L3 - Teams
-  'acme-eng-fe': 'Frontend',
-  'acme-eng-be': 'Backend',
-  'acme-eng-devops': 'DevOps',
-  'acme-design-product': 'Product Design',
-  'acme-design-brand': 'Brand Design',
-  'acme-sales-ent': 'Enterprise Sales',
-  'acme-sales-smb': 'SMB Sales',
-  'acme-ops-hr': 'Human Resources',
-  'acme-ops-finance': 'Finance',
-  'globex-eng-platform': 'Platform',
-  'globex-eng-mobile': 'Mobile',
-  'globex-eng-data': 'Data Engineering',
-  'globex-product-growth': 'Growth',
-  'globex-product-core': 'Core Product',
-  'globex-mktg-content': 'Content Marketing',
-  'globex-mktg-demand': 'Demand Gen',
-  'initech-eng-infra': 'Infrastructure',
-  'initech-eng-security': 'Security',
-  'initech-eng-qa': 'QA',
-  'initech-support-tier1': 'Tier 1 Support',
-  'initech-support-tier2': 'Tier 2 Support',
-  'initech-legal-contracts': 'Contracts',
-  'initech-legal-compliance': 'Compliance',
+  all: 'All Characters',
+  // L1 - Realms
+  marvel: 'Marvel',
+  anime: 'Anime',
+  westeros: 'Westeros',
+  // L2 - Factions
+  avengers: 'Avengers',
+  'x-men': 'X-Men',
+  guardians: 'Guardians',
+  'rogues-gallery': 'Rogues',
+  'dragon-ball': 'Dragon Ball',
+  pokemon: 'Pokemon',
+  'house-stark': 'Stark',
+  'house-targaryen': 'Targaryen',
+  'house-lannister': 'Lannister',
+  'nights-watch': 'Watch',
+  // L3 - Energies
+  [CharacterEnergy.MainCharacter]: 'Main',
+  [CharacterEnergy.VillainArc]: 'Villain',
+  [CharacterEnergy.SideQuest]: 'Side',
+  [CharacterEnergy.NPCEnergy]: 'NPC',
 }

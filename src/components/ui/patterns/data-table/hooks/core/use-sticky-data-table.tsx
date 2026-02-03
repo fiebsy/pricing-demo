@@ -61,7 +61,7 @@ import { LoadMoreSkeleton } from '../../components'
 export interface UseStickyDataTableProps<T extends Record<string, unknown>> {
   data: T[]
   columns: ColumnConfig[]
-  columnLabels: Record<string, string>
+  columnLabels: Record<string, ReactNode>
   borderRadius?: number
   borderConfig?: Partial<BorderConfig>
   backgroundConfig?: Partial<BackgroundConfig>
@@ -119,7 +119,7 @@ export interface UseStickyDataTableReturn<T extends Record<string, unknown>> {
   toggleColumn: (key: string) => void
   resetColumns: () => void
   totalStickyWidth: number
-  columnLabelsWithCheckbox: Record<string, string>
+  columnLabelsWithCheckbox: Record<string, ReactNode>
 
   // Sort state
   sortColumn: SortColumn

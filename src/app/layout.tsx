@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { neueHaasGroteskText, neueHaasGroteskDisplay } from '@/lib/fonts'
 import { ThemeProvider } from '@/components/theme-provider'
 import { FloatingNav } from '@/components/ui/deprecated/nav'
+import { ThemeToggle } from '@/components/ui/deprecated/theme-toggle'
 import '../styles/globals.css'
 
 export const metadata: Metadata = {
@@ -35,6 +36,7 @@ export default function RootLayout({
       <body className="font-body bg-secondary_alt noise-overlay noise-fixed noise-opacity-90">
         <ThemeProvider>
           <FloatingNav />
+          <ThemeToggle />
           {children}
         </ThemeProvider>
       </body>
