@@ -629,6 +629,41 @@ export function createPanelConfig(config: PlaygroundConfig): PanelConfig {
               },
             ],
           },
+          {
+            title: 'Baseline',
+            controls: [
+              {
+                id: 'sparklineShowBaseline',
+                type: 'toggle',
+                label: 'Show Baseline',
+                value: config.sparklineShowBaseline,
+              },
+              ...(config.sparklineShowBaseline
+                ? [
+                    {
+                      id: 'sparklineBaselineWidth',
+                      type: 'slider' as const,
+                      label: 'Width',
+                      value: config.sparklineBaselineWidth,
+                      min: 0.5,
+                      max: 3,
+                      step: 0.5,
+                      formatLabel: (v: number) => `${v}px`,
+                    },
+                    {
+                      id: 'sparklineBaselineOpacity',
+                      type: 'slider' as const,
+                      label: 'Opacity',
+                      value: config.sparklineBaselineOpacity,
+                      min: 0.1,
+                      max: 1,
+                      step: 0.05,
+                      formatLabel: (v: number) => `${Math.round(v * 100)}%`,
+                    },
+                  ]
+                : []),
+            ],
+          },
         ],
       },
       {

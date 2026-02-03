@@ -36,8 +36,26 @@ export interface Character extends Record<string, unknown> {
   factionLabel: string
   energy: CharacterEnergy
   threatLevel: ThreatLevel
+  powerScore: number
   origin: string
   description: string
+  /**
+   * Lives rescued/taken trend data (30 days).
+   * Range: -100 to +100 (signed sparkline)
+   * - Positive values = lives saved (heroes)
+   * - Negative values = lives taken/endangered (villains)
+   * - Zero = neutral impact
+   *
+   * Generated based on character archetype:
+   * - pure-hero: +50 to +95, stable positive
+   * - anti-hero: -20 to +60, volatile, crosses zero
+   * - villain: -90 to -20, consistently negative
+   * - redeemed: -40 → +60, upward trend
+   * - fallen: +60 → -40, downward trend (e.g., Daenerys)
+   * - neutral: -10 to +30, near zero
+   * - mass-casualty: -60 to -100 with spikes (e.g., Thanos)
+   * - incompetent: -20 to +5, comedic villains
+   */
   trend: number[]
 }
 
@@ -144,6 +162,10 @@ export interface PlaygroundConfig {
   sparklineStrokeWidth: number
   sparklineShowFill: boolean
   sparklineShowDot: boolean
+  // Baseline
+  sparklineShowBaseline: boolean
+  sparklineBaselineWidth: number
+  sparklineBaselineOpacity: number
   // Nav
   navVariant: NavVariant
   showNavDebug: boolean

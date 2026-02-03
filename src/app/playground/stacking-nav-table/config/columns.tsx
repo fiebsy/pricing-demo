@@ -41,9 +41,9 @@ export const DIRECTORY_COLUMNS: ColumnConfig[] = [
   },
   {
     key: 'threatLevel',
-    width: 90,
+    width: 130,
     align: 'center',
-    sortable: false,
+    sortable: true,
   },
   {
     key: 'livesRescued',

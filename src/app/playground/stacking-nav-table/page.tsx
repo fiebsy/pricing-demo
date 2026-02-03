@@ -16,7 +16,7 @@
 
 'use client'
 
-import { useState, useMemo, useCallback, useTransition, useRef, useEffect, type ReactNode } from 'react'
+import { useState, useMemo, useCallback, useTransition, useRef, useEffect, type ReactNode, startTransition as reactStartTransition } from 'react'
 import {
   UnifiedControlPanel,
   type ControlChangeEvent,
@@ -28,7 +28,8 @@ import {
 } from '@/components/ui/features/stacking-nav'
 import { StickyDataTable } from '@/components/ui/patterns/data-table'
 import { TableEmptyState } from '@/components/ui/patterns/data-table/components/core/table-empty-state'
-import type { ToolbarLayoutConfig, ColumnConfig, BorderConfig } from '@/components/ui/patterns/data-table'
+import type { ToolbarLayoutConfig, ColumnConfig, BorderConfig, SortDirection } from '@/components/ui/patterns/data-table'
+import { ExpandingSearch } from '@/components/ui/deprecated/expanding-search'
 
 import type { PlaygroundConfig, PageBackground, BorderColor, DataVariantId } from './config/types'
 import { DIRECTORY_ITEMS } from './config/nav-items'
@@ -102,6 +103,7 @@ const NAV_STYLE_CONFIG = {
 
 const toBorderToken = (color: BorderColor) => `border-${color}`
 
+
 // =============================================================================
 // COLUMN REORDER HELPERS
 // =============================================================================
@@ -138,6 +140,18 @@ export default function StackingNavTablePlayground() {
   const [resetKey, setResetKey] = useState(0)
   const [columnOrder, setColumnOrder] = useState<string[]>(getDefaultColumnOrder(PRESET_DEFAULT.dataVariant))
 
+  // Loading state - shows skeleton loader on initial mount and variant switches
+  const [isLoading, setIsLoading] = useState(true)
+  const loadingTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  // Sort state
+  const [sortColumn, setSortColumn] = useState<string | null>(null)
+  const [sortDirection, setSortDirection] = useState<SortDirection>('desc')
+
+  // Search state
+  const [searchQuery, setSearchQuery] = useState('')
+  const [searchExpanded, setSearchExpanded] = useState(false)
+
   // Prevent sticky disengage when filtering shrinks content below viewport.
   // Locks the wrapper's minHeight before data changes, then smoothly releases.
   const contentWrapperRef = useRef<HTMLDivElement>(null)
@@ -147,13 +161,54 @@ export default function StackingNavTablePlayground() {
   const isEmployees = config.dataVariant === 'employees'
 
   const filteredData = useMemo(
-    () => {
-      const data = isEmployees
+    (): Record<string, unknown>[] => {
+      // Filter by path (nav selection)
+      const baseData: Record<string, unknown>[] = isEmployees
         ? filterEmployeesByPath([...EMPLOYEE_DATA], currentPath)
         : filterByPath([...CHARACTER_DATA], currentPath)
-      return data.sort((a, b) => String(a.name).localeCompare(String(b.name)))
+
+      // Filter by search query
+      let data = baseData
+      if (searchQuery.trim()) {
+        const query = searchQuery.toLowerCase()
+        data = data.filter((item) => {
+          const name = String(item.name || '').toLowerCase()
+          const description = String(item.description || '').toLowerCase()
+          const origin = String(item.origin || '').toLowerCase()
+          return name.includes(query) || description.includes(query) || origin.includes(query)
+        })
+      }
+
+      // Sort the data
+      if (sortColumn) {
+        data = [...data].sort((a, b) => {
+          const modifier = sortDirection === 'asc' ? 1 : -1
+
+          // Sort by power score for threat level column
+          if (sortColumn === 'threatLevel' && !isEmployees) {
+            const aScore = (a as { powerScore?: number }).powerScore ?? 0
+            const bScore = (b as { powerScore?: number }).powerScore ?? 0
+            return (aScore - bScore) * modifier
+          }
+
+          // Default string/number comparison
+          const aVal = a[sortColumn]
+          const bVal = b[sortColumn]
+
+          if (typeof aVal === 'number' && typeof bVal === 'number') {
+            return (aVal - bVal) * modifier
+          }
+
+          return String(aVal ?? '').localeCompare(String(bVal ?? '')) * modifier
+        })
+      } else {
+        // Default sort by name when no column is selected
+        data = [...data].sort((a, b) => String(a.name).localeCompare(String(b.name)))
+      }
+
+      return data
     },
-    [currentPath, isEmployees]
+    [currentPath, isEmployees, searchQuery, sortColumn, sortDirection]
   )
 
   const activeNavItems = isEmployees ? EMPLOYEE_NAV_ITEMS : DIRECTORY_ITEMS
@@ -192,6 +247,16 @@ export default function StackingNavTablePlayground() {
     })
   }, [filteredData])
 
+  // Simulate initial loading state — clear after delay
+  useEffect(() => {
+    loadingTimeoutRef.current = setTimeout(() => {
+      setIsLoading(false)
+    }, 400)
+    return () => {
+      if (loadingTimeoutRef.current) clearTimeout(loadingTimeoutRef.current)
+    }
+  }, [])
+
   // Nav animation config based on variant
   const navAnimationConfig = useMemo(() => {
     if (config.navVariant === 'spring') return SPRING_ANIMATION
@@ -204,7 +269,18 @@ export default function StackingNavTablePlayground() {
     strokeWidth: config.sparklineStrokeWidth,
     showFill: config.sparklineShowFill,
     showDot: config.sparklineShowDot,
-  }), [config.sparklineHeight, config.sparklineStrokeWidth, config.sparklineShowFill, config.sparklineShowDot])
+    showBaseline: config.sparklineShowBaseline,
+    baselineWidth: config.sparklineBaselineWidth,
+    baselineOpacity: config.sparklineBaselineOpacity,
+  }), [
+    config.sparklineHeight,
+    config.sparklineStrokeWidth,
+    config.sparklineShowFill,
+    config.sparklineShowDot,
+    config.sparklineShowBaseline,
+    config.sparklineBaselineWidth,
+    config.sparklineBaselineOpacity,
+  ])
 
   const avatarConfig = useMemo(() => ({
     width: config.originAvatarWidth,
@@ -328,6 +404,11 @@ export default function StackingNavTablePlayground() {
     })
   }, [])
 
+  const handleServerSort = useCallback((column: string, direction: SortDirection) => {
+    setSortColumn(column)
+    setSortDirection(direction)
+  }, [])
+
   const handleControlChange = useCallback((event: ControlChangeEvent) => {
     const { controlId, value } = event
 
@@ -343,6 +424,11 @@ export default function StackingNavTablePlayground() {
     // Handle data variant switch — reset nav, columns, and key synchronously
     if (controlId === 'dataVariant') {
       const variant = value as DataVariantId
+      // Trigger loading state for skeleton
+      setIsLoading(true)
+      if (loadingTimeoutRef.current) clearTimeout(loadingTimeoutRef.current)
+      loadingTimeoutRef.current = setTimeout(() => setIsLoading(false), 400)
+
       setConfig((prev) => ({ ...prev, dataVariant: variant }))
       setCurrentPath([])
       setColumnOrder(getDefaultColumnOrder(variant))
@@ -358,11 +444,19 @@ export default function StackingNavTablePlayground() {
     setCurrentPath([])
     setColumnOrder(getDefaultColumnOrder(PRESET_DEFAULT.dataVariant))
     setResetKey((k) => k + 1)
+    setSearchQuery('')
+    setSearchExpanded(false)
+    setSortColumn(null)
+    setSortDirection('desc')
   }, [])
 
   const handleComponentReset = useCallback(() => {
     setResetKey((k) => k + 1)
     setCurrentPath([])
+    setSearchQuery('')
+    setSearchExpanded(false)
+    setSortColumn(null)
+    setSortDirection('desc')
   }, [])
 
   const getConfigForCopy = useCallback(() => {
@@ -422,7 +516,7 @@ export default function StackingNavTablePlayground() {
         <div ref={contentWrapperRef} className="mx-auto px-6 mb-20" style={{ paddingTop: config.pageTopGap, maxWidth: config.pageMaxWidth }}>
           {/* Data Table with Nav in Toolbar */}
           <StickyDataTable<Record<string, unknown>>
-            data={filteredData}
+            data={isLoading ? [] : filteredData}
             columns={orderedColumns}
             columnLabels={activeColumnLabels}
             renderCell={cellRenderer}
@@ -433,6 +527,23 @@ export default function StackingNavTablePlayground() {
             backgroundConfig={HARDENED_BACKGROUND_CONFIG}
             toolbarLayout={toolbarConfig}
             leftToolbar={navToolbar}
+            rightToolbar={
+              <ExpandingSearch
+                value={searchQuery}
+                onChange={setSearchQuery}
+                expanded={searchExpanded}
+                onExpandedChange={setSearchExpanded}
+                placeholder={`Search ${activeCountLabel}...`}
+                expandedWidth={200}
+                collapsedWidth={40}
+                height={40}
+                duration={200}
+                revealMode="delay"
+                hideMode="fade"
+                collapseOnBlur={true}
+                className="shine-1"
+              />
+            }
             enableSelection={config.enableSelection}
             showColumnControl={config.showColumnControl}
             showCount={config.showCount && !config.tableMuted}
@@ -441,7 +552,13 @@ export default function StackingNavTablePlayground() {
             totalCount={filteredData.length}
             countLabel={activeCountLabel}
             getRowId={(row) => String(row.id)}
-            hasActiveFilters={currentPath.length > 0}
+            hasActiveFilters={currentPath.length > 0 || searchQuery.length > 0}
+            searchTerm={searchQuery}
+            isLoading={isLoading}
+            serverSideSort={true}
+            onServerSort={handleServerSort}
+            serverSortColumn={sortColumn}
+            serverSortDirection={sortDirection}
             noResultsState={
               <TableEmptyState
                 variant="no-results"

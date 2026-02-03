@@ -10,7 +10,6 @@
 import React from 'react'
 import Image from 'next/image'
 import type { Character } from '../config/types'
-import { ThreatLevel } from '../config/types'
 import { getOriginSlug } from '../config/origin-avatars'
 import { getCharacterAvatarPath } from '@/app/playground/character-avatars/config/characters'
 import { Badge, type BadgeColor, type BadgeStyle, type BadgeShape } from '@/components/ui/core/primitives/badge'
@@ -19,25 +18,20 @@ import { Badge, type BadgeColor, type BadgeStyle, type BadgeShape } from '@/comp
 // THREAT LEVEL (wifi signal column)
 // =============================================================================
 
-const THREAT_FILLED: Record<ThreatLevel, number> = {
-  [ThreatLevel.STier]: 5,
-  [ThreatLevel.ATier]: 4,
-  [ThreatLevel.BTier]: 3,
-  [ThreatLevel.MemeTier]: 1,
-}
-
-const THREAT_SCORE: Record<ThreatLevel, number> = {
-  [ThreatLevel.STier]: 97,
-  [ThreatLevel.ATier]: 74,
-  [ThreatLevel.BTier]: 48,
-  [ThreatLevel.MemeTier]: 15,
-}
-
 const BAR_HEIGHTS = [3, 5, 7, 9, 12]
 
-function ThreatSignal({ level }: { level: ThreatLevel }) {
-  const filled = THREAT_FILLED[level]
-  const score = THREAT_SCORE[level]
+/** Get filled bars based on power score (1-100) */
+function getFilledBars(score: number): number {
+  if (score >= 85) return 5
+  if (score >= 55) return 4
+  if (score >= 25) return 3
+  if (score >= 10) return 2
+  return 1
+}
+
+function ThreatSignal({ score }: { score: number }) {
+  const filled = getFilledBars(score)
+
   return (
     <div className="text-secondary flex items-end gap-[2px]">
       {BAR_HEIGHTS.map((h, i) => (
@@ -58,7 +52,7 @@ function ThreatSignal({ level }: { level: ThreatLevel }) {
 }
 
 // =============================================================================
-// SPARKLINE
+// SPARKLINE (Signed: -100 to +100)
 // =============================================================================
 
 const SPARK_W = 100
@@ -103,6 +97,9 @@ export interface SparklineConfig {
   strokeWidth: number
   showFill: boolean
   showDot: boolean
+  showBaseline: boolean
+  baselineWidth: number
+  baselineOpacity: number
 }
 
 const DEFAULT_SPARKLINE_CONFIG: SparklineConfig = {
@@ -110,70 +107,207 @@ const DEFAULT_SPARKLINE_CONFIG: SparklineConfig = {
   strokeWidth: 1.5,
   showFill: true,
   showDot: true,
+  showBaseline: true,
+  baselineWidth: 1,
+  baselineOpacity: 0.3,
 }
 
+/**
+ * Signed sparkline for lives rescued/taken.
+ * - Dynamic Y scaling based on data (always includes zero)
+ * - Positive values (lives saved): green (above baseline)
+ * - Negative values (lives taken): red (below baseline)
+ * - Uses clip paths to ensure correct colors based on Y position
+ */
 function Sparkline({ data, config = DEFAULT_SPARKLINE_CONFIG }: { data: number[]; config?: SparklineConfig }) {
-  const gradientId = React.useId()
+  const positiveGradientId = React.useId()
+  const negativeGradientId = React.useId()
+  const positiveClipId = React.useId()
+  const negativeClipId = React.useId()
   if (!data.length) return null
 
   const h = config.height
-  const min = Math.min(...data)
-  const max = Math.max(...data)
-  const range = max - min || 1
 
+  // Dynamic range based on data, but always include zero with padding
+  const dataMin = Math.min(...data)
+  const dataMax = Math.max(...data)
+  // Ensure zero is always visible, add 10% padding
+  const padding = Math.max(Math.abs(dataMax), Math.abs(dataMin), 10) * 0.15
+  const minRange = Math.min(0, dataMin) - padding
+  const maxRange = Math.max(0, dataMax) + padding
+  const range = maxRange - minRange
+
+  // Zero line position
+  const zeroY = SPARK_PAD + (1 - (0 - minRange) / range) * (h - SPARK_PAD * 2)
+
+  // Convert data to x,y points
   const points = data.map((v, i) => {
     const x = SPARK_PAD + (i / (data.length - 1)) * (SPARK_W - SPARK_PAD * 2)
-    const y = SPARK_PAD + (1 - (v - min) / range) * (h - SPARK_PAD * 2)
-    return [x, y] as const
+    const y = SPARK_PAD + (1 - (v - minRange) / range) * (h - SPARK_PAD * 2)
+    return [x, y, v] as const
   })
 
-  const polyline = points.map(([x, y]) => `${x},${y}`).join(' ')
-
-  // Filled area path
-  const firstX = points[0][0]
-  const lastX = points[points.length - 1][0]
-  const areaPath = points.map(([x, y], i) => `${i === 0 ? 'M' : 'L'}${x},${y}`).join(' ')
-    + ` L${lastX},${h} L${firstX},${h} Z`
-
+  const lastValue = data[data.length - 1]
   const lastPt = points[points.length - 1]
+
+  // Build smooth curve path using cardinal spline
+  const curvePath = buildSmoothPath(points)
+
+  // Build fill areas
+  const positiveAreaPath = buildSmoothAreaPath(points, zeroY, minRange, maxRange, range, true)
+  const negativeAreaPath = buildSmoothAreaPath(points, zeroY, minRange, maxRange, range, false)
 
   return (
     <svg
       width={SPARK_W}
       height={h}
       viewBox={`0 0 ${SPARK_W} ${h}`}
-      className="block text-tertiary"
+      className="block"
     >
-      {config.showFill && (
-        <>
-          <defs>
-            <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="currentColor" stopOpacity={0.15} />
-              <stop offset="100%" stopColor="currentColor" stopOpacity={0} />
+      <defs>
+        {/* Clip path for positive region (above baseline) */}
+        <clipPath id={positiveClipId}>
+          <rect x="0" y="0" width={SPARK_W} height={zeroY} />
+        </clipPath>
+        {/* Clip path for negative region (below baseline) */}
+        <clipPath id={negativeClipId}>
+          <rect x="0" y={zeroY} width={SPARK_W} height={h - zeroY} />
+        </clipPath>
+        {config.showFill && (
+          <>
+            {/* Positive fill gradient (green, fades down toward baseline) */}
+            <linearGradient id={positiveGradientId} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="var(--color-success-500)" stopOpacity={0.25} />
+              <stop offset="100%" stopColor="var(--color-success-500)" stopOpacity={0.02} />
             </linearGradient>
-          </defs>
-          <path d={areaPath} fill={`url(#${gradientId})`} />
-        </>
+            {/* Negative fill gradient (red, fades up toward baseline) */}
+            <linearGradient id={negativeGradientId} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="var(--color-error-500)" stopOpacity={0.02} />
+              <stop offset="100%" stopColor="var(--color-error-500)" stopOpacity={0.25} />
+            </linearGradient>
+          </>
+        )}
+      </defs>
+
+      {/* Filled areas (bottom layer) */}
+      {config.showFill && positiveAreaPath && (
+        <path d={positiveAreaPath} fill={`url(#${positiveGradientId})`} />
       )}
-      <polyline
-        points={polyline}
+      {config.showFill && negativeAreaPath && (
+        <path d={negativeAreaPath} fill={`url(#${negativeGradientId})`} />
+      )}
+
+      {/* Positive line (green, clipped to above baseline) */}
+      <path
+        d={curvePath}
         fill="none"
-        stroke="currentColor"
+        stroke="var(--color-success-500)"
         strokeWidth={config.strokeWidth}
         strokeLinecap="round"
         strokeLinejoin="round"
+        clipPath={`url(#${positiveClipId})`}
       />
+
+      {/* Negative line (red, clipped to below baseline) */}
+      <path
+        d={curvePath}
+        fill="none"
+        stroke="var(--color-error-500)"
+        strokeWidth={config.strokeWidth}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        clipPath={`url(#${negativeClipId})`}
+      />
+
+      {/* Zero baseline (rendered on top of lines) */}
+      {config.showBaseline && (
+        <line
+          x1={SPARK_PAD}
+          y1={zeroY}
+          x2={SPARK_W - SPARK_PAD}
+          y2={zeroY}
+          stroke="currentColor"
+          strokeWidth={config.baselineWidth}
+          strokeOpacity={config.baselineOpacity}
+          className="text-tertiary"
+        />
+      )}
+
+      {/* End dot */}
       {config.showDot && (
         <circle
           cx={lastPt[0]}
           cy={lastPt[1]}
           r={Math.max(1.5, config.strokeWidth)}
-          fill="currentColor"
+          fill={lastValue >= 0 ? 'var(--color-success-500)' : 'var(--color-error-500)'}
         />
       )}
     </svg>
   )
 }
+
+/**
+ * Build a smooth curved path using Catmull-Rom to Bezier conversion
+ */
+function buildSmoothPath(points: readonly (readonly [number, number, number])[]): string {
+  if (points.length < 2) return ''
+  if (points.length === 2) {
+    return `M${points[0][0]},${points[0][1]} L${points[1][0]},${points[1][1]}`
+  }
+
+  const path: string[] = [`M${points[0][0]},${points[0][1]}`]
+
+  for (let i = 0; i < points.length - 1; i++) {
+    const p0 = points[Math.max(0, i - 1)]
+    const p1 = points[i]
+    const p2 = points[i + 1]
+    const p3 = points[Math.min(points.length - 1, i + 2)]
+
+    // Catmull-Rom to Bezier conversion (tension = 0.5)
+    const tension = 0.35
+    const cp1x = p1[0] + (p2[0] - p0[0]) * tension
+    const cp1y = p1[1] + (p2[1] - p0[1]) * tension
+    const cp2x = p2[0] - (p3[0] - p1[0]) * tension
+    const cp2y = p2[1] - (p3[1] - p1[1]) * tension
+
+    path.push(`C${cp1x},${cp1y} ${cp2x},${cp2y} ${p2[0]},${p2[1]}`)
+  }
+
+  return path.join(' ')
+}
+
+/**
+ * Build smooth area path for fill (clips to positive or negative region)
+ */
+function buildSmoothAreaPath(
+  points: readonly (readonly [number, number, number])[],
+  zeroY: number,
+  minRange: number,
+  maxRange: number,
+  range: number,
+  positive: boolean
+): string {
+  if (points.length < 2) return ''
+
+  // Create points clipped to zero line
+  const clippedPoints = points.map(([x, y, v]) => {
+    if (positive) {
+      return [x, v >= 0 ? y : zeroY, v] as const
+    } else {
+      return [x, v < 0 ? y : zeroY, v] as const
+    }
+  })
+
+  // Build the top curve
+  const curvePath = buildSmoothPath(clippedPoints)
+
+  // Close the path along the zero line
+  const firstX = points[0][0]
+  const lastX = points[points.length - 1][0]
+
+  return `${curvePath} L${lastX},${zeroY} L${firstX},${zeroY} Z`
+}
+
 
 // =============================================================================
 // ORIGIN AVATAR
@@ -474,7 +608,7 @@ const renderCell = (
     }
 
     case 'threatLevel':
-      return <ThreatSignal level={item.threatLevel} />
+      return <ThreatSignal score={item.powerScore as number} />
 
     case 'description':
       return (

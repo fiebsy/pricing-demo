@@ -63,6 +63,9 @@ export const PRESET_DEFAULT: PlaygroundConfig = {
   sparklineStrokeWidth: 1.5,
   sparklineShowFill: true,
   sparklineShowDot: true,
+  sparklineShowBaseline: true,
+  sparklineBaselineWidth: 1,
+  sparklineBaselineOpacity: 0.3,
   navVariant: 'default',
   showNavDebug: false,
 }
@@ -124,6 +127,9 @@ export const PRESET_COMPACT: PlaygroundConfig = {
   sparklineStrokeWidth: 1,
   sparklineShowFill: false,
   sparklineShowDot: true,
+  sparklineShowBaseline: true,
+  sparklineBaselineWidth: 0.5,
+  sparklineBaselineOpacity: 0.2,
   navVariant: 'default',
   showNavDebug: false,
 }
