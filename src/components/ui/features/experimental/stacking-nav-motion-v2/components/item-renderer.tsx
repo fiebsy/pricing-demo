@@ -1,0 +1,203 @@
+/**
+ * StackingNav V2 - Item Renderer
+ *
+ * Motion wrapper for regular items. Receives `ItemRenderState` from
+ * `computeItemState()` and maps `animationMode` to Motion props.
+ *
+ * @module features/stacking-nav-v2/components
+ */
+
+'use client'
+
+import { motion, type TargetAndTransition, type Transition } from 'motion/react'
+import { cn } from '@/lib/utils'
+import type { StackItem, AnimationConfig } from '../types'
+import type { ItemRenderState } from '../types'
+import {
+  getChildEntryOffset,
+  getExitAnimation,
+  getInstantExitAnimation,
+  getTransition,
+  getCollapseLayoutTransition,
+} from '../utils/animations'
+import { AnimatedItem } from './animated-item'
+
+interface ItemRendererProps {
+  item: StackItem
+  itemIndex: number
+  itemLevelIndices: number[]
+  state: ItemRenderState
+  animationConfig: AnimationConfig
+  shouldReduceMotion: boolean
+  isCollapsingNow: boolean
+  isHoverSuppressed: boolean
+  parentAnchoredOffset: number
+}
+
+export function ItemRenderer({
+  item,
+  itemIndex,
+  itemLevelIndices,
+  state,
+  animationConfig,
+  shouldReduceMotion,
+  isCollapsingNow,
+  isHoverSuppressed,
+  parentAnchoredOffset,
+}: ItemRendererProps) {
+  const {
+    isAnchored,
+    isPromoting,
+    animationMode,
+    shouldUseAbsolute,
+    targetOffset,
+    animationDelay,
+    zIndex,
+  } = state
+
+  // --- Entry offset (shared) ---------------------------------------------
+  // Pass parentAnchoredOffset for entryFromParent, targetOffset for entryInstant
+  const entryOffset = shouldReduceMotion
+    ? { x: 0, y: 0 }
+    : getChildEntryOffset(animationConfig, parentAnchoredOffset, targetOffset)
+
+  // --- Initial (depends on animationMode) --------------------------------
+  let initial: TargetAndTransition | false | undefined
+  switch (animationMode) {
+    case 'skip':
+      initial = undefined
+      break
+    case 'promote':
+      // Promoting items are already visible - no initial state needed
+      // They just do the scale animation in place
+      initial = false
+      break
+    case 'anchor':
+      // Anchored items are already visible - no initial state needed
+      initial = false
+      break
+    case 'collapse-reentry':
+      initial = shouldReduceMotion ? undefined : { opacity: 0 }
+      break
+    case 'default':
+      // Default mode for items that aren't entering, promoting, or anchoring
+      initial = false
+      break
+    case 'entry':
+      // Entry animation for new child items
+      initial = shouldReduceMotion
+        ? undefined
+        : {
+            opacity: animationConfig.entryOpacity,
+            ...entryOffset,
+            scale: animationConfig.entryScale,
+          }
+      break
+    default:
+      initial = shouldReduceMotion
+        ? undefined
+        : {
+            opacity: animationConfig.entryOpacity,
+            ...entryOffset,
+            scale: animationConfig.entryScale,
+          }
+      break
+  }
+
+  // --- Animate state (depends on animationMode) --------------------------
+  let animateState: TargetAndTransition
+  switch (animationMode) {
+    case 'skip':
+      animateState = { opacity: 1, x: targetOffset, y: 0, scale: 1 }
+      break
+    case 'anchor':
+      animateState = { opacity: 1, x: targetOffset, y: 0, scale: 1 }
+      break
+    case 'promote':
+      animateState = {
+        opacity: 1,
+        x: targetOffset,
+        y: 0,
+        scale: [1, animationConfig.promotionScale, 1],
+      }
+      break
+    default:
+      animateState = { opacity: 1, x: targetOffset, y: 0, scale: 1 }
+      break
+  }
+
+  // --- Transition (depends on animationMode) -----------------------------
+  const collapseLayoutOverride = isCollapsingNow
+    ? getCollapseLayoutTransition(animationConfig)
+    : {}
+
+  // Only entry items should have a delay - promoting/anchored items animate immediately
+  const shouldHaveDelay = animationMode === 'entry'
+  const effectiveDelay = shouldHaveDelay ? animationDelay : 0
+
+  let transition: Transition
+  if (animationMode === 'skip') {
+    transition = { duration: 0 }
+  } else if (animationMode === 'promote') {
+    // Promoting items: immediate scale animation, no delay
+    transition = {
+      ...getTransition(animationConfig, 0), // No delay
+      ...collapseLayoutOverride,
+      scale: {
+        duration: animationConfig.promotionDuration,
+        times: [0, 0.5, 1],
+        ease: 'easeOut',
+      },
+    }
+  } else {
+    transition = {
+      ...getTransition(animationConfig, effectiveDelay),
+      ...collapseLayoutOverride,
+    }
+  }
+
+  // DEBUG: Log promotion animation details
+  if (animationMode === 'promote') {
+    console.log(`[PROMOTE] ${item.id}`, {
+      animationMode,
+      initial,
+      promotionScale: animationConfig.promotionScale,
+      promotionDuration: animationConfig.promotionDuration,
+      effectiveDelay,
+      targetOffset,
+    })
+  }
+
+  // --- Exit --------------------------------------------------------------
+  // Use instant exit to avoid slow-to-fast feel during promotion
+  // The exit animation was causing a noticeable delay before new children appear
+  const exitAnimation = shouldReduceMotion
+    ? undefined
+    : getInstantExitAnimation()
+
+  return (
+    <motion.div
+      key={item.id}
+      layout={!isAnchored ? 'position' : false}
+      className={cn(
+        shouldUseAbsolute ? 'absolute left-0 top-0 inline-flex' : 'inline-flex',
+        isHoverSuppressed && !isAnchored && '[&_button]:!pointer-events-none'
+      )}
+      style={{ zIndex }}
+      data-hover-suppressed={(isHoverSuppressed && !isAnchored) || undefined}
+      initial={initial}
+      animate={animateState}
+      exit={exitAnimation}
+      transition={transition}
+      data-item-expected-offset={shouldUseAbsolute ? targetOffset : 0}
+    >
+      <AnimatedItem
+        item={item}
+        index={itemIndex}
+        levelIndices={itemLevelIndices}
+        isAnchored={isAnchored}
+        isPromoting={isPromoting}
+      />
+    </motion.div>
+  )
+}
