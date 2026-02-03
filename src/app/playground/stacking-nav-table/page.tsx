@@ -210,6 +210,8 @@ export default function StackingNavTablePlayground() {
     width: config.originAvatarWidth,
     height: config.originAvatarHeight,
     imageType: config.originImageType,
+    showLabel: config.originShowLabel,
+    labelOpacity: config.originLabelOpacity,
     logoBg: config.originLogoBg,
     logoBgColor: config.originLogoBgColor,
     logoPaddingX: config.originLogoPaddingX,
@@ -217,11 +219,28 @@ export default function StackingNavTablePlayground() {
     logoShine: config.originLogoShine,
     logoSquircle: config.originLogoSquircle,
     logoInvert: config.originLogoInvert,
+    // Logo outline
+    logoOutline: config.originLogoOutline,
+    logoOutlineColor: config.originLogoOutlineColor,
+    logoOutlineSize: config.originLogoOutlineSize,
+    logoOutlineOpacity: config.originLogoOutlineOpacity,
+    logoOutlineIntensity: config.originLogoOutlineIntensity,
+    // Backdrop behind
+    showBackdrop: config.originShowBackdrop,
+    backdropPaddingX: config.originBackdropPaddingX,
+    backdropPaddingY: config.originBackdropPaddingY,
+    backdropShine: config.originBackdropShine,
+    backdropOpacity: config.originBackdropOpacity,
+    backdropRadius: config.originBackdropRadius,
   }), [
     config.originAvatarWidth, config.originAvatarHeight,
-    config.originImageType, config.originLogoBg, config.originLogoBgColor,
+    config.originImageType, config.originShowLabel, config.originLabelOpacity, config.originLogoBg, config.originLogoBgColor,
     config.originLogoPaddingX, config.originLogoPaddingY,
     config.originLogoShine, config.originLogoSquircle, config.originLogoInvert,
+    config.originLogoOutline, config.originLogoOutlineColor,
+    config.originLogoOutlineSize, config.originLogoOutlineOpacity, config.originLogoOutlineIntensity,
+    config.originShowBackdrop, config.originBackdropPaddingX, config.originBackdropPaddingY,
+    config.originBackdropShine, config.originBackdropOpacity, config.originBackdropRadius,
   ])
 
   const badgeConfig = useMemo(() => ({

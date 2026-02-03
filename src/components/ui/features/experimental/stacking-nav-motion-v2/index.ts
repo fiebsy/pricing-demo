@@ -140,6 +140,9 @@ export {
   debugTable,
   debugPhaseTransition,
 
+  // Debug log (for playground)
+  debugLog,
+
   // Item state computation
   computeItemState,
   computeLevelAllZIndex,

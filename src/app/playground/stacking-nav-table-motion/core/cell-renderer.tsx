@@ -81,6 +81,12 @@ export interface OriginAvatarConfig {
   logoShine: string
   logoSquircle: boolean
   logoInvert: number
+  // Logo outline
+  logoOutline: boolean
+  logoOutlineColor: string
+  logoOutlineSize: number
+  logoOutlineOpacity: number
+  logoOutlineIntensity: number
 }
 
 export interface SparklineConfig {
@@ -175,6 +181,12 @@ const DEFAULT_AVATAR_CONFIG: OriginAvatarConfig = {
   logoShine: 'none',
   logoSquircle: false,
   logoInvert: 0,
+  // Logo outline
+  logoOutline: false,
+  logoOutlineColor: 'auto',
+  logoOutlineSize: 0.5,
+  logoOutlineOpacity: 0.45,
+  logoOutlineIntensity: 2,
 }
 
 function getOriginSrc(origin: string, imageType: 'poster' | 'logo' | 'backdrop'): string {
@@ -189,13 +201,62 @@ function getOriginSrc(origin: string, imageType: 'poster' | 'logo' | 'backdrop')
   }
 }
 
+/**
+ * Build CSS filter for logo outline effect using drop-shadow.
+ * Creates a shape-following outline by stacking multiple drop-shadows.
+ */
+function buildLogoOutlineFilter(
+  color: string,
+  size: number,
+  opacity: number,
+  intensity: number,
+): string {
+  if (opacity <= 0) return 'none'
+
+  // Color mapping
+  const colorMap: Record<string, string> = {
+    auto: 'var(--color-fg-primary)',
+    dark: 'rgba(0, 0, 0, 1)',
+    light: 'rgba(255, 255, 255, 1)',
+    brand: 'var(--color-brand-primary)',
+    subtle: 'var(--color-fg-tertiary)',
+  }
+  const baseColor = colorMap[color] || colorMap.auto
+
+  // Stack shadows based on intensity
+  const shadows: string[] = []
+  for (let i = 0; i < intensity; i++) {
+    // Each layer is slightly different for better coverage
+    const spread = size * (1 + i * 0.2)
+    shadows.push(
+      `drop-shadow(0 0 ${spread}px color-mix(in srgb, ${baseColor} ${Math.round(opacity * 100)}%, transparent))`,
+      `drop-shadow(${spread}px 0 ${spread * 0.5}px color-mix(in srgb, ${baseColor} ${Math.round(opacity * 80)}%, transparent))`,
+      `drop-shadow(-${spread}px 0 ${spread * 0.5}px color-mix(in srgb, ${baseColor} ${Math.round(opacity * 80)}%, transparent))`,
+      `drop-shadow(0 ${spread}px ${spread * 0.5}px color-mix(in srgb, ${baseColor} ${Math.round(opacity * 80)}%, transparent))`,
+      `drop-shadow(0 -${spread}px ${spread * 0.5}px color-mix(in srgb, ${baseColor} ${Math.round(opacity * 80)}%, transparent))`
+    )
+  }
+
+  return shadows.join(' ')
+}
+
 function OriginAvatar({ origin, config = DEFAULT_AVATAR_CONFIG }: { origin: string; config?: OriginAvatarConfig }) {
   const [errored, setErrored] = React.useState(false)
-  const { width, height, imageType, logoBg, logoBgColor, logoPaddingX, logoPaddingY, logoShine, logoSquircle, logoInvert } = config
+  const {
+    width, height, imageType,
+    logoBg, logoBgColor, logoPaddingX, logoPaddingY, logoShine, logoSquircle, logoInvert,
+    logoOutline, logoOutlineColor, logoOutlineSize, logoOutlineOpacity, logoOutlineIntensity,
+  } = config
   const src = getOriginSrc(origin, imageType)
   const initial = origin.charAt(0).toUpperCase()
   const isLogo = imageType === 'logo'
   const showBg = isLogo && logoBg
+  const showOutline = isLogo && logoOutline && !showBg // Outline only when no background
+
+  // Build outline filter
+  const outlineFilter = showOutline
+    ? buildLogoOutlineFilter(logoOutlineColor, logoOutlineSize, logoOutlineOpacity, logoOutlineIntensity)
+    : undefined
 
   if (errored) {
     return (
@@ -221,6 +282,7 @@ function OriginAvatar({ origin, config = DEFAULT_AVATAR_CONFIG }: { origin: stri
         height,
         borderRadius: showBg ? 0 : undefined,
         '--logo-invert': isLogo && logoInvert > 0 ? logoInvert : undefined,
+        filter: showOutline ? outlineFilter : undefined,
       } as React.CSSProperties}
       onError={() => setErrored(true)}
     />

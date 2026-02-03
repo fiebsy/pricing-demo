@@ -21,6 +21,52 @@ import { ORIGINS } from './config/origins'
 import { buildPanelConfig } from './panels/panel-config'
 
 // =============================================================================
+// OUTLINE HELPERS
+// =============================================================================
+
+function getOutlineColor(colorOption: string): string {
+  switch (colorOption) {
+    case 'auto':
+      return 'var(--color-fg-primary)'
+    case 'dark':
+      return 'var(--color-gray-900)'
+    case 'light':
+      return 'var(--color-gray-50)'
+    case 'brand':
+      return 'var(--color-brand-500)'
+    case 'subtle':
+      return 'var(--color-fg-quaternary)'
+    default:
+      return 'var(--color-fg-primary)'
+  }
+}
+
+function buildOutlineFilter(
+  size: number,
+  color: string,
+  opacity: number,
+  intensity: number,
+  dual: boolean = false,
+): string {
+  if (dual) {
+    // Dual layer: dark outer + light inner for universal contrast
+    const outerSize = size + 0.5
+    const innerSize = size
+    const darkColor = 'var(--color-gray-900)'
+    const lightColor = 'var(--color-gray-50)'
+    const outerShadow = `drop-shadow(0 0 ${outerSize}px color-mix(in srgb, ${darkColor} ${Math.round(opacity * 100)}%, transparent))`
+    const innerShadow = `drop-shadow(0 0 ${innerSize}px color-mix(in srgb, ${lightColor} ${Math.round(opacity * 100)}%, transparent))`
+    // Stack: outer shadows first, then inner shadows
+    const outerStack = Array(intensity).fill(outerShadow).join(' ')
+    const innerStack = Array(intensity).fill(innerShadow).join(' ')
+    return `${outerStack} ${innerStack}`
+  }
+
+  const shadow = `drop-shadow(0 0 ${size}px color-mix(in srgb, ${color} ${Math.round(opacity * 100)}%, transparent))`
+  return Array(intensity).fill(shadow).join(' ')
+}
+
+// =============================================================================
 // IMAGE THUMBNAIL
 // =============================================================================
 
@@ -38,6 +84,12 @@ function Thumbnail({
   shine = 'none',
   squircle = false,
   invert = 0,
+  outline = false,
+  outlineColor = 'auto',
+  outlineSize = 1,
+  outlineOpacity = 0.5,
+  outlineIntensity = 2,
+  outlineDual = false,
 }: {
   src: string
   alt: string
@@ -52,6 +104,12 @@ function Thumbnail({
   shine?: string
   squircle?: boolean
   invert?: number
+  outline?: boolean
+  outlineColor?: string
+  outlineSize?: number
+  outlineOpacity?: number
+  outlineIntensity?: number
+  outlineDual?: boolean
 }) {
   const [errored, setErrored] = useState(false)
 
@@ -70,20 +128,30 @@ function Thumbnail({
     )
   }
 
+  // Build combined filter string
+  const filterParts = [
+    invert > 0 ? `invert(${invert})` : null,
+    outline
+      ? buildOutlineFilter(outlineSize, getOutlineColor(outlineColor), outlineOpacity, outlineIntensity, outlineDual)
+      : null,
+  ].filter(Boolean)
+
+  const filterValue = filterParts.length ? filterParts.join(' ') : undefined
+
   const img = (
     <Image
       src={src}
       alt={alt}
       width={width}
       height={height}
-      className={`shrink-0 ${invert > 0 ? '[filter:invert(var(--logo-invert))] dark:[filter:none]' : ''}`}
+      className="shrink-0"
       style={{
         width,
         height,
         objectFit: contain ? 'contain' : 'cover',
         borderRadius: showBg ? 0 : borderRadius,
-        '--logo-invert': invert > 0 ? invert : undefined,
-      } as React.CSSProperties}
+        filter: filterValue,
+      }}
       onError={() => setErrored(true)}
     />
   )
@@ -148,8 +216,9 @@ function AssetCard({
   const src = getImageSrc(slug, cardImageType)
   const backdropSrc = `/origins-backdrops/${slug}.jpg`
 
-  // Card wrapper width — use image width, or backdrop width if backdrop is shown
-  const cardWidth = showBackdropBehind ? Math.max(width * 1.8, width + 32) : width
+  // Card wrapper dimensions — use padding controls when backdrop is shown
+  const cardWidth = showBackdropBehind ? width + config.backdropPaddingX * 2 : width
+  const cardHeight = showBackdropBehind ? height + config.backdropPaddingY * 2 : height
 
   const isRightLabel = labelPosition === 'right'
 
@@ -164,7 +233,7 @@ function AssetCard({
           className="relative flex shrink-0 items-center justify-center overflow-hidden"
           style={{
             width: cardWidth,
-            height: height * 1.2,
+            height: cardHeight,
             borderRadius,
           }}
         >
@@ -172,7 +241,7 @@ function AssetCard({
             src={backdropSrc}
             alt=""
             width={Math.round(cardWidth)}
-            height={Math.round(height * 1.2)}
+            height={Math.round(cardHeight)}
             className="absolute inset-0"
             style={{
               width: '100%',
@@ -193,9 +262,9 @@ function AssetCard({
             <Thumbnail
               src={src}
               alt={name}
-              width={Math.round(width * 0.75)}
-              height={Math.round(height * 0.75)}
-              borderRadius={Math.max(borderRadius - 4, 2)}
+              width={width}
+              height={height}
+              borderRadius={Math.max(borderRadius - 2, 2)}
               contain={isLogo}
               showBg={isLogo && config.logoBg}
               bgPaddingX={isLogo && config.logoBg ? config.logoPaddingX : 0}
@@ -204,6 +273,12 @@ function AssetCard({
               shine={config.logoShine}
               squircle={config.logoSquircle}
               invert={config.logoInvert}
+              outline={isLogo && config.logoOutline}
+              outlineColor={config.logoOutlineColor}
+              outlineSize={config.logoOutlineSize}
+              outlineOpacity={config.logoOutlineOpacity}
+              outlineIntensity={config.logoOutlineIntensity}
+              outlineDual={config.logoOutlineDual}
             />
           </div>
         </div>
@@ -222,6 +297,12 @@ function AssetCard({
           shine={config.logoShine}
           squircle={config.logoSquircle}
           invert={config.logoInvert}
+          outline={isLogo && config.logoOutline}
+          outlineColor={config.logoOutlineColor}
+          outlineSize={config.logoOutlineSize}
+          outlineOpacity={config.logoOutlineOpacity}
+          outlineIntensity={config.logoOutlineIntensity}
+          outlineDual={config.logoOutlineDual}
         />
       )}
 
@@ -311,6 +392,12 @@ function ComparisonCard({
               shine={config.logoShine}
               squircle={config.logoSquircle}
               invert={config.logoInvert}
+              outline={config.logoOutline}
+              outlineColor={config.logoOutlineColor}
+              outlineSize={config.logoOutlineSize}
+              outlineOpacity={config.logoOutlineOpacity}
+              outlineIntensity={config.logoOutlineIntensity}
+              outlineDual={config.logoOutlineDual}
             />
             {visibleTypes.length > 1 && <TypeTag type="logo" />}
           </div>

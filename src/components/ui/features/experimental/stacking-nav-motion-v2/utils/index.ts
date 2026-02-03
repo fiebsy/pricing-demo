@@ -18,3 +18,5 @@ export {
 export { configureDebug, isDebugEnabled, debug, debugTable, debugPhaseTransition } from './debug'
 
 export { computeItemState, computeLevelAllZIndex } from './item-state'
+
+export { debugLog, logMode, logPhase, logTiming, logRender } from './debug-log'

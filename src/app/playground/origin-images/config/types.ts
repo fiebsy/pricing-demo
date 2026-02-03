@@ -41,7 +41,15 @@ export interface OriginImagesConfig {
   logoShine: string      // shine utility class for logo background
   logoSquircle: boolean  // use corner-squircle on logo background
   logoInvert: number     // 0–1 invert filter strength (fixes white-on-light)
+  logoOutline: boolean           // Enable/disable shape-following outline effect
+  logoOutlineColor: string       // 'auto' | 'dark' | 'light' | 'brand' | 'subtle'
+  logoOutlineSize: number        // Size/spread in pixels (0.5-4)
+  logoOutlineOpacity: number     // 0-1 opacity multiplier
+  logoOutlineIntensity: number   // Number of stacked shadows (1-3)
+  logoOutlineDual: boolean       // Use dual-layer outline (dark outer + light inner)
   showBackdropBehind: boolean  // show backdrop image behind the card
+  backdropPaddingX: number     // px horizontal padding around logo in backdrop container
+  backdropPaddingY: number     // px vertical padding around logo in backdrop container
   backdropShine: string        // shine utility class for backdrop container
   backdropOpacity: number      // 0–1 opacity of the backdrop image
   labelColor: string           // semantic text class for the label

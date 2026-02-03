@@ -63,6 +63,12 @@ function configFromDefaults(): Omit<PlaygroundConfig, 'configPreset' | 'navVaria
     syncChildEntryToPromotion: a.syncChildEntryToPromotion,
     promotionChildOffset: toMs(a.promotionChildOffset),
 
+    // Demotion entry (ms)
+    demotionEntryDelay: toMs(a.demotionEntryDelay),
+    demotionStagger: toMs(a.demotionStagger),
+    demotionEntryOpacity: a.demotionEntryOpacity,
+    demotionEntryScale: a.demotionEntryScale,
+
     // Style
     buttonSize: s.buttonSize,
     buttonRoundness: s.buttonRoundness,
@@ -135,6 +141,10 @@ const PRESET_SPRING: Omit<PlaygroundConfig, 'configPreset' | 'navVariant'> = {
   skipLeafAnimation: false,
   syncChildEntryToPromotion: true,
   promotionChildOffset: 0,
+  demotionEntryDelay: 0,
+  demotionStagger: 30,
+  demotionEntryOpacity: 0,
+  demotionEntryScale: 0.98,
   buttonSize: 'md',
   buttonRoundness: 'default',
   expandedVariant: 'shine',

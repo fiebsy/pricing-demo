@@ -9,7 +9,7 @@
 
 'use client'
 
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   UnifiedControlPanel,
   type ControlChangeEvent,
@@ -19,6 +19,7 @@ import {
   type AnimationConfig,
   type StyleConfig,
   type ActivePath,
+  debugLog,
 } from '@/components/ui/features/experimental/stacking-nav-motion-v2'
 
 import type {
@@ -40,6 +41,35 @@ export default function StackingNavMotionV2Playground() {
   const [config, setConfig] = useState<PlaygroundConfig>(DEFAULT_PLAYGROUND_CONFIG)
   const [resetKey, setResetKey] = useState(0)
   const [currentPath, setCurrentPath] = useState<ActivePath>([])
+  const [logCount, setLogCount] = useState(0)
+  const [logEnabled, setLogEnabled] = useState(false)
+
+  // Sync debug log enabled state
+  useEffect(() => {
+    if (logEnabled) {
+      debugLog.enable()
+    } else {
+      debugLog.disable()
+    }
+  }, [logEnabled])
+
+  // Subscribe to log updates
+  useEffect(() => {
+    return debugLog.subscribe(() => {
+      setLogCount(debugLog.getCount())
+    })
+  }, [])
+
+  const handleCopyLog = useCallback(() => {
+    const logText = debugLog.getEntriesFormatted()
+    navigator.clipboard.writeText(logText).then(() => {
+      console.log('Log copied to clipboard')
+    })
+  }, [])
+
+  const handleClearLog = useCallback(() => {
+    debugLog.clear()
+  }, [])
 
   // Transform config for component
   // Apply timeScale to all duration-based values (lower timeScale = slower animation)
@@ -81,6 +111,11 @@ export default function StackingNavMotionV2Playground() {
       timeScale: scale,
       syncChildEntryToPromotion: config.syncChildEntryToPromotion,
       promotionChildOffset: config.promotionChildOffset / 1000 / scale,
+      // Demotion entry (siblings reappearing during collapse)
+      demotionEntryDelay: config.demotionEntryDelay / 1000 / scale,
+      demotionStagger: config.demotionStagger / 1000 / scale,
+      demotionEntryOpacity: config.demotionEntryOpacity,
+      demotionEntryScale: config.demotionEntryScale,
     }
   }, [config])
 
@@ -259,6 +294,36 @@ export default function StackingNavMotionV2Playground() {
         <div className="rounded-lg bg-purple-600 px-3 py-1.5 text-xs font-semibold text-white shadow-md">
           stacking-nav-motion-v2
         </div>
+      </div>
+
+      {/* Debug log panel */}
+      <div className="fixed left-4 top-14 z-50 flex items-center gap-2">
+        <button
+          onClick={() => setLogEnabled(!logEnabled)}
+          className={`rounded-lg px-3 py-1.5 text-xs font-medium shadow-md transition-colors ${
+            logEnabled
+              ? 'bg-green-600 text-white'
+              : 'bg-secondary text-secondary hover:bg-tertiary'
+          }`}
+        >
+          {logEnabled ? `Logging (${logCount})` : 'Log Off'}
+        </button>
+        {logEnabled && (
+          <>
+            <button
+              onClick={handleCopyLog}
+              className="rounded-lg bg-secondary px-3 py-1.5 text-xs font-medium text-secondary shadow-md transition-colors hover:bg-tertiary"
+            >
+              Copy Log
+            </button>
+            <button
+              onClick={handleClearLog}
+              className="rounded-lg bg-secondary px-3 py-1.5 text-xs font-medium text-secondary shadow-md transition-colors hover:bg-tertiary"
+            >
+              Clear
+            </button>
+          </>
+        )}
       </div>
 
       {/* Scrollable container with sticky demo */}

@@ -8,27 +8,21 @@
 'use client'
 
 import { Children, useEffect, useState, type ReactNode } from 'react'
+import { Select } from '@base-ui/react/select'
 import { cx } from '@/components/utils/cx'
-
-// Deprecated primitives (still used by ColorSelectControl)
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-} from '@/components/ui/deprecated/base/primitives/select'
 
 // React Aria
 import { Switch } from 'react-aria-components'
 
 // Core primitives
 import { InlineSlider, TickSlider } from '@/components/ui/core/primitives/slider'
-import { InlineSelect } from '@/components/ui/core/primitives/select'
+import { InlineSelect, inlineSelectStyles } from '@/components/ui/core/primitives/select'
 
 // Enhanced controls
 import { FontWeightSelect } from '../controls/font-weight-select'
 import { ColorEnhancedSelect } from '../controls/color-enhanced-select'
 import { RadiusPreviewSelect } from '../controls/radius-preview-select'
+import { ScrollablePopupContent } from '../controls/scrollable-popup-content'
 
 import type {
   ColorControl as ColorControlType,
@@ -195,7 +189,7 @@ export function SelectControl({ control, onChange }: SelectControlProps) {
 }
 
 // -----------------------------------------------------------------------------
-// Color Select Control
+// Color Select Control (inline layout with Base UI Select)
 // -----------------------------------------------------------------------------
 
 interface ColorSelectControlProps {
@@ -204,36 +198,111 @@ interface ColorSelectControlProps {
 }
 
 export function ColorSelectControl({ control, onChange }: ColorSelectControlProps) {
-  const { value, options, swatchSize = 'sm', disabled } = control
+  const { label, value, options, swatchSize = 'sm', disabled } = control
+  const [open, setOpen] = useState(false)
   const safeValue = value || options[0]?.value || ''
   const selectedOption = options.find((opt) => opt.value === safeValue)
+  const styles = inlineSelectStyles
 
   return (
-    <Select value={safeValue || undefined} onValueChange={disabled ? undefined : onChange} disabled={disabled}>
-      <SelectTrigger
-        className={cx('h-9 w-full px-2 py-1.5 text-xs', disabled && 'cursor-not-allowed opacity-50')}
+    <Select.Root
+      value={safeValue}
+      onValueChange={(v) => v !== null && onChange(v)}
+      open={open}
+      onOpenChange={setOpen}
+      disabled={disabled}
+    >
+      <Select.Trigger
+        className={cx(
+          styles.container,
+          disabled && styles.disabled
+        )}
       >
-        <span className="flex items-center gap-2.5">
-          {selectedOption?.color && <ColorSwatch color={selectedOption.color} size={swatchSize} />}
-          <span className="truncate">{selectedOption?.label || 'Select color...'}</span>
+        {/* Label on left */}
+        <span className={styles.labelContainer}>
+          <span className={styles.label}>{label}</span>
         </span>
-      </SelectTrigger>
-      <SelectContent className="max-h-[300px]">
-        {options.map((option) => (
-          <SelectItem key={option.value} value={option.value} className="py-2">
-            <span className="flex items-center gap-2.5">
-              {option.color && <ColorSwatch color={option.color} size={swatchSize} />}
-              <span className="flex flex-col">
-                <span className="text-xs">{option.label}</span>
-                {option.description && (
-                  <span className="text-tertiary text-[10px]">{option.description}</span>
-                )}
-              </span>
-            </span>
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
+
+        {/* Spacer */}
+        <span className="flex-1" />
+
+        {/* Color swatch + selected value on right */}
+        <span className="flex items-center gap-1.5">
+          {selectedOption?.color && <ColorSwatch color={selectedOption.color} size={swatchSize} />}
+          <Select.Value className={styles.value}>
+            {selectedOption?.label || 'Select...'}
+          </Select.Value>
+        </span>
+
+        {/* Chevron indicator */}
+        <Select.Icon className={styles.chevron}>
+          <ChevronIcon />
+        </Select.Icon>
+      </Select.Trigger>
+
+      <Select.Portal>
+        <Select.Positioner
+          alignItemWithTrigger={false}
+          side="bottom"
+          align="end"
+          sideOffset={4}
+          collisionPadding={8}
+          className="z-[99]"
+        >
+          <Select.Popup className={cx(styles.popup, 'p-0')}>
+            <ScrollablePopupContent className="overscroll-contain p-1">
+              {options.map((option) => (
+                <Select.Item
+                  key={option.value}
+                  value={option.value}
+                  className={styles.popupItem}
+                >
+                  <span className="flex items-center gap-2">
+                    {option.color && <ColorSwatch color={option.color} size={swatchSize} />}
+                    <Select.ItemText>{option.label}</Select.ItemText>
+                  </span>
+                  <Select.ItemIndicator className={styles.itemIndicator}>
+                    <CheckIcon />
+                  </Select.ItemIndicator>
+                </Select.Item>
+              ))}
+            </ScrollablePopupContent>
+          </Select.Popup>
+        </Select.Positioner>
+      </Select.Portal>
+    </Select.Root>
+  )
+}
+
+// -----------------------------------------------------------------------------
+// Icons
+// -----------------------------------------------------------------------------
+
+function ChevronIcon() {
+  return (
+    <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+      <path
+        d="M2.5 3.75L5 6.25L7.5 3.75"
+        stroke="currentColor"
+        strokeWidth="1.25"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
+function CheckIcon() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
+      <path
+        d="M13.5 4.5L6.5 11.5L3 8"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
   )
 }
 
@@ -247,7 +316,7 @@ interface ToggleControlProps {
 }
 
 export function ToggleControl({ control, onChange }: ToggleControlProps) {
-  const { value, label, disabled } = control
+  const { value, label, icon, disabled } = control
   const checked = value ?? false
 
   return (
@@ -261,7 +330,10 @@ export function ToggleControl({ control, onChange }: ToggleControlProps) {
         disabled && 'pointer-events-none opacity-50'
       )}
     >
-      <span className="text-secondary whitespace-nowrap text-[11px] font-medium">{label}</span>
+      <span className="flex items-center gap-1.5">
+        {icon && <span className="text-tertiary">{icon}</span>}
+        <span className="text-secondary whitespace-nowrap text-[11px] font-medium">{label}</span>
+      </span>
       <span
         className={cx(
           'flex h-5 w-9 shrink-0 items-center rounded-full p-0.5 transition-colors duration-150',
@@ -377,6 +449,7 @@ export function ControlRenderer({ control, sectionId, onChange }: ControlRendere
         onChange={handleChange as (v: number) => void}
         formatLabel={sliderControl.formatLabel}
         disabled={sliderControl.disabled}
+        icon={sliderControl.icon}
       />
     )
   }
@@ -391,57 +464,58 @@ export function ControlRenderer({ control, sectionId, onChange }: ControlRendere
     return <ToggleControl control={control} onChange={handleChange as (v: boolean) => void} />
   }
 
-  // Enhanced control types with visual previews
+  // Enhanced control types with visual previews (inline layout, no wrapper)
   if (control.type === 'font-weight-select') {
     const fwControl = control as FontWeightSelectControlType
     return (
-      <ControlGroupWrapper label={control.label} description={control.description}>
-        <FontWeightSelect
-          value={fwControl.value}
-          options={fwControl.options}
-          onChange={handleChange as (v: string) => void}
-          previewText={fwControl.previewText}
-          disabled={fwControl.disabled}
-        />
-      </ControlGroupWrapper>
+      <FontWeightSelect
+        label={control.label}
+        value={fwControl.value}
+        options={fwControl.options}
+        onChange={handleChange as (v: string) => void}
+        previewText={fwControl.previewText}
+        disabled={fwControl.disabled}
+      />
     )
   }
 
   if (control.type === 'color-enhanced-select') {
     const ceControl = control as ColorEnhancedSelectControlType
     return (
-      <ControlGroupWrapper label={control.label} description={control.description}>
-        <ColorEnhancedSelect
-          value={ceControl.value}
-          options={ceControl.options}
-          onChange={handleChange as (v: string) => void}
-          swatchSize={ceControl.swatchSize}
-          showGroups={ceControl.showGroups}
-          disabled={ceControl.disabled}
-        />
-      </ControlGroupWrapper>
+      <ColorEnhancedSelect
+        label={control.label}
+        value={ceControl.value}
+        options={ceControl.options}
+        onChange={handleChange as (v: string) => void}
+        swatchSize={ceControl.swatchSize}
+        showGroups={ceControl.showGroups}
+        disabled={ceControl.disabled}
+      />
     )
   }
 
   if (control.type === 'radius-select') {
     const rControl = control as RadiusSelectControlType
     return (
-      <ControlGroupWrapper label={control.label} description={control.description}>
-        <RadiusPreviewSelect
-          value={rControl.value}
-          options={rControl.options}
-          onChange={handleChange as (v: string) => void}
-          previewSize={rControl.previewSize}
-          disabled={rControl.disabled}
-        />
-      </ControlGroupWrapper>
+      <RadiusPreviewSelect
+        label={control.label}
+        value={rControl.value}
+        options={rControl.options}
+        onChange={handleChange as (v: string) => void}
+        previewSize={rControl.previewSize}
+        disabled={rControl.disabled}
+      />
     )
   }
 
+  // Color select with inline layout (no wrapper)
+  if (control.type === 'color-select') {
+    return <ColorSelectControl control={control} onChange={handleChange as (v: string) => void} />
+  }
+
+  // Remaining controls that need the wrapper
   const renderControl = () => {
     switch (control.type) {
-      case 'color-select':
-        return <ColorSelectControl control={control} onChange={handleChange as (v: string) => void} />
       case 'color':
         return <ColorControl control={control} onChange={handleChange as (v: string) => void} />
       case 'text':

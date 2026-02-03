@@ -32,6 +32,7 @@ import {
   getSpacingPixels,
 } from '@/components/ui/patterns/control-panel'
 import { InlineSlider, TickSlider } from '@/components/ui/core/primitives'
+import Square01Icon from '@hugeicons-pro/core-stroke-rounded/Square01Icon'
 import { cn } from '@/lib/utils'
 
 // =============================================================================
@@ -205,6 +206,7 @@ function buildPanelConfig(config: DemoConfig): PanelConfig {
     groups: [
       {
         title: 'Inverse corners',
+        icon: Square01Icon,
         controls: [
           {
             id: 'cornerSize',

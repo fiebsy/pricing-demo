@@ -18,6 +18,8 @@ import { cn } from '@/lib/utils'
 import { useStackContext, useLevelContext } from '../context'
 import { getNumberLabel, ROOT_ANCHOR_ID, HEIGHT_CLASSES } from '../config'
 import { debug } from '../utils/debug'
+import { useTransitionState, type ItemDisplayState } from '../hooks/use-transition-state'
+import { TransitionState } from '../types'
 import type { StackItem } from '../types'
 
 // =============================================================================
@@ -105,6 +107,18 @@ export const AnimatedItem = React.memo(function AnimatedItem({
   const isSelected = isInActivePath && !hasChildren
   const isChildItem = level > 0 && !isInActivePath
   const isRootAnchor = level === 0 && item.id === ROOT_ANCHOR_ID
+  
+  // Compute display state for transition tracking
+  const displayState: ItemDisplayState = React.useMemo(() => {
+    if (isAnchored) return 'anchored'
+    if (isExpanded) return 'expanded'
+    if (isSelected) return 'active'
+    if (isChildItem) return 'child'
+    return 'idle'
+  }, [isAnchored, isExpanded, isSelected, isChildItem])
+  
+  // Track state transitions for debug visualization
+  const { transitionState } = useTransitionState(item.id, displayState, isPromoting)
   
   // Determine variant
   let variant: 'primary' | 'secondary' | 'tertiary' | 'shine' | 'tab' | 'link-gray' | 'link-color' = 'tertiary'
@@ -199,13 +213,17 @@ export const AnimatedItem = React.memo(function AnimatedItem({
         <span className="select-none">{item.label}</span>
       </Button>
       
-      {/* Debug Status Badge - Above with arrow pointing down */}
+      {/* Debug Status Badge - Single unified label above item */}
       {(showNumbers || showDebug) && (
         <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-1 pointer-events-none flex flex-col items-center">
-          {/* Badge */}
+          {/* Unified Badge - shows transition state when active, otherwise stable state */}
           <div className={cn(
             'px-1.5 py-0.5 rounded-md text-[10px] font-mono font-semibold border shadow-sm',
-            isPromoting ? 'bg-purple-500 text-white border-purple-600' :
+            // Transition states take priority (with pulse animation)
+            transitionState === TransitionState.PROMOTING ? 'bg-purple-500 text-white border-purple-600 animate-pulse' :
+            transitionState === TransitionState.DEMOTING ? 'bg-orange-500 text-white border-orange-600 animate-pulse' :
+            transitionState === TransitionState.EXPANDING ? 'bg-cyan-500 text-white border-cyan-600 animate-pulse' :
+            // Stable states (no pulse)
             isAnchored ? 'bg-yellow-500 text-black border-yellow-600' :
             isSelected ? 'bg-green-500 text-white border-green-600' :
             isExpanded ? 'bg-blue-500 text-white border-blue-600' :
@@ -213,13 +231,27 @@ export const AnimatedItem = React.memo(function AnimatedItem({
             'bg-gray-300 text-gray-700 border-gray-400'
           )}>
             <div className="flex flex-col items-center gap-0.5">
-              <div>
-                {isPromoting ? 'PROMOTING' :
-                 isAnchored ? 'ANCHORED' :
-                 isSelected ? 'ACTIVE' :
-                 isExpanded ? 'EXPANDED' :
-                 isChildItem ? 'CHILD' :
-                 'IDLE'}
+              <div className="flex items-center gap-1">
+                {/* Arrow indicator for transitions */}
+                {transitionState !== TransitionState.NONE && (
+                  <span className="text-[8px]">
+                    {transitionState === TransitionState.PROMOTING && '↑'}
+                    {transitionState === TransitionState.DEMOTING && '↓'}
+                    {transitionState === TransitionState.EXPANDING && '→'}
+                  </span>
+                )}
+                <span>
+                  {/* Transition labels take priority */}
+                  {transitionState === TransitionState.PROMOTING ? 'PROMOTING' :
+                   transitionState === TransitionState.DEMOTING ? 'DEMOTING' :
+                   transitionState === TransitionState.EXPANDING ? 'EXPANDING' :
+                   /* Stable state labels */
+                   isAnchored ? 'ANCHORED' :
+                   isSelected ? 'ACTIVE' :
+                   isExpanded ? 'EXPANDED' :
+                   isChildItem ? 'CHILD' :
+                   'IDLE'}
+                </span>
               </div>
               <div className="text-[8px] opacity-80">
                 L{level}
@@ -231,7 +263,9 @@ export const AnimatedItem = React.memo(function AnimatedItem({
           <div className="flex flex-col items-center">
             <div className={cn(
               'w-px h-2',
-              isPromoting ? 'bg-purple-500/60' :
+              transitionState === TransitionState.PROMOTING ? 'bg-purple-500/60' :
+              transitionState === TransitionState.DEMOTING ? 'bg-orange-500/60' :
+              transitionState === TransitionState.EXPANDING ? 'bg-cyan-500/60' :
               isAnchored ? 'bg-yellow-500/60' :
               isSelected ? 'bg-green-500/60' :
               isExpanded ? 'bg-blue-500/60' :
@@ -240,7 +274,9 @@ export const AnimatedItem = React.memo(function AnimatedItem({
             )} />
             <div className={cn(
               'w-0 h-0 border-l-[4px] border-r-[4px] border-t-[5px] border-l-transparent border-r-transparent',
-              isPromoting ? 'border-t-purple-500/60' :
+              transitionState === TransitionState.PROMOTING ? 'border-t-purple-500/60' :
+              transitionState === TransitionState.DEMOTING ? 'border-t-orange-500/60' :
+              transitionState === TransitionState.EXPANDING ? 'border-t-cyan-500/60' :
               isAnchored ? 'border-t-yellow-500/60' :
               isSelected ? 'border-t-green-500/60' :
               isExpanded ? 'border-t-blue-500/60' :

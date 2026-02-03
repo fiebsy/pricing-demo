@@ -81,6 +81,7 @@ export type OriginImageType = 'poster' | 'logo' | 'backdrop'
 
 // Motion-specific types
 export type ConfigPreset = 'default' | 'spring' | 'custom'
+export type CollapseMode = 'synchronized' | 'custom'
 export type EntryDirection =
   | 'up'
   | 'down'
@@ -158,6 +159,12 @@ export interface PlaygroundConfig {
   originLogoShine: string
   originLogoSquircle: boolean
   originLogoInvert: number
+  // Logo outline
+  originLogoOutline: boolean
+  originLogoOutlineColor: string
+  originLogoOutlineSize: number
+  originLogoOutlineOpacity: number
+  originLogoOutlineIntensity: number
 
   // =========================================================================
   // SPARKLINE CHART
@@ -209,6 +216,8 @@ export interface PlaygroundConfig {
   // =========================================================================
   // EXIT ANIMATION
   // =========================================================================
+  /** Collapse mode: 'synchronized' auto-syncs exit/collapse timing, 'custom' allows manual control */
+  collapseMode: CollapseMode
   exitScale: number
   exitUseCustomTiming: boolean
   exitDuration: number

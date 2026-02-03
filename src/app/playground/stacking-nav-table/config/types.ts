@@ -78,7 +78,7 @@ export type BorderColor = 'primary' | 'secondary' | 'tertiary'
 export type BadgeStyleVariant = 'default' | 'modern'
 export type BadgeShapeVariant = 'pill' | 'rounded' | 'squircle'
 
-export type OriginImageType = 'poster' | 'logo' | 'backdrop'
+export type OriginImageType = 'none' | 'poster' | 'logo' | 'backdrop'
 
 export interface PlaygroundConfig {
   // Data
@@ -117,6 +117,8 @@ export interface PlaygroundConfig {
   originAvatarWidth: number
   originAvatarHeight: number
   originImageType: OriginImageType
+  originShowLabel: boolean
+  originLabelOpacity: number
   originLogoBg: boolean
   originLogoBgColor: string
   originLogoPaddingX: number
@@ -124,6 +126,19 @@ export interface PlaygroundConfig {
   originLogoShine: string
   originLogoSquircle: boolean
   originLogoInvert: number
+  // Logo outline
+  originLogoOutline: boolean
+  originLogoOutlineColor: string
+  originLogoOutlineSize: number
+  originLogoOutlineOpacity: number
+  originLogoOutlineIntensity: number
+  // Backdrop behind
+  originShowBackdrop: boolean
+  originBackdropPaddingX: number
+  originBackdropPaddingY: number
+  originBackdropShine: string
+  originBackdropOpacity: number
+  originBackdropRadius: number
   // Chart
   sparklineHeight: number
   sparklineStrokeWidth: number

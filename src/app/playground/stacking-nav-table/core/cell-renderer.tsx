@@ -73,7 +73,9 @@ export interface BadgeConfig {
 export interface OriginAvatarConfig {
   width: number
   height: number
-  imageType: 'poster' | 'logo' | 'backdrop'
+  imageType: 'none' | 'poster' | 'logo' | 'backdrop'
+  showLabel: boolean
+  labelOpacity: number
   logoBg: boolean
   logoBgColor: string
   logoPaddingX: number
@@ -81,6 +83,19 @@ export interface OriginAvatarConfig {
   logoShine: string
   logoSquircle: boolean
   logoInvert: number
+  // Logo outline
+  logoOutline: boolean
+  logoOutlineColor: string
+  logoOutlineSize: number
+  logoOutlineOpacity: number
+  logoOutlineIntensity: number
+  // Backdrop behind
+  showBackdrop: boolean
+  backdropPaddingX: number
+  backdropPaddingY: number
+  backdropShine: string
+  backdropOpacity: number
+  backdropRadius: number
 }
 
 export interface SparklineConfig {
@@ -168,6 +183,8 @@ const DEFAULT_AVATAR_CONFIG: OriginAvatarConfig = {
   width: 20,
   height: 20,
   imageType: 'poster',
+  showLabel: true,
+  labelOpacity: 1,
   logoBg: false,
   logoBgColor: 'bg-tertiary',
   logoPaddingX: 4,
@@ -175,9 +192,22 @@ const DEFAULT_AVATAR_CONFIG: OriginAvatarConfig = {
   logoShine: 'none',
   logoSquircle: false,
   logoInvert: 0,
+  // Logo outline
+  logoOutline: false,
+  logoOutlineColor: 'auto',
+  logoOutlineSize: 0.5,
+  logoOutlineOpacity: 0.45,
+  logoOutlineIntensity: 2,
+  // Backdrop behind
+  showBackdrop: false,
+  backdropPaddingX: 8,
+  backdropPaddingY: 6,
+  backdropShine: 'shine-2-shadow-sm',
+  backdropOpacity: 0.85,
+  backdropRadius: 4,
 }
 
-function getOriginSrc(origin: string, imageType: 'poster' | 'logo' | 'backdrop'): string {
+function getOriginSrc(origin: string, imageType: 'none' | 'poster' | 'logo' | 'backdrop'): string {
   const slug = getOriginSlug(origin)
   switch (imageType) {
     case 'poster':
@@ -186,16 +216,72 @@ function getOriginSrc(origin: string, imageType: 'poster' | 'logo' | 'backdrop')
       return `/origins-logos/${slug}.png`
     case 'backdrop':
       return `/origins-backdrops/${slug}.jpg`
+    case 'none':
+    default:
+      return ''
   }
+}
+
+/**
+ * Build CSS filter for logo outline effect using drop-shadow.
+ * Creates a shape-following outline by stacking multiple drop-shadows.
+ */
+function buildLogoOutlineFilter(
+  color: string,
+  size: number,
+  opacity: number,
+  intensity: number,
+): string {
+  if (opacity <= 0) return 'none'
+
+  // Color mapping
+  const colorMap: Record<string, string> = {
+    auto: 'var(--color-fg-primary)',
+    dark: 'rgba(0, 0, 0, 1)',
+    light: 'rgba(255, 255, 255, 1)',
+    brand: 'var(--color-brand-primary)',
+    subtle: 'var(--color-fg-tertiary)',
+  }
+  const baseColor = colorMap[color] || colorMap.auto
+
+  // Stack shadows based on intensity
+  const shadows: string[] = []
+  for (let i = 0; i < intensity; i++) {
+    // Each layer is slightly different for better coverage
+    const spread = size * (1 + i * 0.2)
+    shadows.push(
+      `drop-shadow(0 0 ${spread}px color-mix(in srgb, ${baseColor} ${Math.round(opacity * 100)}%, transparent))`,
+      `drop-shadow(${spread}px 0 ${spread * 0.5}px color-mix(in srgb, ${baseColor} ${Math.round(opacity * 80)}%, transparent))`,
+      `drop-shadow(-${spread}px 0 ${spread * 0.5}px color-mix(in srgb, ${baseColor} ${Math.round(opacity * 80)}%, transparent))`,
+      `drop-shadow(0 ${spread}px ${spread * 0.5}px color-mix(in srgb, ${baseColor} ${Math.round(opacity * 80)}%, transparent))`,
+      `drop-shadow(0 -${spread}px ${spread * 0.5}px color-mix(in srgb, ${baseColor} ${Math.round(opacity * 80)}%, transparent))`
+    )
+  }
+
+  return shadows.join(' ')
 }
 
 function OriginAvatar({ origin, config = DEFAULT_AVATAR_CONFIG }: { origin: string; config?: OriginAvatarConfig }) {
   const [errored, setErrored] = React.useState(false)
-  const { width, height, imageType, logoBg, logoBgColor, logoPaddingX, logoPaddingY, logoShine, logoSquircle, logoInvert } = config
+  const [backdropErrored, setBackdropErrored] = React.useState(false)
+  const {
+    width, height, imageType,
+    logoBg, logoBgColor, logoPaddingX, logoPaddingY, logoShine, logoSquircle, logoInvert,
+    logoOutline, logoOutlineColor, logoOutlineSize, logoOutlineOpacity, logoOutlineIntensity,
+    showBackdrop, backdropPaddingX, backdropPaddingY, backdropShine, backdropOpacity, backdropRadius,
+  } = config
   const src = getOriginSrc(origin, imageType)
+  const backdropSrc = getOriginSrc(origin, 'backdrop')
   const initial = origin.charAt(0).toUpperCase()
   const isLogo = imageType === 'logo'
   const showBg = isLogo && logoBg
+  const showBackdropBehind = isLogo && showBackdrop && !showBg
+  const showOutline = isLogo && logoOutline && !showBg && !showBackdropBehind // Outline only when no background or backdrop
+
+  // Build outline filter
+  const outlineFilter = showOutline
+    ? buildLogoOutlineFilter(logoOutlineColor, logoOutlineSize, logoOutlineOpacity, logoOutlineIntensity)
+    : undefined
 
   if (errored) {
     return (
@@ -221,10 +307,43 @@ function OriginAvatar({ origin, config = DEFAULT_AVATAR_CONFIG }: { origin: stri
         height,
         borderRadius: showBg ? 0 : undefined,
         '--logo-invert': isLogo && logoInvert > 0 ? logoInvert : undefined,
+        filter: showOutline ? outlineFilter : undefined,
       } as React.CSSProperties}
       onError={() => setErrored(true)}
     />
   )
+
+  // Backdrop behind logo
+  if (showBackdropBehind && !backdropErrored) {
+    const containerClasses = [
+      'relative flex shrink-0 items-center justify-center overflow-hidden',
+      backdropShine !== 'none' ? backdropShine : '',
+    ].filter(Boolean).join(' ')
+
+    return (
+      <div
+        className={containerClasses}
+        style={{
+          borderRadius: backdropRadius,
+          paddingInline: backdropPaddingX,
+          paddingBlock: backdropPaddingY,
+        }}
+      >
+        {/* Backdrop image */}
+        <Image
+          src={backdropSrc}
+          alt=""
+          fill
+          loading="lazy"
+          className="object-cover"
+          style={{ opacity: backdropOpacity }}
+          onError={() => setBackdropErrored(true)}
+        />
+        {/* Logo on top */}
+        <div className="relative z-10">{img}</div>
+      </div>
+    )
+  }
 
   if (showBg) {
     const bgClasses = [
@@ -337,13 +456,22 @@ const renderCell = (
       )
     }
 
-    case 'origin':
+    case 'origin': {
+      const showAvatar = avatarConfig?.imageType !== 'none'
       return (
         <div className="flex items-center gap-2 min-w-0">
-          <OriginAvatar origin={item.origin} config={avatarConfig} />
-          <span className="text-tertiary truncate text-xs">{item.origin}</span>
+          {showAvatar && <OriginAvatar origin={item.origin} config={avatarConfig} />}
+          {avatarConfig?.showLabel !== false && (
+            <span
+              className="text-tertiary truncate text-xs"
+              style={{ opacity: avatarConfig?.labelOpacity ?? 1 }}
+            >
+              {item.origin}
+            </span>
+          )}
         </div>
       )
+    }
 
     case 'threatLevel':
       return <ThreatSignal level={item.threatLevel} />

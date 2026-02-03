@@ -62,6 +62,12 @@ export const DEFAULT_ANIMATION_CONFIG: AnimationConfig = {
   // Promotion sequencing
   syncChildEntryToPromotion: false,
   promotionChildOffset: 0,
+
+  // Demotion entry settings (siblings reappearing during collapse)
+  demotionEntryDelay: 0,
+  demotionStagger: 0,
+  demotionEntryOpacity: 0,
+  demotionEntryScale: 1,
 }
 
 /**

@@ -12,6 +12,7 @@
 import { AnimatePresence } from 'motion/react'
 
 import { useStackContext, useLevelContext, LevelContext } from '../context'
+import { NavigationPhase } from '../state/navigation-phase'
 import { ROOT_ANCHOR_ID, createLevelAllId, isLevelAllId } from '../config'
 import { computeItemState } from '../utils/item-state'
 import { debugTable } from '../utils/debug'
@@ -33,6 +34,7 @@ export function StackLevel({ items, parentLevelIndices = [] }: StackLevelProps) 
     shouldReduceMotion,
     showDebug,
     // Phase coordinator state (V2)
+    phase,
     isCollapsing,
     promotingId,
     isHoverSuppressed,
@@ -212,8 +214,10 @@ export function StackLevel({ items, parentLevelIndices = [] }: StackLevelProps) 
             anchorCount + rootAnchorCount + currentItemBecomesAnchor
 
           // Children should know if parent is promoting (for sync timing)
-          // Promotion occurs when level > 0 and active item has children
-          const parentIsPromoting = level > 0 && !isCollapsingNow
+          // Only true during active expansion phases, not idle/expanded states
+          const isActiveExpansion =
+            phase === NavigationPhase.PROMOTING || phase === NavigationPhase.EXPANDING
+          const parentIsPromoting = isActiveExpansion
 
           // Calculate parent's anchored offset (where parent ends up)
           // This is used by entryFromParent so children start at parent's end position

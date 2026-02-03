@@ -64,6 +64,10 @@ const sectionSlideVariants = {
     opacity: 1,
   },
   exit: (direction: number) => ({
+    position: 'absolute' as const,
+    top: 0,
+    left: 0,
+    right: 0,
     y: direction > 0 ? -8 : 8,
     opacity: 0,
     transition: { duration: 0.075, ease: 'easeIn' as const },
@@ -252,11 +256,12 @@ function PanelInner<T>({
             }}
           >
             {/* Active Section Content - Flex-based height, scrolls when needed */}
-            <ScrollArea.Root className="flex-1 min-h-0 overflow-hidden">
-              <ScrollArea.Viewport className="size-full overflow-auto overscroll-contain">
+            {/* Note: Using absolute positioning on Viewport prevents layout shift during AnimatePresence transitions */}
+            <ScrollArea.Root className="relative flex-1 min-h-0">
+              <ScrollArea.Viewport className="absolute inset-0 overflow-y-auto overscroll-contain">
                 <ScrollArea.Content>
                   <div className="p-2.5">
-                    <AnimatePresence mode="wait" initial={false} custom={direction}>
+                    <AnimatePresence mode="popLayout" initial={false} custom={direction}>
                       {activeSection && (
                         <motion.div
                           key={activeSection.id}

@@ -20,67 +20,71 @@ export interface SemanticColorOption {
 // -----------------------------------------------------------------------------
 // Semantic Text Colors
 // -----------------------------------------------------------------------------
+// CSS variable names must match theme.css / theme-delphi.css exactly.
+// Pattern: --text-color-{name} for neutral, --text-color-{category}-primary for semantic
+// -----------------------------------------------------------------------------
 
 export const SEMANTIC_TEXT_COLORS: SemanticColorOption[] = [
-  // Neutral colors
+  // Neutral colors (value matches Tailwind class: text-{value})
   { label: 'Primary', value: 'primary', cssVar: '--text-color-primary', category: 'neutral' },
   { label: 'Secondary', value: 'secondary', cssVar: '--text-color-secondary', category: 'neutral' },
   { label: 'Tertiary', value: 'tertiary', cssVar: '--text-color-tertiary', category: 'neutral' },
   { label: 'Quaternary', value: 'quaternary', cssVar: '--text-color-quaternary', category: 'neutral' },
-  { label: 'Disabled', value: 'disabled', cssVar: '--text-color-disabled', category: 'neutral' },
-  { label: 'Placeholder', value: 'placeholder', cssVar: '--text-color-placeholder', category: 'neutral' },
-  // Brand colors
-  { label: 'Brand', value: 'brand', cssVar: '--text-color-brand', category: 'brand' },
+  // Brand colors (Tailwind: text-brand-primary, text-brand-secondary)
+  { label: 'Brand', value: 'brand-primary', cssVar: '--text-color-brand-primary', category: 'brand' },
   { label: 'Brand Secondary', value: 'brand-secondary', cssVar: '--text-color-brand-secondary', category: 'brand' },
-  // Status colors
-  { label: 'Success', value: 'success', cssVar: '--text-color-success', category: 'status' },
-  { label: 'Warning', value: 'warning', cssVar: '--text-color-warning', category: 'status' },
-  { label: 'Error', value: 'error', cssVar: '--text-color-error', category: 'status' },
-  { label: 'Info', value: 'info', cssVar: '--text-color-info', category: 'status' },
+  // Status colors (Tailwind: text-success-primary, text-warning-primary, text-error-primary)
+  { label: 'Success', value: 'success-primary', cssVar: '--text-color-success-primary', category: 'status' },
+  { label: 'Warning', value: 'warning-primary', cssVar: '--text-color-warning-primary', category: 'status' },
+  { label: 'Error', value: 'error-primary', cssVar: '--text-color-error-primary', category: 'status' },
 ]
 
 // -----------------------------------------------------------------------------
 // Semantic Background Colors
 // -----------------------------------------------------------------------------
+// CSS variable names must match theme.css / theme-delphi.css exactly.
+// Pattern: --background-color-{name} for neutral, --background-color-{category}-primary for semantic
+// -----------------------------------------------------------------------------
 
 export const SEMANTIC_BG_COLORS: SemanticColorOption[] = [
-  // Neutral colors
-  { label: 'Primary', value: 'primary', cssVar: '--bg-color-primary', category: 'neutral' },
-  { label: 'Secondary', value: 'secondary', cssVar: '--bg-color-secondary', category: 'neutral' },
-  { label: 'Tertiary', value: 'tertiary', cssVar: '--bg-color-tertiary', category: 'neutral' },
-  { label: 'Quaternary', value: 'quaternary', cssVar: '--bg-color-quaternary', category: 'neutral' },
-  { label: 'Elevated', value: 'elevated', cssVar: '--bg-color-elevated', category: 'neutral' },
-  { label: 'Overlay', value: 'overlay', cssVar: '--bg-color-overlay', category: 'neutral' },
-  // Brand colors
-  { label: 'Brand', value: 'brand', cssVar: '--bg-color-brand', category: 'brand' },
-  { label: 'Brand Subtle', value: 'brand-subtle', cssVar: '--bg-color-brand-subtle', category: 'brand' },
-  // Status colors
-  { label: 'Success', value: 'success', cssVar: '--bg-color-success', category: 'status' },
-  { label: 'Success Subtle', value: 'success-subtle', cssVar: '--bg-color-success-subtle', category: 'status' },
-  { label: 'Warning', value: 'warning', cssVar: '--bg-color-warning', category: 'status' },
-  { label: 'Warning Subtle', value: 'warning-subtle', cssVar: '--bg-color-warning-subtle', category: 'status' },
-  { label: 'Error', value: 'error', cssVar: '--bg-color-error', category: 'status' },
-  { label: 'Error Subtle', value: 'error-subtle', cssVar: '--bg-color-error-subtle', category: 'status' },
-  { label: 'Info', value: 'info', cssVar: '--bg-color-info', category: 'status' },
-  { label: 'Info Subtle', value: 'info-subtle', cssVar: '--bg-color-info-subtle', category: 'status' },
+  // Neutral colors (value matches Tailwind class: bg-{value})
+  { label: 'Primary', value: 'primary', cssVar: '--background-color-primary', category: 'neutral' },
+  { label: 'Secondary', value: 'secondary', cssVar: '--background-color-secondary', category: 'neutral' },
+  { label: 'Tertiary', value: 'tertiary', cssVar: '--background-color-tertiary', category: 'neutral' },
+  { label: 'Quaternary', value: 'quaternary', cssVar: '--background-color-quaternary', category: 'neutral' },
+  // Brand colors (Tailwind: bg-brand-primary, bg-brand-secondary, bg-brand-solid)
+  { label: 'Brand', value: 'brand-primary', cssVar: '--background-color-brand-primary', category: 'brand' },
+  { label: 'Brand Subtle', value: 'brand-secondary', cssVar: '--background-color-brand-secondary', category: 'brand' },
+  { label: 'Brand Solid', value: 'brand-solid', cssVar: '--background-color-brand-solid', category: 'brand' },
+  // Status colors (Tailwind: bg-success-primary, bg-success-secondary, etc.)
+  { label: 'Success', value: 'success-primary', cssVar: '--background-color-success-primary', category: 'status' },
+  { label: 'Success Subtle', value: 'success-secondary', cssVar: '--background-color-success-secondary', category: 'status' },
+  { label: 'Success Solid', value: 'success-solid', cssVar: '--background-color-success-solid', category: 'status' },
+  { label: 'Warning', value: 'warning-primary', cssVar: '--background-color-warning-primary', category: 'status' },
+  { label: 'Warning Subtle', value: 'warning-secondary', cssVar: '--background-color-warning-secondary', category: 'status' },
+  { label: 'Warning Solid', value: 'warning-solid', cssVar: '--background-color-warning-solid', category: 'status' },
+  { label: 'Error', value: 'error-primary', cssVar: '--background-color-error-primary', category: 'status' },
+  { label: 'Error Subtle', value: 'error-secondary', cssVar: '--background-color-error-secondary', category: 'status' },
+  { label: 'Error Solid', value: 'error-solid', cssVar: '--background-color-error-solid', category: 'status' },
 ]
 
 // -----------------------------------------------------------------------------
 // Semantic Border Colors
 // -----------------------------------------------------------------------------
+// CSS variable names must match theme.css / theme-delphi.css exactly.
+// Note: Only success and error have border color tokens defined.
+// -----------------------------------------------------------------------------
 
 export const SEMANTIC_BORDER_COLORS: SemanticColorOption[] = [
-  // Neutral colors
+  // Neutral colors (value matches Tailwind class: border-{value})
   { label: 'Primary', value: 'primary', cssVar: '--border-color-primary', category: 'neutral' },
   { label: 'Secondary', value: 'secondary', cssVar: '--border-color-secondary', category: 'neutral' },
   { label: 'Tertiary', value: 'tertiary', cssVar: '--border-color-tertiary', category: 'neutral' },
-  // Brand colors
+  // Brand colors (Tailwind: border-brand)
   { label: 'Brand', value: 'brand', cssVar: '--border-color-brand', category: 'brand' },
-  // Status colors
-  { label: 'Success', value: 'success', cssVar: '--border-color-success', category: 'status' },
-  { label: 'Warning', value: 'warning', cssVar: '--border-color-warning', category: 'status' },
+  // Status colors (only error has Tailwind utilities: border-error, border-error_subtle)
   { label: 'Error', value: 'error', cssVar: '--border-color-error', category: 'status' },
-  { label: 'Info', value: 'info', cssVar: '--border-color-info', category: 'status' },
+  { label: 'Error Subtle', value: 'error_subtle', cssVar: '--border-color-error_subtle', category: 'status' },
 ]
 
 // -----------------------------------------------------------------------------

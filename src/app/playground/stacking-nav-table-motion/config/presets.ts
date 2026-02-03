@@ -70,6 +70,12 @@ const TABLE_DEFAULTS = {
   originLogoShine: 'none',
   originLogoSquircle: false,
   originLogoInvert: 0,
+  // Logo outline
+  originLogoOutline: false,
+  originLogoOutlineColor: 'auto',
+  originLogoOutlineSize: 0.5,
+  originLogoOutlineOpacity: 0.45,
+  originLogoOutlineIntensity: 2,
 
   // Sparkline
   sparklineHeight: 24,
@@ -115,6 +121,7 @@ function motionConfigFromDefaults() {
     childEntryScale: a.entryScale,
 
     // Exit (ms)
+    collapseMode: 'synchronized' as const,
     exitScale: a.exitScale,
     exitUseCustomTiming: a.exitUseCustomTiming,
     exitDuration: toMs(a.exitDuration),
@@ -186,6 +193,7 @@ export const PRESET_SPRING: PlaygroundConfig = {
   entryOffsetY: 12,
   childEntryDelay: 50,
   childEntryScale: 0.95,
+  collapseMode: 'synchronized',
   exitScale: 0.95,
   exitUseCustomTiming: false,
   exitDuration: 300,

@@ -119,6 +119,16 @@ export interface AnimationConfig {
   syncChildEntryToPromotion: boolean
   /** Additional delay (seconds) for children during promotion phase */
   promotionChildOffset: number
+
+  // Demotion entry settings (siblings reappearing during collapse)
+  /** Delay before demotion siblings start appearing in seconds */
+  demotionEntryDelay: number
+  /** Stagger between demotion sibling appearances in seconds */
+  demotionStagger: number
+  /** Starting opacity for demotion siblings (0 = fade in, 1 = no fade) */
+  demotionEntryOpacity: number
+  /** Starting scale for demotion siblings */
+  demotionEntryScale: number
 }
 
 /**
@@ -291,11 +301,11 @@ export interface LevelContextValue {
  */
 export type AnimationMode =
   | 'skip' // Leaf skip or parent-of-leaf skip — instant, no movement
-  | 'entry' // Staggered entry for new child items
   | 'anchor' // Absolute-positioned peek-behind
   | 'promote' // Scale keyframes for child-becoming-parent
-  | 'collapse-reentry' // L0 siblings re-appearing during collapse (fade only)
-  | 'default' // Standard animate to parent offset
+  | 'promote-entry' // Children entering during expansion (promotion or simple expand)
+  | 'collapse-reentry' // Siblings re-appearing during collapse at any level
+  | 'default' // Already visible items, no entry animation needed
 
 /**
  * Complete render state for a single item.

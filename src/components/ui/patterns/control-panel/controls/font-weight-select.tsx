@@ -1,18 +1,17 @@
 // =============================================================================
 // Font Weight Select Control
 // =============================================================================
-// Enhanced dropdown where each option shows text rendered in that actual weight.
+// Inline select styled to match InlineSlider — label on left, weight preview
+// and value on the right. Uses Base UI Select for accessible dropdown.
 // =============================================================================
 
 'use client'
 
+import { useState } from 'react'
+import { Select } from '@base-ui/react/select'
 import { cx } from '@/components/utils/cx'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-} from '@/components/ui/deprecated/base/primitives/select'
+import { inlineSelectStyles as styles } from '@/components/ui/core/primitives/select'
+import { ScrollablePopupContent } from './scrollable-popup-content'
 import type { FontWeightOption } from '../tokens/typography'
 
 // -----------------------------------------------------------------------------
@@ -20,6 +19,8 @@ import type { FontWeightOption } from '../tokens/typography'
 // -----------------------------------------------------------------------------
 
 export interface FontWeightSelectProps {
+  /** Label displayed on the left */
+  label: string
   /** Current value */
   value: string
   /** Font weight options */
@@ -39,6 +40,7 @@ export interface FontWeightSelectProps {
 // -----------------------------------------------------------------------------
 
 export function FontWeightSelect({
+  label,
   value,
   options,
   onChange,
@@ -46,56 +48,127 @@ export function FontWeightSelect({
   disabled = false,
   className,
 }: FontWeightSelectProps) {
+  const [open, setOpen] = useState(false)
   const safeValue = value || options[0]?.value || ''
   const selectedOption = options.find((opt) => opt.value === safeValue)
 
   return (
-    <Select
-      value={safeValue || undefined}
-      onValueChange={disabled ? undefined : onChange}
+    <Select.Root
+      value={safeValue}
+      onValueChange={(v) => v !== null && onChange(v)}
+      open={open}
+      onOpenChange={setOpen}
       disabled={disabled}
     >
-      <SelectTrigger
+      <Select.Trigger
         className={cx(
-          'h-9 w-full px-2.5 py-1.5 text-xs',
-          disabled && 'cursor-not-allowed opacity-50',
+          styles.container,
+          disabled && styles.disabled,
           className
         )}
       >
-        <span className="flex items-center gap-2.5">
-          {/* Weight preview in trigger */}
+        {/* Label on left */}
+        <span className={styles.labelContainer}>
+          <span className={styles.label}>{label}</span>
+        </span>
+
+        {/* Spacer */}
+        <span className="flex-1" />
+
+        {/* Weight preview + selected value on right */}
+        <span className="flex items-center gap-1.5">
           <span
-            className="text-primary w-8 text-center text-sm"
+            className="text-primary text-sm leading-none"
             style={{ fontWeight: selectedOption?.weight ?? 400 }}
           >
             {previewText}
           </span>
-          <span className="text-secondary truncate text-xs">
-            {selectedOption?.label || 'Select weight...'}
-          </span>
+          <Select.Value className={styles.value}>
+            {selectedOption?.label || 'Select...'}
+          </Select.Value>
         </span>
-      </SelectTrigger>
-      <SelectContent className="max-h-[300px]">
-        {options.map((option) => (
-          <SelectItem key={option.value} value={option.value} className="py-2">
-            <span className="flex items-center gap-3">
-              {/* Weight preview in option */}
-              <span
-                className="text-primary w-8 text-center text-sm"
-                style={{ fontWeight: option.weight }}
-              >
-                {previewText}
-              </span>
-              <span className="flex flex-col">
-                <span className="text-xs">{option.label}</span>
-                <span className="text-tertiary text-[10px] tabular-nums">
-                  {option.weight}
-                </span>
-              </span>
-            </span>
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
+
+        {/* Chevron indicator */}
+        <Select.Icon className={styles.chevron}>
+          <ChevronIcon />
+        </Select.Icon>
+      </Select.Trigger>
+
+      <Select.Portal>
+        <Select.Positioner
+          alignItemWithTrigger={false}
+          side="bottom"
+          align="end"
+          sideOffset={4}
+          collisionPadding={8}
+          className="z-[99]"
+        >
+          <Select.Popup className={cx(styles.popup, 'p-0')}>
+            <ScrollablePopupContent className="overscroll-contain p-1">
+              {options.map((option) => (
+                <Select.Item
+                  key={option.value}
+                  value={option.value}
+                  className={styles.popupItem}
+                >
+                  <span className="flex items-center gap-2">
+                    {/* Weight preview in option */}
+                    <span
+                      className="text-primary w-6 text-center text-sm"
+                      style={{ fontWeight: option.weight }}
+                    >
+                      {previewText}
+                    </span>
+                    <Select.ItemText>
+                      <span className="flex items-center gap-1.5">
+                        <span>{option.label}</span>
+                        <span className="text-tertiary text-[10px] tabular-nums">
+                          {option.weight}
+                        </span>
+                      </span>
+                    </Select.ItemText>
+                  </span>
+                  <Select.ItemIndicator className={styles.itemIndicator}>
+                    <CheckIcon />
+                  </Select.ItemIndicator>
+                </Select.Item>
+              ))}
+            </ScrollablePopupContent>
+          </Select.Popup>
+        </Select.Positioner>
+      </Select.Portal>
+    </Select.Root>
+  )
+}
+
+// -----------------------------------------------------------------------------
+// Icons
+// -----------------------------------------------------------------------------
+
+function ChevronIcon() {
+  return (
+    <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+      <path
+        d="M2.5 3.75L5 6.25L7.5 3.75"
+        stroke="currentColor"
+        strokeWidth="1.25"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
+function CheckIcon() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
+      <path
+        d="M13.5 4.5L6.5 11.5L3 8"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
   )
 }

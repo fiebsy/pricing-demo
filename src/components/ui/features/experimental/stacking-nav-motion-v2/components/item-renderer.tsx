@@ -77,30 +77,29 @@ export function ItemRenderer({
       initial = false
       break
     case 'collapse-reentry':
-      initial = shouldReduceMotion ? undefined : { opacity: 0 }
+      // Demotion entry: siblings reappearing when collapsing - uses separate config
+      initial = shouldReduceMotion
+        ? undefined
+        : {
+            opacity: animationConfig.demotionEntryOpacity,
+            scale: animationConfig.demotionEntryScale,
+          }
+      break
+    case 'promote-entry':
+      // Children entering during promotion - explicit initial state like collapse-reentry
+      initial = shouldReduceMotion
+        ? undefined
+        : {
+            opacity: animationConfig.entryOpacity,
+            ...entryOffset,
+            scale: animationConfig.entryScale,
+          }
       break
     case 'default':
-      // Default mode for items that aren't entering, promoting, or anchoring
-      initial = false
-      break
-    case 'entry':
-      // Entry animation for new child items
-      initial = shouldReduceMotion
-        ? undefined
-        : {
-            opacity: animationConfig.entryOpacity,
-            ...entryOffset,
-            scale: animationConfig.entryScale,
-          }
-      break
     default:
-      initial = shouldReduceMotion
-        ? undefined
-        : {
-            opacity: animationConfig.entryOpacity,
-            ...entryOffset,
-            scale: animationConfig.entryScale,
-          }
+      // Default mode for items that aren't entering, promoting, or anchoring
+      // No initial state - item is already visible
+      initial = false
       break
   }
 
@@ -131,8 +130,9 @@ export function ItemRenderer({
     ? getCollapseLayoutTransition(animationConfig)
     : {}
 
-  // Only entry items should have a delay - promoting/anchored items animate immediately
-  const shouldHaveDelay = animationMode === 'entry'
+  // Entry modes should have a delay - promoting/anchored items animate immediately
+  const shouldHaveDelay =
+    animationMode === 'promote-entry' || animationMode === 'collapse-reentry'
   const effectiveDelay = shouldHaveDelay ? animationDelay : 0
 
   let transition: Transition

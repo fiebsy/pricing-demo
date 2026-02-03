@@ -54,6 +54,23 @@ export enum AnimationState {
 }
 
 /**
+ * Transition states for tracking state changes during animations.
+ * Used for visual debugging to show what transition is happening.
+ */
+export enum TransitionState {
+  /** No active transition */
+  NONE = 'none',
+  /** CHILD → EXPANDED: child becoming parent (has children being clicked) */
+  PROMOTING = 'promoting',
+  /** ANCHORED → EXPANDED: parent losing grandchildren (child collapsed) */
+  DEMOTING = 'demoting',
+  /** IDLE → EXPANDED: item being expanded to show children */
+  EXPANDING = 'expanding',
+  /** EXPANDED → IDLE or ANCHORED → IDLE: item being collapsed */
+  COLLAPSING = 'collapsing',
+}
+
+/**
  * Context for determining item state.
  */
 export interface StateContext {

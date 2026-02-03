@@ -92,7 +92,7 @@ export function getChildEntryOffset(
 }
 
 /**
- * Calculate stagger delay for child at given index.
+ * Calculate stagger delay for child at given index during PROMOTION.
  * When isPromotingPhase is true, applies promotion sequencing logic:
  * - syncChildEntryToPromotion: ensures children wait for promotion to complete
  * - promotionChildOffset: adds extra delay during promotion
@@ -112,6 +112,14 @@ export function getChildDelay(
   }
 
   return baseDelay
+}
+
+/**
+ * Calculate stagger delay for sibling at given index during DEMOTION.
+ * Used for siblings reappearing when collapsing back to a level.
+ */
+export function getDemotionDelay(index: number, config: AnimationConfig): number {
+  return config.demotionEntryDelay + index * config.demotionStagger
 }
 
 /**

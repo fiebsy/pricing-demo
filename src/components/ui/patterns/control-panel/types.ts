@@ -24,6 +24,8 @@ interface ControlBase {
   label: string
   description?: string
   disabled?: boolean
+  /** Optional icon displayed before the label */
+  icon?: ReactNode
 }
 
 /** Slider control for numeric ranges */

@@ -18,6 +18,7 @@ import {
   type PhaseState,
   type PhaseDurationConfig,
 } from './navigation-phase'
+import { logPhase } from '../utils/debug-log'
 
 // =============================================================================
 // TYPES
@@ -158,7 +159,7 @@ export function usePhaseCoordinator(config: PhaseCoordinatorConfig): PhaseCoordi
 
       setPhaseState((prev) => {
         // Record transition for debug
-        if (showDebug && prev.current !== newPhase) {
+        if (prev.current !== newPhase) {
           const record: PhaseTransitionRecord = {
             from: prev.current,
             to: newPhase,
@@ -166,7 +167,17 @@ export function usePhaseCoordinator(config: PhaseCoordinatorConfig): PhaseCoordi
             duration,
             trigger: options.trigger ?? 'unknown',
           }
-          setTransitionHistory((h) => [...h.slice(-4), record]) // Keep last 5
+          if (showDebug) {
+            setTransitionHistory((h) => [...h.slice(-4), record]) // Keep last 5
+          }
+          // Log to debug log
+          logPhase(newPhase, {
+            from: prev.current,
+            duration,
+            trigger: options.trigger,
+            promotingId: options.promotingId,
+            childCount,
+          })
         }
 
         return {

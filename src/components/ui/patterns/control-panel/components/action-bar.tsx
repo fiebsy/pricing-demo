@@ -10,11 +10,14 @@ import { useCallback, useState } from 'react'
 import { Select } from '@base-ui/react/select'
 import Copy01Icon from '@hugeicons-pro/core-stroke-rounded/Copy01Icon'
 import Tick01Icon from '@hugeicons-pro/core-stroke-rounded/Tick01Icon'
+import RefreshIcon from '@hugeicons-pro/core-stroke-rounded/RefreshIcon'
 import { cx } from '@/components/utils/cx'
 import { inlineSelectStyles as selectStyles } from '@/components/ui/core/primitives/select'
+import { ScrollablePopupContent } from '../controls/scrollable-popup-content'
 
 // Prod components
-import { Button } from '@/components/ui/core/primitives/button'
+import { ButtonUtility } from '@/components/ui/core/primitives/button-utility'
+import { HugeIcon } from '@/components/ui/core/primitives/icon'
 
 import type { PresetConfig } from '../types'
 
@@ -114,19 +117,21 @@ export function ActionBar<T>({
                 collisionPadding={8}
                 className="z-[99]"
               >
-                <Select.Popup className={selectStyles.popup}>
-                  {presets.map((preset) => (
-                    <Select.Item
-                      key={preset.id}
-                      value={preset.id}
-                      className={selectStyles.popupItem}
-                    >
-                      <Select.ItemText>{preset.name}</Select.ItemText>
-                      <Select.ItemIndicator className={selectStyles.itemIndicator}>
-                        <CheckIcon />
-                      </Select.ItemIndicator>
-                    </Select.Item>
-                  ))}
+                <Select.Popup className={cx(selectStyles.popup, 'p-0')}>
+                  <ScrollablePopupContent className="overscroll-contain p-1">
+                    {presets.map((preset) => (
+                      <Select.Item
+                        key={preset.id}
+                        value={preset.id}
+                        className={selectStyles.popupItem}
+                      >
+                        <Select.ItemText>{preset.name}</Select.ItemText>
+                        <Select.ItemIndicator className={selectStyles.itemIndicator}>
+                          <CheckIcon />
+                        </Select.ItemIndicator>
+                      </Select.Item>
+                    ))}
+                  </ScrollablePopupContent>
                 </Select.Popup>
               </Select.Positioner>
             </Select.Portal>
@@ -135,20 +140,30 @@ export function ActionBar<T>({
 
         {/* Copy Button */}
         {showCopyButton && (
-          <Button
+          <ButtonUtility
             size="xs"
-            variant={copyStatus === 'copied' ? 'primary' : 'secondary'}
+            color="tertiary"
             onClick={handleCopyConfig}
-            className="shrink-0"
-            iconLeading={copyStatus === 'copied' ? Tick01Icon : Copy01Icon}
+            tooltip={copyStatus === 'copied' ? 'Copied!' : 'Copy config'}
+            icon={
+              copyStatus === 'copied' ? (
+                <HugeIcon icon={Tick01Icon} size={16} strokeWidth={2} className="text-success" />
+              ) : (
+                <HugeIcon icon={Copy01Icon} size={16} strokeWidth={1.5} />
+              )
+            }
           />
         )}
 
         {/* Reset Button */}
         {showReset && onReset && (
-          <Button size="xs" variant="tertiary" onClick={onReset} className="shrink-0">
-            {resetLabel}
-          </Button>
+          <ButtonUtility
+            size="xs"
+            color="tertiary"
+            onClick={onReset}
+            tooltip={resetLabel}
+            icon={<HugeIcon icon={RefreshIcon} size={16} strokeWidth={1.5} />}
+          />
         )}
       </div>
     </div>

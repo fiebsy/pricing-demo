@@ -9,7 +9,8 @@
 
 import type { ItemStateContext, ItemRenderState, AnimationMode } from '../types'
 import { getAnchoredZIndex, Z_INDEX } from '../config'
-import { getChildDelay } from './animations'
+import { getChildDelay, getDemotionDelay } from './animations'
+import { logMode, logTiming } from './debug-log'
 
 // =============================================================================
 // COMPUTATION
@@ -81,19 +82,47 @@ export function computeItemState(ctx: ItemStateContext): ItemRenderState {
     animationMode = 'anchor'
   } else if (isPromoting) {
     animationMode = 'promote'
-  } else if (isCollapsingNow && level === 0 && !isActive) {
+  } else if (isCollapsingNow && !isActive) {
+    // Siblings reappearing during collapse - applies at any level
     animationMode = 'collapse-reentry'
-  } else if (level > 0 && !isActive && !isCollapsingNow) {
-    animationMode = 'entry'
+  } else if (isPromotingPhase && level > 0 && !isActive) {
+    // Children entering during expansion (promotion or simple expand)
+    animationMode = 'promote-entry'
   } else {
+    // Default: items that are already visible or don't need entry animation
     animationMode = 'default'
   }
 
-  // --- Stagger delay (skip during collapse) ------------------------------
-  const animationDelay =
-    animationMode === 'entry'
-      ? getChildDelay(index, animationConfig, isPromotingPhase)
-      : 0
+  // --- Stagger delay ------------------------------------------------------
+  let animationDelay: number
+  if (animationMode === 'promote-entry') {
+    // Children appearing during expansion
+    animationDelay = getChildDelay(index, animationConfig, isPromotingPhase)
+  } else if (animationMode === 'collapse-reentry') {
+    // Demotion entry: siblings reappearing when collapsing
+    animationDelay = getDemotionDelay(index, animationConfig)
+  } else {
+    animationDelay = 0
+  }
+
+  // --- Debug logging -----------------------------------------------------
+  logMode(item.id, level, animationMode, {
+    isActive,
+    isAnchored,
+    isPromoting,
+    isCollapsingNow,
+    isPromotingPhase,
+    shouldHide,
+  })
+
+  if (animationDelay > 0) {
+    logTiming(item.id, level, animationDelay, {
+      mode: animationMode,
+      index,
+      stagger: animationConfig.stagger,
+      demotionStagger: animationConfig.demotionStagger,
+    })
+  }
 
   // --- Z-index -----------------------------------------------------------
   let zIndex: number

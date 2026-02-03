@@ -130,6 +130,54 @@ export default function StackingNavTableMotionPlayground() {
   const contentWrapperRef = useRef<HTMLDivElement>(null)
   const heightLockRef = useRef(false)
 
+  // DEBUG: Log collector for copy-paste
+  const debugLogsRef = useRef<string[]>([])
+  const [copyStatus, setCopyStatus] = useState<'idle' | 'copied'>('idle')
+
+  const debugLog = useCallback((tag: string, data?: Record<string, unknown>) => {
+    const timestamp = performance.now().toFixed(1)
+    const entry = data
+      ? `[${timestamp}ms] ${tag} ${JSON.stringify(data)}`
+      : `[${timestamp}ms] ${tag}`
+    debugLogsRef.current.push(entry)
+    // Keep only last 50 entries
+    if (debugLogsRef.current.length > 50) {
+      debugLogsRef.current = debugLogsRef.current.slice(-50)
+    }
+    console.log(tag, data ?? '')
+  }, [])
+
+  const handleCopyLogs = useCallback(() => {
+    const logs = debugLogsRef.current.join('\n')
+    navigator.clipboard.writeText(logs).then(() => {
+      setCopyStatus('copied')
+      setTimeout(() => setCopyStatus('idle'), 2000)
+    })
+  }, [])
+
+  const handleClearLogs = useCallback(() => {
+    debugLogsRef.current = []
+  }, [])
+
+  // DEBUG: Track scroll changes during transitions
+  useEffect(() => {
+    let lastScrollY = window.scrollY
+    const handleScroll = () => {
+      const delta = window.scrollY - lastScrollY
+      if (Math.abs(delta) > 5) {
+        debugLog('[SCROLL] 📜', {
+          from: lastScrollY,
+          to: window.scrollY,
+          delta,
+          heightLocked: heightLockRef.current,
+        })
+      }
+      lastScrollY = window.scrollY
+    }
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [debugLog])
+
   // Variant-aware: pick data source, filter function, nav items, columns, labels
   const isEmployees = config.dataVariant === 'employees'
 
@@ -148,42 +196,84 @@ export default function StackingNavTableMotionPlayground() {
   const activeColumnLabels = isEmployees ? EMPLOYEE_COLUMN_LABELS : COLUMN_LABELS
   const activeCountLabel = isEmployees ? 'employees' : 'characters'
 
-  // After filtered data renders, smoothly release the height lock
+  // After filtered data renders, release the height lock with smooth transition
   useEffect(() => {
     const wrapper = contentWrapperRef.current
     if (!heightLockRef.current || !wrapper) return
-    heightLockRef.current = false
 
-    requestAnimationFrame(() => {
-      // Read the locked height, then measure the natural content height
-      const locked = parseFloat(wrapper.style.minHeight) || 0
+    const lockedHeight = parseFloat(wrapper.style.minHeight) || 0
+
+    debugLog('[HEIGHT LOCK] 🔒 Waiting to release...', {
+      lockedHeight: wrapper.style.minHeight,
+      scrollY: window.scrollY,
+      wrapperOffsetHeight: wrapper.offsetHeight,
+    })
+
+    // Wait for nav animation to settle, then measure natural height
+    const timeout = setTimeout(() => {
+      // Temporarily remove minHeight to measure natural content
       wrapper.style.minHeight = ''
-      const natural = wrapper.offsetHeight
+      const naturalHeight = wrapper.offsetHeight
 
-      if (natural >= locked) return // content grew — nothing to do
+      debugLog('[HEIGHT LOCK] 📐 Measured', {
+        lockedHeight,
+        naturalHeight,
+        scrollY: window.scrollY,
+        scrollMax: document.documentElement.scrollHeight - window.innerHeight,
+      })
 
-      // Content shrank — transition smoothly from locked → natural
-      wrapper.style.minHeight = `${locked}px`
-      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-      wrapper.offsetHeight // force reflow before transition
-      wrapper.style.transition = 'min-height 250ms ease-out'
-      wrapper.style.minHeight = `${natural}px`
+      if (naturalHeight >= lockedHeight) {
+        // Content grew or stayed same - just release
+        debugLog('[HEIGHT LOCK] ✅ Released (content grew)', { scrollY: window.scrollY })
+        heightLockRef.current = false
+        return
+      }
+
+      // Content shrank - animate the height down smoothly
+      // This keeps scroll position valid during transition
+      wrapper.style.minHeight = `${lockedHeight}px`
+      // Force reflow
+      void wrapper.offsetHeight
+      wrapper.style.transition = 'min-height 300ms ease-out'
+      wrapper.style.minHeight = `${naturalHeight}px`
+
+      debugLog('[HEIGHT LOCK] 🎬 Animating height', {
+        from: lockedHeight,
+        to: naturalHeight,
+        scrollY: window.scrollY,
+      })
 
       const cleanup = () => {
         wrapper.style.transition = ''
         wrapper.style.minHeight = ''
+        heightLockRef.current = false
+        debugLog('[HEIGHT LOCK] ✅ Released (after animation)', {
+          scrollY: window.scrollY,
+          wrapperOffsetHeight: wrapper.offsetHeight,
+        })
       }
+
       wrapper.addEventListener('transitionend', cleanup, { once: true })
-      // Safety timeout in case transitionend doesn't fire
-      setTimeout(cleanup, 300)
-    })
-  }, [filteredData])
+      // Safety timeout
+      setTimeout(cleanup, 350)
+    }, 300)
+
+    return () => clearTimeout(timeout)
+  }, [filteredData, debugLog])
 
   // Build full animation config for motion component
   const animationConfig: Partial<AnimationConfig> = useMemo(() => {
     const scale = config.timeScale
     // For spring animations, lower stiffness and damping = slower
     const springMultiplier = scale * scale
+
+    // Synchronized mode: auto-calculate exit timing from collapse duration
+    const isSynchronized = config.collapseMode === 'synchronized'
+    const effectiveExitDuration = isSynchronized
+      ? (config.collapseLayoutDuration * 0.5) / 1000 / scale  // Half of collapse duration
+      : (config.exitDuration / 1000) / scale
+    const effectiveExitDelay = isSynchronized ? 0 : (config.exitDelay / 1000) / scale
+    const effectiveExitUseCustomTiming = isSynchronized ? true : config.exitUseCustomTiming
 
     return {
       type: config.animationType,
@@ -199,10 +289,10 @@ export default function StackingNavTableMotionPlayground() {
       childEntryDelay: (config.childEntryDelay / 1000) / scale,
       entryScale: config.childEntryScale,
       exitScale: config.exitScale,
-      exitUseCustomTiming: config.exitUseCustomTiming,
-      exitDuration: (config.exitDuration / 1000) / scale,
+      exitUseCustomTiming: effectiveExitUseCustomTiming,
+      exitDuration: effectiveExitDuration,
       exitEase: config.exitEase,
-      exitDelay: (config.exitDelay / 1000) / scale,
+      exitDelay: effectiveExitDelay,
       collapseLayoutDuration: config.collapseLayoutDuration / 1000,
       skipLeafAnimation: config.skipLeafAnimation,
       hoverDelay: config.hoverDelay / 1000,
@@ -308,23 +398,61 @@ export default function StackingNavTableMotionPlayground() {
   const panelConfig = useMemo(() => createPanelConfig(config), [config])
 
   // Handlers
+  const scrollLockRef = useRef<number | null>(null)
+
   const handleSelectionChange = useCallback((path: ActivePath) => {
-    if (config.showNavDebug) {
-      console.log(`[NAV CLICK] path=[${path}] scrollY=${window.scrollY}`)
-    }
+    const savedScrollY = window.scrollY
+    scrollLockRef.current = savedScrollY
+
+    debugLog(`[NAV CLICK] 👆 path=[${path}]`, {
+      scrollY: savedScrollY,
+      containWrapper: document.querySelector('[style*="contain"]') ? 'found' : 'NOT FOUND',
+    })
 
     // Lock container height to prevent scroll jump when data shrinks
     const wrapper = contentWrapperRef.current
     if (wrapper) {
+      const currentHeight = wrapper.offsetHeight
       wrapper.style.transition = ''
-      wrapper.style.minHeight = `${wrapper.offsetHeight}px`
+      wrapper.style.minHeight = `${currentHeight}px`
       heightLockRef.current = true
+      debugLog('[HEIGHT LOCK] 🔐 Locked', {
+        lockedHeight: currentHeight,
+        scrollY: savedScrollY,
+      })
     }
 
     startTransition(() => {
       setCurrentPath(path)
     })
-  }, [startTransition, config.showNavDebug])
+
+    // Restore scroll position if it jumps during nav animation
+    const restoreScroll = () => {
+      if (scrollLockRef.current !== null && Math.abs(window.scrollY - scrollLockRef.current) > 50) {
+        debugLog('[SCROLL FIX] 🔧 Restoring scroll', {
+          from: window.scrollY,
+          to: scrollLockRef.current,
+        })
+        window.scrollTo({ top: scrollLockRef.current, behavior: 'instant' })
+      }
+    }
+
+    // Check multiple times during the animation
+    const t1 = setTimeout(restoreScroll, 100)
+    const t2 = setTimeout(restoreScroll, 200)
+    const t3 = setTimeout(restoreScroll, 300)
+    const t4 = setTimeout(() => {
+      restoreScroll()
+      scrollLockRef.current = null
+    }, 400)
+
+    return () => {
+      clearTimeout(t1)
+      clearTimeout(t2)
+      clearTimeout(t3)
+      clearTimeout(t4)
+    }
+  }, [startTransition, debugLog])
 
   const handleReorderColumns = useCallback((fromKey: string, toKey: string) => {
     setColumnOrder((prev) => {
@@ -539,18 +667,22 @@ export default function StackingNavTableMotionPlayground() {
   `
 
   // Stacking nav rendered inside the toolbar's left slot
+  // CSS containment isolates Motion's layout measurements from propagating to the table
+  // overflow-anchor: none prevents browser scroll anchoring during layout animations
   const navToolbar = (
-    <StackingNav
-      key={resetKey}
-      items={activeNavItems}
-      animationConfig={animationConfig}
-      styleConfig={styleConfig}
-      showNumbers={config.showNumbers}
-      showDebug={config.showNavDebug}
-      onReset={handleComponentReset}
-      onSelectionChange={handleSelectionChange}
-      className="!min-h-0"
-    />
+    <div style={{ contain: 'layout', overflowAnchor: 'none' }}>
+      <StackingNav
+        key={resetKey}
+        items={activeNavItems}
+        animationConfig={animationConfig}
+        styleConfig={styleConfig}
+        showNumbers={config.showNumbers}
+        showDebug={config.showNavDebug}
+        onReset={handleComponentReset}
+        onSelectionChange={handleSelectionChange}
+        className="!min-h-0"
+      />
+    </div>
   )
 
   return (
@@ -558,11 +690,23 @@ export default function StackingNavTableMotionPlayground() {
       {/* Scoped styles — opacity/mute targets table body only, toolbar stays full */}
       <style dangerouslySetInnerHTML={{ __html: tableScopedCSS }} />
 
-      {/* Version label */}
-      <div className="fixed top-4 left-4 z-50">
+      {/* Version label + Debug controls */}
+      <div className="fixed top-4 left-4 z-50 flex items-center gap-2">
         <div className="rounded-lg bg-tertiary px-3 py-1.5 text-xs font-semibold text-secondary shadow-md">
           stacking-nav-table-motion
         </div>
+        <button
+          onClick={handleCopyLogs}
+          className="rounded-lg bg-tertiary px-3 py-1.5 text-xs font-semibold text-secondary shadow-md hover:bg-secondary-alt transition-colors"
+        >
+          {copyStatus === 'copied' ? '✓ Copied!' : '📋 Copy Logs'}
+        </button>
+        <button
+          onClick={handleClearLogs}
+          className="rounded-lg bg-tertiary px-3 py-1.5 text-xs font-semibold text-secondary shadow-md hover:bg-secondary-alt transition-colors"
+        >
+          🗑️ Clear
+        </button>
       </div>
 
       <div className="pr-[352px] min-h-screen">

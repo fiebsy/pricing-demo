@@ -227,18 +227,20 @@ export const AnimatedItem = React.memo(function AnimatedItem({
               // Transition states take priority (with pulse animation)
               isPromoting && phase === NavigationPhase.PROMOTING
                 ? 'animate-pulse border-purple-600 bg-purple-500 text-white'
-                : phase === NavigationPhase.EXPANDING && isChildItem
-                  ? 'animate-pulse border-cyan-600 bg-cyan-500 text-white'
-                  : // Stable states (no pulse)
-                    isAnchored
-                    ? 'border-yellow-600 bg-yellow-500 text-black'
-                    : isSelected
-                      ? 'border-green-600 bg-green-500 text-white'
-                      : isExpanded
-                        ? 'border-blue-600 bg-blue-500 text-white'
-                        : isChildItem
-                          ? 'border-gray-600 bg-gray-500 text-white'
-                          : 'border-gray-400 bg-gray-300 text-gray-700'
+                : phase === NavigationPhase.COLLAPSING && isChildItem
+                  ? 'animate-pulse border-orange-600 bg-orange-500 text-white'
+                  : phase === NavigationPhase.EXPANDING && isChildItem
+                    ? 'animate-pulse border-cyan-600 bg-cyan-500 text-white'
+                    : // Stable states (no pulse)
+                      isAnchored
+                      ? 'border-yellow-600 bg-yellow-500 text-black'
+                      : isSelected
+                        ? 'border-green-600 bg-green-500 text-white'
+                        : isExpanded
+                          ? 'border-blue-600 bg-blue-500 text-white'
+                          : isChildItem
+                            ? 'border-gray-600 bg-gray-500 text-white'
+                            : 'border-gray-400 bg-gray-300 text-gray-700'
             )}
           >
             <div className="flex flex-col items-center gap-0.5">
@@ -247,7 +249,8 @@ export const AnimatedItem = React.memo(function AnimatedItem({
                 {isTransitioning && (
                   <span className="text-[8px]">
                     {isPromoting && phase === NavigationPhase.PROMOTING && '↑'}
-                    {phase === NavigationPhase.COLLAPSING && '↓'}
+                    {phase === NavigationPhase.COLLAPSING && isAnchored && '↓'}
+                    {phase === NavigationPhase.COLLAPSING && isChildItem && '←'}
                     {phase === NavigationPhase.EXPANDING && isChildItem && '→'}
                   </span>
                 )}
@@ -257,18 +260,20 @@ export const AnimatedItem = React.memo(function AnimatedItem({
                     ? 'PROMOTING'
                     : phase === NavigationPhase.COLLAPSING && isAnchored
                       ? 'COLLAPSING'
-                      : phase === NavigationPhase.EXPANDING && isChildItem
-                        ? 'ENTERING'
-                        : /* Stable state labels */
-                          isAnchored
-                          ? 'ANCHORED'
-                          : isSelected
-                            ? 'ACTIVE'
-                            : isExpanded
-                              ? 'EXPANDED'
-                              : isChildItem
-                                ? 'CHILD'
-                                : 'IDLE'}
+                      : phase === NavigationPhase.COLLAPSING && isChildItem
+                        ? 'REENTRY'
+                        : phase === NavigationPhase.EXPANDING && isChildItem
+                          ? 'ENTERING'
+                          : /* Stable state labels */
+                            isAnchored
+                            ? 'ANCHORED'
+                            : isSelected
+                              ? 'ACTIVE'
+                              : isExpanded
+                                ? 'EXPANDED'
+                                : isChildItem
+                                  ? 'CHILD'
+                                  : 'IDLE'}
                 </span>
               </div>
               <div className="text-[8px] opacity-80">

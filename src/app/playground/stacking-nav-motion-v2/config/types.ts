@@ -77,6 +77,12 @@ export interface PlaygroundConfig {
   syncChildEntryToPromotion: boolean
   promotionChildOffset: number // ms for UI sliders
 
+  // Demotion Entry (siblings reappearing during collapse)
+  demotionEntryDelay: number // ms in playground
+  demotionStagger: number // ms in playground
+  demotionEntryOpacity: number
+  demotionEntryScale: number
+
   // Exit Animation
   exitScale: number
   exitUseCustomTiming: boolean

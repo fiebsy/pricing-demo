@@ -144,6 +144,17 @@ export function computeItemState(ctx: ItemStateContext): ItemRenderState {
   const animationDelay =
     animationMode === 'entry' ? getChildDelay(index, animationConfig) : 0
 
+  // DEBUG: Log child entry delay
+  if (animationMode === 'entry') {
+    console.log(`[CHILD ENTRY] ${item.id}`, {
+      index,
+      animationMode,
+      childEntryDelay: animationConfig.childEntryDelay,
+      stagger: animationConfig.stagger,
+      calculatedDelay: animationDelay,
+    })
+  }
+
   // --- Z-index -----------------------------------------------------------
   let zIndex: number
   if (isAnchored) {

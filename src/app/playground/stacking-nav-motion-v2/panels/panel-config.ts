@@ -292,6 +292,56 @@ export function createPanelConfig(config: PlaygroundConfig): UnifiedControlPanel
             ],
           },
           {
+            title: 'Demotion Entry — Timing',
+            controls: [
+              {
+                id: 'demotionEntryDelay',
+                type: 'slider',
+                label: 'Delay',
+                value: config.demotionEntryDelay,
+                min: 0,
+                max: 300,
+                step: 10,
+                formatLabel: (v: number) => `${v}ms`,
+              },
+              {
+                id: 'demotionStagger',
+                type: 'slider',
+                label: 'Stagger',
+                value: config.demotionStagger,
+                min: 0,
+                max: 150,
+                step: 5,
+                formatLabel: (v: number) => `${v}ms`,
+              },
+            ],
+          },
+          {
+            title: 'Demotion Entry — Appearance',
+            controls: [
+              {
+                id: 'demotionEntryScale',
+                type: 'slider',
+                label: 'Scale',
+                value: config.demotionEntryScale,
+                min: 0.8,
+                max: 1.0,
+                step: 0.01,
+                formatLabel: (v: number) => `${v.toFixed(2)}`,
+              },
+              {
+                id: 'demotionEntryOpacity',
+                type: 'slider',
+                label: 'Opacity',
+                value: config.demotionEntryOpacity,
+                min: 0,
+                max: 1,
+                step: 0.05,
+                formatLabel: (v: number) => `${(v * 100).toFixed(0)}%`,
+              },
+            ],
+          },
+          {
             title: 'Leaf Nodes',
             controls: [
               {

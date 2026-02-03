@@ -87,3 +87,14 @@ export {
   getPaddingClassName,
 } from './spacing'
 export type { SpacingOption } from './spacing'
+
+// Validation (dev utilities)
+export {
+  validateCssVariable,
+  validateToken,
+  validateTokens,
+  validateAllColorTokens,
+  runValidation,
+  generateTailwindClassReport,
+} from './validate'
+export type { ValidationResult, ValidationSummary } from './validate'

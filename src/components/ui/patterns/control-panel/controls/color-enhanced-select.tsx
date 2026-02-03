@@ -1,20 +1,18 @@
 // =============================================================================
 // Color Enhanced Select Control
 // =============================================================================
-// Enhanced dropdown with larger, more prominent color swatches.
-// Groups options by category with subtle dividers.
+// Inline select styled to match InlineSlider — label on left, color swatch
+// and value on the right. Dropdown groups options by category.
+// Uses Base UI Select for accessible dropdown.
 // =============================================================================
 
 'use client'
 
 import { useEffect, useState, Fragment } from 'react'
+import { Select } from '@base-ui/react/select'
 import { cx } from '@/components/utils/cx'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-} from '@/components/ui/deprecated/base/primitives/select'
+import { inlineSelectStyles as styles } from '@/components/ui/core/primitives/select'
+import { ScrollablePopupContent } from './scrollable-popup-content'
 import type { SemanticColorOption } from '../tokens/colors'
 
 // -----------------------------------------------------------------------------
@@ -22,6 +20,8 @@ import type { SemanticColorOption } from '../tokens/colors'
 // -----------------------------------------------------------------------------
 
 export interface ColorEnhancedSelectProps {
+  /** Label displayed on the left */
+  label: string
   /** Current value */
   value: string
   /** Color options */
@@ -42,6 +42,12 @@ export interface ColorEnhancedSelectProps {
 // Color Swatch with CSS Variable Resolution
 // -----------------------------------------------------------------------------
 
+/** Fallback color shown when CSS variable doesn't resolve */
+const FALLBACK_COLOR = '#888888'
+
+/** Track warned variables to avoid console spam */
+const warnedVariables = new Set<string>()
+
 interface EnhancedSwatchProps {
   cssVar: string
   size: 'sm' | 'md' | 'lg'
@@ -49,48 +55,49 @@ interface EnhancedSwatchProps {
 }
 
 function EnhancedSwatch({ cssVar, size, className }: EnhancedSwatchProps) {
-  const [resolvedColor, setResolvedColor] = useState<string>('#888')
+  const [resolvedColor, setResolvedColor] = useState<string>(FALLBACK_COLOR)
 
   useEffect(() => {
     // Resolve CSS variable to actual color
     const computed = getComputedStyle(document.documentElement).getPropertyValue(cssVar).trim()
+
     if (computed) {
       setResolvedColor(computed)
+    } else {
+      // Dev warning for unresolved CSS variables
+      if (process.env.NODE_ENV === 'development' && !warnedVariables.has(cssVar)) {
+        warnedVariables.add(cssVar)
+        console.warn(
+          `[ColorEnhancedSelect] CSS variable "${cssVar}" did not resolve.\n` +
+          `Check that this variable exists in theme.css or theme-delphi.css.\n` +
+          `Using fallback color: ${FALLBACK_COLOR}`
+        )
+      }
+      setResolvedColor(FALLBACK_COLOR)
     }
   }, [cssVar])
 
   const sizeClasses = {
-    sm: 'size-4 rounded',
-    md: 'size-5 rounded-md',
-    lg: 'size-6 rounded-md',
+    sm: 'size-3.5 rounded',
+    md: 'size-4 rounded',
+    lg: 'size-5 rounded-md',
   }
+
+  // Visual indicator for unresolved variables in development
+  const isUnresolved = resolvedColor === FALLBACK_COLOR
+  const devIndicator = process.env.NODE_ENV === 'development' && isUnresolved
 
   return (
     <span
       className={cx(
-        'inline-block shrink-0 border border-black/10 shadow-sm',
+        'inline-block shrink-0 border shadow-sm',
         sizeClasses[size],
+        devIndicator ? 'border-dashed border-red-400' : 'border-black/10',
         className
       )}
       style={{ backgroundColor: resolvedColor }}
-      title={`var(${cssVar})`}
+      title={devIndicator ? `UNRESOLVED: var(${cssVar})` : `var(${cssVar})`}
     />
-  )
-}
-
-// -----------------------------------------------------------------------------
-// Group Label Component
-// -----------------------------------------------------------------------------
-
-interface GroupLabelProps {
-  label: string
-}
-
-function GroupLabel({ label }: GroupLabelProps) {
-  return (
-    <div className="text-tertiary px-2 py-1 text-[10px] font-medium uppercase tracking-wider">
-      {label}
-    </div>
   )
 }
 
@@ -99,14 +106,16 @@ function GroupLabel({ label }: GroupLabelProps) {
 // -----------------------------------------------------------------------------
 
 export function ColorEnhancedSelect({
+  label,
   value,
   options,
   onChange,
-  swatchSize = 'md',
+  swatchSize = 'sm',
   showGroups = true,
   disabled = false,
   className,
 }: ColorEnhancedSelectProps) {
+  const [open, setOpen] = useState(false)
   const safeValue = value || options[0]?.value || ''
   const selectedOption = options.find((opt) => opt.value === safeValue)
 
@@ -121,17 +130,19 @@ export function ColorEnhancedSelect({
     : null
 
   const renderOption = (option: SemanticColorOption) => (
-    <SelectItem key={option.value} value={option.value} className="py-2">
-      <span className="flex items-center gap-3">
+    <Select.Item
+      key={option.value}
+      value={option.value}
+      className={styles.popupItem}
+    >
+      <span className="flex items-center gap-2">
         <EnhancedSwatch cssVar={option.cssVar} size={swatchSize} />
-        <span className="flex flex-col">
-          <span className="text-xs">{option.label}</span>
-          {option.description && (
-            <span className="text-tertiary text-[10px]">{option.description}</span>
-          )}
-        </span>
+        <Select.ItemText>{option.label}</Select.ItemText>
       </span>
-    </SelectItem>
+      <Select.ItemIndicator className={styles.itemIndicator}>
+        <CheckIcon />
+      </Select.ItemIndicator>
+    </Select.Item>
   )
 
   const renderGroupedContent = () => {
@@ -148,7 +159,7 @@ export function ColorEnhancedSelect({
       <Fragment key={group.key}>
         {index > 0 && <div className="bg-secondary my-1 h-px" />}
         <div>
-          <GroupLabel label={group.label} />
+          <div className={styles.popupLabel}>{group.label}</div>
           {group.items.map(renderOption)}
         </div>
       </Fragment>
@@ -156,28 +167,92 @@ export function ColorEnhancedSelect({
   }
 
   return (
-    <Select
-      value={safeValue || undefined}
-      onValueChange={disabled ? undefined : onChange}
+    <Select.Root
+      value={safeValue}
+      onValueChange={(v) => v !== null && onChange(v)}
+      open={open}
+      onOpenChange={setOpen}
       disabled={disabled}
     >
-      <SelectTrigger
+      <Select.Trigger
         className={cx(
-          'h-9 w-full px-2.5 py-1.5 text-xs',
-          disabled && 'cursor-not-allowed opacity-50',
+          styles.container,
+          disabled && styles.disabled,
           className
         )}
       >
-        <span className="flex items-center gap-2.5">
+        {/* Label on left */}
+        <span className={styles.labelContainer}>
+          <span className={styles.label}>{label}</span>
+        </span>
+
+        {/* Spacer */}
+        <span className="flex-1" />
+
+        {/* Color swatch + selected value on right */}
+        <span className="flex items-center gap-1.5">
           {selectedOption && (
             <EnhancedSwatch cssVar={selectedOption.cssVar} size={swatchSize} />
           )}
-          <span className="truncate">{selectedOption?.label || 'Select color...'}</span>
+          <Select.Value className={styles.value}>
+            {selectedOption?.label || 'Select...'}
+          </Select.Value>
         </span>
-      </SelectTrigger>
-      <SelectContent className="max-h-[350px]">
-        {renderGroupedContent()}
-      </SelectContent>
-    </Select>
+
+        {/* Chevron indicator */}
+        <Select.Icon className={styles.chevron}>
+          <ChevronIcon />
+        </Select.Icon>
+      </Select.Trigger>
+
+      <Select.Portal>
+        <Select.Positioner
+          alignItemWithTrigger={false}
+          side="bottom"
+          align="end"
+          sideOffset={4}
+          collisionPadding={8}
+          className="z-[99]"
+        >
+          <Select.Popup className={cx(styles.popup, 'p-0')}>
+            <ScrollablePopupContent className="overscroll-contain p-1">
+              {renderGroupedContent()}
+            </ScrollablePopupContent>
+          </Select.Popup>
+        </Select.Positioner>
+      </Select.Portal>
+    </Select.Root>
+  )
+}
+
+// -----------------------------------------------------------------------------
+// Icons
+// -----------------------------------------------------------------------------
+
+function ChevronIcon() {
+  return (
+    <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+      <path
+        d="M2.5 3.75L5 6.25L7.5 3.75"
+        stroke="currentColor"
+        strokeWidth="1.25"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
+function CheckIcon() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
+      <path
+        d="M13.5 4.5L6.5 11.5L3 8"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
   )
 }

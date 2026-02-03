@@ -1,18 +1,17 @@
 // =============================================================================
 // Radius Preview Select Control
 // =============================================================================
-// Dropdown where each option shows a small square with that border radius.
+// Inline select styled to match InlineSlider — label on left, radius preview
+// square and value on the right. Uses Base UI Select for accessible dropdown.
 // =============================================================================
 
 'use client'
 
+import { useState } from 'react'
+import { Select } from '@base-ui/react/select'
 import { cx } from '@/components/utils/cx'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-} from '@/components/ui/deprecated/base/primitives/select'
+import { inlineSelectStyles as styles } from '@/components/ui/core/primitives/select'
+import { ScrollablePopupContent } from './scrollable-popup-content'
 import type { RadiusOption } from '../tokens/radius'
 
 // -----------------------------------------------------------------------------
@@ -20,6 +19,8 @@ import type { RadiusOption } from '../tokens/radius'
 // -----------------------------------------------------------------------------
 
 export interface RadiusPreviewSelectProps {
+  /** Label displayed on the left */
+  label: string
   /** Current value */
   value: string
   /** Radius options */
@@ -45,22 +46,23 @@ interface RadiusPreviewProps {
 
 function RadiusPreview({ pixels, size }: RadiusPreviewProps) {
   const sizeMap = {
-    sm: 16,
-    md: 20,
-    lg: 24,
+    sm: 14,
+    md: 16,
+    lg: 20,
   }
   const squareSize = sizeMap[size]
 
-  // For "full" radius, cap at half the square size
-  const effectiveRadius = Math.min(pixels, squareSize / 2)
+  // For "full" radius, cap at the square size (shows as quarter circle)
+  const effectiveRadius = Math.min(pixels, squareSize)
 
   return (
     <span
-      className="inline-block shrink-0 border border-tertiary bg-secondary"
+      className="inline-block shrink-0 border-t-2 border-l-2 border-primary"
       style={{
         width: squareSize,
         height: squareSize,
-        borderRadius: effectiveRadius,
+        borderTopLeftRadius: effectiveRadius,
+        background: 'linear-gradient(to bottom left, var(--color-bg-tertiary), transparent)',
       }}
     />
   )
@@ -71,58 +73,126 @@ function RadiusPreview({ pixels, size }: RadiusPreviewProps) {
 // -----------------------------------------------------------------------------
 
 export function RadiusPreviewSelect({
+  label,
   value,
   options,
   onChange,
-  previewSize = 'md',
+  previewSize = 'sm',
   disabled = false,
   className,
 }: RadiusPreviewSelectProps) {
+  const [open, setOpen] = useState(false)
   const safeValue = value || options[0]?.value || ''
   const selectedOption = options.find((opt) => opt.value === safeValue)
 
   return (
-    <Select
-      value={safeValue || undefined}
-      onValueChange={disabled ? undefined : onChange}
+    <Select.Root
+      value={safeValue}
+      onValueChange={(v) => v !== null && onChange(v)}
+      open={open}
+      onOpenChange={setOpen}
       disabled={disabled}
     >
-      <SelectTrigger
+      <Select.Trigger
         className={cx(
-          'h-9 w-full px-2.5 py-1.5 text-xs',
-          disabled && 'cursor-not-allowed opacity-50',
+          styles.container,
+          disabled && styles.disabled,
           className
         )}
       >
-        <span className="flex items-center gap-2.5">
+        {/* Label on left */}
+        <span className={styles.labelContainer}>
+          <span className={styles.label}>{label}</span>
+        </span>
+
+        {/* Spacer */}
+        <span className="flex-1" />
+
+        {/* Radius preview + selected value on right */}
+        <span className="flex items-center gap-1.5">
           {selectedOption && (
             <RadiusPreview pixels={selectedOption.pixels} size={previewSize} />
           )}
-          <span className="truncate">
-            {selectedOption?.label || 'Select radius...'}
-          </span>
-          {selectedOption && selectedOption.pixels > 0 && (
-            <span className="text-tertiary ml-auto text-[10px] tabular-nums">
-              {selectedOption.pixels === 9999 ? '∞' : `${selectedOption.pixels}px`}
-            </span>
-          )}
+          <Select.Value className={styles.value}>
+            {selectedOption?.label || 'Select...'}
+          </Select.Value>
         </span>
-      </SelectTrigger>
-      <SelectContent className="max-h-[300px]">
-        {options.map((option) => (
-          <SelectItem key={option.value} value={option.value} className="py-2">
-            <span className="flex items-center gap-3">
-              <RadiusPreview pixels={option.pixels} size={previewSize} />
-              <span className="flex flex-col">
-                <span className="text-xs">{option.label}</span>
-                <span className="text-tertiary text-[10px] tabular-nums">
-                  {option.pixels === 9999 ? 'Full (pill)' : `${option.pixels}px`}
-                </span>
-              </span>
-            </span>
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
+
+        {/* Chevron indicator */}
+        <Select.Icon className={styles.chevron}>
+          <ChevronIcon />
+        </Select.Icon>
+      </Select.Trigger>
+
+      <Select.Portal>
+        <Select.Positioner
+          alignItemWithTrigger={false}
+          side="bottom"
+          align="end"
+          sideOffset={4}
+          collisionPadding={8}
+          className="z-[99]"
+        >
+          <Select.Popup className={cx(styles.popup, 'p-0')}>
+            <ScrollablePopupContent className="overscroll-contain p-1">
+              {options.map((option) => (
+                <Select.Item
+                  key={option.value}
+                  value={option.value}
+                  className={styles.popupItem}
+                >
+                  <span className="flex items-center gap-2">
+                    <RadiusPreview pixels={option.pixels} size={previewSize} />
+                    <Select.ItemText>
+                      <span className="flex items-center gap-1.5">
+                        <span>{option.label}</span>
+                        <span className="text-tertiary text-[10px] tabular-nums">
+                          {option.pixels === 9999 ? '∞' : `${option.pixels}px`}
+                        </span>
+                      </span>
+                    </Select.ItemText>
+                  </span>
+                  <Select.ItemIndicator className={styles.itemIndicator}>
+                    <CheckIcon />
+                  </Select.ItemIndicator>
+                </Select.Item>
+              ))}
+            </ScrollablePopupContent>
+          </Select.Popup>
+        </Select.Positioner>
+      </Select.Portal>
+    </Select.Root>
+  )
+}
+
+// -----------------------------------------------------------------------------
+// Icons
+// -----------------------------------------------------------------------------
+
+function ChevronIcon() {
+  return (
+    <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+      <path
+        d="M2.5 3.75L5 6.25L7.5 3.75"
+        stroke="currentColor"
+        strokeWidth="1.25"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
+function CheckIcon() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
+      <path
+        d="M13.5 4.5L6.5 11.5L3 8"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
   )
 }

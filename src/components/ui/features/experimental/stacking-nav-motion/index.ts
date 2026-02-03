@@ -58,6 +58,8 @@ export type {
   ItemRenderState,
 } from './types'
 
+export { TransitionState } from './types'
+
 // =============================================================================
 // CONFIGURATION
 // =============================================================================
@@ -107,6 +109,7 @@ export {
 export { useCollapse } from './hooks/use-collapse'
 export { usePromotion } from './hooks/use-promotion'
 export { useHoverSuppression } from './hooks/use-hover-suppression'
+export { useTransitionState } from './hooks/use-transition-state'
 
 // =============================================================================
 // CONTEXT

@@ -58,7 +58,7 @@ const iconVariants = {
     transition: { duration: 0.1 },
   },
   expanded: {
-    opacity: 1,
+    opacity: 0.6,
     scale: 1,
     transition: { duration: 0.15, delay: 0.05 },
   },
@@ -216,7 +216,7 @@ function SidebarItem({ section, isActive, isExpanded, onClick }: SidebarItemProp
               >
                 <HugeIcon
                   icon={resolvedIcon}
-                  size="sm"
+                  size="xs"
                   color={isActive ? 'primary' : 'tertiary'}
                   className="transition-colors duration-200 group-hover:text-secondary"
                 />
