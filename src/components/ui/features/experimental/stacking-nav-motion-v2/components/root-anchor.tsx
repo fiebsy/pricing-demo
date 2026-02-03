@@ -20,7 +20,7 @@ interface RootAnchorProps {
   animationConfig: AnimationConfig
   styleConfig: StyleConfig
   shouldReduceMotion: boolean
-  isCollapsingNow: boolean
+  isCollapsing: boolean
 }
 
 export function RootAnchor({
@@ -29,11 +29,11 @@ export function RootAnchor({
   animationConfig,
   styleConfig,
   shouldReduceMotion,
-  isCollapsingNow,
+  isCollapsing,
 }: RootAnchorProps) {
   const anchorOffset = styleConfig.peekOffset * 0 // depth 0
 
-  const anchorTransition = isCollapsingNow
+  const anchorTransition = isCollapsing
     ? {
         ...getTransition(animationConfig),
         ...getCollapseLayoutTransition(animationConfig),

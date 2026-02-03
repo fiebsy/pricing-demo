@@ -65,9 +65,6 @@ export function StackLevel({ items, parentLevelIndices = [] }: StackLevelProps) 
   // ---- Get hover suppression for this level (from phase coordinator) ------
   const hoverSuppressed = isHoverSuppressed(level)
 
-  // ---- Read collapse state from phase coordinator -------------------------
-  const isCollapsingNow = isCollapsing
-
   // ---- Detect promoting phase ------------------------------------------------
   // isParentPromoting comes from LevelContext - set by parent when rendering children.
   // This is synchronously available on first render, unlike promotingId from phase coordinator.
@@ -133,7 +130,7 @@ export function StackLevel({ items, parentLevelIndices = [] }: StackLevelProps) 
           animationConfig={animationConfig}
           styleConfig={styleConfig}
           shouldReduceMotion={shouldReduceMotion}
-          isCollapsingNow={isCollapsingNow}
+          isCollapsing={isCollapsing}
         />
       )}
 
@@ -150,7 +147,7 @@ export function StackLevel({ items, parentLevelIndices = [] }: StackLevelProps) 
                 baseParentOffset={baseParentOffset}
                 animationConfig={animationConfig}
                 shouldReduceMotion={shouldReduceMotion}
-                isCollapsingNow={isCollapsingNow}
+                isCollapsing={isCollapsing}
                 isPromotingPhase={isPromotingPhase}
                 parentAnchoredOffset={parentAnchoredOffset}
               />
@@ -171,7 +168,7 @@ export function StackLevel({ items, parentLevelIndices = [] }: StackLevelProps) 
             styleConfig,
             anchorCount,
             promotingId,
-            isCollapsingNow,
+            isCollapsing,
             activeItemIsLeaf,
             activeChildIsLeaf,
             showLevelAll,
@@ -189,7 +186,7 @@ export function StackLevel({ items, parentLevelIndices = [] }: StackLevelProps) 
               state={state}
               animationConfig={animationConfig}
               shouldReduceMotion={shouldReduceMotion}
-              isCollapsingNow={isCollapsingNow}
+              isCollapsing={isCollapsing}
               isHoverSuppressed={hoverSuppressed}
               parentAnchoredOffset={parentAnchoredOffset}
             />

@@ -84,14 +84,10 @@ export type {
 } from './state/use-phase-coordinator'
 
 export {
-  detectNavigationChange,
-  getTargetPhase,
-  isActiveAnimation,
-  isRestingState,
-  getCompletionPhase,
+  isPhaseAnimating,
+  isPhaseResting,
+  isPhaseExpandingOrPromoting,
 } from './state/transitions'
-
-export type { NavigationChange } from './state/transitions'
 
 // =============================================================================
 // CONFIGURATION

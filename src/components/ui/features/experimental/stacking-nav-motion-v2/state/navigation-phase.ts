@@ -14,10 +14,26 @@
 /**
  * Navigation phase states.
  *
+ * Valid Phase Transitions:
+ *
+ * ```
+ * IDLE → EXPANDING (user clicks item with children at L0)
+ * EXPANDING → EXPANDED (entry animations complete)
+ * EXPANDING → COLLAPSING (user clicks back before expansion finishes)
+ * EXPANDED → COLLAPSING (user navigates back)
+ * EXPANDED → PROMOTING (user clicks child with children)
+ * COLLAPSING → IDLE (collapse complete)
+ * COLLAPSING → EXPANDING (user clicks new item before collapse finishes)
+ * PROMOTING → EXPANDED (promotion animation complete)
+ * ```
+ *
+ * State Diagram:
  * ```
  * IDLE → EXPANDING → EXPANDED → COLLAPSING → IDLE
- *                       ↓
- *                   PROMOTING → EXPANDED
+ *            ↓           ↓           ↓
+ *        COLLAPSING  PROMOTING   EXPANDING
+ *                        ↓
+ *                    EXPANDED
  * ```
  */
 export enum NavigationPhase {
@@ -96,6 +112,9 @@ export function isValidTransition(from: NavigationPhase, to: NavigationPhase): b
 // PHASE DURATION CALCULATION
 // =============================================================================
 
+/** Extra time (seconds) for layout animations to settle after collapse */
+const COLLAPSE_BUFFER_SECONDS = 0.1
+
 /**
  * Animation config subset needed for duration calculation.
  */
@@ -112,6 +131,10 @@ export interface PhaseDurationConfig {
   promotionDuration: number
   /** Time scale for slow-mo (1 = normal, 0.1 = 10x slower) */
   timeScale: number
+  /** When true, children wait for promotion to complete before entering */
+  syncChildEntryToPromotion: boolean
+  /** Additional delay for children during promotion */
+  promotionChildOffset: number
 }
 
 /**
@@ -127,19 +150,42 @@ export function calculatePhaseDuration(
 
   switch (phase) {
     case NavigationPhase.EXPANDING: {
-      // childEntryDelay + (childCount * stagger) + base duration
-      const entryTime = config.childEntryDelay + childCount * config.stagger + config.duration
+      // Phase completes when LAST child finishes animating:
+      // - Last child (index N-1) starts at: childEntryDelay + (N-1) * stagger
+      // - Last child finishes at: childEntryDelay + (N-1) * stagger + duration
+      const lastChildIndex = Math.max(0, childCount - 1)
+      const entryTime = config.childEntryDelay + lastChildIndex * config.stagger + config.duration
       return (entryTime * 1000) / scale
     }
 
     case NavigationPhase.COLLAPSING: {
       // Collapse layout duration + buffer for exit animations
-      const collapseTime = config.collapseLayoutDuration + 0.1 // 100ms buffer
+      const collapseTime = config.collapseLayoutDuration + COLLAPSE_BUFFER_SECONDS
       return (collapseTime * 1000) / scale
     }
 
     case NavigationPhase.PROMOTING: {
-      return (config.promotionDuration * 1000) / scale
+      // PROMOTING runs two animations:
+      // 1. Scale animation on the promoted item (promotionDuration)
+      // 2. Children entering with stagger delays
+      //
+      // When syncChildEntryToPromotion is true, children wait for promotion
+      // to complete, so total = promotionDuration + childEntryTime
+      //
+      // When false (default), they run concurrently, so total = max of both
+      const promotionTime = config.promotionDuration
+      const lastChildIndex = Math.max(0, childCount - 1)
+      const childEntryTime = config.childEntryDelay + lastChildIndex * config.stagger + config.duration
+
+      let totalTime: number
+      if (config.syncChildEntryToPromotion) {
+        // Sequential: promotion first, then children
+        totalTime = promotionTime + config.promotionChildOffset + childEntryTime
+      } else {
+        // Concurrent: whichever takes longer
+        totalTime = Math.max(promotionTime, childEntryTime)
+      }
+      return (totalTime * 1000) / scale
     }
 
     case NavigationPhase.EXPANDED:

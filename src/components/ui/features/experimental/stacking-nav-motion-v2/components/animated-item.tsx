@@ -18,7 +18,7 @@ import { cn } from '@/lib/utils'
 import { useStackContext, useLevelContext } from '../context'
 import { getNumberLabel, ROOT_ANCHOR_ID, HEIGHT_CLASSES } from '../config'
 import { NavigationPhase } from '../state/navigation-phase'
-import type { StackItem } from '../types'
+import type { StackItem, ButtonVariant } from '../types'
 
 // =============================================================================
 // REMOVE BUTTON COMPONENT
@@ -108,14 +108,7 @@ export const AnimatedItem = React.memo(function AnimatedItem({
   const isRootAnchor = level === 0 && item.id === ROOT_ANCHOR_ID
 
   // Determine variant
-  let variant:
-    | 'primary'
-    | 'secondary'
-    | 'tertiary'
-    | 'shine'
-    | 'tab'
-    | 'link-gray'
-    | 'link-color' = 'tertiary'
+  let variant: ButtonVariant = 'tertiary'
   if (isRootAnchor && !isAnchored) {
     variant = 'shine'
   } else if (isAnchored) {

@@ -92,12 +92,14 @@ export function StackingNav({
     isAnimating,
     isCollapsing,
     promotingId,
+    isItemPromoting,
     isHoverSuppressed,
     transitionHistory,
   } = usePhaseCoordinator({
     activePath,
     animationConfig,
     items,
+    showLevelAll: styleConfig.showLevelAll,
     showDebug,
   })
 
@@ -157,6 +159,7 @@ export function StackingNav({
       isAnimating,
       isCollapsing,
       promotingId,
+      isItemPromoting,
       isHoverSuppressed,
       // Actions
       selectItem,
@@ -176,6 +179,7 @@ export function StackingNav({
       isAnimating,
       isCollapsing,
       promotingId,
+      isItemPromoting,
       isHoverSuppressed,
       selectItem,
       collapseToLevel,
@@ -197,7 +201,7 @@ export function StackingNav({
       >
         <div
           className={cn(
-            'relative flex flex-wrap items-start justify-start',
+            'relative flex flex-nowrap items-start justify-start overflow-visible',
             GAP_CLASSES[styleConfig.gap],
             className
           )}

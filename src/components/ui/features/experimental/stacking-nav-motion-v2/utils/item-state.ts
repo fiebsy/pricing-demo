@@ -2,7 +2,7 @@
  * StackingNav V2 - Item State Computation
  *
  * Pure function that computes the complete render state for a single item.
- * No debug logging inline - keeps the function pure and testable.
+ * Debug logging is centralized through debug-log.ts.
  *
  * @module features/stacking-nav-v2/utils
  */
@@ -30,7 +30,7 @@ export function computeItemState(ctx: ItemStateContext): ItemRenderState {
     styleConfig,
     anchorCount,
     promotingId,
-    isCollapsingNow,
+    isCollapsing,
     activeItemIsLeaf,
     activeChildIsLeaf,
     // showLevelAll is available but not used in core logic
@@ -82,7 +82,7 @@ export function computeItemState(ctx: ItemStateContext): ItemRenderState {
     animationMode = 'anchor'
   } else if (isPromoting) {
     animationMode = 'promote'
-  } else if (isCollapsingNow && !isActive) {
+  } else if (isCollapsing && !isActive) {
     // Siblings reappearing during collapse - applies at any level
     animationMode = 'collapse-reentry'
   } else if (isPromotingPhase && level > 0 && !isActive) {
@@ -110,7 +110,7 @@ export function computeItemState(ctx: ItemStateContext): ItemRenderState {
     isActive,
     isAnchored,
     isPromoting,
-    isCollapsingNow,
+    isCollapsing,
     isPromotingPhase,
     shouldHide,
   })

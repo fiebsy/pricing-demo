@@ -29,7 +29,7 @@ interface ItemRendererProps {
   state: ItemRenderState
   animationConfig: AnimationConfig
   shouldReduceMotion: boolean
-  isCollapsingNow: boolean
+  isCollapsing: boolean
   isHoverSuppressed: boolean
   parentAnchoredOffset: number
 }
@@ -41,7 +41,7 @@ export function ItemRenderer({
   state,
   animationConfig,
   shouldReduceMotion,
-  isCollapsingNow,
+  isCollapsing,
   isHoverSuppressed,
   parentAnchoredOffset,
 }: ItemRendererProps) {
@@ -126,7 +126,7 @@ export function ItemRenderer({
   }
 
   // --- Transition (depends on animationMode) -----------------------------
-  const collapseLayoutOverride = isCollapsingNow
+  const collapseLayoutOverride = isCollapsing
     ? getCollapseLayoutTransition(animationConfig)
     : {}
 
@@ -140,11 +140,13 @@ export function ItemRenderer({
     transition = { duration: 0 }
   } else if (animationMode === 'promote') {
     // Promoting items: immediate scale animation, no delay
+    // Apply timeScale to promotionDuration for consistent slow-mo debugging
+    const timeScale = animationConfig.timeScale > 0 ? animationConfig.timeScale : 1
     transition = {
       ...getTransition(animationConfig, 0), // No delay
       ...collapseLayoutOverride,
       scale: {
-        duration: animationConfig.promotionDuration,
+        duration: animationConfig.promotionDuration / timeScale,
         times: [0, 0.5, 1],
         ease: 'easeOut',
       },
@@ -154,18 +156,6 @@ export function ItemRenderer({
       ...getTransition(animationConfig, effectiveDelay),
       ...collapseLayoutOverride,
     }
-  }
-
-  // DEBUG: Log promotion animation details
-  if (animationMode === 'promote') {
-    console.log(`[PROMOTE] ${item.id}`, {
-      animationMode,
-      initial,
-      promotionScale: animationConfig.promotionScale,
-      promotionDuration: animationConfig.promotionDuration,
-      effectiveDelay,
-      targetOffset,
-    })
   }
 
   // --- Exit --------------------------------------------------------------

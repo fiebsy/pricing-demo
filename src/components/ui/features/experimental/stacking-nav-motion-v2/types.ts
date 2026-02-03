@@ -261,6 +261,12 @@ export interface StackContextValue {
   isCollapsing: boolean
 
   /**
+   * Check if a specific item is the one being promoted.
+   * Consolidates scattered `promotingId === item.id` checks.
+   */
+  isItemPromoting: (itemId: string) => boolean
+
+  /**
    * Check if hover is suppressed at a given level.
    * Returns true during expanding phase at levels > 0.
    */
@@ -336,7 +342,8 @@ export interface ItemStateContext {
   styleConfig: StyleConfig
   anchorCount: number
   promotingId: string | null
-  isCollapsingNow: boolean
+  /** Whether collapse animation is in progress */
+  isCollapsing: boolean
   /** Whether active item at this level is a leaf */
   activeItemIsLeaf: boolean
   /** Whether active child (one level deeper) is a leaf */

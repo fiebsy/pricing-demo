@@ -31,6 +31,8 @@ export interface PhaseCoordinatorConfig {
   animationConfig: AnimationConfig
   /** Items at root level (for child count) */
   items: StackItem[]
+  /** Whether Level-All buttons are shown (affects phase timing) */
+  showLevelAll: boolean
   /** Debug mode enabled */
   showDebug: boolean
 }
@@ -50,6 +52,8 @@ export interface PhaseCoordinatorReturn {
   isCollapsing: boolean
   /** ID of item being promoted */
   promotingId: string | null
+  /** Check if a specific item is the one being promoted */
+  isItemPromoting: (itemId: string) => boolean
   /** Check if hover is suppressed at a level */
   isHoverSuppressed: (level: number) => boolean
 
@@ -111,7 +115,7 @@ function getActiveChildCount(items: StackItem[], activePath: ActivePath): number
 // =============================================================================
 
 export function usePhaseCoordinator(config: PhaseCoordinatorConfig): PhaseCoordinatorReturn {
-  const { activePath, animationConfig, items, showDebug } = config
+  const { activePath, animationConfig, items, showLevelAll, showDebug } = config
 
   // State
   const [phaseState, setPhaseState] = useState<PhaseState>(createInitialPhaseState)
@@ -132,6 +136,8 @@ export function usePhaseCoordinator(config: PhaseCoordinatorConfig): PhaseCoordi
     collapseLayoutDuration: animationConfig.collapseLayoutDuration,
     promotionDuration: animationConfig.promotionDuration,
     timeScale: animationConfig.timeScale,
+    syncChildEntryToPromotion: animationConfig.syncChildEntryToPromotion,
+    promotionChildOffset: animationConfig.promotionChildOffset,
   }
 
   /**
@@ -243,27 +249,54 @@ export function usePhaseCoordinator(config: PhaseCoordinatorConfig): PhaseCoordi
       const hasChildren = Boolean(newItem?.children?.length)
       const isPromotion = currentLength > 1 && hasChildren
 
+      // Calculate effective child count for phase timing
+      // Level-All adds one more item at levels > 0 when showLevelAll is true
+      const baseChildCount = newItem?.children?.length ?? 0
+      const newLevel = currentLength // Children appear at this level
+      const levelAllAddsItem = showLevelAll && newLevel > 0
+      const effectiveChildCount = baseChildCount + (levelAllAddsItem ? 1 : 0)
+
+      // Debug: Log timing calculation details
+      const lastChildIndex = Math.max(0, effectiveChildCount - 1)
+      const childEntryTime =
+        animationConfig.childEntryDelay + lastChildIndex * animationConfig.stagger + animationConfig.duration
+      const promotionTime = animationConfig.promotionDuration
+      const timeScale = animationConfig.timeScale > 0 ? animationConfig.timeScale : 1
+
+      // Calculate expected duration (same formula as calculatePhaseDuration)
+      const rawMs = isPromotion
+        ? animationConfig.syncChildEntryToPromotion
+          ? (promotionTime + animationConfig.promotionChildOffset + childEntryTime) * 1000
+          : Math.max(promotionTime, childEntryTime) * 1000
+        : childEntryTime * 1000
+
+      logPhase('timing-calc', {
+        phase: isPromotion ? 'PROMOTING' : 'EXPANDING',
+        baseChildCount,
+        effectiveChildCount,
+        lastChildIndex,
+        // Timing breakdown
+        promotionDuration: promotionTime,
+        childEntryTime,
+        syncChildEntryToPromotion: animationConfig.syncChildEntryToPromotion,
+        timeScale,
+        // Final calculation (with timeScale applied)
+        expectedMs: rawMs / timeScale,
+      })
+
       if (isPromotion) {
         // Child with children clicked - promoting
-        console.log(`[PHASE] Starting PROMOTING phase`, {
-          itemId: newItemId,
-          level: currentLength - 1,
-          childCount: newItem?.children?.length ?? 0,
-          promotionDuration: animationConfig.promotionDuration,
-          timeScale: animationConfig.timeScale,
-          calculatedDuration: (animationConfig.promotionDuration * 1000) / animationConfig.timeScale,
-        })
         transitionTo(NavigationPhase.PROMOTING, {
           promotingId: newItemId,
           promotingLevel: currentLength - 1,
           trigger: `promote: ${newItemId}`,
-          childCount: newItem?.children?.length ?? 0,
+          childCount: effectiveChildCount,
         })
       } else {
         // Simple expansion
         transitionTo(NavigationPhase.EXPANDING, {
           trigger: `expand: L${currentLength - 1}`,
-          childCount: newItem?.children?.length ?? 0,
+          childCount: effectiveChildCount,
         })
       }
 
@@ -288,19 +321,25 @@ export function usePhaseCoordinator(config: PhaseCoordinatorConfig): PhaseCoordi
         const newItem = findItemById(items, newItemId)
         const hasChildren = Boolean(newItem?.children?.length)
 
+        // Calculate effective child count for phase timing
+        const baseChildCount = newItem?.children?.length ?? 0
+        const newLevel = currentLength // Children appear at this level
+        const levelAllAddsItem = showLevelAll && newLevel > 0
+        const effectiveChildCount = baseChildCount + (levelAllAddsItem ? 1 : 0)
+
         if (hasChildren && currentLength > 1) {
           // Different item at same level with children - promotion
           transitionTo(NavigationPhase.PROMOTING, {
             promotingId: newItemId,
             promotingLevel: currentLength - 1,
             trigger: `same-level-promote: ${newItemId}`,
-            childCount: newItem?.children?.length ?? 0,
+            childCount: effectiveChildCount,
           })
         } else if (hasChildren) {
           // Root level with children - expanding
           transitionTo(NavigationPhase.EXPANDING, {
             trigger: `same-level-expand: ${newItemId}`,
-            childCount: newItem?.children?.length ?? 0,
+            childCount: effectiveChildCount,
           })
         }
       }
@@ -309,7 +348,7 @@ export function usePhaseCoordinator(config: PhaseCoordinatorConfig): PhaseCoordi
     // Update refs
     previousPathRef.current = [...activePath]
     previousPathLengthRef.current = currentLength
-  }, [activePath, animationConfig.hoverDelay, animationConfig.timeScale, items, transitionTo])
+  }, [activePath, animationConfig.hoverDelay, animationConfig.timeScale, items, showLevelAll, transitionTo])
 
   // Cleanup timeouts on unmount
   useEffect(() => {
@@ -345,6 +384,17 @@ export function usePhaseCoordinator(config: PhaseCoordinatorConfig): PhaseCoordi
     [animationConfig.hoverDelay, isHoverSuppressionActive]
   )
 
+  /**
+   * Check if a specific item is the one being promoted.
+   * Consolidates scattered `promotingId === item.id` checks.
+   */
+  const isItemPromoting = useCallback(
+    (itemId: string): boolean => {
+      return phaseState.promotingId === itemId
+    },
+    [phaseState.promotingId]
+  )
+
   // Derived states
   const isCollapsing = phaseState.current === NavigationPhase.COLLAPSING
   const isAnimating =
@@ -358,6 +408,7 @@ export function usePhaseCoordinator(config: PhaseCoordinatorConfig): PhaseCoordi
     getPhaseProgress,
     isCollapsing,
     promotingId: phaseState.promotingId,
+    isItemPromoting,
     isHoverSuppressed,
     transitionHistory,
   }

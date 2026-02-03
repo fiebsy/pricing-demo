@@ -28,7 +28,7 @@ interface LevelAllRendererProps {
   baseParentOffset: number
   animationConfig: AnimationConfig
   shouldReduceMotion: boolean
-  isCollapsingNow: boolean
+  isCollapsing: boolean
   isPromotingPhase: boolean
   parentAnchoredOffset: number
 }
@@ -40,12 +40,12 @@ export function LevelAllRenderer({
   baseParentOffset,
   animationConfig,
   shouldReduceMotion,
-  isCollapsingNow,
+  isCollapsing,
   isPromotingPhase,
   parentAnchoredOffset,
 }: LevelAllRendererProps) {
   // Level-All uses index 0 for stagger, and respects promotion sequencing
-  const animationDelay = isCollapsingNow
+  const animationDelay = isCollapsing
     ? 0
     : getChildDelay(0, animationConfig, isPromotingPhase)
 
@@ -59,7 +59,7 @@ export function LevelAllRenderer({
     ? undefined
     : getInstantExitAnimation()
 
-  const levelAllTransition = isCollapsingNow
+  const levelAllTransition = isCollapsing
     ? {
         ...getTransition(animationConfig, animationDelay),
         ...getCollapseLayoutTransition(animationConfig),

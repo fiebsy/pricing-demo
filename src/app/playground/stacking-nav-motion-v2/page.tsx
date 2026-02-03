@@ -337,7 +337,7 @@ export default function StackingNavMotionV2Playground() {
           <div className={`sticky top-0 z-10 py-12 ${bgClasses[config.pageBackground]}`}>
             <div className="flex items-center justify-center">
               <div
-                className={`flex justify-start pl-24 ${
+                className={`flex justify-start ${
                   config.showContainerBounds
                     ? 'outline outline-2 outline-dashed outline-red-500/50 bg-red-500/5'
                     : ''
