@@ -112,8 +112,8 @@ const CHARACTER_COLUMN_ORDER = [
   'character',
   'realmBadge',
   'origin',
-  'description',
   'threatLevel',
+  'description',
   'livesRescued',
 ]
 
