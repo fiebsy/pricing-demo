@@ -36,7 +36,8 @@ export function createPanelConfig(config: PlaygroundConfig): UnifiedControlPanel
                   // Fastest
                   { value: 'swift', label: 'Swift — Very Fast' },
                   { value: 'responsive', label: 'Responsive — Fastest' },
-                  { value: 'lively', label: 'Lively — Fast + Subtle Bounce' },
+                  { value: 'lively', label: 'Lively — Fast + Bounce' },
+                  { value: 'brisk', label: 'Brisk — Fast + Subtle Bounce' },
                   // Custom
                   { value: 'custom', label: 'Custom' },
                 ],
@@ -111,9 +112,10 @@ export function createPanelConfig(config: PlaygroundConfig): UnifiedControlPanel
 
   return {
     sections: [
+      // Section 1: Global (was Animation)
       {
-        id: 'animation',
-        title: 'Animation',
+        id: 'global',
+        title: 'Global',
         tabLabel: config.animationType === 'spring' ? 'Spring' : 'Easing',
         groups: [
           {
@@ -148,40 +150,16 @@ export function createPanelConfig(config: PlaygroundConfig): UnifiedControlPanel
             ],
           },
           ...animationGroups,
-          {
-            title: 'Promotion Effect',
-            controls: [
-              {
-                id: 'promotionScale',
-                type: 'slider',
-                label: 'Scale',
-                value: config.promotionScale,
-                min: 1.0,
-                max: 1.2,
-                step: 0.01,
-                formatLabel: (v: number) => (v === 1 ? 'Off' : `${v.toFixed(2)}`),
-              },
-              {
-                id: 'promotionDuration',
-                type: 'slider',
-                label: 'Duration',
-                value: config.promotionDuration,
-                min: 100,
-                max: 800,
-                step: 25,
-                formatLabel: (v: number) => `${v}ms`,
-              },
-            ],
-          },
         ],
       },
+      // Section 2: Children (new - extracted from Entry)
       {
-        id: 'entry',
-        title: 'Child Entry',
-        tabLabel: 'Entry',
+        id: 'children',
+        title: 'Children',
+        tabLabel: 'Children',
         groups: [
           {
-            title: 'Direction — Children',
+            title: 'Entry Mode',
             controls: [
               {
                 id: 'entryInstant',
@@ -202,7 +180,7 @@ export function createPanelConfig(config: PlaygroundConfig): UnifiedControlPanel
                           {
                             id: 'entryDirection',
                             type: 'select' as const,
-                            label: 'Preset',
+                            label: 'Direction Preset',
                             value: config.entryDirection,
                             options: ENTRY_DIRECTION_OPTIONS,
                           },
@@ -216,7 +194,7 @@ export function createPanelConfig(config: PlaygroundConfig): UnifiedControlPanel
           ...(!config.entryInstant && !config.entryFromParent
             ? [
                 {
-                  title: 'Offset — Children',
+                  title: 'Entry Offset',
                   controls: [
                     {
                       id: 'entryOffsetX',
@@ -243,7 +221,32 @@ export function createPanelConfig(config: PlaygroundConfig): UnifiedControlPanel
               ]
             : []),
           {
-            title: 'Timing — Children',
+            title: 'Initial State',
+            controls: [
+              {
+                id: 'childEntryScale',
+                type: 'slider',
+                label: 'Scale',
+                value: config.childEntryScale,
+                min: 0.5,
+                max: 1.2,
+                step: 0.01,
+                formatLabel: (v: number) => `${v.toFixed(2)}`,
+              },
+              {
+                id: 'childEntryOpacity',
+                type: 'slider',
+                label: 'Opacity',
+                value: config.childEntryOpacity,
+                min: 0,
+                max: 1,
+                step: 0.05,
+                formatLabel: (v: number) => `${(v * 100).toFixed(0)}%`,
+              },
+            ],
+          },
+          {
+            title: 'Timing',
             controls: [
               {
                 id: 'childEntryDelay',
@@ -268,32 +271,7 @@ export function createPanelConfig(config: PlaygroundConfig): UnifiedControlPanel
             ],
           },
           {
-            title: 'Appearance — Children',
-            controls: [
-              {
-                id: 'childEntryScale',
-                type: 'slider',
-                label: 'Scale',
-                value: config.childEntryScale,
-                min: 0.8,
-                max: 1.0,
-                step: 0.01,
-                formatLabel: (v: number) => `${v.toFixed(2)}`,
-              },
-              {
-                id: 'childEntryOpacity',
-                type: 'slider',
-                label: 'Opacity',
-                value: config.childEntryOpacity,
-                min: 0,
-                max: 1,
-                step: 0.05,
-                formatLabel: (v: number) => `${(v * 100).toFixed(0)}%`,
-              },
-            ],
-          },
-          {
-            title: 'Promotion Sync — Children',
+            title: 'Promotion Sync',
             controls: [
               {
                 id: 'syncChildEntryToPromotion',
@@ -314,7 +292,61 @@ export function createPanelConfig(config: PlaygroundConfig): UnifiedControlPanel
             ],
           },
           {
-            title: 'Demotion Entry — Timing',
+            title: 'Behavior',
+            controls: [
+              {
+                id: 'skipLeafAnimation',
+                type: 'toggle',
+                label: 'Skip Leaf Animation',
+                value: config.skipLeafAnimation,
+              },
+              {
+                id: 'hoverDelay',
+                type: 'slider',
+                label: 'Hover Delay',
+                value: config.hoverDelay,
+                min: 0,
+                max: 500,
+                step: 25,
+                formatLabel: (v: number) => (v === 0 ? 'None' : `${v}ms`),
+              },
+            ],
+          },
+        ],
+      },
+      // Section 3: Reentry (new - demotion controls from Entry)
+      {
+        id: 'reentry',
+        title: 'Reentry',
+        tabLabel: 'Reentry',
+        groups: [
+          {
+            title: 'Initial State',
+            controls: [
+              {
+                id: 'demotionEntryScale',
+                type: 'slider',
+                label: 'Scale',
+                value: config.demotionEntryScale,
+                min: 0.5,
+                max: 1.2,
+                step: 0.01,
+                formatLabel: (v: number) => `${v.toFixed(2)}`,
+              },
+              {
+                id: 'demotionEntryOpacity',
+                type: 'slider',
+                label: 'Opacity',
+                value: config.demotionEntryOpacity,
+                min: 0,
+                max: 1,
+                step: 0.05,
+                formatLabel: (v: number) => `${(v * 100).toFixed(0)}%`,
+              },
+            ],
+          },
+          {
+            title: 'Timing',
             controls: [
               {
                 id: 'demotionEntryDelay',
@@ -338,74 +370,49 @@ export function createPanelConfig(config: PlaygroundConfig): UnifiedControlPanel
               },
             ],
           },
-          {
-            title: 'Demotion Entry — Appearance',
-            controls: [
-              {
-                id: 'demotionEntryScale',
-                type: 'slider',
-                label: 'Scale',
-                value: config.demotionEntryScale,
-                min: 0.8,
-                max: 1.0,
-                step: 0.01,
-                formatLabel: (v: number) => `${v.toFixed(2)}`,
-              },
-              {
-                id: 'demotionEntryOpacity',
-                type: 'slider',
-                label: 'Opacity',
-                value: config.demotionEntryOpacity,
-                min: 0,
-                max: 1,
-                step: 0.05,
-                formatLabel: (v: number) => `${(v * 100).toFixed(0)}%`,
-              },
-            ],
-          },
-          {
-            title: 'Leaf Nodes',
-            controls: [
-              {
-                id: 'skipLeafAnimation',
-                type: 'toggle',
-                label: 'Skip Animation',
-                value: config.skipLeafAnimation,
-              },
-            ],
-          },
-          {
-            title: 'Interaction',
-            controls: [
-              {
-                id: 'hoverDelay',
-                type: 'slider',
-                label: 'Hover Delay',
-                value: config.hoverDelay,
-                min: 0,
-                max: 500,
-                step: 25,
-                formatLabel: (v: number) => (v === 0 ? 'None' : `${v}ms`),
-              },
-            ],
-          },
         ],
       },
+      // Section 4: Exit (simplified, with Promotion Effect moved here)
       {
         id: 'exit',
-        title: 'Exit & Collapse',
+        title: 'Exit',
         tabLabel: 'Exit',
         groups: [
           {
-            title: 'Child Exit \u2014 items leaving the DOM',
+            title: 'Promotion Effect',
+            controls: [
+              {
+                id: 'promotionScale',
+                type: 'slider',
+                label: 'Scale',
+                value: config.promotionScale,
+                min: 0.8,
+                max: 1.5,
+                step: 0.01,
+                formatLabel: (v: number) => (v === 1 ? 'Off' : `${v.toFixed(2)}`),
+              },
+              {
+                id: 'promotionDuration',
+                type: 'slider',
+                label: 'Duration',
+                value: config.promotionDuration,
+                min: 100,
+                max: 800,
+                step: 25,
+                formatLabel: (v: number) => `${v}ms`,
+              },
+            ],
+          },
+          {
+            title: 'Exit Animation',
             controls: [
               {
                 id: 'exitScale',
                 type: 'slider',
                 label: 'Scale',
                 value: config.exitScale,
-                min: 0.8,
-                max: 1.0,
+                min: 0.5,
+                max: 1.2,
                 step: 0.01,
                 formatLabel: (v: number) => `${v.toFixed(2)}`,
               },
@@ -449,7 +456,7 @@ export function createPanelConfig(config: PlaygroundConfig): UnifiedControlPanel
             ],
           },
           {
-            title: 'Collapse Layout \u2014 parent repositioning',
+            title: 'Collapse Layout',
             controls: [
               {
                 id: 'collapseLayoutDuration',
@@ -465,38 +472,7 @@ export function createPanelConfig(config: PlaygroundConfig): UnifiedControlPanel
           },
         ],
       },
-      {
-        id: 'stacking',
-        title: 'Stacking',
-        tabLabel: 'Stack',
-        groups: [
-          {
-            title: 'Peek Behavior',
-            controls: [
-              {
-                id: 'peekOffset',
-                type: 'slider',
-                label: 'Peek Offset',
-                value: config.peekOffset,
-                min: -40,
-                max: 40,
-                step: 2,
-                formatLabel: (v: number) => `${v}px`,
-              },
-              {
-                id: 'anchoredOpacity',
-                type: 'slider',
-                label: 'Anchored Opacity',
-                value: config.anchoredOpacity,
-                min: 0.2,
-                max: 1,
-                step: 0.05,
-                formatLabel: (v: number) => `${(v * 100).toFixed(0)}%`,
-              },
-            ],
-          },
-        ],
-      },
+      // Section 5: Layout (merged with Stacking)
       {
         id: 'layout',
         title: 'Layout',
@@ -529,6 +505,31 @@ export function createPanelConfig(config: PlaygroundConfig): UnifiedControlPanel
                   { value: 'black', label: 'Black' },
                   { value: 'white', label: 'White' },
                 ],
+              },
+            ],
+          },
+          {
+            title: 'Stacking',
+            controls: [
+              {
+                id: 'peekOffset',
+                type: 'slider',
+                label: 'Peek Offset',
+                value: config.peekOffset,
+                min: -40,
+                max: 40,
+                step: 2,
+                formatLabel: (v: number) => `${v}px`,
+              },
+              {
+                id: 'anchoredOpacity',
+                type: 'slider',
+                label: 'Anchored Opacity',
+                value: config.anchoredOpacity,
+                min: 0.2,
+                max: 1,
+                step: 0.05,
+                formatLabel: (v: number) => `${(v * 100).toFixed(0)}%`,
               },
             ],
           },
@@ -641,6 +642,7 @@ export function createPanelConfig(config: PlaygroundConfig): UnifiedControlPanel
           },
         ],
       },
+      // Section 6: Display (unchanged)
       {
         id: 'display',
         title: 'Display',
@@ -751,7 +753,7 @@ export function createPanelConfig(config: PlaygroundConfig): UnifiedControlPanel
         ],
       },
     ],
-    defaultActiveTab: 'animation',
+    defaultActiveTab: 'global',
     position: {
       top: '16px',
       bottom: '16px',
