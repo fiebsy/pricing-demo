@@ -97,6 +97,10 @@ export type BadgeStyleVariant = 'default' | 'modern'
 export type BadgeShapeVariant = 'pill' | 'rounded' | 'squircle'
 
 export type OriginImageType = 'none' | 'poster' | 'logo' | 'backdrop'
+export type ChartType = 'line' | 'bar'
+export type BarColorMode = 'neutral' | 'status' | 'chart'
+export type ChartColorId = '1' | '2' | '3' | '4'
+export type StatusColorId = 'neutral' | 'neutral-dark' | 'success' | 'error' | 'warning' | 'chart-1' | 'chart-2' | 'chart-3' | 'chart-4'
 
 export interface PlaygroundConfig {
   // Data
@@ -158,6 +162,7 @@ export interface PlaygroundConfig {
   originBackdropOpacity: number
   originBackdropRadius: number
   // Chart
+  chartType: ChartType
   sparklineHeight: number
   sparklineStrokeWidth: number
   sparklineShowFill: boolean
@@ -166,6 +171,30 @@ export interface PlaygroundConfig {
   sparklineShowBaseline: boolean
   sparklineBaselineWidth: number
   sparklineBaselineOpacity: number
+  // Bar Chart
+  barGap: number
+  barRadius: number
+  barOpacity: number
+  barColorMode: BarColorMode
+  barChartColor: ChartColorId
+  barPositiveColor: StatusColorId
+  barNegativeColor: StatusColorId
+  barShowTips: boolean
+  barTipSize: number
+  barTipColorMode: BarColorMode
+  barTipChartColor: ChartColorId
+  barTipPositiveColor: StatusColorId
+  barTipNegativeColor: StatusColorId
+  barShowTrendLine: boolean
+  barTrendLineWidth: number
+  barTrendLineOpacity: number
+  barTrendLineColorMode: BarColorMode
+  barTrendLineChartColor: ChartColorId
+  barTrendLineStatusColor: StatusColorId
+  // Baseline
+  barBaselineColorMode: BarColorMode
+  barBaselineChartColor: ChartColorId
+  barBaselineStatusColor: StatusColorId
   // Nav
   navVariant: NavVariant
   showNavDebug: boolean

@@ -88,6 +88,41 @@ export const SEMANTIC_BORDER_COLORS: SemanticColorOption[] = [
 ]
 
 // -----------------------------------------------------------------------------
+// Chart Colors
+// -----------------------------------------------------------------------------
+// Chart palette colors for data visualization.
+// Pattern: --color-chart-{n}-500 for the main color
+// -----------------------------------------------------------------------------
+
+export const CHART_PALETTE_COLORS: SemanticColorOption[] = [
+  { label: 'Green (Active)', value: '1', cssVar: '--color-chart-1-500', category: 'brand' },
+  { label: 'Lavender (At-Risk)', value: '2', cssVar: '--color-chart-2-500', category: 'brand' },
+  { label: 'Magenta (Clawback)', value: '3', cssVar: '--color-chart-3-500', category: 'brand' },
+  { label: 'Teal (Paid Off)', value: '4', cssVar: '--color-chart-4-500', category: 'brand' },
+]
+
+// -----------------------------------------------------------------------------
+// Status Colors for Charts (Positive/Negative)
+// -----------------------------------------------------------------------------
+// Combined status and chart colors for bar chart positive/negative indicators.
+// -----------------------------------------------------------------------------
+
+export const BAR_STATUS_COLORS: SemanticColorOption[] = [
+  // Neutral colors
+  { label: 'Neutral', value: 'neutral', cssVar: '--foreground-color-quaternary', category: 'neutral' },
+  { label: 'Neutral Dark', value: 'neutral-dark', cssVar: '--foreground-color-tertiary', category: 'neutral' },
+  // Status colors
+  { label: 'Success (Green)', value: 'success', cssVar: '--color-success-500', category: 'status' },
+  { label: 'Error (Red)', value: 'error', cssVar: '--color-error-500', category: 'status' },
+  { label: 'Warning (Amber)', value: 'warning', cssVar: '--color-warning-500', category: 'status' },
+  // Chart colors
+  { label: 'Chart Green', value: 'chart-1', cssVar: '--color-chart-1-500', category: 'brand' },
+  { label: 'Lavender', value: 'chart-2', cssVar: '--color-chart-2-500', category: 'brand' },
+  { label: 'Magenta', value: 'chart-3', cssVar: '--color-chart-3-500', category: 'brand' },
+  { label: 'Teal', value: 'chart-4', cssVar: '--color-chart-4-500', category: 'brand' },
+]
+
+// -----------------------------------------------------------------------------
 // Utility Functions
 // -----------------------------------------------------------------------------
 

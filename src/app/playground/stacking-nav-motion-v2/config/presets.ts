@@ -76,6 +76,8 @@ function configFromDefaults(): Omit<PlaygroundConfig, 'configPreset' | 'navVaria
     childVariant: s.childVariant,
     anchoredVariant: s.anchoredVariant,
     selectedLeafVariant: s.selectedLeafVariant,
+    reentryVariant: s.reentryVariant,
+    demotingVariant: s.demotingVariant,
     peekOffset: s.peekOffset,
     anchoredOpacity: s.anchoredOpacity,
     gap: s.gap,
@@ -103,6 +105,11 @@ function configFromDefaults(): Omit<PlaygroundConfig, 'configPreset' | 'navVaria
     // Container debug
     containerWidth: 800,
     showContainerBounds: false,
+
+    // Container overflow
+    containerOverflow: 'visible',
+    showOverflowGradient: false,
+    gradientWidth: 80,
   }
 }
 
@@ -151,6 +158,8 @@ const PRESET_SPRING: Omit<PlaygroundConfig, 'configPreset' | 'navVariant'> = {
   childVariant: 'tertiary',
   anchoredVariant: 'secondary',
   selectedLeafVariant: 'primary',
+  reentryVariant: 'reentry',
+  demotingVariant: 'secondary',
   peekOffset: 8,
   anchoredOpacity: 0.6,
   gap: 'md',
@@ -166,6 +175,9 @@ const PRESET_SPRING: Omit<PlaygroundConfig, 'configPreset' | 'navVariant'> = {
   showPhaseIndicator: false,
   containerWidth: 800,
   showContainerBounds: false,
+  containerOverflow: 'visible',
+  showOverflowGradient: false,
+  gradientWidth: 80,
 }
 
 export const CONFIG_PRESETS: Record<

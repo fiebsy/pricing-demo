@@ -21,6 +21,7 @@ export type ButtonVariant =
   | 'primary'
   | 'secondary'
   | 'tertiary'
+  | 'reentry'
   | 'shine'
   | 'tab'
   | 'link-gray'

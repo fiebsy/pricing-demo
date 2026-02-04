@@ -52,6 +52,8 @@ export interface PhaseCoordinatorReturn {
   isCollapsing: boolean
   /** ID of item being promoted */
   promotingId: string | null
+  /** ID of item being demoted during collapse */
+  demotingId: string | null
   /** Check if a specific item is the one being promoted */
   isItemPromoting: (itemId: string) => boolean
   /** Check if hover is suppressed at a level */
@@ -149,6 +151,8 @@ export function usePhaseCoordinator(config: PhaseCoordinatorConfig): PhaseCoordi
       options: {
         promotingId?: string | null
         promotingLevel?: number | null
+        demotingId?: string | null
+        demotingLevel?: number | null
         trigger?: string
         childCount?: number
       } = {}
@@ -193,6 +197,8 @@ export function usePhaseCoordinator(config: PhaseCoordinatorConfig): PhaseCoordi
           expectedDuration: duration,
           promotingId: options.promotingId ?? null,
           promotingLevel: options.promotingLevel ?? null,
+          demotingId: options.demotingId ?? null,
+          demotingLevel: options.demotingLevel ?? null,
         }
       })
 
@@ -239,8 +245,14 @@ export function usePhaseCoordinator(config: PhaseCoordinatorConfig): PhaseCoordi
 
     if (isCollapse) {
       // Path shortened - collapsing
+      // The demoting item is the one that was active at the level we're collapsing from
+      // e.g., if prevPath = ['payments', 'process'] and currentPath = [], demotingId = 'payments'
+      const demotingId = prevPath[currentLength] ?? null
+      const demotingLevel = currentLength
       transitionTo(NavigationPhase.COLLAPSING, {
-        trigger: `collapse: ${prevLength} → ${currentLength}`,
+        demotingId,
+        demotingLevel,
+        trigger: `collapse: ${prevLength} → ${currentLength} (demoting: ${demotingId})`,
       })
     } else if (isExpand) {
       // Path lengthened - check if promotion (child becoming parent)
@@ -408,6 +420,7 @@ export function usePhaseCoordinator(config: PhaseCoordinatorConfig): PhaseCoordi
     getPhaseProgress,
     isCollapsing,
     promotingId: phaseState.promotingId,
+    demotingId: phaseState.demotingId,
     isItemPromoting,
     isHoverSuppressed,
     transitionHistory,

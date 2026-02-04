@@ -138,6 +138,7 @@ export type ButtonVariant =
   | 'primary'
   | 'secondary'
   | 'tertiary'
+  | 'reentry'
   | 'shine'
   | 'tab'
   | 'link-gray'
@@ -175,6 +176,10 @@ export interface StyleConfig {
   anchoredVariant: ButtonVariant
   /** Button variant for selected leaf nodes (items without children) */
   selectedLeafVariant: ButtonVariant
+  /** Button variant for items during reentry (siblings reappearing during collapse) */
+  reentryVariant: ButtonVariant
+  /** Button variant for the demoting parent (previously expanded, now returning to sibling) */
+  demotingVariant: ButtonVariant
 
   // Level All Button Configuration
   /** Show "All" button in child levels (L1+) */
@@ -257,6 +262,8 @@ export interface StackContextValue {
   isAnimating: boolean
   /** ID of item being promoted (null if not promoting) */
   promotingId: string | null
+  /** ID of item being demoted (null if not collapsing) */
+  demotingId: string | null
   /** Whether collapse is in progress */
   isCollapsing: boolean
 
@@ -311,6 +318,7 @@ export type AnimationMode =
   | 'promote' // Scale keyframes for child-becoming-parent
   | 'promote-entry' // Children entering during expansion (promotion or simple expand)
   | 'collapse-reentry' // Siblings re-appearing during collapse at any level
+  | 'collapse-demote' // The previously-expanded parent returning to sibling status
   | 'default' // Already visible items, no entry animation needed
 
 /**
@@ -342,6 +350,8 @@ export interface ItemStateContext {
   styleConfig: StyleConfig
   anchorCount: number
   promotingId: string | null
+  /** ID of item being demoted during collapse */
+  demotingId: string | null
   /** Whether collapse animation is in progress */
   isCollapsing: boolean
   /** Whether active item at this level is a leaf */

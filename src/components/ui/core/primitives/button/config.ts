@@ -70,6 +70,15 @@ export const variantStyles: Record<ButtonVariant, string> = {
     '[&_[data-icon]]:text-fg-quaternary hover:[&_[data-icon]]:text-fg-quaternary_hover',
   ].join(' '),
 
+  // Reentry - tertiary with always-visible background (for items reappearing during animations)
+  reentry: [
+    'bg-primary_hover text-tertiary',
+    'hover:text-tertiary_hover',
+    'data-[pressed]:scale-[0.98]',
+    'data-[disabled]:text-fg-disabled',
+    '[&_[data-icon]]:text-fg-quaternary hover:[&_[data-icon]]:text-fg-quaternary_hover',
+  ].join(' '),
+
   // Shine - subtle button with shine gradient effect (used for filter triggers, etc.)
   shine: [
     'bg-primary text-secondary shine-0-intense',

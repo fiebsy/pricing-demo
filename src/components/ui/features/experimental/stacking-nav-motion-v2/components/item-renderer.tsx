@@ -187,6 +187,8 @@ export function ItemRenderer({
         levelIndices={itemLevelIndices}
         isAnchored={isAnchored}
         isPromoting={isPromoting}
+        isReentry={animationMode === 'collapse-reentry'}
+        isDemoting={animationMode === 'collapse-demote'}
       />
     </motion.div>
   )

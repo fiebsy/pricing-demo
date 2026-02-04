@@ -92,6 +92,7 @@ export function StackingNav({
     isAnimating,
     isCollapsing,
     promotingId,
+    demotingId,
     isItemPromoting,
     isHoverSuppressed,
     transitionHistory,
@@ -159,6 +160,7 @@ export function StackingNav({
       isAnimating,
       isCollapsing,
       promotingId,
+      demotingId,
       isItemPromoting,
       isHoverSuppressed,
       // Actions
@@ -179,6 +181,7 @@ export function StackingNav({
       isAnimating,
       isCollapsing,
       promotingId,
+      demotingId,
       isItemPromoting,
       isHoverSuppressed,
       selectItem,

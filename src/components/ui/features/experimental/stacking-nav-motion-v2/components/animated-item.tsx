@@ -74,6 +74,8 @@ interface AnimatedItemProps {
   levelIndices: number[]
   isAnchored: boolean
   isPromoting?: boolean
+  isReentry?: boolean
+  isDemoting?: boolean
 }
 
 /**
@@ -85,6 +87,8 @@ export const AnimatedItem = React.memo(function AnimatedItem({
   levelIndices,
   isAnchored,
   isPromoting = false,
+  isReentry = false,
+  isDemoting = false,
 }: AnimatedItemProps) {
   const {
     activePath,
@@ -99,17 +103,25 @@ export const AnimatedItem = React.memo(function AnimatedItem({
   const { level } = useLevelContext()
 
   const hasChildren = Boolean(item.children?.length)
+  const isRootAnchor = level === 0 && item.id === ROOT_ANCHOR_ID
+
+  // Special case: "All" is implicitly active when activePath is empty (initial L0 idle state)
+  const isRootAllActiveByDefault =
+    isRootAnchor && activePath.length === 0
 
   // Determine item state
-  const isInActivePath = activePath[level] === item.id
-  const isExpanded = isInActivePath && hasChildren && !isAnchored
-  const isSelected = isInActivePath && !hasChildren
-  const isChildItem = level > 0 && !isInActivePath
-  const isRootAnchor = level === 0 && item.id === ROOT_ANCHOR_ID
+  const isInActivePath = activePath[level] === item.id || isRootAllActiveByDefault
+  const isExpanded = isInActivePath && hasChildren && !isAnchored && !isRootAllActiveByDefault
+  const isSelected = (isInActivePath && !hasChildren) || isRootAllActiveByDefault
+  // Child items at any level (L0 included) - excludes root anchor which has special handling
+  const isChildItem = !isInActivePath && !isRootAnchor
 
   // Determine variant
   let variant: ButtonVariant = 'tertiary'
-  if (isRootAnchor && !isAnchored) {
+  if (isRootAllActiveByDefault) {
+    // Root "All" gets shine variant when implicitly active
+    variant = 'shine'
+  } else if (isRootAnchor && !isAnchored) {
     variant = 'shine'
   } else if (isAnchored) {
     variant = styleConfig.anchoredVariant
@@ -118,6 +130,12 @@ export const AnimatedItem = React.memo(function AnimatedItem({
   } else if (isSelected) {
     // Use selectedLeafVariant for leaf nodes that are selected
     variant = styleConfig.selectedLeafVariant
+  } else if (isDemoting) {
+    // Demoting variant for the previously-expanded parent returning to sibling
+    variant = styleConfig.demotingVariant
+  } else if (isReentry) {
+    // Reentry variant for siblings reappearing during collapse
+    variant = styleConfig.reentryVariant
   } else if (isChildItem) {
     variant = styleConfig.childVariant
   }
@@ -220,20 +238,22 @@ export const AnimatedItem = React.memo(function AnimatedItem({
               // Transition states take priority (with pulse animation)
               isPromoting && phase === NavigationPhase.PROMOTING
                 ? 'animate-pulse border-purple-600 bg-purple-500 text-white'
-                : phase === NavigationPhase.COLLAPSING && isChildItem
-                  ? 'animate-pulse border-orange-600 bg-orange-500 text-white'
-                  : phase === NavigationPhase.EXPANDING && isChildItem
-                    ? 'animate-pulse border-cyan-600 bg-cyan-500 text-white'
-                    : // Stable states (no pulse)
-                      isAnchored
-                      ? 'border-yellow-600 bg-yellow-500 text-black'
-                      : isSelected
-                        ? 'border-green-600 bg-green-500 text-white'
-                        : isExpanded
-                          ? 'border-blue-600 bg-blue-500 text-white'
-                          : isChildItem
-                            ? 'border-gray-600 bg-gray-500 text-white'
-                            : 'border-gray-400 bg-gray-300 text-gray-700'
+                : phase === NavigationPhase.COLLAPSING && isDemoting
+                  ? 'animate-pulse border-pink-600 bg-pink-500 text-white'
+                  : phase === NavigationPhase.COLLAPSING && isChildItem
+                    ? 'animate-pulse border-orange-600 bg-orange-500 text-white'
+                    : phase === NavigationPhase.EXPANDING && isChildItem
+                      ? 'animate-pulse border-cyan-600 bg-cyan-500 text-white'
+                      : // Stable states (no pulse)
+                        isAnchored
+                        ? 'border-yellow-600 bg-yellow-500 text-black'
+                        : isSelected
+                          ? 'border-green-600 bg-green-500 text-white'
+                          : isExpanded
+                            ? 'border-blue-600 bg-blue-500 text-white'
+                            : isChildItem
+                              ? 'border-gray-600 bg-gray-500 text-white'
+                              : 'border-gray-400 bg-gray-300 text-gray-700'
             )}
           >
             <div className="flex flex-col items-center gap-0.5">
@@ -243,7 +263,8 @@ export const AnimatedItem = React.memo(function AnimatedItem({
                   <span className="text-[8px]">
                     {isPromoting && phase === NavigationPhase.PROMOTING && '↑'}
                     {phase === NavigationPhase.COLLAPSING && isAnchored && '↓'}
-                    {phase === NavigationPhase.COLLAPSING && isChildItem && '←'}
+                    {phase === NavigationPhase.COLLAPSING && isDemoting && '↙'}
+                    {phase === NavigationPhase.COLLAPSING && isChildItem && !isDemoting && '←'}
                     {phase === NavigationPhase.EXPANDING && isChildItem && '→'}
                   </span>
                 )}
@@ -253,20 +274,22 @@ export const AnimatedItem = React.memo(function AnimatedItem({
                     ? 'PROMOTING'
                     : phase === NavigationPhase.COLLAPSING && isAnchored
                       ? 'COLLAPSING'
-                      : phase === NavigationPhase.COLLAPSING && isChildItem
-                        ? 'REENTRY'
-                        : phase === NavigationPhase.EXPANDING && isChildItem
-                          ? 'ENTERING'
-                          : /* Stable state labels */
-                            isAnchored
-                            ? 'ANCHORED'
-                            : isSelected
-                              ? 'ACTIVE'
-                              : isExpanded
-                                ? 'EXPANDED'
-                                : isChildItem
-                                  ? 'CHILD'
-                                  : 'IDLE'}
+                      : phase === NavigationPhase.COLLAPSING && isDemoting
+                        ? 'DEMOTING'
+                        : phase === NavigationPhase.COLLAPSING && isChildItem
+                          ? 'REENTRY'
+                          : phase === NavigationPhase.EXPANDING && isChildItem
+                            ? 'ENTERING'
+                            : /* Stable state labels */
+                              isAnchored
+                              ? 'ANCHORED'
+                              : isSelected
+                                ? 'ACTIVE'
+                                : isExpanded
+                                  ? 'EXPANDED'
+                                  : isChildItem
+                                    ? 'CHILD'
+                                    : 'IDLE'}
                 </span>
               </div>
               <div className="text-[8px] opacity-80">
@@ -282,19 +305,21 @@ export const AnimatedItem = React.memo(function AnimatedItem({
                 'h-2 w-px',
                 isPromoting && phase === NavigationPhase.PROMOTING
                   ? 'bg-purple-500/60'
-                  : phase === NavigationPhase.COLLAPSING
-                    ? 'bg-orange-500/60'
-                    : phase === NavigationPhase.EXPANDING && isChildItem
-                      ? 'bg-cyan-500/60'
-                      : isAnchored
-                        ? 'bg-yellow-500/60'
-                        : isSelected
-                          ? 'bg-green-500/60'
-                          : isExpanded
-                            ? 'bg-blue-500/60'
-                            : isChildItem
-                              ? 'bg-gray-500/60'
-                              : 'bg-gray-400/60'
+                  : phase === NavigationPhase.COLLAPSING && isDemoting
+                    ? 'bg-pink-500/60'
+                    : phase === NavigationPhase.COLLAPSING
+                      ? 'bg-orange-500/60'
+                      : phase === NavigationPhase.EXPANDING && isChildItem
+                        ? 'bg-cyan-500/60'
+                        : isAnchored
+                          ? 'bg-yellow-500/60'
+                          : isSelected
+                            ? 'bg-green-500/60'
+                            : isExpanded
+                              ? 'bg-blue-500/60'
+                              : isChildItem
+                                ? 'bg-gray-500/60'
+                                : 'bg-gray-400/60'
               )}
             />
             <div
@@ -302,19 +327,21 @@ export const AnimatedItem = React.memo(function AnimatedItem({
                 'h-0 w-0 border-l-[4px] border-r-[4px] border-t-[5px] border-l-transparent border-r-transparent',
                 isPromoting && phase === NavigationPhase.PROMOTING
                   ? 'border-t-purple-500/60'
-                  : phase === NavigationPhase.COLLAPSING
-                    ? 'border-t-orange-500/60'
-                    : phase === NavigationPhase.EXPANDING && isChildItem
-                      ? 'border-t-cyan-500/60'
-                      : isAnchored
-                        ? 'border-t-yellow-500/60'
-                        : isSelected
-                          ? 'border-t-green-500/60'
-                          : isExpanded
-                            ? 'border-t-blue-500/60'
-                            : isChildItem
-                              ? 'border-t-gray-500/60'
-                              : 'border-t-gray-400/60'
+                  : phase === NavigationPhase.COLLAPSING && isDemoting
+                    ? 'border-t-pink-500/60'
+                    : phase === NavigationPhase.COLLAPSING
+                      ? 'border-t-orange-500/60'
+                      : phase === NavigationPhase.EXPANDING && isChildItem
+                        ? 'border-t-cyan-500/60'
+                        : isAnchored
+                          ? 'border-t-yellow-500/60'
+                          : isSelected
+                            ? 'border-t-green-500/60'
+                            : isExpanded
+                              ? 'border-t-blue-500/60'
+                              : isChildItem
+                                ? 'border-t-gray-500/60'
+                                : 'border-t-gray-400/60'
               )}
             />
           </div>

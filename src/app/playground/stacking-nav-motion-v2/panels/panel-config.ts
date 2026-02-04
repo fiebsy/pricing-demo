@@ -570,6 +570,20 @@ export function createPanelConfig(config: PlaygroundConfig): UnifiedControlPanel
                 value: config.selectedLeafVariant,
                 options: BUTTON_VARIANT_OPTIONS,
               },
+              {
+                id: 'reentryVariant',
+                type: 'select',
+                label: 'Reentry',
+                value: config.reentryVariant,
+                options: BUTTON_VARIANT_OPTIONS,
+              },
+              {
+                id: 'demotingVariant',
+                type: 'select',
+                label: 'Demoting',
+                value: config.demotingVariant,
+                options: BUTTON_VARIANT_OPTIONS,
+              },
             ],
           },
           {
@@ -679,6 +693,37 @@ export function createPanelConfig(config: PlaygroundConfig): UnifiedControlPanel
                 step: 50,
                 formatLabel: (v: number) => `${v}px`,
               },
+              {
+                id: 'containerOverflow',
+                type: 'select',
+                label: 'Overflow',
+                value: config.containerOverflow,
+                options: [
+                  { value: 'visible', label: 'Visible' },
+                  { value: 'hidden', label: 'Hidden' },
+                  { value: 'clip', label: 'Clip' },
+                ],
+              },
+              {
+                id: 'showOverflowGradient',
+                type: 'toggle',
+                label: 'Edge Gradient',
+                value: config.showOverflowGradient,
+              },
+              ...(config.showOverflowGradient
+                ? [
+                    {
+                      id: 'gradientWidth',
+                      type: 'slider' as const,
+                      label: 'Gradient Width',
+                      value: config.gradientWidth,
+                      min: 20,
+                      max: 200,
+                      step: 10,
+                      formatLabel: (v: number) => `${v}px`,
+                    },
+                  ]
+                : []),
             ],
           },
         ],

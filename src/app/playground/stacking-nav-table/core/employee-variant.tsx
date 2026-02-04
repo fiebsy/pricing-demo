@@ -16,7 +16,63 @@ import type { ReactNode } from 'react'
 import type { StackItem, ActivePath } from '@/components/ui/features/stacking-nav'
 import type { ColumnConfig } from '@/components/ui/patterns/data-table'
 import { type Employee, EmployeeStatus } from '../config/types'
-import type { SparklineConfig } from './cell-renderer'
+import type { SparklineConfig, BarSparklineConfig, ChartType, BarColorMode, ChartColorId, StatusColorId } from './cell-renderer'
+
+// Chart color CSS variable mapping (duplicated from cell-renderer for employee variant)
+const CHART_COLORS: Record<ChartColorId, string> = {
+  '1': 'var(--color-chart-1)',
+  '2': 'var(--color-chart-2)',
+  '3': 'var(--color-chart-3)',
+  '4': 'var(--color-chart-4)',
+}
+
+// Bar status color CSS variable mapping
+const BAR_STATUS_COLORS: Record<StatusColorId, string> = {
+  'neutral': 'var(--color-fg-quaternary)',
+  'neutral-dark': 'var(--color-fg-tertiary)',
+  'success': 'var(--color-success-500)',
+  'error': 'var(--color-error-500)',
+  'warning': 'var(--color-warning-500)',
+  'chart-1': 'var(--color-chart-1)',
+  'chart-2': 'var(--color-chart-2)',
+  'chart-3': 'var(--color-chart-3)',
+  'chart-4': 'var(--color-chart-4)',
+}
+
+function getBarColor(
+  mode: BarColorMode,
+  chartColor: ChartColorId,
+  positiveColor: StatusColorId,
+  _negativeColor: StatusColorId,
+  _isPositive: boolean
+): string {
+  switch (mode) {
+    case 'status':
+      // For unsigned employee data, always use positive color (activity is always positive)
+      return BAR_STATUS_COLORS[positiveColor]
+    case 'chart':
+      return CHART_COLORS[chartColor]
+    case 'neutral':
+    default:
+      return 'var(--color-fg-quaternary)'
+  }
+}
+
+function getLineColor(
+  mode: BarColorMode,
+  chartColor: ChartColorId,
+  statusColor: StatusColorId
+): string {
+  switch (mode) {
+    case 'status':
+      return BAR_STATUS_COLORS[statusColor]
+    case 'chart':
+      return CHART_COLORS[chartColor]
+    case 'neutral':
+    default:
+      return 'var(--color-fg-tertiary)'
+  }
+}
 
 // =============================================================================
 // SEEDED RANDOM
@@ -253,6 +309,152 @@ function Sparkline({ data, config }: { data: number[]; config: SparklineConfig }
   )
 }
 
+/**
+ * Bar sparkline for employee activity (unsigned: 0-100).
+ * Configurable colors with optional trend line overlay.
+ */
+function BarSparkline({ data, config }: { data: number[]; config: BarSparklineConfig }) {
+  const trendGradientId = React.useId()
+  if (!data.length) return null
+
+  const h = config.height
+  const min = 0
+  const max = 100
+  const range = max - min
+
+  // Calculate bar width based on data points and gap
+  const availableWidth = SPARK_W - SPARK_PAD * 2
+  const totalGaps = (data.length - 1) * config.gap
+  const barWidth = Math.max(1, (availableWidth - totalGaps) / data.length)
+
+  // Convert data to bar positions (unsigned, bars grow from bottom)
+  const bars = data.map((v, i) => {
+    const x = SPARK_PAD + i * (barWidth + config.gap)
+    const normalizedValue = (v - min) / range
+    const barHeight = normalizedValue * (h - SPARK_PAD * 2)
+    const y = h - SPARK_PAD - barHeight
+
+    return { x, y, width: barWidth, height: barHeight, value: v }
+  })
+
+  // Build trend line path for overlay
+  const buildSmoothPath = (points: readonly (readonly [number, number])[]): string => {
+    if (points.length < 2) return ''
+    if (points.length === 2) {
+      return `M${points[0][0]},${points[0][1]} L${points[1][0]},${points[1][1]}`
+    }
+
+    const path: string[] = [`M${points[0][0]},${points[0][1]}`]
+    for (let i = 0; i < points.length - 1; i++) {
+      const p0 = points[Math.max(0, i - 1)]
+      const p1 = points[i]
+      const p2 = points[i + 1]
+      const p3 = points[Math.min(points.length - 1, i + 2)]
+
+      const tension = 0.35
+      const cp1x = p1[0] + (p2[0] - p0[0]) * tension
+      const cp1y = p1[1] + (p2[1] - p0[1]) * tension
+      const cp2x = p2[0] - (p3[0] - p1[0]) * tension
+      const cp2y = p2[1] - (p3[1] - p1[1]) * tension
+
+      path.push(`C${cp1x},${cp1y} ${cp2x},${cp2y} ${p2[0]},${p2[1]}`)
+    }
+    return path.join(' ')
+  }
+
+  const trendPoints = data.map((v, i) => {
+    const x = SPARK_PAD + i * (barWidth + config.gap) + barWidth / 2
+    const normalizedValue = (v - min) / range
+    const y = h - SPARK_PAD - normalizedValue * (h - SPARK_PAD * 2)
+    return [x, y] as const
+  })
+  const trendPath = buildSmoothPath(trendPoints)
+
+  // Get trend line color based on mode
+  const trendLineColor = getLineColor(
+    config.trendLineColorMode,
+    config.trendLineChartColor,
+    config.trendLineStatusColor
+  )
+
+  // Get baseline color based on mode
+  const baselineColor = getLineColor(
+    config.baselineColorMode,
+    config.baselineChartColor,
+    config.baselineStatusColor
+  )
+
+  return (
+    <svg width={SPARK_W} height={h} viewBox={`0 0 ${SPARK_W} ${h}`} className="block">
+      <defs>
+        {config.showTrendLine && (
+          <linearGradient id={trendGradientId} x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor={trendLineColor} stopOpacity={config.trendLineOpacity * 0.5} />
+            <stop offset="50%" stopColor={trendLineColor} stopOpacity={config.trendLineOpacity} />
+            <stop offset="100%" stopColor={trendLineColor} stopOpacity={config.trendLineOpacity * 0.5} />
+          </linearGradient>
+        )}
+      </defs>
+
+      {/* Bars */}
+      {bars.map((bar, i) => (
+        <g key={i}>
+          {/* Main bar body */}
+          <rect
+            x={bar.x}
+            y={bar.y}
+            width={bar.width}
+            height={bar.height || 0.5}
+            rx={Math.min(config.radius, bar.width / 2)}
+            ry={Math.min(config.radius, bar.width / 2)}
+            fill={getBarColor(config.colorMode, config.chartColor, config.positiveColor, config.negativeColor, true)}
+            opacity={config.opacity}
+          />
+
+          {/* Tip accent (always on top for unsigned data) */}
+          {config.showTips && bar.height > config.tipSize && (
+            <rect
+              x={bar.x}
+              y={bar.y}
+              width={bar.width}
+              height={config.tipSize}
+              rx={Math.min(config.radius, bar.width / 2)}
+              ry={Math.min(config.radius, bar.width / 2)}
+              fill={getBarColor(config.tipColorMode, config.tipChartColor, config.tipPositiveColor, config.tipNegativeColor, true)}
+              opacity={0.9}
+            />
+          )}
+        </g>
+      ))}
+
+      {/* Trend line overlay */}
+      {config.showTrendLine && trendPath && (
+        <path
+          d={trendPath}
+          fill="none"
+          stroke={`url(#${trendGradientId})`}
+          strokeWidth={config.trendLineWidth}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      )}
+
+      {/* Bottom baseline */}
+      {config.showBaseline && (
+        <line
+          x1={SPARK_PAD}
+          y1={h - SPARK_PAD}
+          x2={SPARK_W - SPARK_PAD}
+          y2={h - SPARK_PAD}
+          stroke={baselineColor}
+          strokeWidth={config.baselineWidth}
+          strokeOpacity={config.baselineOpacity}
+        />
+      )}
+    </svg>
+  )
+}
+
 // =============================================================================
 // CELL RENDERER
 // =============================================================================
@@ -264,7 +466,11 @@ function formatShortName(fullName: string): string {
   return `${parts[0]} ${parts[parts.length - 1][0]}.`
 }
 
-export function createEmployeeRenderCell(sparklineConfig: SparklineConfig) {
+export function createEmployeeRenderCell(
+  sparklineConfig: SparklineConfig,
+  chartType: ChartType = 'line',
+  barConfig?: BarSparklineConfig
+) {
   return (columnKey: string, item: Employee, _index: number): React.ReactNode => {
     switch (columnKey) {
       case 'employee': {
@@ -291,6 +497,9 @@ export function createEmployeeRenderCell(sparklineConfig: SparklineConfig) {
       case 'company':
         return <span className="text-tertiary truncate text-sm">{item.companyLabel}</span>
       case 'trend':
+        if (chartType === 'bar' && barConfig) {
+          return <BarSparkline data={item.trend} config={barConfig} />
+        }
         return <Sparkline data={item.trend} config={sparklineConfig} />
       default:
         return null

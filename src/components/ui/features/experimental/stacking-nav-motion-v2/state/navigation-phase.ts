@@ -69,6 +69,10 @@ export interface PhaseState {
   promotingId: string | null
   /** Level at which promoting is occurring */
   promotingLevel: number | null
+  /** ID of item being demoted during collapse (null if not collapsing) */
+  demotingId: string | null
+  /** Level at which demotion is occurring */
+  demotingLevel: number | null
 }
 
 /**
@@ -82,6 +86,8 @@ export function createInitialPhaseState(): PhaseState {
     expectedDuration: 0,
     promotingId: null,
     promotingLevel: null,
+    demotingId: null,
+    demotingLevel: null,
   }
 }
 

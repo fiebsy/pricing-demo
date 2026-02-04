@@ -76,6 +76,7 @@ function getVariantLabel(variant: ButtonVariant): string {
     primary: 'Primary',
     secondary: 'Secondary',
     tertiary: 'Tertiary',
+    reentry: 'Reentry',
     shine: 'Shine',
     'link-gray': 'Link Gray',
     'link-color': 'Link Color',

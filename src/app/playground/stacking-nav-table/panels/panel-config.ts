@@ -5,6 +5,7 @@
  */
 
 import type { PanelConfig } from '@/components/ui/patterns/control-panel'
+import { CHART_PALETTE_COLORS, BAR_STATUS_COLORS } from '@/components/ui/patterns/control-panel/tokens/colors'
 import type { PlaygroundConfig } from '../config/types'
 
 export function createPanelConfig(config: PlaygroundConfig): PanelConfig {
@@ -593,8 +594,18 @@ export function createPanelConfig(config: PlaygroundConfig): PanelConfig {
         tabLabel: 'Chart',
         groups: [
           {
-            title: '30d Sparkline',
+            title: 'Type',
             controls: [
+              {
+                id: 'chartType',
+                type: 'select',
+                label: 'Chart Type',
+                value: config.chartType,
+                options: [
+                  { value: 'line', label: 'Line' },
+                  { value: 'bar', label: 'Bar' },
+                ],
+              },
               {
                 id: 'sparklineHeight',
                 type: 'slider',
@@ -605,30 +616,267 @@ export function createPanelConfig(config: PlaygroundConfig): PanelConfig {
                 step: 2,
                 formatLabel: (v: number) => `${v}px`,
               },
-              {
-                id: 'sparklineStrokeWidth',
-                type: 'slider',
-                label: 'Stroke Width',
-                value: config.sparklineStrokeWidth,
-                min: 0.5,
-                max: 3,
-                step: 0.5,
-                formatLabel: (v: number) => `${v}`,
-              },
-              {
-                id: 'sparklineShowFill',
-                type: 'toggle',
-                label: 'Fill Area',
-                value: config.sparklineShowFill,
-              },
-              {
-                id: 'sparklineShowDot',
-                type: 'toggle',
-                label: 'End Dot',
-                value: config.sparklineShowDot,
-              },
             ],
           },
+          ...(config.chartType === 'line'
+            ? [
+                {
+                  title: 'Line Options',
+                  controls: [
+                    {
+                      id: 'sparklineStrokeWidth',
+                      type: 'slider' as const,
+                      label: 'Stroke Width',
+                      value: config.sparklineStrokeWidth,
+                      min: 0.5,
+                      max: 3,
+                      step: 0.5,
+                      formatLabel: (v: number) => `${v}`,
+                    },
+                    {
+                      id: 'sparklineShowFill',
+                      type: 'toggle' as const,
+                      label: 'Fill Area',
+                      value: config.sparklineShowFill,
+                    },
+                    {
+                      id: 'sparklineShowDot',
+                      type: 'toggle' as const,
+                      label: 'End Dot',
+                      value: config.sparklineShowDot,
+                    },
+                  ],
+                },
+              ]
+            : []),
+          ...(config.chartType === 'bar'
+            ? [
+                {
+                  title: 'Bar Style',
+                  controls: [
+                    {
+                      id: 'barGap',
+                      type: 'slider' as const,
+                      label: 'Gap',
+                      value: config.barGap,
+                      min: 0,
+                      max: 4,
+                      step: 0.5,
+                      formatLabel: (v: number) => `${v}px`,
+                    },
+                    {
+                      id: 'barRadius',
+                      type: 'slider' as const,
+                      label: 'Radius',
+                      value: config.barRadius,
+                      min: 0,
+                      max: 4,
+                      step: 0.5,
+                      formatLabel: (v: number) => `${v}px`,
+                    },
+                    {
+                      id: 'barOpacity',
+                      type: 'slider' as const,
+                      label: 'Opacity',
+                      value: config.barOpacity,
+                      min: 10,
+                      max: 100,
+                      step: 5,
+                      formatLabel: (v: number) => `${v}%`,
+                    },
+                    {
+                      id: 'barColorMode',
+                      type: 'select' as const,
+                      label: 'Bar Color',
+                      value: config.barColorMode,
+                      options: [
+                        { value: 'neutral', label: 'Neutral' },
+                        { value: 'status', label: 'Status (+/-)' },
+                        { value: 'chart', label: 'Chart Color' },
+                      ],
+                    },
+                    ...(config.barColorMode === 'chart'
+                      ? [
+                          {
+                            id: 'barChartColor',
+                            type: 'color-enhanced-select' as const,
+                            label: 'Chart Palette',
+                            value: config.barChartColor,
+                            options: CHART_PALETTE_COLORS,
+                            swatchSize: 'sm' as const,
+                            showGroups: false,
+                          },
+                        ]
+                      : []),
+                    ...(config.barColorMode === 'status'
+                      ? [
+                          {
+                            id: 'barPositiveColor',
+                            type: 'color-enhanced-select' as const,
+                            label: 'Positive',
+                            value: config.barPositiveColor,
+                            options: BAR_STATUS_COLORS,
+                            swatchSize: 'sm' as const,
+                            showGroups: true,
+                          },
+                          {
+                            id: 'barNegativeColor',
+                            type: 'color-enhanced-select' as const,
+                            label: 'Negative',
+                            value: config.barNegativeColor,
+                            options: BAR_STATUS_COLORS,
+                            swatchSize: 'sm' as const,
+                            showGroups: true,
+                          },
+                        ]
+                      : []),
+                  ],
+                },
+                {
+                  title: 'Tips',
+                  controls: [
+                    {
+                      id: 'barShowTips',
+                      type: 'toggle' as const,
+                      label: 'Show Tips',
+                      value: config.barShowTips,
+                    },
+                    ...(config.barShowTips
+                      ? [
+                          {
+                            id: 'barTipSize',
+                            type: 'slider' as const,
+                            label: 'Tip Size',
+                            value: config.barTipSize,
+                            min: 1,
+                            max: 6,
+                            step: 0.5,
+                            formatLabel: (v: number) => `${v}px`,
+                          },
+                          {
+                            id: 'barTipColorMode',
+                            type: 'select' as const,
+                            label: 'Tip Color',
+                            value: config.barTipColorMode,
+                            options: [
+                              { value: 'neutral', label: 'Neutral' },
+                              { value: 'status', label: 'Status (+/-)' },
+                              { value: 'chart', label: 'Chart Color' },
+                            ],
+                          },
+                          ...(config.barTipColorMode === 'chart'
+                            ? [
+                                {
+                                  id: 'barTipChartColor',
+                                  type: 'color-enhanced-select' as const,
+                                  label: 'Tip Palette',
+                                  value: config.barTipChartColor,
+                                  options: CHART_PALETTE_COLORS,
+                                  swatchSize: 'sm' as const,
+                                  showGroups: false,
+                                },
+                              ]
+                            : []),
+                          ...(config.barTipColorMode === 'status'
+                            ? [
+                                {
+                                  id: 'barTipPositiveColor',
+                                  type: 'color-enhanced-select' as const,
+                                  label: 'Tip Positive',
+                                  value: config.barTipPositiveColor,
+                                  options: BAR_STATUS_COLORS,
+                                  swatchSize: 'sm' as const,
+                                  showGroups: true,
+                                },
+                                {
+                                  id: 'barTipNegativeColor',
+                                  type: 'color-enhanced-select' as const,
+                                  label: 'Tip Negative',
+                                  value: config.barTipNegativeColor,
+                                  options: BAR_STATUS_COLORS,
+                                  swatchSize: 'sm' as const,
+                                  showGroups: true,
+                                },
+                              ]
+                            : []),
+                        ]
+                      : []),
+                  ],
+                },
+                {
+                  title: 'Trend Line',
+                  controls: [
+                    {
+                      id: 'barShowTrendLine',
+                      type: 'toggle' as const,
+                      label: 'Show Trend Line',
+                      value: config.barShowTrendLine,
+                    },
+                    ...(config.barShowTrendLine
+                      ? [
+                          {
+                            id: 'barTrendLineWidth',
+                            type: 'slider' as const,
+                            label: 'Width',
+                            value: config.barTrendLineWidth,
+                            min: 0.5,
+                            max: 3,
+                            step: 0.5,
+                            formatLabel: (v: number) => `${v}px`,
+                          },
+                          {
+                            id: 'barTrendLineOpacity',
+                            type: 'slider' as const,
+                            label: 'Opacity',
+                            value: config.barTrendLineOpacity,
+                            min: 0.1,
+                            max: 1,
+                            step: 0.05,
+                            formatLabel: (v: number) => `${Math.round(v * 100)}%`,
+                          },
+                          {
+                            id: 'barTrendLineColorMode',
+                            type: 'select' as const,
+                            label: 'Line Color',
+                            value: config.barTrendLineColorMode,
+                            options: [
+                              { value: 'neutral', label: 'Neutral' },
+                              { value: 'status', label: 'Status' },
+                              { value: 'chart', label: 'Chart Color' },
+                            ],
+                          },
+                          ...(config.barTrendLineColorMode === 'chart'
+                            ? [
+                                {
+                                  id: 'barTrendLineChartColor',
+                                  type: 'color-enhanced-select' as const,
+                                  label: 'Line Palette',
+                                  value: config.barTrendLineChartColor,
+                                  options: CHART_PALETTE_COLORS,
+                                  swatchSize: 'sm' as const,
+                                  showGroups: false,
+                                },
+                              ]
+                            : []),
+                          ...(config.barTrendLineColorMode === 'status'
+                            ? [
+                                {
+                                  id: 'barTrendLineStatusColor',
+                                  type: 'color-enhanced-select' as const,
+                                  label: 'Line Color',
+                                  value: config.barTrendLineStatusColor,
+                                  options: BAR_STATUS_COLORS,
+                                  swatchSize: 'sm' as const,
+                                  showGroups: true,
+                                },
+                              ]
+                            : []),
+                        ]
+                      : []),
+                  ],
+                },
+              ]
+            : []),
           {
             title: 'Baseline',
             controls: [
@@ -660,6 +908,47 @@ export function createPanelConfig(config: PlaygroundConfig): PanelConfig {
                       step: 0.05,
                       formatLabel: (v: number) => `${Math.round(v * 100)}%`,
                     },
+                    ...(config.chartType === 'bar'
+                      ? [
+                          {
+                            id: 'barBaselineColorMode',
+                            type: 'select' as const,
+                            label: 'Color',
+                            value: config.barBaselineColorMode,
+                            options: [
+                              { value: 'neutral', label: 'Neutral' },
+                              { value: 'status', label: 'Status' },
+                              { value: 'chart', label: 'Chart Color' },
+                            ],
+                          },
+                          ...(config.barBaselineColorMode === 'chart'
+                            ? [
+                                {
+                                  id: 'barBaselineChartColor',
+                                  type: 'color-enhanced-select' as const,
+                                  label: 'Palette',
+                                  value: config.barBaselineChartColor,
+                                  options: CHART_PALETTE_COLORS,
+                                  swatchSize: 'sm' as const,
+                                  showGroups: false,
+                                },
+                              ]
+                            : []),
+                          ...(config.barBaselineColorMode === 'status'
+                            ? [
+                                {
+                                  id: 'barBaselineStatusColor',
+                                  type: 'color-enhanced-select' as const,
+                                  label: 'Color',
+                                  value: config.barBaselineStatusColor,
+                                  options: BAR_STATUS_COLORS,
+                                  swatchSize: 'sm' as const,
+                                  showGroups: true,
+                                },
+                              ]
+                            : []),
+                        ]
+                      : []),
                   ]
                 : []),
             ],

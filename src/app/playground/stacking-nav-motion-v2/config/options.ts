@@ -66,6 +66,7 @@ export const BUTTON_VARIANT_OPTIONS: { value: ButtonVariant; label: string }[] =
   { value: 'primary', label: 'Primary' },
   { value: 'secondary', label: 'Secondary' },
   { value: 'tertiary', label: 'Tertiary' },
+  { value: 'reentry', label: 'Reentry' },
   { value: 'shine', label: 'Shine' },
   { value: 'tab', label: 'Tab' },
   { value: 'link-gray', label: 'Link Gray' },

@@ -130,6 +130,8 @@ export default function StackingNavMotionV2Playground() {
       childVariant: config.childVariant,
       anchoredVariant: config.anchoredVariant,
       selectedLeafVariant: config.selectedLeafVariant,
+      reentryVariant: config.reentryVariant,
+      demotingVariant: config.demotingVariant,
       // Level All Button
       showLevelAll: config.showLevelAll,
       levelAllLabel: config.levelAllLabel,
@@ -337,12 +339,15 @@ export default function StackingNavMotionV2Playground() {
           <div className={`sticky top-0 z-10 py-12 ${bgClasses[config.pageBackground]}`}>
             <div className="flex items-center justify-center">
               <div
-                className={`flex justify-start ${
+                className={`relative flex flex-nowrap justify-start ${
                   config.showContainerBounds
                     ? 'outline outline-2 outline-dashed outline-red-500/50 bg-red-500/5'
                     : ''
                 }`}
-                style={{ width: `${config.containerWidth}px` }}
+                style={{
+                  width: `${config.containerWidth}px`,
+                  overflow: config.containerOverflow,
+                }}
               >
                 <StackingNav
                   key={resetKey}
@@ -355,6 +360,29 @@ export default function StackingNavMotionV2Playground() {
                   onReset={handleComponentReset}
                   onSelectionChange={handleSelectionChange}
                 />
+
+                {/* Right edge gradient mask */}
+                {config.showOverflowGradient && (
+                  <div
+                    className="pointer-events-none absolute inset-y-0 right-0 z-[200]"
+                    style={{
+                      width: `${config.gradientWidth}px`,
+                      background: `linear-gradient(to left, ${
+                        config.pageBackground === 'primary'
+                          ? 'var(--color-bg-primary)'
+                          : config.pageBackground === 'secondary'
+                            ? 'var(--color-bg-secondary)'
+                            : config.pageBackground === 'tertiary'
+                              ? 'var(--color-bg-tertiary)'
+                              : config.pageBackground === 'brand'
+                                ? 'var(--color-bg-brand-solid)'
+                                : config.pageBackground === 'black'
+                                  ? '#000'
+                                  : '#fff'
+                      }, transparent)`,
+                    }}
+                  />
+                )}
               </div>
             </div>
           </div>

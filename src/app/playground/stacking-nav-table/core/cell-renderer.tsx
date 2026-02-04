@@ -102,6 +102,41 @@ export interface SparklineConfig {
   baselineOpacity: number
 }
 
+export type BarColorMode = 'neutral' | 'status' | 'chart'
+export type ChartColorId = '1' | '2' | '3' | '4'
+export type StatusColorId = 'neutral' | 'neutral-dark' | 'success' | 'error' | 'warning' | 'chart-1' | 'chart-2' | 'chart-3' | 'chart-4'
+
+export interface BarSparklineConfig {
+  height: number
+  gap: number
+  radius: number
+  opacity: number
+  colorMode: BarColorMode
+  chartColor: ChartColorId
+  positiveColor: StatusColorId
+  negativeColor: StatusColorId
+  showTips: boolean
+  tipSize: number
+  tipColorMode: BarColorMode
+  tipChartColor: ChartColorId
+  tipPositiveColor: StatusColorId
+  tipNegativeColor: StatusColorId
+  showTrendLine: boolean
+  trendLineWidth: number
+  trendLineOpacity: number
+  trendLineColorMode: BarColorMode
+  trendLineChartColor: ChartColorId
+  trendLineStatusColor: StatusColorId
+  showBaseline: boolean
+  baselineWidth: number
+  baselineOpacity: number
+  baselineColorMode: BarColorMode
+  baselineChartColor: ChartColorId
+  baselineStatusColor: StatusColorId
+}
+
+export type ChartType = 'line' | 'bar'
+
 const DEFAULT_SPARKLINE_CONFIG: SparklineConfig = {
   height: 24,
   strokeWidth: 1.5,
@@ -110,6 +145,97 @@ const DEFAULT_SPARKLINE_CONFIG: SparklineConfig = {
   showBaseline: true,
   baselineWidth: 1,
   baselineOpacity: 0.3,
+}
+
+const DEFAULT_BAR_SPARKLINE_CONFIG: BarSparklineConfig = {
+  height: 24,
+  gap: 1,
+  radius: 1,
+  opacity: 0.7,
+  colorMode: 'neutral',
+  chartColor: '1',
+  positiveColor: 'success',
+  negativeColor: 'error',
+  showTips: false,
+  tipSize: 2,
+  tipColorMode: 'status',
+  tipChartColor: '1',
+  tipPositiveColor: 'success',
+  tipNegativeColor: 'error',
+  showTrendLine: false,
+  trendLineWidth: 1,
+  trendLineOpacity: 0.6,
+  trendLineColorMode: 'neutral',
+  trendLineChartColor: '1',
+  trendLineStatusColor: 'neutral-dark',
+  showBaseline: true,
+  baselineWidth: 1,
+  baselineOpacity: 0.3,
+  baselineColorMode: 'neutral',
+  baselineChartColor: '1',
+  baselineStatusColor: 'neutral',
+}
+
+// Chart color CSS variable mapping
+const CHART_COLORS: Record<ChartColorId, string> = {
+  '1': 'var(--color-chart-1)',
+  '2': 'var(--color-chart-2)',
+  '3': 'var(--color-chart-3)',
+  '4': 'var(--color-chart-4)',
+}
+
+// Status color CSS variable mapping
+const STATUS_COLORS: Record<StatusColorId, string> = {
+  'neutral': 'var(--color-fg-quaternary)',
+  'neutral-dark': 'var(--color-fg-tertiary)',
+  'success': 'var(--color-success-500)',
+  'error': 'var(--color-error-500)',
+  'warning': 'var(--color-warning-500)',
+  'chart-1': 'var(--color-chart-1)',
+  'chart-2': 'var(--color-chart-2)',
+  'chart-3': 'var(--color-chart-3)',
+  'chart-4': 'var(--color-chart-4)',
+}
+
+/**
+ * Get the fill color for a bar based on color mode and value.
+ */
+function getBarColor(
+  mode: BarColorMode,
+  chartColor: ChartColorId,
+  positiveColor: StatusColorId,
+  negativeColor: StatusColorId,
+  isPositive: boolean
+): string {
+  switch (mode) {
+    case 'status':
+      return isPositive ? STATUS_COLORS[positiveColor] : STATUS_COLORS[negativeColor]
+    case 'chart':
+      return CHART_COLORS[chartColor]
+    case 'neutral':
+    default:
+      return 'var(--color-fg-quaternary)'
+  }
+}
+
+
+/**
+ * Get the color for a line (trend line or baseline) based on color mode.
+ */
+function getLineColor(
+  mode: BarColorMode,
+  chartColor: ChartColorId,
+  statusColor: StatusColorId
+): string {
+  switch (mode) {
+    case 'status':
+      return STATUS_COLORS[statusColor]
+    case 'chart':
+      return CHART_COLORS[chartColor]
+    case 'neutral':
+    default:
+      return 'var(--color-fg-tertiary)'
+  }
 }
 
 /**
@@ -306,6 +432,151 @@ function buildSmoothAreaPath(
   const lastX = points[points.length - 1][0]
 
   return `${curvePath} L${lastX},${zeroY} L${firstX},${zeroY} Z`
+}
+
+// =============================================================================
+// BAR SPARKLINE (Neutral colors, positive/negative bars)
+// =============================================================================
+
+/**
+ * Bar sparkline with configurable colors.
+ * - Positive values: bars extend upward from baseline
+ * - Negative values: bars extend downward from baseline
+ * - Color modes: neutral (gray), status (green/red), chart (chart palette)
+ * - Optional tips (colored accents at bar ends)
+ * - Optional trend line overlay
+ */
+function BarSparkline({ data, config = DEFAULT_BAR_SPARKLINE_CONFIG }: { data: number[]; config?: BarSparklineConfig }) {
+  const trendGradientId = React.useId()
+  if (!data.length) return null
+
+  const h = config.height
+
+  // Dynamic range based on data, always include zero with padding
+  const dataMin = Math.min(...data)
+  const dataMax = Math.max(...data)
+  const padding = Math.max(Math.abs(dataMax), Math.abs(dataMin), 10) * 0.15
+  const minRange = Math.min(0, dataMin) - padding
+  const maxRange = Math.max(0, dataMax) + padding
+  const range = maxRange - minRange
+
+  // Zero line position
+  const zeroY = SPARK_PAD + (1 - (0 - minRange) / range) * (h - SPARK_PAD * 2)
+
+  // Calculate bar width based on data points and gap
+  const availableWidth = SPARK_W - SPARK_PAD * 2
+  const totalGaps = (data.length - 1) * config.gap
+  const barWidth = Math.max(1, (availableWidth - totalGaps) / data.length)
+
+  // Convert data to bar positions
+  const bars = data.map((v, i) => {
+    const x = SPARK_PAD + i * (barWidth + config.gap)
+    const valueY = SPARK_PAD + (1 - (v - minRange) / range) * (h - SPARK_PAD * 2)
+    const isPositive = v >= 0
+
+    // Bar extends from baseline to value
+    const y = isPositive ? valueY : zeroY
+    const barHeight = Math.abs(valueY - zeroY)
+
+    return { x, y, width: barWidth, height: barHeight, value: v, isPositive, valueY }
+  })
+
+  // Build trend line path for overlay (same smooth algorithm)
+  const trendPoints = data.map((v, i) => {
+    const x = SPARK_PAD + i * (barWidth + config.gap) + barWidth / 2
+    const y = SPARK_PAD + (1 - (v - minRange) / range) * (h - SPARK_PAD * 2)
+    return [x, y, v] as const
+  })
+  const trendPath = buildSmoothPath(trendPoints)
+
+  // Get trend line color based on mode
+  const trendLineColor = getLineColor(
+    config.trendLineColorMode,
+    config.trendLineChartColor,
+    config.trendLineStatusColor
+  )
+
+  // Get baseline color based on mode
+  const baselineColor = getLineColor(
+    config.baselineColorMode,
+    config.baselineChartColor,
+    config.baselineStatusColor
+  )
+
+  return (
+    <svg
+      width={SPARK_W}
+      height={h}
+      viewBox={`0 0 ${SPARK_W} ${h}`}
+      className="block"
+    >
+      <defs>
+        {config.showTrendLine && (
+          <linearGradient id={trendGradientId} x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor={trendLineColor} stopOpacity={config.trendLineOpacity * 0.5} />
+            <stop offset="50%" stopColor={trendLineColor} stopOpacity={config.trendLineOpacity} />
+            <stop offset="100%" stopColor={trendLineColor} stopOpacity={config.trendLineOpacity * 0.5} />
+          </linearGradient>
+        )}
+      </defs>
+
+      {/* Bars */}
+      {bars.map((bar, i) => (
+        <g key={i}>
+          {/* Main bar body */}
+          <rect
+            x={bar.x}
+            y={bar.y}
+            width={bar.width}
+            height={bar.height || 0.5}
+            rx={Math.min(config.radius, bar.width / 2)}
+            ry={Math.min(config.radius, bar.width / 2)}
+            fill={getBarColor(config.colorMode, config.chartColor, config.positiveColor, config.negativeColor, bar.isPositive)}
+            opacity={config.opacity}
+          />
+
+          {/* Tip accent (colored indicator at bar end) */}
+          {config.showTips && bar.height > config.tipSize && (
+            <rect
+              x={bar.x}
+              y={bar.isPositive ? bar.y : bar.y + bar.height - config.tipSize}
+              width={bar.width}
+              height={config.tipSize}
+              rx={Math.min(config.radius, bar.width / 2)}
+              ry={Math.min(config.radius, bar.width / 2)}
+              fill={getBarColor(config.tipColorMode, config.tipChartColor, config.tipPositiveColor, config.tipNegativeColor, bar.isPositive)}
+              opacity={0.9}
+            />
+          )}
+        </g>
+      ))}
+
+      {/* Trend line overlay */}
+      {config.showTrendLine && trendPath && (
+        <path
+          d={trendPath}
+          fill="none"
+          stroke={`url(#${trendGradientId})`}
+          strokeWidth={config.trendLineWidth}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      )}
+
+      {/* Zero baseline */}
+      {config.showBaseline && (
+        <line
+          x1={SPARK_PAD}
+          y1={zeroY}
+          x2={SPARK_W - SPARK_PAD}
+          y2={zeroY}
+          stroke={baselineColor}
+          strokeWidth={config.baselineWidth}
+          strokeOpacity={config.baselineOpacity}
+        />
+      )}
+    </svg>
+  )
 }
 
 
@@ -548,9 +819,15 @@ function formatShortName(fullName: string): string {
 // CELL RENDERER
 // =============================================================================
 
-export function createRenderCell(sparklineConfig: SparklineConfig, avatarConfig?: OriginAvatarConfig, badgeConfig?: BadgeConfig) {
+export function createRenderCell(
+  sparklineConfig: SparklineConfig,
+  avatarConfig?: OriginAvatarConfig,
+  badgeConfig?: BadgeConfig,
+  chartType: ChartType = 'line',
+  barConfig?: BarSparklineConfig
+) {
   return (columnKey: string, item: Character, _index: number): React.ReactNode =>
-    renderCell(columnKey, item, _index, sparklineConfig, avatarConfig, badgeConfig)
+    renderCell(columnKey, item, _index, sparklineConfig, avatarConfig, badgeConfig, chartType, barConfig)
 }
 
 const renderCell = (
@@ -560,6 +837,8 @@ const renderCell = (
   sparklineConfig?: SparklineConfig,
   avatarConfig?: OriginAvatarConfig,
   badgeConfig?: BadgeConfig,
+  chartType: ChartType = 'line',
+  barConfig?: BarSparklineConfig,
 ): React.ReactNode => {
   switch (columnKey) {
     case 'character': {
@@ -616,6 +895,9 @@ const renderCell = (
       )
 
     case 'livesRescued':
+      if (chartType === 'bar') {
+        return <BarSparkline data={item.trend} config={barConfig} />
+      }
       return <Sparkline data={item.trend} config={sparklineConfig} />
 
     default:

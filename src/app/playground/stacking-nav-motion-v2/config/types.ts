@@ -103,6 +103,8 @@ export interface PlaygroundConfig {
   childVariant: ButtonVariant
   anchoredVariant: ButtonVariant
   selectedLeafVariant: ButtonVariant
+  reentryVariant: ButtonVariant
+  demotingVariant: ButtonVariant
 
   // Stacking
   peekOffset: number
@@ -139,4 +141,9 @@ export interface PlaygroundConfig {
   // Container debug
   containerWidth: number // px
   showContainerBounds: boolean
+
+  // Container overflow
+  containerOverflow: 'visible' | 'hidden' | 'clip'
+  showOverflowGradient: boolean
+  gradientWidth: number // px
 }

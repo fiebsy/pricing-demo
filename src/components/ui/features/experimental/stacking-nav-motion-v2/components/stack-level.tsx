@@ -37,6 +37,7 @@ export function StackLevel({ items, parentLevelIndices = [] }: StackLevelProps) 
     phase,
     isCollapsing,
     promotingId,
+    demotingId,
     isHoverSuppressed,
   } = useStackContext()
 
@@ -168,6 +169,7 @@ export function StackLevel({ items, parentLevelIndices = [] }: StackLevelProps) 
             styleConfig,
             anchorCount,
             promotingId,
+            demotingId,
             isCollapsing,
             activeItemIsLeaf,
             activeChildIsLeaf,

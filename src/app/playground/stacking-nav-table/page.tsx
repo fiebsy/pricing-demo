@@ -282,6 +282,62 @@ export default function StackingNavTablePlayground() {
     config.sparklineBaselineOpacity,
   ])
 
+  const barConfig = useMemo(() => ({
+    height: config.sparklineHeight,
+    gap: config.barGap,
+    radius: config.barRadius,
+    opacity: config.barOpacity / 100,
+    colorMode: config.barColorMode,
+    chartColor: config.barChartColor,
+    positiveColor: config.barPositiveColor,
+    negativeColor: config.barNegativeColor,
+    showTips: config.barShowTips,
+    tipSize: config.barTipSize,
+    tipColorMode: config.barTipColorMode,
+    tipChartColor: config.barTipChartColor,
+    tipPositiveColor: config.barTipPositiveColor,
+    tipNegativeColor: config.barTipNegativeColor,
+    showTrendLine: config.barShowTrendLine,
+    trendLineWidth: config.barTrendLineWidth,
+    trendLineOpacity: config.barTrendLineOpacity,
+    trendLineColorMode: config.barTrendLineColorMode,
+    trendLineChartColor: config.barTrendLineChartColor,
+    trendLineStatusColor: config.barTrendLineStatusColor,
+    showBaseline: config.sparklineShowBaseline,
+    baselineWidth: config.sparklineBaselineWidth,
+    baselineOpacity: config.sparklineBaselineOpacity,
+    baselineColorMode: config.barBaselineColorMode,
+    baselineChartColor: config.barBaselineChartColor,
+    baselineStatusColor: config.barBaselineStatusColor,
+  }), [
+    config.sparklineHeight,
+    config.barGap,
+    config.barRadius,
+    config.barOpacity,
+    config.barColorMode,
+    config.barChartColor,
+    config.barPositiveColor,
+    config.barNegativeColor,
+    config.barShowTips,
+    config.barTipSize,
+    config.barTipColorMode,
+    config.barTipChartColor,
+    config.barTipPositiveColor,
+    config.barTipNegativeColor,
+    config.barShowTrendLine,
+    config.barTrendLineWidth,
+    config.barTrendLineOpacity,
+    config.barTrendLineColorMode,
+    config.barTrendLineChartColor,
+    config.barTrendLineStatusColor,
+    config.sparklineShowBaseline,
+    config.sparklineBaselineWidth,
+    config.sparklineBaselineOpacity,
+    config.barBaselineColorMode,
+    config.barBaselineChartColor,
+    config.barBaselineStatusColor,
+  ])
+
   const avatarConfig = useMemo(() => ({
     width: config.originAvatarWidth,
     height: config.originAvatarHeight,
@@ -328,9 +384,9 @@ export default function StackingNavTablePlayground() {
   type CellRenderer = (columnKey: string, row: Record<string, unknown>, index: number) => ReactNode
   const cellRenderer = useMemo<CellRenderer>(
     () => (isEmployees
-      ? createEmployeeRenderCell(sparklineConfig)
-      : createRenderCell(sparklineConfig, avatarConfig, badgeConfig)) as CellRenderer,
-    [sparklineConfig, avatarConfig, badgeConfig, isEmployees]
+      ? createEmployeeRenderCell(sparklineConfig, config.chartType, barConfig)
+      : createRenderCell(sparklineConfig, avatarConfig, badgeConfig, config.chartType, barConfig)) as CellRenderer,
+    [sparklineConfig, avatarConfig, badgeConfig, isEmployees, config.chartType, barConfig]
   )
 
   // Ordered columns — reacts to drag-and-drop reorder + variant

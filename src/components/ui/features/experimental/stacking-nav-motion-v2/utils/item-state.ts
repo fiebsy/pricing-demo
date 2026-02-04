@@ -30,6 +30,7 @@ export function computeItemState(ctx: ItemStateContext): ItemRenderState {
     styleConfig,
     anchorCount,
     promotingId,
+    demotingId,
     isCollapsing,
     activeItemIsLeaf,
     activeChildIsLeaf,
@@ -44,6 +45,7 @@ export function computeItemState(ctx: ItemStateContext): ItemRenderState {
   const hasChildren = Boolean(item.children?.length)
   const isLeafNode = !hasChildren
   const isPromoting = item.id === promotingId
+  const isDemoting = item.id === demotingId
 
   // --- Sibling visibility ------------------------------------------------
   const shouldHide =
@@ -82,11 +84,15 @@ export function computeItemState(ctx: ItemStateContext): ItemRenderState {
     animationMode = 'anchor'
   } else if (isPromoting) {
     animationMode = 'promote'
+  } else if (isCollapsing && isDemoting) {
+    // The previously-expanded parent returning to sibling status
+    animationMode = 'collapse-demote'
   } else if (isCollapsing && !isActive) {
     // Siblings reappearing during collapse - applies at any level
     animationMode = 'collapse-reentry'
-  } else if (isPromotingPhase && level > 0 && !isActive) {
-    // Children entering during expansion (promotion or simple expand)
+  } else if (isPromotingPhase && !isActive) {
+    // Items entering during expansion (promotion or simple expand)
+    // L0 items now receive entry animations same as L1+ items
     animationMode = 'promote-entry'
   } else {
     // Default: items that are already visible or don't need entry animation
@@ -98,8 +104,8 @@ export function computeItemState(ctx: ItemStateContext): ItemRenderState {
   if (animationMode === 'promote-entry') {
     // Children appearing during expansion
     animationDelay = getChildDelay(index, animationConfig, isPromotingPhase)
-  } else if (animationMode === 'collapse-reentry') {
-    // Demotion entry: siblings reappearing when collapsing
+  } else if (animationMode === 'collapse-reentry' || animationMode === 'collapse-demote') {
+    // Demotion entry: siblings reappearing when collapsing (including demoting parent)
     animationDelay = getDemotionDelay(index, animationConfig)
   } else {
     animationDelay = 0
