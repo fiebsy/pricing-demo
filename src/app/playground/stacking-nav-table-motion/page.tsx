@@ -336,11 +336,18 @@ export default function StackingNavTableMotionPlayground() {
     logoShine: config.originLogoShine,
     logoSquircle: config.originLogoSquircle,
     logoInvert: config.originLogoInvert,
+    logoOutline: config.originLogoOutline,
+    logoOutlineColor: config.originLogoOutlineColor,
+    logoOutlineSize: config.originLogoOutlineSize,
+    logoOutlineOpacity: config.originLogoOutlineOpacity,
+    logoOutlineIntensity: config.originLogoOutlineIntensity,
   }), [
     config.originAvatarWidth, config.originAvatarHeight,
     config.originImageType, config.originLogoBg, config.originLogoBgColor,
     config.originLogoPaddingX, config.originLogoPaddingY,
     config.originLogoShine, config.originLogoSquircle, config.originLogoInvert,
+    config.originLogoOutline, config.originLogoOutlineColor, config.originLogoOutlineSize,
+    config.originLogoOutlineOpacity, config.originLogoOutlineIntensity,
   ])
 
   const badgeConfig = useMemo(() => ({

@@ -16,7 +16,8 @@
 
 'use client'
 
-import { useState, useMemo, useCallback, useTransition, useRef, useEffect, type ReactNode, startTransition as reactStartTransition } from 'react'
+import { useState, useMemo, useCallback, useTransition, useRef, useEffect, type ReactNode } from 'react'
+import NumberFlow from '@number-flow/react'
 import {
   UnifiedControlPanel,
   type ControlChangeEvent,
@@ -63,6 +64,8 @@ import { createPanelConfig } from './panels/panel-config'
 function createToolbarConfig(
   padding: { top: number; bottom: number; left: number; right: number },
   navToCountGap: number,
+  countValue: number,
+  countLabel: string,
 ): ToolbarLayoutConfig {
   return {
     position: 'integrated',
@@ -71,6 +74,22 @@ function createToolbarConfig(
     headerGap: 12,
     integratedToolbarHeight: 48,
     integratedPadding: padding,
+    leftCount: {
+      value: countValue,
+      label: countLabel,
+      renderer: (
+        <span className="text-tertiary text-xs font-medium">
+          <NumberFlow
+            value={countValue}
+            locales="en-US"
+            className="text-secondary"
+            transformTiming={{ duration: 200, easing: 'ease-out' }}
+            spinTiming={{ duration: 200, easing: 'ease-out' }}
+          />
+          {' '}{countLabel}
+        </span>
+      ),
+    },
   }
 }
 
@@ -400,8 +419,10 @@ export default function StackingNavTablePlayground() {
     () => createToolbarConfig(
       { top: config.toolbarPaddingTop, bottom: config.toolbarPaddingBottom, left: config.toolbarPaddingLeft, right: config.toolbarPaddingRight },
       config.navToCountGap,
+      filteredData.length,
+      activeCountLabel,
     ),
-    [config.toolbarPaddingTop, config.toolbarPaddingBottom, config.toolbarPaddingLeft, config.toolbarPaddingRight, config.navToCountGap]
+    [config.toolbarPaddingTop, config.toolbarPaddingBottom, config.toolbarPaddingLeft, config.toolbarPaddingRight, config.navToCountGap, filteredData.length, activeCountLabel]
   )
 
   // Border config — built from playground controls
