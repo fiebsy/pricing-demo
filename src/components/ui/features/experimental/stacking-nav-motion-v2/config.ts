@@ -212,6 +212,8 @@ export const SPRING_PRESETS = {
   precise: { stiffness: 600, damping: 55, mass: 1 },
   /** Responsive - light and immediate */
   responsive: { stiffness: 750, damping: 40, mass: 0.7 },
+  /** Lively - fast with subtle bounce */
+  lively: { stiffness: 700, damping: 22, mass: 0.8 },
 } as const
 
 // =============================================================================

@@ -36,6 +36,7 @@ export function createPanelConfig(config: PlaygroundConfig): UnifiedControlPanel
                   // Fastest
                   { value: 'swift', label: 'Swift — Very Fast' },
                   { value: 'responsive', label: 'Responsive — Fastest' },
+                  { value: 'lively', label: 'Lively — Fast + Subtle Bounce' },
                   // Custom
                   { value: 'custom', label: 'Custom' },
                 ],

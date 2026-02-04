@@ -17,6 +17,7 @@ export const SPRING_PRESETS = {
   swift: { stiffness: 700, damping: 50, mass: 0.8 },
   precise: { stiffness: 600, damping: 55, mass: 1 },
   responsive: { stiffness: 750, damping: 40, mass: 0.7 },
+  lively: { stiffness: 700, damping: 22, mass: 0.8 },
 }
 
 /** Easing presets for quick selection */
