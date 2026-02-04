@@ -28,7 +28,7 @@ function configFromDefaults(): Omit<PlaygroundConfig, 'configPreset' | 'navVaria
     springStiffness: a.stiffness,
     springDamping: a.damping,
     springMass: a.mass,
-    springPreset: 'smooth',
+    springPreset: 'custom',
 
     // Tween (ms)
     tweenDuration: toMs(a.duration),

@@ -17,15 +17,15 @@ import type { AnimationConfig, StyleConfig, StackItem, ButtonSize } from './type
  * Tuned for smooth, responsive interactions.
  */
 export const DEFAULT_ANIMATION_CONFIG: AnimationConfig = {
-  // Animation type - tween by default for smoother feel
-  type: 'tween',
+  // Animation type - spring by default for natural feel
+  type: 'spring',
 
-  // Spring settings - used when type = 'spring'
-  stiffness: 500,
-  damping: 30,
-  mass: 1,
+  // Spring settings - fast + subtle bounce
+  stiffness: 650,
+  damping: 38,
+  mass: 0.9,
 
-  // Tween settings - duration-based easing
+  // Tween settings - duration-based easing (fallback)
   duration: 0.3,
   ease: 'expoOut',
 
@@ -33,12 +33,12 @@ export const DEFAULT_ANIMATION_CONFIG: AnimationConfig = {
   promotionDuration: 0.2,
   promotionScale: 1,
 
-  // Child animations - instant appearance (no slide)
-  stagger: 0,
+  // Child animations - instant appearance with stagger
+  stagger: 0.025,
   entryOffsetX: 6,
   entryOffsetY: 10,
-  childEntryDelay: 0,
-  entryScale: 0.95,
+  childEntryDelay: 0.04,
+  entryScale: 1,
   entryOpacity: 0,
   entryFromParent: true,
   entryInstant: true,
@@ -66,9 +66,9 @@ export const DEFAULT_ANIMATION_CONFIG: AnimationConfig = {
 
   // Demotion entry settings (siblings reappearing during collapse)
   demotionEntryDelay: 0,
-  demotionStagger: 0,
+  demotionStagger: 0.015,
   demotionEntryOpacity: 0,
-  demotionEntryScale: 1,
+  demotionEntryScale: 0.75,
 }
 
 /**
