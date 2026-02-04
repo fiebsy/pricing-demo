@@ -23,6 +23,7 @@ export const DEFAULT_ANIMATION_CONFIG: AnimationConfig = {
   // Spring settings - used when type = 'spring'
   stiffness: 500,
   damping: 30,
+  mass: 1,
 
   // Tween settings - duration-based easing
   duration: 0.3,
@@ -192,11 +193,17 @@ export const HEIGHT_CLASSES: Record<ButtonSize, string> = {
  */
 export const SPRING_PRESETS = {
   /** Smooth and controlled - default */
-  smooth: { stiffness: 500, damping: 30 },
+  smooth: { stiffness: 500, damping: 30, mass: 1 },
   /** Snappy and responsive */
-  snappy: { stiffness: 700, damping: 35 },
+  snappy: { stiffness: 700, damping: 35, mass: 0.8 },
   /** Soft and gentle */
-  soft: { stiffness: 300, damping: 25 },
+  soft: { stiffness: 300, damping: 25, mass: 1 },
+  /** Subtle and refined - minimal bounce */
+  subtle: { stiffness: 400, damping: 40, mass: 1.2 },
+  /** Bouncy with playful overshoot */
+  bouncy: { stiffness: 400, damping: 15, mass: 1 },
+  /** Heavy and deliberate */
+  heavy: { stiffness: 300, damping: 30, mass: 2 },
 } as const
 
 // =============================================================================

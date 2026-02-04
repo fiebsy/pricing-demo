@@ -87,6 +87,8 @@ export default function StackingNavMotionV2Playground() {
       stiffness: config.springStiffness * springMultiplier,
       // Spring: proportionally lower damping to maintain feel
       damping: config.springDamping * scale,
+      // Spring: mass affects inertia (higher = slower, more deliberate)
+      mass: config.springMass,
       // Tween: higher duration = slower (divide by scale)
       duration: config.tweenDuration / 1000 / scale,
       ease: config.tweenEase,
@@ -174,6 +176,7 @@ export default function StackingNavMotionV2Playground() {
           springPreset: value as PlaygroundConfig['springPreset'],
           springStiffness: preset.stiffness,
           springDamping: preset.damping,
+          springMass: preset.mass,
           configPreset: 'custom', // Mark as custom when tuning
         }))
         return
@@ -181,7 +184,7 @@ export default function StackingNavMotionV2Playground() {
     }
 
     // Handle manual spring adjustment - switch to custom presets
-    if (controlId === 'springStiffness' || controlId === 'springDamping') {
+    if (controlId === 'springStiffness' || controlId === 'springDamping' || controlId === 'springMass') {
       setConfig((prev) => ({
         ...prev,
         [controlId]: value,

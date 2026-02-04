@@ -52,7 +52,8 @@ export interface PlaygroundConfig {
   // Spring Animation
   springStiffness: number
   springDamping: number
-  springPreset: 'custom' | 'smooth' | 'snappy' | 'soft' | 'bouncy'
+  springMass: number
+  springPreset: 'custom' | 'smooth' | 'snappy' | 'soft' | 'subtle' | 'bouncy' | 'heavy'
 
   // Tween/Easing Animation
   tweenDuration: number

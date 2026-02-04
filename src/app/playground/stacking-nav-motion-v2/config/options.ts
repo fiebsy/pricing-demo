@@ -7,10 +7,12 @@ import type { EntryDirection } from './types'
 
 /** Spring presets for spring animation tuning */
 export const SPRING_PRESETS = {
-  smooth: { stiffness: 500, damping: 30 },
-  snappy: { stiffness: 700, damping: 35 },
-  soft: { stiffness: 300, damping: 25 },
-  bouncy: { stiffness: 400, damping: 15 },
+  smooth: { stiffness: 500, damping: 30, mass: 1 },
+  snappy: { stiffness: 700, damping: 35, mass: 0.8 },
+  soft: { stiffness: 300, damping: 25, mass: 1 },
+  subtle: { stiffness: 400, damping: 40, mass: 1.2 },
+  bouncy: { stiffness: 400, damping: 15, mass: 1 },
+  heavy: { stiffness: 300, damping: 30, mass: 2 },
 }
 
 /** Easing presets for quick selection */

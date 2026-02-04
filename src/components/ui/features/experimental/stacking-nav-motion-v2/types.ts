@@ -70,6 +70,8 @@ export interface AnimationConfig {
   stiffness: number
   /** Spring damping (higher = less bounce) */
   damping: number
+  /** Spring mass (higher = slower, more inertia) */
+  mass: number
 
   // Tween settings (used when type = 'tween')
   /** Duration in seconds for tween animations */

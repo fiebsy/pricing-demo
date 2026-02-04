@@ -49,6 +49,7 @@ export function getTransition(config: AnimationConfig, delay?: number) {
     type: 'spring' as const,
     stiffness: config.stiffness,
     damping: config.damping,
+    mass: config.mass,
     delay,
   }
 }

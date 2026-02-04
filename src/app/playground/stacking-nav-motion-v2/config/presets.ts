@@ -27,6 +27,7 @@ function configFromDefaults(): Omit<PlaygroundConfig, 'configPreset' | 'navVaria
     // Spring
     springStiffness: a.stiffness,
     springDamping: a.damping,
+    springMass: a.mass,
     springPreset: 'smooth',
 
     // Tween (ms)
@@ -125,6 +126,7 @@ const PRESET_SPRING: Omit<PlaygroundConfig, 'configPreset' | 'navVariant'> = {
   animationType: 'spring',
   springStiffness: 500,
   springDamping: 30,
+  springMass: 1,
   springPreset: 'smooth',
   tweenDuration: 300,
   tweenEase: 'easeOut',
