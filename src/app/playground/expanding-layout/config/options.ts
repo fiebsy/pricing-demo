@@ -1,30 +1,20 @@
-import type { EasingType, SpringPreset } from './types'
+import type { CSSEasing } from './types'
 
 // =============================================================================
 // OPTION ARRAYS FOR PANEL CONTROLS
 // =============================================================================
 
-/** Spring presets for spring animation tuning */
-export const SPRING_PRESETS: Record<Exclude<SpringPreset, 'custom'>, { stiffness: number; damping: number; mass: number }> = {
-  smooth: { stiffness: 300, damping: 30, mass: 1 },
-  snappy: { stiffness: 500, damping: 35, mass: 1 },
-  soft: { stiffness: 200, damping: 25, mass: 1 },
-  bouncy: { stiffness: 400, damping: 15, mass: 1 },
-}
-
-/** Easing presets for tween animations */
-export const EASING_OPTIONS: { value: EasingType; label: string }[] = [
+/** CSS Easing options for animation */
+export const CSS_EASING_OPTIONS: { value: CSSEasing; label: string }[] = [
   { value: 'linear', label: 'Linear' },
-  { value: 'easeIn', label: 'Ease In' },
-  { value: 'easeOut', label: 'Ease Out' },
-  { value: 'easeInOut', label: 'Ease In-Out' },
-  { value: 'circIn', label: 'Circ In' },
-  { value: 'circOut', label: 'Circ Out' },
-  { value: 'circInOut', label: 'Circ In-Out' },
-  { value: 'backIn', label: 'Back In' },
-  { value: 'backOut', label: 'Back Out' },
-  { value: 'backInOut', label: 'Back In-Out' },
-  { value: 'anticipate', label: 'Anticipate' },
+  { value: 'ease', label: 'Ease' },
+  { value: 'ease-in', label: 'Ease In' },
+  { value: 'ease-out', label: 'Ease Out' },
+  { value: 'ease-in-out', label: 'Ease In-Out' },
+  { value: 'cubic-bezier(0.25, 0.1, 0.25, 1)', label: 'Snappy' },
+  { value: 'cubic-bezier(0.34, 1.56, 0.64, 1)', label: 'Bouncy (Overshoot)' },
+  { value: 'cubic-bezier(0.22, 1, 0.36, 1)', label: 'Smooth Out' },
+  { value: 'cubic-bezier(0.4, 0, 0.2, 1)', label: 'Material Design' },
 ]
 
 /** Square A color options */

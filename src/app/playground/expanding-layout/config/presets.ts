@@ -4,30 +4,25 @@ import type { PlaygroundConfig, ConfigPreset } from './types'
 // FULL CONFIG PRESETS
 // =============================================================================
 
-/** Default preset - balanced spring animation */
+/** Default preset - balanced CSS animation */
 const PRESET_DEFAULT: Omit<PlaygroundConfig, 'configPreset'> = {
   // Layout
   containerCount: 3,
-  squareASize: 64,
-  squareBSize: 64,
-  gap: 12,
+  squareAWidth: 64,
+  squareAHeight: 64,
+  squareBWidthMode: 'fixed',
+  squareBWidth: 64,
+  squareBHeight: 64,
+  gap: 0,
   containerGap: 16,
   maxContainerWidth: 800,
 
-  // Animation Type
-  animationType: 'spring',
+  // Animation (CSS-based)
+  animationDuration: 300,
+  animationEasing: 'ease-out',
 
-  // Spring Settings
-  springStiffness: 300,
-  springDamping: 30,
-  springMass: 1,
-  springPreset: 'smooth',
-
-  // Tween Settings
-  tweenDuration: 300,
-  tweenEase: 'easeInOut',
-
-  // Square B Animation
+  // Square B Content Animation
+  squareBRevealMode: 'clip',
   squareBEntryDelay: 50,
   squareBEntryDuration: 200,
   squareBExitDuration: 150,
@@ -51,12 +46,11 @@ const PRESET_DEFAULT: Omit<PlaygroundConfig, 'configPreset'> = {
   reduceMotion: false,
 }
 
-/** Snappy preset - quick, responsive spring */
+/** Snappy preset - quick, responsive animation */
 const PRESET_SNAPPY: Omit<PlaygroundConfig, 'configPreset'> = {
   ...PRESET_DEFAULT,
-  springStiffness: 500,
-  springDamping: 35,
-  springPreset: 'snappy',
+  animationDuration: 200,
+  animationEasing: 'cubic-bezier(0.25, 0.1, 0.25, 1)',
   squareBEntryDelay: 30,
   squareBEntryDuration: 150,
   squareBExitDuration: 100,
@@ -65,21 +59,19 @@ const PRESET_SNAPPY: Omit<PlaygroundConfig, 'configPreset'> = {
 /** Bouncy preset - playful with overshoot */
 const PRESET_BOUNCY: Omit<PlaygroundConfig, 'configPreset'> = {
   ...PRESET_DEFAULT,
-  springStiffness: 400,
-  springDamping: 15,
-  springPreset: 'bouncy',
+  animationDuration: 400,
+  animationEasing: 'cubic-bezier(0.34, 1.56, 0.64, 1)', // Overshoot easing
   squareBEntryDelay: 80,
   squareBEntryDuration: 250,
   squareBExitDuration: 180,
   squareBEntryScale: 0.6,
 }
 
-/** Smooth preset - gentle tween animation */
+/** Smooth preset - gentle, refined animation */
 const PRESET_SMOOTH: Omit<PlaygroundConfig, 'configPreset'> = {
   ...PRESET_DEFAULT,
-  animationType: 'tween',
-  tweenDuration: 400,
-  tweenEase: 'easeInOut',
+  animationDuration: 400,
+  animationEasing: 'ease-in-out',
   squareBEntryDelay: 100,
   squareBEntryDuration: 300,
   squareBExitDuration: 200,

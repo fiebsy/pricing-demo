@@ -1,7 +1,7 @@
 import type { UnifiedControlPanelProps } from '@/components/ui/patterns/control-panel'
 import type { PlaygroundConfig } from '../config/types'
 import {
-  EASING_OPTIONS,
+  CSS_EASING_OPTIONS,
   SQUARE_A_COLOR_OPTIONS,
   SQUARE_B_COLOR_OPTIONS,
   PAGE_BACKGROUND_OPTIONS,
@@ -10,100 +10,12 @@ import {
 type UnifiedControlPanelConfig = UnifiedControlPanelProps['config']
 
 export function createPanelConfig(config: PlaygroundConfig): UnifiedControlPanelConfig {
-  // Build spring or tween groups based on animation type
-  const animationGroups =
-    config.animationType === 'spring'
-      ? [
-          {
-            title: 'Spring Preset',
-            controls: [
-              {
-                id: 'springPreset',
-                type: 'select' as const,
-                label: 'Preset',
-                value: config.springPreset,
-                options: [
-                  { value: 'smooth', label: 'Smooth' },
-                  { value: 'snappy', label: 'Snappy' },
-                  { value: 'soft', label: 'Soft' },
-                  { value: 'bouncy', label: 'Bouncy' },
-                  { value: 'custom', label: 'Custom' },
-                ],
-              },
-            ],
-          },
-          {
-            title: 'Spring Settings',
-            controls: [
-              {
-                id: 'springStiffness',
-                type: 'slider' as const,
-                label: 'Stiffness',
-                value: config.springStiffness,
-                min: 100,
-                max: 800,
-                step: 25,
-                formatLabel: (v: number) => `${v}`,
-              },
-              {
-                id: 'springDamping',
-                type: 'slider' as const,
-                label: 'Damping',
-                value: config.springDamping,
-                min: 5,
-                max: 60,
-                step: 1,
-                formatLabel: (v: number) => `${v}`,
-              },
-              {
-                id: 'springMass',
-                type: 'slider' as const,
-                label: 'Mass',
-                value: config.springMass,
-                min: 0.5,
-                max: 3,
-                step: 0.1,
-                formatLabel: (v: number) => `${v.toFixed(1)}`,
-              },
-            ],
-          },
-        ]
-      : [
-          {
-            title: 'Easing',
-            controls: [
-              {
-                id: 'tweenEase',
-                type: 'select' as const,
-                label: 'Easing',
-                value: config.tweenEase,
-                options: EASING_OPTIONS,
-              },
-            ],
-          },
-          {
-            title: 'Timing',
-            controls: [
-              {
-                id: 'tweenDuration',
-                type: 'slider' as const,
-                label: 'Duration',
-                value: config.tweenDuration,
-                min: 100,
-                max: 800,
-                step: 25,
-                formatLabel: (v: number) => `${v}ms`,
-              },
-            ],
-          },
-        ]
-
   return {
     sections: [
       {
         id: 'animation',
         title: 'Animation',
-        tabLabel: config.animationType === 'spring' ? 'Spring' : 'Tween',
+        tabLabel: 'Animation',
         groups: [
           {
             title: 'Config Preset',
@@ -117,28 +29,39 @@ export function createPanelConfig(config: PlaygroundConfig): UnifiedControlPanel
                   { value: 'default', label: 'Default (Balanced)' },
                   { value: 'snappy', label: 'Snappy (Quick)' },
                   { value: 'bouncy', label: 'Bouncy (Playful)' },
-                  { value: 'smooth', label: 'Smooth (Tween)' },
+                  { value: 'smooth', label: 'Smooth (Gentle)' },
                   { value: 'custom', label: 'Custom' },
                 ],
               },
             ],
           },
           {
-            title: 'Animation Type',
+            title: 'Timing',
             controls: [
               {
-                id: 'animationType',
-                type: 'select',
-                label: 'Type',
-                value: config.animationType,
-                options: [
-                  { value: 'spring', label: 'Spring (Physics)' },
-                  { value: 'tween', label: 'Tween (Duration)' },
-                ],
+                id: 'animationDuration',
+                type: 'slider',
+                label: 'Duration',
+                value: config.animationDuration,
+                min: 100,
+                max: 800,
+                step: 25,
+                formatLabel: (v: number) => `${v}ms`,
               },
             ],
           },
-          ...animationGroups,
+          {
+            title: 'Easing',
+            controls: [
+              {
+                id: 'animationEasing',
+                type: 'select',
+                label: 'Easing Curve',
+                value: config.animationEasing,
+                options: CSS_EASING_OPTIONS,
+              },
+            ],
+          },
         ],
       },
       {
@@ -146,6 +69,22 @@ export function createPanelConfig(config: PlaygroundConfig): UnifiedControlPanel
         title: 'Square B Animation',
         tabLabel: 'Square B',
         groups: [
+          {
+            title: 'Reveal Mode',
+            controls: [
+              {
+                id: 'squareBRevealMode',
+                type: 'select',
+                label: 'Mode',
+                value: config.squareBRevealMode,
+                options: [
+                  { value: 'clip', label: 'Clip (Wipe)' },
+                  { value: 'clip-circle', label: 'Clip (Circle)' },
+                  { value: 'fade', label: 'Fade + Scale' },
+                ],
+              },
+            ],
+          },
           {
             title: 'Timing',
             controls: [
@@ -181,31 +120,36 @@ export function createPanelConfig(config: PlaygroundConfig): UnifiedControlPanel
               },
             ],
           },
-          {
-            title: 'Entry Appearance',
-            controls: [
-              {
-                id: 'squareBEntryScale',
-                type: 'slider',
-                label: 'Initial Scale',
-                value: config.squareBEntryScale,
-                min: 0.5,
-                max: 1,
-                step: 0.05,
-                formatLabel: (v: number) => `${(v * 100).toFixed(0)}%`,
-              },
-              {
-                id: 'squareBEntryOpacity',
-                type: 'slider',
-                label: 'Initial Opacity',
-                value: config.squareBEntryOpacity,
-                min: 0,
-                max: 1,
-                step: 0.1,
-                formatLabel: (v: number) => `${(v * 100).toFixed(0)}%`,
-              },
-            ],
-          },
+          // Only show scale/opacity controls for fade mode
+          ...(config.squareBRevealMode === 'fade'
+            ? [
+                {
+                  title: 'Fade Appearance',
+                  controls: [
+                    {
+                      id: 'squareBEntryScale',
+                      type: 'slider' as const,
+                      label: 'Initial Scale',
+                      value: config.squareBEntryScale,
+                      min: 0.5,
+                      max: 1,
+                      step: 0.05,
+                      formatLabel: (v: number) => `${(v * 100).toFixed(0)}%`,
+                    },
+                    {
+                      id: 'squareBEntryOpacity',
+                      type: 'slider' as const,
+                      label: 'Initial Opacity',
+                      value: config.squareBEntryOpacity,
+                      min: 0,
+                      max: 1,
+                      step: 0.1,
+                      formatLabel: (v: number) => `${(v * 100).toFixed(0)}%`,
+                    },
+                  ],
+                },
+              ]
+            : []),
         ],
       },
       {
@@ -249,28 +193,73 @@ export function createPanelConfig(config: PlaygroundConfig): UnifiedControlPanel
             ],
           },
           {
-            title: 'Squares',
+            title: 'Square A',
             controls: [
               {
-                id: 'squareASize',
+                id: 'squareAWidth',
                 type: 'slider',
-                label: 'Square A Size',
-                value: config.squareASize,
+                label: 'Width',
+                value: config.squareAWidth,
                 min: 40,
                 max: 120,
                 step: 4,
                 formatLabel: (v: number) => `${v}px`,
               },
               {
-                id: 'squareBSize',
+                id: 'squareAHeight',
                 type: 'slider',
-                label: 'Square B Size',
-                value: config.squareBSize,
+                label: 'Height',
+                value: config.squareAHeight,
                 min: 40,
                 max: 120,
                 step: 4,
                 formatLabel: (v: number) => `${v}px`,
               },
+            ],
+          },
+          {
+            title: 'Square B',
+            controls: [
+              {
+                id: 'squareBWidthMode',
+                type: 'select',
+                label: 'Width Mode',
+                value: config.squareBWidthMode,
+                options: [
+                  { value: 'fixed', label: 'Fixed (px)' },
+                  { value: 'flex', label: 'Flex (fill)' },
+                ],
+              },
+              // Only show width slider when mode is fixed
+              ...(config.squareBWidthMode === 'fixed'
+                ? [
+                    {
+                      id: 'squareBWidth',
+                      type: 'slider' as const,
+                      label: 'Width',
+                      value: config.squareBWidth,
+                      min: 40,
+                      max: 120,
+                      step: 4,
+                      formatLabel: (v: number) => `${v}px`,
+                    },
+                  ]
+                : []),
+              {
+                id: 'squareBHeight',
+                type: 'slider',
+                label: 'Height',
+                value: config.squareBHeight,
+                min: 40,
+                max: 120,
+                step: 4,
+                formatLabel: (v: number) => `${v}px`,
+              },
+            ],
+          },
+          {
+            title: 'Spacing',
+            controls: [
               {
                 id: 'gap',
                 type: 'slider',
@@ -377,7 +366,7 @@ export function createPanelConfig(config: PlaygroundConfig): UnifiedControlPanel
               {
                 id: 'slowMoEnabled',
                 type: 'toggle',
-                label: 'Slow-Mo (0.1x)',
+                label: 'Slow-Mo (10x)',
                 value: config.slowMoEnabled,
               },
               {

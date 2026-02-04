@@ -2,8 +2,8 @@
  * Expanding Layout Playground
  *
  * Playground for experimenting with expanding layout animations using
- * Motion.dev's `layout` prop. Three containers side-by-side where clicking
- * one expands it (reveals hidden content) while pushing siblings.
+ * CSS Grid. Three containers side-by-side where clicking one expands it
+ * (reveals hidden content) while pushing siblings smoothly.
  *
  * @module playground/expanding-layout
  */
@@ -17,7 +17,6 @@ import {
 } from '@/components/ui/patterns/control-panel'
 
 import type { PlaygroundConfig, ConfigPreset, PageBackground } from './config/types'
-import { SPRING_PRESETS } from './config/options'
 import { CONFIG_PRESETS, DEFAULT_PLAYGROUND_CONFIG } from './config/presets'
 import { createPanelConfig } from './panels/panel-config'
 import { ExpandingLayout } from './core/expanding-layout'
@@ -55,32 +54,11 @@ export default function ExpandingLayoutPlayground() {
       }
     }
 
-    // Handle spring preset selection (within spring animation type)
-    if (controlId === 'springPreset' && value !== 'custom') {
-      const preset = SPRING_PRESETS[value as keyof typeof SPRING_PRESETS]
-      if (preset) {
-        setConfig((prev) => ({
-          ...prev,
-          springPreset: value as PlaygroundConfig['springPreset'],
-          springStiffness: preset.stiffness,
-          springDamping: preset.damping,
-          springMass: preset.mass,
-          configPreset: 'custom',
-        }))
-        return
-      }
-    }
-
-    // Handle manual spring adjustment - switch to custom presets
-    if (
-      controlId === 'springStiffness' ||
-      controlId === 'springDamping' ||
-      controlId === 'springMass'
-    ) {
+    // Handle animation setting changes - switch to custom preset
+    if (controlId === 'animationDuration' || controlId === 'animationEasing') {
       setConfig((prev) => ({
         ...prev,
         [controlId]: value,
-        springPreset: 'custom',
         configPreset: 'custom',
       }))
       return
@@ -111,25 +89,20 @@ export default function ExpandingLayoutPlayground() {
   const getConfigForCopy = useCallback(() => {
     return {
       config: {
-        animationType: config.animationType,
-        ...(config.animationType === 'spring'
-          ? {
-              springStiffness: config.springStiffness,
-              springDamping: config.springDamping,
-              springMass: config.springMass,
-            }
-          : {
-              tweenDuration: config.tweenDuration,
-              tweenEase: config.tweenEase,
-            }),
+        animationDuration: config.animationDuration,
+        animationEasing: config.animationEasing,
+        squareBRevealMode: config.squareBRevealMode,
         squareBEntryDelay: config.squareBEntryDelay,
         squareBEntryDuration: config.squareBEntryDuration,
         squareBExitDuration: config.squareBExitDuration,
         squareBEntryScale: config.squareBEntryScale,
         squareBEntryOpacity: config.squareBEntryOpacity,
         containerCount: config.containerCount,
-        squareASize: config.squareASize,
-        squareBSize: config.squareBSize,
+        squareAWidth: config.squareAWidth,
+        squareAHeight: config.squareAHeight,
+        squareBWidthMode: config.squareBWidthMode,
+        squareBWidth: config.squareBWidth,
+        squareBHeight: config.squareBHeight,
         gap: config.gap,
         containerGap: config.containerGap,
       },
