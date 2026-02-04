@@ -37,7 +37,7 @@ export const DEFAULT_ANIMATION_CONFIG: AnimationConfig = {
   stagger: 0.025,
   entryOffsetX: 6,
   entryOffsetY: 10,
-  childEntryDelay: 0.04,
+  childEntryDelay: 0,
   entryScale: 1,
   entryOpacity: 0,
   entryFromParent: true,
