@@ -84,8 +84,8 @@ export const DEFAULT_STYLE_CONFIG: StyleConfig = {
   childVariant: 'tab',
   anchoredVariant: 'secondary',
   selectedLeafVariant: 'tab',
-  reentryVariant: 'reentry',
-  demotingVariant: 'secondary',
+  reentryVariant: 'tab',
+  demotingVariant: 'reentry',
   // Level All Button - enabled by default
   showLevelAll: true,
   levelAllLabel: 'All',
