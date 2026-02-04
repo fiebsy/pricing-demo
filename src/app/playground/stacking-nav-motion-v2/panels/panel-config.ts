@@ -22,16 +22,21 @@ export function createPanelConfig(config: PlaygroundConfig): UnifiedControlPanel
                 label: 'Preset',
                 value: config.springPreset,
                 options: [
-                  { value: 'smooth', label: 'Smooth' },
-                  { value: 'snappy', label: 'Snappy' },
-                  { value: 'soft', label: 'Soft' },
-                  { value: 'subtle', label: 'Subtle' },
-                  { value: 'bouncy', label: 'Bouncy' },
-                  { value: 'heavy', label: 'Heavy' },
-                  { value: 'crisp', label: 'Crisp' },
-                  { value: 'swift', label: 'Swift' },
-                  { value: 'precise', label: 'Precise' },
-                  { value: 'responsive', label: 'Responsive' },
+                  // Slow
+                  { value: 'soft', label: 'Soft — Slowest' },
+                  { value: 'heavy', label: 'Heavy — Slow + Weighty' },
+                  // Medium
+                  { value: 'smooth', label: 'Smooth — Balanced' },
+                  { value: 'subtle', label: 'Subtle — Controlled' },
+                  { value: 'bouncy', label: 'Bouncy — Playful' },
+                  // Fast
+                  { value: 'snappy', label: 'Snappy — Quick' },
+                  { value: 'crisp', label: 'Crisp — Fast + Clean' },
+                  { value: 'precise', label: 'Precise — Fast + Tight' },
+                  // Fastest
+                  { value: 'swift', label: 'Swift — Very Fast' },
+                  { value: 'responsive', label: 'Responsive — Fastest' },
+                  // Custom
                   { value: 'custom', label: 'Custom' },
                 ],
               },
