@@ -268,6 +268,12 @@ export interface StackContextValue {
   demotingId: string | null
   /** Whether collapse is in progress */
   isCollapsing: boolean
+  /** Synchronous collapse detection for animation mode decisions */
+  isCollapsingSynchronous: boolean
+  /** Synchronous expand detection for entry animation mode decisions */
+  isExpandingSynchronous: boolean
+  /** Synchronous demoting ID for animation mode decisions */
+  demotingIdSynchronous: string | null
 
   /**
    * Check if a specific item is the one being promoted.
@@ -356,6 +362,12 @@ export interface ItemStateContext {
   demotingId: string | null
   /** Whether collapse animation is in progress */
   isCollapsing: boolean
+  /** Synchronous collapse detection for animation mode decisions */
+  isCollapsingSynchronous: boolean
+  /** Synchronous expand detection for entry animation mode decisions */
+  isExpandingSynchronous: boolean
+  /** Synchronous demoting ID for animation mode decisions */
+  demotingIdSynchronous: string | null
   /** Whether active item at this level is a leaf */
   activeItemIsLeaf: boolean
   /** Whether active child (one level deeper) is a leaf */

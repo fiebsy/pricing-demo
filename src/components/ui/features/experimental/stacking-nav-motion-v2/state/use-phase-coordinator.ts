@@ -50,6 +50,12 @@ export interface PhaseCoordinatorReturn {
   // Derived states for rendering
   /** Whether collapse is in progress */
   isCollapsing: boolean
+  /** Synchronous collapse detection for animation mode decisions */
+  isCollapsingSynchronous: boolean
+  /** Synchronous expand detection for entry animation mode decisions */
+  isExpandingSynchronous: boolean
+  /** Synchronous demoting ID for animation mode decisions */
+  demotingIdSynchronous: string | null
   /** ID of item being promoted */
   promotingId: string | null
   /** ID of item being demoted during collapse */
@@ -140,7 +146,23 @@ export function usePhaseCoordinator(config: PhaseCoordinatorConfig): PhaseCoordi
     timeScale: animationConfig.timeScale,
     syncChildEntryToPromotion: animationConfig.syncChildEntryToPromotion,
     promotionChildOffset: animationConfig.promotionChildOffset,
+    demotionEntryDelay: animationConfig.demotionEntryDelay,
+    demotionStagger: animationConfig.demotionStagger,
   }
+
+  // SYNCHRONOUS collapse detection - available during render
+  // previousPathRef holds the path from the PREVIOUS render (updated in useEffect at line 361)
+  // This allows us to detect collapse BEFORE the effect runs
+  const isCollapsingSynchronous = activePath.length < previousPathRef.current.length
+
+  // SYNCHRONOUS expand detection - for entry animations on first render
+  const isExpandingSynchronous = activePath.length > previousPathRef.current.length
+
+  // SYNCHRONOUS demoting ID - the item that was active at the collapse level
+  // e.g., if prevPath = ['payments', 'process'] and activePath = [], demotingId = 'payments'
+  const demotingIdSynchronous = isCollapsingSynchronous
+    ? previousPathRef.current[activePath.length] ?? null
+    : null
 
   /**
    * Transition to a new phase with proper timing.
@@ -249,10 +271,29 @@ export function usePhaseCoordinator(config: PhaseCoordinatorConfig): PhaseCoordi
       // e.g., if prevPath = ['payments', 'process'] and currentPath = [], demotingId = 'payments'
       const demotingId = prevPath[currentLength] ?? null
       const demotingLevel = currentLength
+
+      // Calculate sibling count for phase duration (items reentering at the collapsed level)
+      // These are the children of the item at currentLength-1 in the path
+      let reenteringSiblingCount = 0
+      if (currentLength > 0) {
+        // Find the parent item at the level we're collapsing TO
+        const parentId = activePath[currentLength - 1]
+        const parentItem = findItemById(items, parentId)
+        reenteringSiblingCount = parentItem?.children?.length ?? 0
+        // Add Level-All if enabled
+        if (showLevelAll && currentLength > 0) {
+          reenteringSiblingCount += 1
+        }
+      } else {
+        // Collapsing to root - count L0 items
+        reenteringSiblingCount = items.length
+      }
+
       transitionTo(NavigationPhase.COLLAPSING, {
         demotingId,
         demotingLevel,
         trigger: `collapse: ${prevLength} → ${currentLength} (demoting: ${demotingId})`,
+        childCount: reenteringSiblingCount,
       })
     } else if (isExpand) {
       // Path lengthened - check if promotion (child becoming parent)
@@ -419,6 +460,9 @@ export function usePhaseCoordinator(config: PhaseCoordinatorConfig): PhaseCoordi
     isAnimating,
     getPhaseProgress,
     isCollapsing,
+    isCollapsingSynchronous,
+    isExpandingSynchronous,
+    demotingIdSynchronous,
     promotingId: phaseState.promotingId,
     demotingId: phaseState.demotingId,
     isItemPromoting,

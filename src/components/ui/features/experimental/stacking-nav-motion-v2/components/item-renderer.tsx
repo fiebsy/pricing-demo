@@ -85,6 +85,15 @@ export function ItemRenderer({
             scale: animationConfig.demotionEntryScale,
           }
       break
+    case 'collapse-demote':
+      // Demoting parent: previously-expanded item returning to sibling status
+      initial = shouldReduceMotion
+        ? undefined
+        : {
+            opacity: animationConfig.demotionEntryOpacity,
+            scale: animationConfig.demotionEntryScale,
+          }
+      break
     case 'promote-entry':
       // Children entering during promotion - explicit initial state like collapse-reentry
       initial = shouldReduceMotion
@@ -132,7 +141,9 @@ export function ItemRenderer({
 
   // Entry modes should have a delay - promoting/anchored items animate immediately
   const shouldHaveDelay =
-    animationMode === 'promote-entry' || animationMode === 'collapse-reentry'
+    animationMode === 'promote-entry' ||
+    animationMode === 'collapse-reentry' ||
+    animationMode === 'collapse-demote'
   const effectiveDelay = shouldHaveDelay ? animationDelay : 0
 
   let transition: Transition

@@ -141,6 +141,10 @@ export interface PhaseDurationConfig {
   syncChildEntryToPromotion: boolean
   /** Additional delay for children during promotion */
   promotionChildOffset: number
+  /** Delay before demotion/reentry animations start in seconds */
+  demotionEntryDelay: number
+  /** Stagger between reentry items in seconds */
+  demotionStagger: number
 }
 
 /**
@@ -165,8 +169,17 @@ export function calculatePhaseDuration(
     }
 
     case NavigationPhase.COLLAPSING: {
-      // Collapse layout duration + buffer for exit animations
-      const collapseTime = config.collapseLayoutDuration + COLLAPSE_BUFFER_SECONDS
+      // Collapse phase completes when BOTH:
+      // 1. Layout transition finishes (collapseLayoutDuration)
+      // 2. Reentry animations finish (demotionEntryDelay + stagger + duration)
+      const layoutTime = config.collapseLayoutDuration + COLLAPSE_BUFFER_SECONDS
+
+      // Reentry timing: last sibling finishes at demotionEntryDelay + (N-1) * demotionStagger + duration
+      const lastSiblingIndex = Math.max(0, childCount - 1)
+      const reentryTime = config.demotionEntryDelay + lastSiblingIndex * config.demotionStagger + config.duration
+
+      // Phase completes when whichever takes longer finishes
+      const collapseTime = Math.max(layoutTime, reentryTime)
       return (collapseTime * 1000) / scale
     }
 

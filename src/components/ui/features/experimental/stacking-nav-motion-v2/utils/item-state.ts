@@ -32,6 +32,9 @@ export function computeItemState(ctx: ItemStateContext): ItemRenderState {
     promotingId,
     demotingId,
     isCollapsing,
+    isCollapsingSynchronous,
+    isExpandingSynchronous,
+    demotingIdSynchronous,
     activeItemIsLeaf,
     activeChildIsLeaf,
     // showLevelAll is available but not used in core logic
@@ -46,6 +49,8 @@ export function computeItemState(ctx: ItemStateContext): ItemRenderState {
   const isLeafNode = !hasChildren
   const isPromoting = item.id === promotingId
   const isDemoting = item.id === demotingId
+  // Synchronous demoting detection for animation mode decisions (before effect runs)
+  const isDemotingSynchronous = item.id === demotingIdSynchronous
 
   // --- Sibling visibility ------------------------------------------------
   const shouldHide =
@@ -84,15 +89,18 @@ export function computeItemState(ctx: ItemStateContext): ItemRenderState {
     animationMode = 'anchor'
   } else if (isPromoting) {
     animationMode = 'promote'
-  } else if (isCollapsing && isDemoting) {
+  } else if (isCollapsingSynchronous && isDemotingSynchronous) {
+    // Use synchronous detection to ensure animation mode is correct on first render
     // The previously-expanded parent returning to sibling status
     animationMode = 'collapse-demote'
-  } else if (isCollapsing && !isActive) {
+  } else if (isCollapsingSynchronous && !isActive) {
+    // Use synchronous detection to ensure animation mode is correct on first render
     // Siblings reappearing during collapse - applies at any level
     animationMode = 'collapse-reentry'
-  } else if (isPromotingPhase && !isActive) {
+  } else if ((isExpandingSynchronous || isPromotingPhase) && !isActive) {
     // Items entering during expansion (promotion or simple expand)
-    // L0 items now receive entry animations same as L1+ items
+    // Use synchronous detection (isExpandingSynchronous) for first render when phase hasn't updated yet
+    // Use async detection (isPromotingPhase) for subsequent renders
     animationMode = 'promote-entry'
   } else {
     // Default: items that are already visible or don't need entry animation
@@ -116,7 +124,10 @@ export function computeItemState(ctx: ItemStateContext): ItemRenderState {
     isActive,
     isAnchored,
     isPromoting,
+    isDemoting,
+    isDemotingSynchronous,
     isCollapsing,
+    isCollapsingSynchronous,
     isPromotingPhase,
     shouldHide,
   })

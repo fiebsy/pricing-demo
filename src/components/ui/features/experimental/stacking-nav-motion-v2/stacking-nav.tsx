@@ -91,6 +91,9 @@ export function StackingNav({
     phaseStartTime,
     isAnimating,
     isCollapsing,
+    isCollapsingSynchronous,
+    isExpandingSynchronous,
+    demotingIdSynchronous,
     promotingId,
     demotingId,
     isItemPromoting,
@@ -159,6 +162,9 @@ export function StackingNav({
       phaseStartTime,
       isAnimating,
       isCollapsing,
+      isCollapsingSynchronous,
+      isExpandingSynchronous,
+      demotingIdSynchronous,
       promotingId,
       demotingId,
       isItemPromoting,
@@ -180,6 +186,9 @@ export function StackingNav({
       phaseStartTime,
       isAnimating,
       isCollapsing,
+      isCollapsingSynchronous,
+      isExpandingSynchronous,
+      demotingIdSynchronous,
       promotingId,
       demotingId,
       isItemPromoting,
@@ -223,6 +232,8 @@ export function StackingNav({
             phase={phase}
             phaseStartTime={phaseStartTime}
             transitionHistory={transitionHistory}
+            promotingId={promotingId}
+            demotingId={demotingId}
           />
         )}
       </LevelContext.Provider>

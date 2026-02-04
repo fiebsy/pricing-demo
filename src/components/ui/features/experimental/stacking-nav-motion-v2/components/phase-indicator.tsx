@@ -16,6 +16,8 @@ interface PhaseIndicatorProps {
   phase: NavigationPhase
   phaseStartTime: number
   transitionHistory: PhaseTransitionRecord[]
+  promotingId?: string | null
+  demotingId?: string | null
 }
 
 /**
@@ -26,6 +28,8 @@ export function PhaseIndicator({
   phase,
   phaseStartTime,
   transitionHistory,
+  promotingId,
+  demotingId,
 }: PhaseIndicatorProps) {
   const [elapsed, setElapsed] = useState(0)
 
@@ -58,6 +62,24 @@ export function PhaseIndicator({
         </span>
         <span className="ml-auto text-gray-400">{elapsed.toFixed(0)}ms</span>
       </div>
+
+      {/* Active IDs */}
+      {(promotingId || demotingId) && (
+        <div className="mb-2 space-y-1 text-[10px]">
+          {promotingId && (
+            <div className="flex items-center gap-2">
+              <span className="text-purple-400">promoting:</span>
+              <span className="text-white">{promotingId}</span>
+            </div>
+          )}
+          {demotingId && (
+            <div className="flex items-center gap-2">
+              <span className="text-pink-400">demoting:</span>
+              <span className="text-white">{demotingId}</span>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Progress Bar */}
       <div className="mb-3 h-1.5 w-full overflow-hidden rounded-full bg-gray-700">

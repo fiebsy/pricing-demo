@@ -98,6 +98,7 @@ export const AnimatedItem = React.memo(function AnimatedItem({
     selectItem,
     collapseToLevel,
     phase,
+    demotingId,
   } = useStackContext()
 
   const { level } = useLevelContext()
@@ -116,6 +117,12 @@ export const AnimatedItem = React.memo(function AnimatedItem({
   // Child items at any level (L0 included) - excludes root anchor which has special handling
   const isChildItem = !isInActivePath && !isRootAnchor
 
+  // Phase-based state detection (persists throughout the phase, unlike props which only work for one render)
+  // These are used for both badge display AND variant selection
+  const isCollapsingPhase = phase === NavigationPhase.COLLAPSING
+  const isDemotingForPhase = isCollapsingPhase && item.id === demotingId
+  const isReentryForPhase = isCollapsingPhase && isChildItem && !isDemotingForPhase
+
   // Determine variant
   let variant: ButtonVariant = 'tertiary'
   if (isRootAllActiveByDefault) {
@@ -130,11 +137,13 @@ export const AnimatedItem = React.memo(function AnimatedItem({
   } else if (isSelected) {
     // Use selectedLeafVariant for leaf nodes that are selected
     variant = styleConfig.selectedLeafVariant
-  } else if (isDemoting) {
+  } else if (isDemotingForPhase) {
     // Demoting variant for the previously-expanded parent returning to sibling
+    // Uses phase-based detection to persist throughout COLLAPSING phase
     variant = styleConfig.demotingVariant
-  } else if (isReentry) {
+  } else if (isReentryForPhase) {
     // Reentry variant for siblings reappearing during collapse
+    // Uses phase-based detection to persist throughout COLLAPSING phase
     variant = styleConfig.reentryVariant
   } else if (isChildItem) {
     variant = styleConfig.childVariant
@@ -171,15 +180,19 @@ export const AnimatedItem = React.memo(function AnimatedItem({
   // Determine display state for debug badge
   const displayState = isPromoting
     ? 'promoting'
-    : isAnchored
-      ? 'anchored'
-      : isSelected
-        ? 'active'
-        : isChildItem
-          ? 'child'
-          : isExpanded
+    : isDemoting
+      ? 'demoting'
+      : isReentry
+        ? 'reentry'
+        : isAnchored
+          ? 'anchored'
+          : isSelected
             ? 'active'
-            : 'idle'
+            : isChildItem
+              ? 'child'
+              : isExpanded
+                ? 'active'
+                : 'idle'
 
   // Phase-based transition indicator
   const isTransitioning =
@@ -238,7 +251,7 @@ export const AnimatedItem = React.memo(function AnimatedItem({
               // Transition states take priority (with pulse animation)
               isPromoting && phase === NavigationPhase.PROMOTING
                 ? 'animate-pulse border-purple-600 bg-purple-500 text-white'
-                : phase === NavigationPhase.COLLAPSING && isDemoting
+                : isDemotingForPhase
                   ? 'animate-pulse border-pink-600 bg-pink-500 text-white'
                   : phase === NavigationPhase.COLLAPSING && isChildItem
                     ? 'animate-pulse border-orange-600 bg-orange-500 text-white'
@@ -263,8 +276,8 @@ export const AnimatedItem = React.memo(function AnimatedItem({
                   <span className="text-[8px]">
                     {isPromoting && phase === NavigationPhase.PROMOTING && '↑'}
                     {phase === NavigationPhase.COLLAPSING && isAnchored && '↓'}
-                    {phase === NavigationPhase.COLLAPSING && isDemoting && '↙'}
-                    {phase === NavigationPhase.COLLAPSING && isChildItem && !isDemoting && '←'}
+                    {isDemotingForPhase && '↙'}
+                    {phase === NavigationPhase.COLLAPSING && isChildItem && !isDemotingForPhase && '←'}
                     {phase === NavigationPhase.EXPANDING && isChildItem && '→'}
                   </span>
                 )}
@@ -274,7 +287,7 @@ export const AnimatedItem = React.memo(function AnimatedItem({
                     ? 'PROMOTING'
                     : phase === NavigationPhase.COLLAPSING && isAnchored
                       ? 'COLLAPSING'
-                      : phase === NavigationPhase.COLLAPSING && isDemoting
+                      : isDemotingForPhase
                         ? 'DEMOTING'
                         : phase === NavigationPhase.COLLAPSING && isChildItem
                           ? 'REENTRY'
@@ -305,7 +318,7 @@ export const AnimatedItem = React.memo(function AnimatedItem({
                 'h-2 w-px',
                 isPromoting && phase === NavigationPhase.PROMOTING
                   ? 'bg-purple-500/60'
-                  : phase === NavigationPhase.COLLAPSING && isDemoting
+                  : isDemotingForPhase
                     ? 'bg-pink-500/60'
                     : phase === NavigationPhase.COLLAPSING
                       ? 'bg-orange-500/60'
@@ -327,7 +340,7 @@ export const AnimatedItem = React.memo(function AnimatedItem({
                 'h-0 w-0 border-l-[4px] border-r-[4px] border-t-[5px] border-l-transparent border-r-transparent',
                 isPromoting && phase === NavigationPhase.PROMOTING
                   ? 'border-t-purple-500/60'
-                  : phase === NavigationPhase.COLLAPSING && isDemoting
+                  : isDemotingForPhase
                     ? 'border-t-pink-500/60'
                     : phase === NavigationPhase.COLLAPSING
                       ? 'border-t-orange-500/60'
