@@ -589,7 +589,7 @@ export default function StackingNavTablePlayground() {
       {/* Scoped styles — opacity/mute targets table body only, toolbar stays full */}
       <style dangerouslySetInnerHTML={{ __html: tableScopedCSS }} />
 
-      <div className="pr-[352px] min-h-screen">
+      <div className="min-h-screen">
         <div ref={contentWrapperRef} className="mx-auto px-6 mb-20" style={{ paddingTop: config.pageTopGap, maxWidth: config.pageMaxWidth }}>
           {/* Data Table with Nav in Toolbar */}
           <StickyDataTable<Record<string, unknown>>

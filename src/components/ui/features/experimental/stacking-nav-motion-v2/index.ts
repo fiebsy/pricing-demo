@@ -48,7 +48,10 @@ export type {
   // Component props (internal)
   StackLevelProps,
 
-  // Context
+  // Context (split for performance)
+  PhaseContextValue,
+  ConfigContextValue,
+  NavigationContextValue,
   StackContextValue,
   LevelContextValue,
 
@@ -145,12 +148,23 @@ export {
 } from './utils'
 
 // =============================================================================
-// CONTEXT
+// CONTEXT (Split for performance)
 // =============================================================================
 
 export {
+  // Split contexts (prefer these for better performance)
+  PhaseContext,
+  usePhaseContext,
+  ConfigContext,
+  useConfigContext,
+  NavigationContext,
+  useNavigationContext,
+
+  // Combined context (for backward compatibility)
   StackContext,
   useStackContext,
+
+  // Level context
   LevelContext,
   useLevelContext,
 } from './context'

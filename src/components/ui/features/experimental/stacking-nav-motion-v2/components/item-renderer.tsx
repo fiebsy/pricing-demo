@@ -9,6 +9,7 @@
 
 'use client'
 
+import * as React from 'react'
 import { motion, type TargetAndTransition, type Transition } from 'motion/react'
 import { cn } from '@/lib/utils'
 import type { StackItem, AnimationConfig } from '../types'
@@ -34,7 +35,59 @@ interface ItemRendererProps {
   parentAnchoredOffset: number
 }
 
-export function ItemRenderer({
+/**
+ * Shallow array equality check for levelIndices.
+ */
+function arraysShallowEqual(a: number[], b: number[]): boolean {
+  if (a.length !== b.length) return false
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] !== b[i]) return false
+  }
+  return true
+}
+
+/**
+ * Custom comparison function for ItemRenderer memoization.
+ * Only re-renders when props that affect visual output change.
+ */
+function areItemRendererPropsEqual(
+  prev: ItemRendererProps,
+  next: ItemRendererProps
+): boolean {
+  return (
+    prev.item.id === next.item.id &&
+    prev.item.label === next.item.label &&
+    prev.itemIndex === next.itemIndex &&
+    arraysShallowEqual(prev.itemLevelIndices, next.itemLevelIndices) &&
+    prev.state.animationMode === next.state.animationMode &&
+    prev.state.isAnchored === next.state.isAnchored &&
+    prev.state.isPromoting === next.state.isPromoting &&
+    prev.state.targetOffset === next.state.targetOffset &&
+    prev.state.zIndex === next.state.zIndex &&
+    prev.state.animationDelay === next.state.animationDelay &&
+    prev.state.shouldUseAbsolute === next.state.shouldUseAbsolute &&
+    prev.isCollapsing === next.isCollapsing &&
+    prev.isHoverSuppressed === next.isHoverSuppressed &&
+    prev.parentAnchoredOffset === next.parentAnchoredOffset &&
+    prev.shouldReduceMotion === next.shouldReduceMotion &&
+    // AnimationConfig comparison - only compare fields used in this component
+    prev.animationConfig.type === next.animationConfig.type &&
+    prev.animationConfig.stiffness === next.animationConfig.stiffness &&
+    prev.animationConfig.damping === next.animationConfig.damping &&
+    prev.animationConfig.mass === next.animationConfig.mass &&
+    prev.animationConfig.duration === next.animationConfig.duration &&
+    prev.animationConfig.ease === next.animationConfig.ease &&
+    prev.animationConfig.promotionDuration === next.animationConfig.promotionDuration &&
+    prev.animationConfig.promotionScale === next.animationConfig.promotionScale &&
+    prev.animationConfig.timeScale === next.animationConfig.timeScale &&
+    prev.animationConfig.demotionEntryOpacity === next.animationConfig.demotionEntryOpacity &&
+    prev.animationConfig.demotionEntryScale === next.animationConfig.demotionEntryScale &&
+    prev.animationConfig.entryOpacity === next.animationConfig.entryOpacity &&
+    prev.animationConfig.entryScale === next.animationConfig.entryScale
+  )
+}
+
+function ItemRendererComponent({
   item,
   itemIndex,
   itemLevelIndices,
@@ -204,3 +257,9 @@ export function ItemRenderer({
     </motion.div>
   )
 }
+
+/**
+ * Memoized ItemRenderer - prevents re-renders when props haven't changed.
+ * Uses custom comparison to check only fields that affect visual output.
+ */
+export const ItemRenderer = React.memo(ItemRendererComponent, areItemRendererPropsEqual)

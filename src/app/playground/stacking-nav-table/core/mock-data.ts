@@ -313,7 +313,7 @@ const WESTEROS_TARGARYEN: CharacterDef[] = [
   { name: 'Viserys', energy: E.NPCEnergy, threatLevel: T.BTier, origin: 'House of the Dragon', description: 'Kept peace, started war', archetype: 'neutral' },
   { name: 'Missandei', energy: E.SideQuest, threatLevel: T.MemeTier, origin: 'Game of Thrones', description: 'Deserved so much better', archetype: 'neutral' },
   { name: 'Grey Worm', energy: E.SideQuest, threatLevel: T.ATier, origin: 'Game of Thrones', description: 'Stoic with depth', archetype: 'pure-hero' },
-  { name: 'Aegon', energy: E.VillainArc, threatLevel: T.ATier, origin: 'House of the Dragon', description: 'Failson every timeline', archetype: 'villain' },
+  { name: 'Aegon', energy: E.VillainArc, threatLevel: T.ATier, origin: 'House of the Dragon', description: 'Fails in every timeline', archetype: 'villain' },
   { name: 'Rhaenys', energy: E.MainCharacter, threatLevel: T.STier, origin: 'House of the Dragon', description: 'Queen who never was', archetype: 'anti-hero' },
   { name: 'Jorah', energy: E.SideQuest, threatLevel: T.ATier, origin: 'Game of Thrones', description: 'Friendzoned to death', archetype: 'redeemed' },
 ]

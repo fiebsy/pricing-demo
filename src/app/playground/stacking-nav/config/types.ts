@@ -4,13 +4,13 @@ import type {
   ButtonVariant,
   ButtonSize,
   ButtonRoundness,
-} from '@/components/ui/features/stacking-nav'
+} from '@/components/ui/features/stacking-nav-motion'
 
 // =============================================================================
 // TYPE ALIASES
 // =============================================================================
 
-export type ConfigPreset = 'default' | 'spring' | 'custom'
+export type ConfigPreset = 'default' | 'spring' | 'slowSpring' | 'custom'
 
 export type NavVariant = 'orders' | 'products' | 'content'
 
@@ -38,6 +38,10 @@ export type PageBackground =
 // PLAYGROUND CONFIG INTERFACE
 // =============================================================================
 
+/**
+ * Playground config for stacking-nav.
+ * Includes phase debug controls.
+ */
 export interface PlaygroundConfig {
   // Config Preset
   configPreset: ConfigPreset
@@ -48,7 +52,8 @@ export interface PlaygroundConfig {
   // Spring Animation
   springStiffness: number
   springDamping: number
-  springPreset: 'custom' | 'smooth' | 'snappy' | 'soft' | 'bouncy'
+  springMass: number
+  springPreset: 'custom' | 'smooth' | 'snappy' | 'soft' | 'subtle' | 'bouncy' | 'heavy' | 'crisp' | 'swift' | 'precise' | 'responsive' | 'lively' | 'brisk'
 
   // Tween/Easing Animation
   tweenDuration: number
@@ -57,16 +62,6 @@ export interface PlaygroundConfig {
   // Promotion Animation
   promotionDuration: number
   promotionScale: number
-  promotionDelay: number           // ms in playground
-  promotionOpacity: number
-  promotionVariant: ButtonVariant | 'none'
-
-  // Demotion Animation
-  demotionDuration: number
-  demotionScale: number
-  demotionDelay: number          // ms in playground
-  demotionOpacity: number
-  demotionVariant: ButtonVariant | 'none'
 
   // Child Animation
   childStagger: number
@@ -75,14 +70,27 @@ export interface PlaygroundConfig {
   entryOffsetY: number
   childEntryDelay: number
   childEntryScale: number
+  childEntryOpacity: number
+  entryFromParent: boolean
+  entryInstant: boolean
+
+  // Promotion Sequencing
+  syncChildEntryToPromotion: boolean
+  promotionChildOffset: number // ms for UI sliders
+
+  // Demotion Entry (siblings reappearing during collapse)
+  demotionEntryDelay: number // ms in playground
+  demotionStagger: number // ms in playground
+  demotionEntryOpacity: number
+  demotionEntryScale: number
 
   // Exit Animation
   exitScale: number
   exitUseCustomTiming: boolean
-  exitDuration: number        // ms in playground
+  exitDuration: number // ms in playground
   exitEase: EasingType
-  exitDelay: number           // ms in playground
-  collapseLayoutDuration: number  // ms in playground
+  exitDelay: number // ms in playground
+  collapseLayoutDuration: number // ms in playground
 
   // Leaf Node Behavior
   skipLeafAnimation: boolean
@@ -96,15 +104,12 @@ export interface PlaygroundConfig {
   childVariant: ButtonVariant
   anchoredVariant: ButtonVariant
   selectedLeafVariant: ButtonVariant
+  reentryVariant: ButtonVariant
+  demotingVariant: ButtonVariant
 
   // Stacking
   peekOffset: number
   anchoredOpacity: number
-  clipAnchored: boolean
-  clipAnimated: boolean
-  clipOffset: number
-  clipSide: 'left' | 'right' | 'center'
-  clipDelay: number // ms in playground
 
   // Layout
   gap: 'sm' | 'md' | 'lg'
@@ -129,5 +134,17 @@ export interface PlaygroundConfig {
   hoverDelay: number // ms in playground
 
   // Debug/Inspection
-  timeScale: number // 1 = normal, 0.1 = 10x slower (slow-mo), 2 = 2x faster
+  slowMoEnabled: boolean // false = normal (1x), true = slow-mo (0.1x)
+
+  // Phase Indicator
+  showPhaseIndicator: boolean
+
+  // Container debug
+  containerWidth: number // px
+  showContainerBounds: boolean
+
+  // Container overflow
+  containerOverflow: 'visible' | 'hidden' | 'clip'
+  showOverflowGradient: boolean
+  gradientWidth: number // px
 }

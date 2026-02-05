@@ -1,4 +1,4 @@
-import type { EasingType, ButtonVariant } from '@/components/ui/features/stacking-nav'
+import type { EasingType, ButtonVariant } from '@/components/ui/features/stacking-nav-motion'
 import type { EntryDirection } from './types'
 
 // =============================================================================
@@ -7,10 +7,18 @@ import type { EntryDirection } from './types'
 
 /** Spring presets for spring animation tuning */
 export const SPRING_PRESETS = {
-  smooth: { stiffness: 500, damping: 30 },
-  snappy: { stiffness: 700, damping: 35 },
-  soft: { stiffness: 300, damping: 25 },
-  bouncy: { stiffness: 400, damping: 15 },
+  smooth: { stiffness: 500, damping: 30, mass: 1 },
+  snappy: { stiffness: 700, damping: 35, mass: 0.8 },
+  soft: { stiffness: 300, damping: 25, mass: 1 },
+  subtle: { stiffness: 400, damping: 40, mass: 1.2 },
+  bouncy: { stiffness: 400, damping: 15, mass: 1 },
+  heavy: { stiffness: 300, damping: 30, mass: 2 },
+  crisp: { stiffness: 650, damping: 45, mass: 0.9 },
+  swift: { stiffness: 700, damping: 50, mass: 0.8 },
+  precise: { stiffness: 600, damping: 55, mass: 1 },
+  responsive: { stiffness: 750, damping: 40, mass: 0.7 },
+  lively: { stiffness: 700, damping: 22, mass: 0.8 },
+  brisk: { stiffness: 700, damping: 41, mass: 1 },
 }
 
 /** Easing presets for quick selection */
@@ -32,7 +40,10 @@ export const EASING_OPTIONS: { value: EasingType; label: string }[] = [
 ]
 
 /** Entry direction presets */
-export const ENTRY_DIRECTION_PRESETS: Record<Exclude<EntryDirection, 'custom'>, { x: number; y: number }> = {
+export const ENTRY_DIRECTION_PRESETS: Record<
+  Exclude<EntryDirection, 'custom'>,
+  { x: number; y: number }
+> = {
   up: { x: 0, y: 12 },
   down: { x: 0, y: -12 },
   left: { x: 12, y: 0 },
@@ -63,6 +74,7 @@ export const BUTTON_VARIANT_OPTIONS: { value: ButtonVariant; label: string }[] =
   { value: 'primary', label: 'Primary' },
   { value: 'secondary', label: 'Secondary' },
   { value: 'tertiary', label: 'Tertiary' },
+  { value: 'reentry', label: 'Reentry' },
   { value: 'shine', label: 'Shine' },
   { value: 'tab', label: 'Tab' },
   { value: 'link-gray', label: 'Link Gray' },

@@ -9,6 +9,7 @@
 
 'use client'
 
+import * as React from 'react'
 import { AnimatePresence } from 'motion/react'
 
 import { useStackContext, useLevelContext, LevelContext } from '../context'
@@ -23,10 +24,54 @@ import { LevelAllRenderer } from './level-all-renderer'
 import { ItemRenderer } from './item-renderer'
 
 /**
+ * Shallow array equality check for items (by id).
+ */
+function areItemsEqual(a: StackItem[], b: StackItem[]): boolean {
+  if (a.length !== b.length) return false
+  for (let i = 0; i < a.length; i++) {
+    if (a[i].id !== b[i].id) return false
+    if (a[i].label !== b[i].label) return false
+    // Compare children existence (not deep)
+    const aChildren = a[i].children
+    const bChildren = b[i].children
+    const aHasChildren = aChildren && aChildren.length > 0
+    const bHasChildren = bChildren && bChildren.length > 0
+    if (aHasChildren !== bHasChildren) return false
+  }
+  return true
+}
+
+/**
+ * Shallow array equality check for level indices.
+ */
+function arraysShallowEqual(a: number[], b: number[]): boolean {
+  if (a.length !== b.length) return false
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] !== b[i]) return false
+  }
+  return true
+}
+
+/**
+ * Custom comparison for StackLevel memoization.
+ * Note: StackLevel uses context heavily, so memoization is limited
+ * to preventing re-renders from parent when items haven't changed.
+ */
+function areStackLevelPropsEqual(
+  prev: StackLevelProps,
+  next: StackLevelProps
+): boolean {
+  return (
+    areItemsEqual(prev.items, next.items) &&
+    arraysShallowEqual(prev.parentLevelIndices ?? [], next.parentLevelIndices ?? [])
+  )
+}
+
+/**
  * Renders items at a specific level of the navigation tree.
  * V2: Reads phase state from context instead of using independent hooks.
  */
-export function StackLevel({ items, parentLevelIndices = [] }: StackLevelProps) {
+function StackLevelComponent({ items, parentLevelIndices = [] }: StackLevelProps) {
   const {
     activePath,
     animationConfig,
@@ -255,3 +300,9 @@ export function StackLevel({ items, parentLevelIndices = [] }: StackLevelProps) 
     </>
   )
 }
+
+/**
+ * Memoized StackLevel - prevents re-renders when items haven't changed.
+ * Note: Context changes will still trigger re-renders (expected behavior).
+ */
+export const StackLevel = React.memo(StackLevelComponent, areStackLevelPropsEqual)

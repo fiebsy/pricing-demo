@@ -1,4 +1,4 @@
-import type { StackItem } from '@/components/ui/features/stacking-nav'
+import type { StackItem } from '@/components/ui/features/stacking-nav-motion'
 import type { NavVariant } from './types'
 
 // =============================================================================
@@ -6,25 +6,14 @@ import type { NavVariant } from './types'
 // =============================================================================
 
 /**
- * NAMING CONVENTION FOR STACKING NAV LEVELS:
- *
- * L0 (Root):     "All" button - resets to show everything
- * L1 (Primary):  Core category (6-10 chars) - broad filter type
- * L2 (Secondary): State/Type filter (6-10 chars) - narrows down L1
- * L3 (Tertiary): Specific detail (6-10 chars) - final drill-down
- *
- * All button labels (except "All") should be 6-10 characters for proper stacking.
+ * Demo navigation data for playground testing.
  */
 
-/**
- * VARIANT 1: Orders - Progressive order filtering
- * L0: All → L1: Order Type → L2: Order Status → L3: Sub-status details
- */
 const ORDERS_ITEMS: StackItem[] = [
   { id: 'all', label: 'All' },
   {
     id: 'invoices',
-    label: 'Invoicesssss',
+    label: 'Invoices',
     children: [
       {
         id: 'inv-pending',
@@ -83,10 +72,6 @@ const ORDERS_ITEMS: StackItem[] = [
   },
 ]
 
-/**
- * VARIANT 2: Products - E-commerce product filtering
- * L0: All → L1: Product Category → L2: Brand/Collection → L3: Product Type
- */
 const PRODUCTS_ITEMS: StackItem[] = [
   { id: 'all', label: 'All' },
   {
@@ -151,10 +136,6 @@ const PRODUCTS_ITEMS: StackItem[] = [
   },
 ]
 
-/**
- * VARIANT 3: Content - Content management navigation
- * L0: All → L1: Content Section → L2: Content Format → L3: Content Status
- */
 const CONTENT_ITEMS: StackItem[] = [
   { id: 'all', label: 'All' },
   {
@@ -218,10 +199,10 @@ const CONTENT_ITEMS: StackItem[] = [
   },
 ]
 
-/**
- * Map of all navigation variants
- */
-export const NAV_VARIANTS: Record<NavVariant, { items: StackItem[]; description: string }> = {
+export const NAV_VARIANTS: Record<
+  NavVariant,
+  { items: StackItem[]; description: string }
+> = {
   orders: {
     items: ORDERS_ITEMS,
     description: 'Order filtering: Type → Status → Sub-status',

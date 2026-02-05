@@ -10,87 +10,112 @@ type UnifiedControlPanelConfig = UnifiedControlPanelProps['config']
 
 export function createPanelConfig(config: PlaygroundConfig): UnifiedControlPanelConfig {
   // Build spring or tween groups based on animation type
-  const animationGroups = config.animationType === 'spring'
-    ? [
-        {
-          title: 'Spring Preset',
-          controls: [
-            {
-              id: 'springPreset',
-              type: 'select' as const,
-              label: 'Preset',
-              value: config.springPreset,
-              options: [
-                { value: 'smooth', label: 'Smooth' },
-                { value: 'snappy', label: 'Snappy' },
-                { value: 'soft', label: 'Soft' },
-                { value: 'bouncy', label: 'Bouncy' },
-                { value: 'custom', label: 'Custom' },
-              ],
-            },
-          ],
-        },
-        {
-          title: 'Spring Settings',
-          controls: [
-            {
-              id: 'springStiffness',
-              type: 'slider' as const,
-              label: 'Stiffness',
-              value: config.springStiffness,
-              min: 100,
-              max: 1000,
-              step: 25,
-              formatLabel: (v: number) => `${v}`,
-            },
-            {
-              id: 'springDamping',
-              type: 'slider' as const,
-              label: 'Damping',
-              value: config.springDamping,
-              min: 5,
-              max: 60,
-              step: 1,
-              formatLabel: (v: number) => `${v}`,
-            },
-          ],
-        },
-      ]
-    : [
-        {
-          title: 'Easing',
-          controls: [
-            {
-              id: 'tweenEase',
-              type: 'select' as const,
-              label: 'Easing',
-              value: config.tweenEase,
-              options: EASING_OPTIONS,
-            },
-          ],
-        },
-        {
-          title: 'Timing',
-          controls: [
-            {
-              id: 'tweenDuration',
-              type: 'slider' as const,
-              label: 'Duration',
-              value: config.tweenDuration,
-              min: 100,
-              max: 800,
-              step: 25,
-              formatLabel: (v: number) => `${v}ms`,
-            },
-          ],
-        },
-      ]
+  const animationGroups =
+    config.animationType === 'spring'
+      ? [
+          {
+            title: 'Spring Preset',
+            controls: [
+              {
+                id: 'springPreset',
+                type: 'select' as const,
+                label: 'Preset',
+                value: config.springPreset,
+                options: [
+                  // Slow
+                  { value: 'soft', label: 'Soft — Slowest' },
+                  { value: 'heavy', label: 'Heavy — Slow + Weighty' },
+                  // Medium
+                  { value: 'smooth', label: 'Smooth — Balanced' },
+                  { value: 'subtle', label: 'Subtle — Controlled' },
+                  { value: 'bouncy', label: 'Bouncy — Playful' },
+                  // Fast
+                  { value: 'snappy', label: 'Snappy — Quick' },
+                  { value: 'crisp', label: 'Crisp — Fast + Clean' },
+                  { value: 'precise', label: 'Precise — Fast + Tight' },
+                  // Fastest
+                  { value: 'swift', label: 'Swift — Very Fast' },
+                  { value: 'responsive', label: 'Responsive — Fastest' },
+                  { value: 'lively', label: 'Lively — Fast + Bounce' },
+                  { value: 'brisk', label: 'Brisk — Fast + Subtle Bounce' },
+                  // Custom
+                  { value: 'custom', label: 'Custom' },
+                ],
+              },
+            ],
+          },
+          {
+            title: 'Spring Settings',
+            controls: [
+              {
+                id: 'springStiffness',
+                type: 'slider' as const,
+                label: 'Stiffness',
+                value: config.springStiffness,
+                min: 100,
+                max: 1000,
+                step: 25,
+                formatLabel: (v: number) => `${v}`,
+              },
+              {
+                id: 'springDamping',
+                type: 'slider' as const,
+                label: 'Damping',
+                value: config.springDamping,
+                min: 5,
+                max: 60,
+                step: 1,
+                formatLabel: (v: number) => `${v}`,
+              },
+              {
+                id: 'springMass',
+                type: 'slider' as const,
+                label: 'Mass',
+                value: config.springMass,
+                min: 0.5,
+                max: 3,
+                step: 0.1,
+                formatLabel: (v: number) => `${v.toFixed(1)}`,
+              },
+            ],
+          },
+        ]
+      : [
+          {
+            title: 'Easing',
+            controls: [
+              {
+                id: 'tweenEase',
+                type: 'select' as const,
+                label: 'Easing',
+                value: config.tweenEase,
+                options: EASING_OPTIONS,
+              },
+            ],
+          },
+          {
+            title: 'Timing',
+            controls: [
+              {
+                id: 'tweenDuration',
+                type: 'slider' as const,
+                label: 'Duration',
+                value: config.tweenDuration,
+                min: 100,
+                max: 800,
+                step: 25,
+                formatLabel: (v: number) => `${v}ms`,
+              },
+            ],
+          },
+        ]
 
   return {
     sections: [
+      // Section 1: Global (was Animation)
       {
-        id: 'animation',
-        title: 'Animation',
+        id: 'global',
+        title: 'Global',
         tabLabel: config.animationType === 'spring' ? 'Spring' : 'Easing',
         groups: [
           {
@@ -104,6 +129,7 @@ export function createPanelConfig(config: PlaygroundConfig): UnifiedControlPanel
                 options: [
                   { value: 'default', label: 'Default (Easing)' },
                   { value: 'spring', label: 'Spring (Physics)' },
+                  { value: 'slowSpring', label: 'Slow Spring' },
                   { value: 'custom', label: 'Custom' },
                 ],
               },
@@ -125,157 +151,98 @@ export function createPanelConfig(config: PlaygroundConfig): UnifiedControlPanel
             ],
           },
           ...animationGroups,
-          {
-            title: 'Promotion Effect',
-            controls: [
-              {
-                id: 'promotionScale',
-                type: 'slider',
-                label: 'Scale',
-                value: config.promotionScale,
-                min: 1.0,
-                max: 1.2,
-                step: 0.01,
-                formatLabel: (v: number) => v === 1 ? 'Off' : `${v.toFixed(2)}`,
-              },
-              {
-                id: 'promotionOpacity',
-                type: 'slider',
-                label: 'Opacity',
-                value: config.promotionOpacity,
-                min: 0.0,
-                max: 1.0,
-                step: 0.05,
-                formatLabel: (v: number) => v === 1 ? 'Off' : `${(v * 100).toFixed(0)}%`,
-              },
-              {
-                id: 'promotionVariant',
-                type: 'select',
-                label: 'Variant Flash',
-                value: config.promotionVariant,
-                options: [
-                  { value: 'none', label: 'None' },
-                  ...BUTTON_VARIANT_OPTIONS,
-                ],
-              },
-              {
-                id: 'promotionDuration',
-                type: 'slider',
-                label: 'Duration',
-                value: config.promotionDuration,
-                min: 100,
-                max: 800,
-                step: 25,
-                formatLabel: (v: number) => `${v}ms`,
-              },
-              {
-                id: 'promotionDelay',
-                type: 'slider',
-                label: 'Delay',
-                value: config.promotionDelay,
-                min: 0,
-                max: 300,
-                step: 10,
-                formatLabel: (v: number) => v === 0 ? 'None' : `${v}ms`,
-              },
-            ],
-          },
-          {
-            title: 'Demotion Effect',
-            controls: [
-              {
-                id: 'demotionScale',
-                type: 'slider',
-                label: 'Scale',
-                value: config.demotionScale,
-                min: 0.8,
-                max: 1.0,
-                step: 0.01,
-                formatLabel: (v: number) => v === 1 ? 'Off' : `${v.toFixed(2)}`,
-              },
-              {
-                id: 'demotionOpacity',
-                type: 'slider',
-                label: 'Opacity',
-                value: config.demotionOpacity,
-                min: 0.0,
-                max: 1.0,
-                step: 0.05,
-                formatLabel: (v: number) => v === 1 ? 'Off' : `${(v * 100).toFixed(0)}%`,
-              },
-              {
-                id: 'demotionVariant',
-                type: 'select',
-                label: 'Variant Flash',
-                value: config.demotionVariant,
-                options: [
-                  { value: 'none', label: 'None' },
-                  ...BUTTON_VARIANT_OPTIONS,
-                ],
-              },
-              {
-                id: 'demotionDuration',
-                type: 'slider',
-                label: 'Duration',
-                value: config.demotionDuration,
-                min: 100,
-                max: 800,
-                step: 25,
-                formatLabel: (v: number) => `${v}ms`,
-              },
-              {
-                id: 'demotionDelay',
-                type: 'slider',
-                label: 'Delay',
-                value: config.demotionDelay,
-                min: 0,
-                max: 300,
-                step: 10,
-                formatLabel: (v: number) => v === 0 ? 'None' : `${v}ms`,
-              },
-            ],
-          },
         ],
       },
+      // Section 2: Children (new - extracted from Entry)
       {
-        id: 'entry',
-        title: 'Child Entry',
-        tabLabel: 'Entry',
+        id: 'children',
+        title: 'Children',
+        tabLabel: 'Children',
         groups: [
           {
-            title: 'Direction',
+            title: 'Entry Mode',
             controls: [
               {
-                id: 'entryDirection',
-                type: 'select',
-                label: 'Preset',
-                value: config.entryDirection,
-                options: ENTRY_DIRECTION_OPTIONS,
+                id: 'entryInstant',
+                type: 'toggle',
+                label: 'Instant (No Slide)',
+                value: config.entryInstant,
               },
+              ...(!config.entryInstant
+                ? [
+                    {
+                      id: 'entryFromParent',
+                      type: 'toggle' as const,
+                      label: 'From Parent Position',
+                      value: config.entryFromParent,
+                    },
+                    ...(!config.entryFromParent
+                      ? [
+                          {
+                            id: 'entryDirection',
+                            type: 'select' as const,
+                            label: 'Direction Preset',
+                            value: config.entryDirection,
+                            options: ENTRY_DIRECTION_OPTIONS,
+                          },
+                        ]
+                      : []),
+                  ]
+                : []),
             ],
           },
+          // Only show offset controls when using custom direction (not instant or fromParent)
+          ...(!config.entryInstant && !config.entryFromParent
+            ? [
+                {
+                  title: 'Entry Offset',
+                  controls: [
+                    {
+                      id: 'entryOffsetX',
+                      type: 'slider' as const,
+                      label: 'X Offset',
+                      value: config.entryOffsetX,
+                      min: -40,
+                      max: 40,
+                      step: 2,
+                      formatLabel: (v: number) => (v === 0 ? '0' : `${v}px`),
+                    },
+                    {
+                      id: 'entryOffsetY',
+                      type: 'slider' as const,
+                      label: 'Y Offset',
+                      value: config.entryOffsetY,
+                      min: -40,
+                      max: 40,
+                      step: 2,
+                      formatLabel: (v: number) => (v === 0 ? '0' : `${v}px`),
+                    },
+                  ],
+                },
+              ]
+            : []),
           {
-            title: 'Offset',
+            title: 'Initial State',
             controls: [
               {
-                id: 'entryOffsetX',
+                id: 'childEntryScale',
                 type: 'slider',
-                label: 'X Offset',
-                value: config.entryOffsetX,
-                min: -40,
-                max: 40,
-                step: 2,
-                formatLabel: (v: number) => v === 0 ? '0' : `${v}px`,
+                label: 'Scale',
+                value: config.childEntryScale,
+                min: 0.5,
+                max: 1.2,
+                step: 0.01,
+                formatLabel: (v: number) => `${v.toFixed(2)}`,
               },
               {
-                id: 'entryOffsetY',
+                id: 'childEntryOpacity',
                 type: 'slider',
-                label: 'Y Offset',
-                value: config.entryOffsetY,
-                min: -40,
-                max: 40,
-                step: 2,
-                formatLabel: (v: number) => v === 0 ? '0' : `${v}px`,
+                label: 'Opacity',
+                value: config.childEntryOpacity,
+                min: 0,
+                max: 1,
+                step: 0.05,
+                formatLabel: (v: number) => `${(v * 100).toFixed(0)}%`,
               },
             ],
           },
@@ -302,32 +269,38 @@ export function createPanelConfig(config: PlaygroundConfig): UnifiedControlPanel
                 step: 5,
                 formatLabel: (v: number) => `${v}ms`,
               },
+            ],
+          },
+          {
+            title: 'Promotion Sync',
+            controls: [
               {
-                id: 'childEntryScale',
+                id: 'syncChildEntryToPromotion',
+                type: 'toggle',
+                label: 'Wait for Promotion',
+                value: config.syncChildEntryToPromotion,
+              },
+              {
+                id: 'promotionChildOffset',
                 type: 'slider',
-                label: 'Scale',
-                value: config.childEntryScale,
-                min: 0.8,
-                max: 1.0,
-                step: 0.01,
-                formatLabel: (v: number) => `${v.toFixed(2)}`,
+                label: 'Extra Delay',
+                value: config.promotionChildOffset,
+                min: 0,
+                max: 300,
+                step: 10,
+                formatLabel: (v: number) => (v === 0 ? 'None' : `+${v}ms`),
               },
             ],
           },
           {
-            title: 'Leaf Nodes',
+            title: 'Behavior',
             controls: [
               {
                 id: 'skipLeafAnimation',
                 type: 'toggle',
-                label: 'Skip Animation',
+                label: 'Skip Leaf Animation',
                 value: config.skipLeafAnimation,
               },
-            ],
-          },
-          {
-            title: 'Interaction',
-            controls: [
               {
                 id: 'hoverDelay',
                 type: 'slider',
@@ -336,27 +309,111 @@ export function createPanelConfig(config: PlaygroundConfig): UnifiedControlPanel
                 min: 0,
                 max: 500,
                 step: 25,
-                formatLabel: (v: number) => v === 0 ? 'None' : `${v}ms`,
+                formatLabel: (v: number) => (v === 0 ? 'None' : `${v}ms`),
               },
             ],
           },
         ],
       },
+      // Section 3: Reentry (new - demotion controls from Entry)
+      {
+        id: 'reentry',
+        title: 'Reentry',
+        tabLabel: 'Reentry',
+        groups: [
+          {
+            title: 'Initial State',
+            controls: [
+              {
+                id: 'demotionEntryScale',
+                type: 'slider',
+                label: 'Scale',
+                value: config.demotionEntryScale,
+                min: 0.5,
+                max: 1.2,
+                step: 0.01,
+                formatLabel: (v: number) => `${v.toFixed(2)}`,
+              },
+              {
+                id: 'demotionEntryOpacity',
+                type: 'slider',
+                label: 'Opacity',
+                value: config.demotionEntryOpacity,
+                min: 0,
+                max: 1,
+                step: 0.05,
+                formatLabel: (v: number) => `${(v * 100).toFixed(0)}%`,
+              },
+            ],
+          },
+          {
+            title: 'Timing',
+            controls: [
+              {
+                id: 'demotionEntryDelay',
+                type: 'slider',
+                label: 'Delay',
+                value: config.demotionEntryDelay,
+                min: 0,
+                max: 300,
+                step: 10,
+                formatLabel: (v: number) => `${v}ms`,
+              },
+              {
+                id: 'demotionStagger',
+                type: 'slider',
+                label: 'Stagger',
+                value: config.demotionStagger,
+                min: 0,
+                max: 150,
+                step: 5,
+                formatLabel: (v: number) => `${v}ms`,
+              },
+            ],
+          },
+        ],
+      },
+      // Section 4: Exit (simplified, with Promotion Effect moved here)
       {
         id: 'exit',
-        title: 'Exit & Collapse',
+        title: 'Exit',
         tabLabel: 'Exit',
         groups: [
           {
-            title: 'Child Exit — items leaving the DOM',
+            title: 'Promotion Effect',
+            controls: [
+              {
+                id: 'promotionScale',
+                type: 'slider',
+                label: 'Scale',
+                value: config.promotionScale,
+                min: 0.8,
+                max: 1.5,
+                step: 0.01,
+                formatLabel: (v: number) => (v === 1 ? 'Off' : `${v.toFixed(2)}`),
+              },
+              {
+                id: 'promotionDuration',
+                type: 'slider',
+                label: 'Duration',
+                value: config.promotionDuration,
+                min: 100,
+                max: 800,
+                step: 25,
+                formatLabel: (v: number) => `${v}ms`,
+              },
+            ],
+          },
+          {
+            title: 'Exit Animation',
             controls: [
               {
                 id: 'exitScale',
                 type: 'slider',
                 label: 'Scale',
                 value: config.exitScale,
-                min: 0.8,
-                max: 1.0,
+                min: 0.5,
+                max: 1.2,
                 step: 0.01,
                 formatLabel: (v: number) => `${v.toFixed(2)}`,
               },
@@ -366,39 +423,41 @@ export function createPanelConfig(config: PlaygroundConfig): UnifiedControlPanel
                 label: 'Custom Timing',
                 value: config.exitUseCustomTiming,
               },
-              ...(config.exitUseCustomTiming ? [
-                {
-                  id: 'exitDuration',
-                  type: 'slider' as const,
-                  label: 'Duration',
-                  value: config.exitDuration,
-                  min: 0,
-                  max: 800,
-                  step: 25,
-                  formatLabel: (v: number) => v === 0 ? 'Instant' : `${v}ms`,
-                },
-                {
-                  id: 'exitEase',
-                  type: 'select' as const,
-                  label: 'Easing',
-                  value: config.exitEase,
-                  options: EASING_OPTIONS,
-                },
-                {
-                  id: 'exitDelay',
-                  type: 'slider' as const,
-                  label: 'Hold Delay',
-                  value: config.exitDelay,
-                  min: 0,
-                  max: 300,
-                  step: 10,
-                  formatLabel: (v: number) => v === 0 ? 'None' : `${v}ms`,
-                },
-              ] : []),
+              ...(config.exitUseCustomTiming
+                ? [
+                    {
+                      id: 'exitDuration',
+                      type: 'slider' as const,
+                      label: 'Duration',
+                      value: config.exitDuration,
+                      min: 0,
+                      max: 800,
+                      step: 25,
+                      formatLabel: (v: number) => (v === 0 ? 'Instant' : `${v}ms`),
+                    },
+                    {
+                      id: 'exitEase',
+                      type: 'select' as const,
+                      label: 'Easing',
+                      value: config.exitEase,
+                      options: EASING_OPTIONS,
+                    },
+                    {
+                      id: 'exitDelay',
+                      type: 'slider' as const,
+                      label: 'Hold Delay',
+                      value: config.exitDelay,
+                      min: 0,
+                      max: 300,
+                      step: 10,
+                      formatLabel: (v: number) => (v === 0 ? 'None' : `${v}ms`),
+                    },
+                  ]
+                : []),
             ],
           },
           {
-            title: 'Collapse Layout — parent repositioning',
+            title: 'Collapse Layout',
             controls: [
               {
                 id: 'collapseLayoutDuration',
@@ -414,90 +473,7 @@ export function createPanelConfig(config: PlaygroundConfig): UnifiedControlPanel
           },
         ],
       },
-      {
-        id: 'stacking',
-        title: 'Stacking',
-        tabLabel: 'Stack',
-        groups: [
-          {
-            title: 'Peek Behavior',
-            controls: [
-              {
-                id: 'peekOffset',
-                type: 'slider',
-                label: 'Peek Offset',
-                value: config.peekOffset,
-                min: -40,
-                max: 40,
-                step: 2,
-                formatLabel: (v: number) => `${v}px`,
-              },
-              {
-                id: 'anchoredOpacity',
-                type: 'slider',
-                label: 'Anchored Opacity',
-                value: config.anchoredOpacity,
-                min: 0.2,
-                max: 1,
-                step: 0.05,
-                formatLabel: (v: number) => `${(v * 100).toFixed(0)}%`,
-              },
-            ],
-          },
-          {
-            title: 'Clipping',
-            controls: [
-              {
-                id: 'clipAnchored',
-                type: 'toggle',
-                label: 'Enable Clipping',
-                value: config.clipAnchored,
-              },
-              ...(config.clipAnchored ? [
-                {
-                  id: 'clipAnimated',
-                  type: 'toggle' as const,
-                  label: 'Animate Clip',
-                  value: config.clipAnimated,
-                },
-                {
-                  id: 'clipOffset',
-                  type: 'slider' as const,
-                  label: 'Clip Offset',
-                  value: config.clipOffset,
-                  min: 0,
-                  max: 100,
-                  step: 2,
-                  formatLabel: (v: number) => `${v}px`,
-                },
-                {
-                  id: 'clipSide',
-                  type: 'select' as const,
-                  label: 'Clip Side',
-                  value: config.clipSide,
-                  options: [
-                    { value: 'left', label: 'Left' },
-                    { value: 'right', label: 'Right' },
-                    { value: 'center', label: 'Center' },
-                  ],
-                },
-                ...(config.clipAnimated ? [
-                  {
-                    id: 'clipDelay',
-                    type: 'slider' as const,
-                    label: 'Clip Delay',
-                    value: config.clipDelay,
-                    min: 0,
-                    max: 300,
-                    step: 10,
-                    formatLabel: (v: number) => v === 0 ? 'None' : `${v}ms`,
-                  },
-                ] : []),
-              ] : []),
-            ],
-          },
-        ],
-      },
+      // Section 5: Layout (merged with Stacking)
       {
         id: 'layout',
         title: 'Layout',
@@ -530,6 +506,31 @@ export function createPanelConfig(config: PlaygroundConfig): UnifiedControlPanel
                   { value: 'black', label: 'Black' },
                   { value: 'white', label: 'White' },
                 ],
+              },
+            ],
+          },
+          {
+            title: 'Stacking',
+            controls: [
+              {
+                id: 'peekOffset',
+                type: 'slider',
+                label: 'Peek Offset',
+                value: config.peekOffset,
+                min: -40,
+                max: 40,
+                step: 2,
+                formatLabel: (v: number) => `${v}px`,
+              },
+              {
+                id: 'anchoredOpacity',
+                type: 'slider',
+                label: 'Anchored Opacity',
+                value: config.anchoredOpacity,
+                min: 0.2,
+                max: 1,
+                step: 0.05,
+                formatLabel: (v: number) => `${(v * 100).toFixed(0)}%`,
               },
             ],
           },
@@ -593,6 +594,20 @@ export function createPanelConfig(config: PlaygroundConfig): UnifiedControlPanel
                 value: config.selectedLeafVariant,
                 options: BUTTON_VARIANT_OPTIONS,
               },
+              {
+                id: 'reentryVariant',
+                type: 'select',
+                label: 'Reentry',
+                value: config.reentryVariant,
+                options: BUTTON_VARIANT_OPTIONS,
+              },
+              {
+                id: 'demotingVariant',
+                type: 'select',
+                label: 'Demoting',
+                value: config.demotingVariant,
+                options: BUTTON_VARIANT_OPTIONS,
+              },
             ],
           },
           {
@@ -628,6 +643,7 @@ export function createPanelConfig(config: PlaygroundConfig): UnifiedControlPanel
           },
         ],
       },
+      // Section 6: Display (unchanged)
       {
         id: 'display',
         title: 'Display',
@@ -664,30 +680,81 @@ export function createPanelConfig(config: PlaygroundConfig): UnifiedControlPanel
                 label: 'Show Debug',
                 value: config.showDebug,
               },
+              {
+                id: 'showPhaseIndicator',
+                type: 'toggle',
+                label: 'Phase Indicator',
+                value: config.showPhaseIndicator,
+              },
             ],
           },
           {
             title: 'Slow-Mo Mode',
             controls: [
               {
-                id: 'timeScale',
-                type: 'slider',
-                label: 'Time Scale',
-                value: config.timeScale,
-                min: 0.1,
-                max: 2,
-                step: 0.1,
-                formatLabel: (v: number) =>
-                  v === 1 ? '1x (Normal)' :
-                  v < 1 ? `${v.toFixed(1)}x (${Math.round(1/v)}x Slower)` :
-                  `${v.toFixed(1)}x Faster`,
+                id: 'slowMoEnabled',
+                type: 'toggle',
+                label: 'Slow-Mo (0.1x)',
+                value: config.slowMoEnabled,
               },
+            ],
+          },
+          {
+            title: 'Container Debug',
+            controls: [
+              {
+                id: 'showContainerBounds',
+                type: 'toggle',
+                label: 'Show Bounds',
+                value: config.showContainerBounds,
+              },
+              {
+                id: 'containerWidth',
+                type: 'slider',
+                label: 'Width',
+                value: config.containerWidth,
+                min: 400,
+                max: 1200,
+                step: 50,
+                formatLabel: (v: number) => `${v}px`,
+              },
+              {
+                id: 'containerOverflow',
+                type: 'select',
+                label: 'Overflow',
+                value: config.containerOverflow,
+                options: [
+                  { value: 'visible', label: 'Visible' },
+                  { value: 'hidden', label: 'Hidden' },
+                  { value: 'clip', label: 'Clip' },
+                ],
+              },
+              {
+                id: 'showOverflowGradient',
+                type: 'toggle',
+                label: 'Edge Gradient',
+                value: config.showOverflowGradient,
+              },
+              ...(config.showOverflowGradient
+                ? [
+                    {
+                      id: 'gradientWidth',
+                      type: 'slider' as const,
+                      label: 'Gradient Width',
+                      value: config.gradientWidth,
+                      min: 20,
+                      max: 200,
+                      step: 10,
+                      formatLabel: (v: number) => `${v}px`,
+                    },
+                  ]
+                : []),
             ],
           },
         ],
       },
     ],
-    defaultActiveTab: 'animation',
+    defaultActiveTab: 'global',
     position: {
       top: '16px',
       bottom: '16px',

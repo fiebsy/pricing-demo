@@ -4,7 +4,7 @@ import type {
   ButtonVariant,
   ButtonSize,
   ButtonRoundness,
-} from '@/components/ui/features/experimental/stacking-nav-motion'
+} from '@/components/ui/features/experimental/legacy-stacking-nav-motion'
 
 // =============================================================================
 // TYPE ALIASES

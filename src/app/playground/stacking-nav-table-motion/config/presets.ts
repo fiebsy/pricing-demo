@@ -7,7 +7,7 @@
 import {
   DEFAULT_ANIMATION_CONFIG,
   DEFAULT_STYLE_CONFIG,
-} from '@/components/ui/features/experimental/stacking-nav-motion'
+} from '@/components/ui/features/experimental/legacy-stacking-nav-motion'
 import type { PlaygroundConfig, ConfigPreset } from './types'
 
 // =============================================================================

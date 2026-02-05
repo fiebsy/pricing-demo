@@ -213,9 +213,9 @@ export function ExpandingLayout({
                   gridTemplateColumns,
                   transition: gridTransition,
                   borderRadius: containerBorderRadius,
-                  // In flex mode, containers share parent width equally
-                  flex: isFlexMode ? 1 : undefined,
-                  minWidth: isFlexMode ? 0 : undefined, // Allow shrinking below content size
+                  // In flex mode, only expanded container takes remaining space
+                  flex: isFlexMode && isExpanded ? 1 : undefined,
+                  minWidth: isFlexMode && isExpanded ? 0 : undefined,
                 }}
               >
                 {/* Square A - always visible */}

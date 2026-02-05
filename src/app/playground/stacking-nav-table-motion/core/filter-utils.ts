@@ -4,7 +4,7 @@
  * Maps the stacking nav's active path to character filtering.
  */
 
-import type { ActivePath } from '@/components/ui/features/experimental/stacking-nav-motion'
+import type { ActivePath } from '@/components/ui/features/experimental/legacy-stacking-nav-motion'
 import type { Character } from '../config/types'
 import type { CharacterEnergy } from '../config/types'
 

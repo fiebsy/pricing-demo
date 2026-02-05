@@ -4,6 +4,10 @@
  * A multi-level navigation component with smooth stacking animations.
  * V2 uses centralized phase state machine for timing coordination.
  *
+ * Performance optimizations:
+ * - Split contexts (Phase, Config, Navigation) to prevent unnecessary re-renders
+ * - Memoized ItemRenderer and StackLevel components
+ *
  * @module features/stacking-nav-v2
  *
  * @example
@@ -32,7 +36,12 @@ import { useMemo, useState, useCallback, useEffect, useRef } from 'react'
 import { useReducedMotion } from 'motion/react'
 import { cn } from '@/lib/utils'
 
-import { StackContext, LevelContext } from './context'
+import {
+  PhaseContext,
+  ConfigContext,
+  NavigationContext,
+  LevelContext,
+} from './context'
 import { StackLevel } from './components/stack-level'
 import { PhaseIndicator } from './components/phase-indicator'
 import { usePhaseCoordinator } from './state/use-phase-coordinator'
@@ -53,6 +62,7 @@ import {
  * - Centralized timing management
  * - Better "All" button active state handling
  * - Phase indicator for debugging
+ * - Split contexts for performance optimization
  */
 export function StackingNav({
   items = DEFAULT_STACK_ITEMS,
@@ -147,17 +157,11 @@ export function StackingNav({
     onReset?.()
   }, [onReset])
 
-  // Context value for sharing state
-  const contextValue = useMemo(
+  // --- Split Context Values ---
+
+  // PhaseContext: Updates frequently during animations
+  const phaseContextValue = useMemo(
     () => ({
-      activePath,
-      animationConfig,
-      styleConfig,
-      showNumbers,
-      showDebug,
-      showPhaseIndicator,
-      shouldReduceMotion,
-      // Phase coordinator state
       phase,
       phaseStartTime,
       isAnimating,
@@ -169,74 +173,99 @@ export function StackingNav({
       demotingId,
       isItemPromoting,
       isHoverSuppressed,
-      // Actions
+    }),
+    [
+      phase,
+      phaseStartTime,
+      isAnimating,
+      isCollapsing,
+      isCollapsingSynchronous,
+      isExpandingSynchronous,
+      demotingIdSynchronous,
+      promotingId,
+      demotingId,
+      isItemPromoting,
+      isHoverSuppressed,
+    ]
+  )
+
+  // ConfigContext: Stable, rarely changes
+  const configContextValue = useMemo(
+    () => ({
+      animationConfig,
+      styleConfig,
+      showNumbers,
+      showDebug,
+      showPhaseIndicator,
+      shouldReduceMotion,
+    }),
+    [
+      animationConfig,
+      styleConfig,
+      showNumbers,
+      showDebug,
+      showPhaseIndicator,
+      shouldReduceMotion,
+    ]
+  )
+
+  // NavigationContext: Path and actions
+  const navigationContextValue = useMemo(
+    () => ({
+      activePath,
       selectItem,
       collapseToLevel,
       reset,
     }),
-    [
-      activePath,
-      animationConfig,
-      styleConfig,
-      showNumbers,
-      showDebug,
-      showPhaseIndicator,
-      shouldReduceMotion,
-      phase,
-      phaseStartTime,
-      isAnimating,
-      isCollapsing,
-      isCollapsingSynchronous,
-      isExpandingSynchronous,
-      demotingIdSynchronous,
-      promotingId,
-      demotingId,
-      isItemPromoting,
-      isHoverSuppressed,
-      selectItem,
-      collapseToLevel,
-      reset,
-    ]
+    [activePath, selectItem, collapseToLevel, reset]
+  )
+
+  // LevelContext: Initial level (0)
+  const initialLevelValue = useMemo(
+    () => ({
+      level: 0,
+      parentId: null,
+      isParentAnchored: false,
+      anchorCount: 0,
+      isParentPromoting: false,
+      parentAnchoredOffset: 0,
+    }),
+    []
   )
 
   return (
-    <StackContext.Provider value={contextValue}>
-      <LevelContext.Provider
-        value={{
-          level: 0,
-          parentId: null,
-          isParentAnchored: false,
-          anchorCount: 0,
-          isParentPromoting: false,
-          parentAnchoredOffset: 0,
-        }}
-      >
-        <div
-          className={cn(
-            'relative flex flex-nowrap items-start justify-start overflow-visible',
-            GAP_CLASSES[styleConfig.gap],
-            className
-          )}
-          style={{
-            minHeight: '100px', // Ensure container has height for absolute positioning
-          }}
-          role="navigation"
-          aria-label="Stacking navigation"
-        >
-          <StackLevel items={items} />
-        </div>
+    <ConfigContext.Provider value={configContextValue}>
+      <NavigationContext.Provider value={navigationContextValue}>
+        <PhaseContext.Provider value={phaseContextValue}>
+          <LevelContext.Provider value={initialLevelValue}>
+            <div
+              className={cn(
+                'relative flex flex-nowrap items-start justify-start overflow-visible',
+                GAP_CLASSES[styleConfig.gap],
+                className
+              )}
+              style={{
+                minHeight: '100px', // Ensure container has height for absolute positioning
+              }}
+              role="navigation"
+              aria-label="Stacking navigation"
+            >
+              <StackLevel items={items} />
+            </div>
 
-        {/* Phase Indicator (debug) */}
-        {showPhaseIndicator && (
-          <PhaseIndicator
-            phase={phase}
-            phaseStartTime={phaseStartTime}
-            transitionHistory={transitionHistory}
-            promotingId={promotingId}
-            demotingId={demotingId}
-          />
-        )}
-      </LevelContext.Provider>
-    </StackContext.Provider>
+            {/* Phase Indicator (debug) */}
+            {showPhaseIndicator && (
+              <PhaseIndicator
+                phase={phase}
+                phaseStartTime={phaseStartTime}
+                transitionHistory={transitionHistory}
+                promotingId={promotingId}
+                demotingId={demotingId}
+              />
+            )}
+          </LevelContext.Provider>
+        </PhaseContext.Provider>
+      </NavigationContext.Provider>
+    </ConfigContext.Provider>
   )
 }

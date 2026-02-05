@@ -1,7 +1,7 @@
 import {
   DEFAULT_ANIMATION_CONFIG,
   DEFAULT_STYLE_CONFIG,
-} from '@/components/ui/features/stacking-nav'
+} from '@/components/ui/features/stacking-nav-motion'
 import type { PlaygroundConfig, ConfigPreset } from './types'
 
 // =============================================================================
@@ -12,11 +12,11 @@ import type { PlaygroundConfig, ConfigPreset } from './types'
 const toMs = (s: number) => Math.round(s * 1000)
 
 /**
- * Build a full playground config from the prod defaults.
+ * Build a full playground config from the component defaults.
  * Animation durations are stored in ms for slider controls;
  * page.tsx converts them back to seconds before passing to the component.
  */
-function configFromProdDefaults(): Omit<PlaygroundConfig, 'configPreset' | 'navVariant'> {
+function configFromDefaults(): Omit<PlaygroundConfig, 'configPreset' | 'navVariant'> {
   const a = DEFAULT_ANIMATION_CONFIG
   const s = DEFAULT_STYLE_CONFIG
 
@@ -27,7 +27,8 @@ function configFromProdDefaults(): Omit<PlaygroundConfig, 'configPreset' | 'navV
     // Spring
     springStiffness: a.stiffness,
     springDamping: a.damping,
-    springPreset: 'smooth',
+    springMass: a.mass,
+    springPreset: 'custom',
 
     // Tween (ms)
     tweenDuration: toMs(a.duration),
@@ -36,16 +37,6 @@ function configFromProdDefaults(): Omit<PlaygroundConfig, 'configPreset' | 'navV
     // Promotion (ms)
     promotionDuration: toMs(a.promotionDuration),
     promotionScale: a.promotionScale,
-    promotionDelay: toMs(a.promotionDelay),
-    promotionOpacity: a.promotionOpacity,
-    promotionVariant: a.promotionVariant,
-
-    // Demotion (ms)
-    demotionDuration: toMs(a.demotionDuration),
-    demotionScale: a.demotionScale,
-    demotionDelay: toMs(a.demotionDelay),
-    demotionOpacity: a.demotionOpacity,
-    demotionVariant: a.demotionVariant,
 
     // Child entry (ms)
     childStagger: toMs(a.stagger),
@@ -54,6 +45,9 @@ function configFromProdDefaults(): Omit<PlaygroundConfig, 'configPreset' | 'navV
     entryOffsetY: a.entryOffsetY,
     childEntryDelay: toMs(a.childEntryDelay),
     childEntryScale: a.entryScale,
+    childEntryOpacity: a.entryOpacity,
+    entryFromParent: a.entryFromParent,
+    entryInstant: a.entryInstant,
 
     // Exit (ms)
     exitScale: a.exitScale,
@@ -66,20 +60,27 @@ function configFromProdDefaults(): Omit<PlaygroundConfig, 'configPreset' | 'navV
     // Leaf
     skipLeafAnimation: a.skipLeafAnimation,
 
-    // Style — pulled directly from prod defaults
+    // Promotion sequencing
+    syncChildEntryToPromotion: a.syncChildEntryToPromotion,
+    promotionChildOffset: toMs(a.promotionChildOffset),
+
+    // Demotion entry (ms)
+    demotionEntryDelay: toMs(a.demotionEntryDelay),
+    demotionStagger: toMs(a.demotionStagger),
+    demotionEntryOpacity: a.demotionEntryOpacity,
+    demotionEntryScale: a.demotionEntryScale,
+
+    // Style
     buttonSize: s.buttonSize,
     buttonRoundness: s.buttonRoundness,
     expandedVariant: s.expandedVariant,
     childVariant: s.childVariant,
     anchoredVariant: s.anchoredVariant,
     selectedLeafVariant: s.selectedLeafVariant,
+    reentryVariant: s.reentryVariant,
+    demotingVariant: s.demotingVariant,
     peekOffset: s.peekOffset,
     anchoredOpacity: s.anchoredOpacity,
-    clipAnchored: s.clipAnchored,
-    clipAnimated: s.clipAnimated,
-    clipOffset: s.clipOffset,
-    clipSide: s.clipSide,
-    clipDelay: s.clipDelay * 1000,
     gap: s.gap,
 
     // Level All
@@ -97,7 +98,19 @@ function configFromProdDefaults(): Omit<PlaygroundConfig, 'configPreset' | 'navV
     pageBackground: 'primary',
 
     // Debug
-    timeScale: a.timeScale,
+    slowMoEnabled: false,
+
+    // Phase Indicator
+    showPhaseIndicator: false,
+
+    // Container debug
+    containerWidth: 800,
+    showContainerBounds: false,
+
+    // Container overflow
+    containerOverflow: 'visible',
+    showOverflowGradient: false,
+    gradientWidth: 80,
   }
 }
 
@@ -105,33 +118,29 @@ function configFromProdDefaults(): Omit<PlaygroundConfig, 'configPreset' | 'navV
 // FULL CONFIG PRESETS
 // =============================================================================
 
-/** Default preset — derived from prod DEFAULT_ANIMATION_CONFIG + DEFAULT_STYLE_CONFIG */
-const PRESET_DEFAULT = configFromProdDefaults()
+/** Default preset — derived from DEFAULT_ANIMATION_CONFIG + DEFAULT_STYLE_CONFIG */
+const PRESET_DEFAULT = configFromDefaults()
 
-/** Spring preset - physics-based spring animation */
+/** Spring preset - physics-based spring animation with slide-in children */
 const PRESET_SPRING: Omit<PlaygroundConfig, 'configPreset' | 'navVariant'> = {
   animationType: 'spring',
   springStiffness: 500,
   springDamping: 30,
+  springMass: 1,
   springPreset: 'smooth',
   tweenDuration: 300,
   tweenEase: 'easeOut',
-  promotionDuration: 400,
-  promotionScale: 1,
-  promotionDelay: 0,
-  promotionOpacity: 1,
-  promotionVariant: 'none',
-  demotionDuration: 400,
-  demotionScale: 1,
-  demotionDelay: 0,
-  demotionOpacity: 1,
-  demotionVariant: 'none',
+  promotionDuration: 300,
+  promotionScale: 1.08,
   childStagger: 25,
   entryDirection: 'up',
   entryOffsetX: 0,
   entryOffsetY: 12,
   childEntryDelay: 50,
   childEntryScale: 0.95,
+  childEntryOpacity: 0,
+  entryFromParent: true,
+  entryInstant: false,
   exitScale: 0.95,
   exitUseCustomTiming: false,
   exitDuration: 300,
@@ -139,19 +148,22 @@ const PRESET_SPRING: Omit<PlaygroundConfig, 'configPreset' | 'navVariant'> = {
   exitDelay: 0,
   collapseLayoutDuration: 150,
   skipLeafAnimation: false,
+  syncChildEntryToPromotion: true,
+  promotionChildOffset: 0,
+  demotionEntryDelay: 0,
+  demotionStagger: 30,
+  demotionEntryOpacity: 0,
+  demotionEntryScale: 0.98,
   buttonSize: 'md',
   buttonRoundness: 'default',
   expandedVariant: 'shine',
   childVariant: 'tertiary',
   anchoredVariant: 'secondary',
   selectedLeafVariant: 'primary',
+  reentryVariant: 'reentry',
+  demotingVariant: 'secondary',
   peekOffset: 8,
   anchoredOpacity: 0.6,
-  clipAnchored: true,
-  clipAnimated: true,
-  clipOffset: 8,
-  clipSide: 'left',
-  clipDelay: 0,
   gap: 'md',
   showNumbers: false,
   showDebug: false,
@@ -161,12 +173,83 @@ const PRESET_SPRING: Omit<PlaygroundConfig, 'configPreset' | 'navVariant'> = {
   levelAllActiveVariant: 'tab',
   levelAllInactiveVariant: 'tertiary',
   hoverDelay: 200,
-  timeScale: 1,
+  slowMoEnabled: false,
+  showPhaseIndicator: false,
+  containerWidth: 800,
+  showContainerBounds: false,
+  containerOverflow: 'visible',
+  showOverflowGradient: false,
+  gradientWidth: 80,
 }
 
-export const CONFIG_PRESETS: Record<ConfigPreset, Omit<PlaygroundConfig, 'configPreset' | 'navVariant'> | null> = {
+/** Slow Spring preset - slower, more pronounced spring animation */
+const PRESET_SLOW_SPRING: Omit<PlaygroundConfig, 'configPreset' | 'navVariant'> = {
+  animationType: 'spring',
+  springStiffness: 500,
+  springDamping: 33,
+  springMass: 0.9,
+  springPreset: 'custom',
+  tweenDuration: 300,
+  tweenEase: 'expoOut',
+  promotionDuration: 100,
+  promotionScale: 1,
+  childStagger: 0,
+  entryDirection: 'custom',
+  entryOffsetX: 6,
+  entryOffsetY: 10,
+  childEntryDelay: 0,
+  childEntryScale: 1,
+  childEntryOpacity: 0,
+  entryFromParent: true,
+  entryInstant: true,
+  exitScale: 1,
+  exitUseCustomTiming: true,
+  exitDuration: 0,
+  exitEase: 'easeOut',
+  exitDelay: 0,
+  collapseLayoutDuration: 25,
+  skipLeafAnimation: true,
+  syncChildEntryToPromotion: false,
+  promotionChildOffset: 0,
+  demotionEntryDelay: 0,
+  demotionStagger: 0,
+  demotionEntryOpacity: 0,
+  demotionEntryScale: 1,
+  buttonSize: 'md',
+  buttonRoundness: 'pill',
+  expandedVariant: 'secondary',
+  childVariant: 'tab',
+  anchoredVariant: 'secondary',
+  selectedLeafVariant: 'tab',
+  reentryVariant: 'tab',
+  demotingVariant: 'reentry',
+  peekOffset: 8,
+  anchoredOpacity: 1,
+  gap: 'md',
+  showNumbers: false,
+  showDebug: false,
+  pageBackground: 'primary',
+  showLevelAll: true,
+  levelAllLabel: 'All',
+  levelAllActiveVariant: 'tab',
+  levelAllInactiveVariant: 'tab',
+  hoverDelay: 0,
+  slowMoEnabled: false,
+  showPhaseIndicator: false,
+  containerWidth: 800,
+  showContainerBounds: false,
+  containerOverflow: 'visible',
+  showOverflowGradient: false,
+  gradientWidth: 80,
+}
+
+export const CONFIG_PRESETS: Record<
+  ConfigPreset,
+  Omit<PlaygroundConfig, 'configPreset' | 'navVariant'> | null
+> = {
   default: PRESET_DEFAULT,
   spring: PRESET_SPRING,
+  slowSpring: PRESET_SLOW_SPRING,
   custom: null,
 }
 

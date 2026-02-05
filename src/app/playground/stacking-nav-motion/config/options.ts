@@ -1,4 +1,4 @@
-import type { EasingType, ButtonVariant } from '@/components/ui/features/experimental/stacking-nav-motion'
+import type { EasingType, ButtonVariant } from '@/components/ui/features/experimental/legacy-stacking-nav-motion'
 import type { EntryDirection } from './types'
 
 // =============================================================================

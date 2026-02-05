@@ -233,15 +233,47 @@ export interface StackLevelProps {
 }
 
 // =============================================================================
-// CONTEXT TYPES
+// CONTEXT TYPES (Split for performance optimization)
 // =============================================================================
 
 /**
- * Stack context value (shared state) - V2 with phase coordinator.
+ * Phase context value - updates frequently during animations.
+ * Isolated to prevent config consumers from re-rendering on phase changes.
  */
-export interface StackContextValue {
-  /** Current active path */
-  activePath: ActivePath
+export interface PhaseContextValue {
+  /** Current navigation phase */
+  phase: NavigationPhase
+  /** Timestamp when current phase started */
+  phaseStartTime: number
+  /** Whether any animation is in progress */
+  isAnimating: boolean
+  /** Whether collapse is in progress */
+  isCollapsing: boolean
+  /** Synchronous collapse detection for animation mode decisions */
+  isCollapsingSynchronous: boolean
+  /** Synchronous expand detection for entry animation mode decisions */
+  isExpandingSynchronous: boolean
+  /** Synchronous demoting ID for animation mode decisions */
+  demotingIdSynchronous: string | null
+  /** ID of item being promoted (null if not promoting) */
+  promotingId: string | null
+  /** ID of item being demoted (null if not collapsing) */
+  demotingId: string | null
+  /**
+   * Check if a specific item is the one being promoted.
+   */
+  isItemPromoting: (itemId: string) => boolean
+  /**
+   * Check if hover is suppressed at a given level.
+   */
+  isHoverSuppressed: (level: number) => boolean
+}
+
+/**
+ * Config context value - stable, rarely changes.
+ * Consumers don't re-render on phase changes.
+ */
+export interface ConfigContextValue {
   /** Animation configuration */
   animationConfig: AnimationConfig
   /** Style configuration */
@@ -254,39 +286,15 @@ export interface StackContextValue {
   showPhaseIndicator: boolean
   /** Reduced motion preference */
   shouldReduceMotion: boolean
+}
 
-  // Phase coordinator state (replaces multiple hooks)
-  /** Current navigation phase */
-  phase: NavigationPhase
-  /** Timestamp when current phase started */
-  phaseStartTime: number
-  /** Whether any animation is in progress */
-  isAnimating: boolean
-  /** ID of item being promoted (null if not promoting) */
-  promotingId: string | null
-  /** ID of item being demoted (null if not collapsing) */
-  demotingId: string | null
-  /** Whether collapse is in progress */
-  isCollapsing: boolean
-  /** Synchronous collapse detection for animation mode decisions */
-  isCollapsingSynchronous: boolean
-  /** Synchronous expand detection for entry animation mode decisions */
-  isExpandingSynchronous: boolean
-  /** Synchronous demoting ID for animation mode decisions */
-  demotingIdSynchronous: string | null
-
-  /**
-   * Check if a specific item is the one being promoted.
-   * Consolidates scattered `promotingId === item.id` checks.
-   */
-  isItemPromoting: (itemId: string) => boolean
-
-  /**
-   * Check if hover is suppressed at a given level.
-   * Returns true during expanding phase at levels > 0.
-   */
-  isHoverSuppressed: (level: number) => boolean
-
+/**
+ * Navigation context value - path and action handlers.
+ * Actions are stable via useCallback.
+ */
+export interface NavigationContextValue {
+  /** Current active path */
+  activePath: ActivePath
   /** Select an item handler */
   selectItem: (level: number, id: string, hasChildren: boolean) => void
   /** Collapse to level handler */
@@ -294,6 +302,12 @@ export interface StackContextValue {
   /** Reset state handler */
   reset: () => void
 }
+
+/**
+ * Combined stack context value (for backward compatibility).
+ * New components should use individual context hooks.
+ */
+export type StackContextValue = PhaseContextValue & ConfigContextValue & NavigationContextValue
 
 /**
  * Level context value (level-specific state).

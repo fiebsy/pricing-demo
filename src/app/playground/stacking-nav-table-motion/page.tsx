@@ -27,7 +27,7 @@ import {
   type AnimationConfig,
   type StyleConfig,
   type ActivePath,
-} from '@/components/ui/features/experimental/stacking-nav-motion'
+} from '@/components/ui/features/experimental/legacy-stacking-nav-motion'
 import { StickyDataTable } from '@/components/ui/patterns/data-table'
 import { TableEmptyState } from '@/components/ui/patterns/data-table/components/core/table-empty-state'
 import type { ToolbarLayoutConfig, ColumnConfig, BorderConfig } from '@/components/ui/patterns/data-table'

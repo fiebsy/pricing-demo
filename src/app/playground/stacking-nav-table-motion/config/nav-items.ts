@@ -8,7 +8,7 @@
  * L3: Energy (Main, Villain, Side, NPC)
  */
 
-import type { StackItem } from '@/components/ui/features/experimental/stacking-nav-motion'
+import type { StackItem } from '@/components/ui/features/experimental/legacy-stacking-nav-motion'
 import { CharacterEnergy } from './types'
 
 // =============================================================================
