@@ -1,7 +1,8 @@
 /**
- * Biaxial Expand V4
+ * Biaxial Expand
  *
  * @deprecated Import from '@/components/ui/core/primitives/biaxial-expand' instead.
+ * Use `BiaxialExpand` (not `BiaxialExpandV4`) as the primary export.
  *
  * This file re-exports from the new location for backwards compatibility.
  */

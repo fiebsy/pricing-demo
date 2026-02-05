@@ -5,14 +5,9 @@
 // =============================================================================
 
 import type { ReactNode } from 'react'
-import type { SectionType } from './icons/types'
-import type { HugeIconData } from '@/components/ui/core/primitives/icon'
 import type { FontWeightOption } from './tokens/typography'
 import type { SemanticColorOption } from './tokens/colors'
 import type { RadiusOption } from './tokens/radius'
-
-// Re-export SectionType for convenience
-export type { SectionType } from './icons/types'
 
 // -----------------------------------------------------------------------------
 // Control Types
@@ -24,8 +19,6 @@ interface ControlBase {
   label: string
   description?: string
   disabled?: boolean
-  /** Optional icon displayed before the label */
-  icon?: ReactNode
 }
 
 /** Slider control for numeric ranges */
@@ -160,10 +153,6 @@ export interface ControlGroup {
   controls: Control[]
   columns?: 1 | 2
   defaultCollapsed?: boolean
-  /** Section type for automatic icon mapping */
-  groupType?: SectionType
-  /** Override icon for this group header */
-  icon?: HugeIconData
 }
 
 /** A section containing groups of controls */
@@ -175,10 +164,6 @@ export interface Section {
   groups?: ControlGroup[]
   subsections?: ControlGroup[] // Legacy alias for groups
   defaultCollapsed?: boolean
-  /** Section type for automatic icon mapping */
-  sectionType?: SectionType
-  /** Override icon for this section (shown in sidebar when expanded) */
-  icon?: HugeIconData
 }
 
 // -----------------------------------------------------------------------------

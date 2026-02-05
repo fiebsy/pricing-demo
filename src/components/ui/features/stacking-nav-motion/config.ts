@@ -91,6 +91,8 @@ export const DEFAULT_STYLE_CONFIG: StyleConfig = {
   levelAllLabel: 'All',
   levelAllActiveVariant: 'tab',
   levelAllInactiveVariant: 'tab',
+  // Container min height
+  minHeight: 100,
 }
 
 /**

@@ -110,7 +110,6 @@ export function createBorderRadiusSection(config: {
       id: 'radius',
       title: 'Border Radius',
       label: 'Radius',
-      sectionType: 'radius',
     },
     groups,
     options

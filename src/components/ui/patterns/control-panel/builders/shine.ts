@@ -126,7 +126,6 @@ export function createShineSection(config: {
       id: 'shine',
       title: 'Shine & Effects',
       label: 'Shine',
-      sectionType: 'shine',
     },
     groups,
     options

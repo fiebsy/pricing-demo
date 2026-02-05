@@ -9,11 +9,8 @@
 
 import { useState, useId } from 'react'
 import { cx } from '@/components/utils/cx'
-import { HugeIcon } from '@/components/ui/core/primitives/icon'
-import type { HugeIconData } from '@/components/ui/core/primitives/icon'
 import { ControlGrid, ControlRenderer } from './controls'
-import { getSectionIcon } from '../icons'
-import type { ControlGroup, Section, SectionType } from '../types'
+import type { ControlGroup, Section } from '../types'
 
 // -----------------------------------------------------------------------------
 // Animated Plus/Minus Icon
@@ -74,10 +71,6 @@ interface CollapsibleGroupProps {
   title?: string
   description?: string
   defaultOpen?: boolean
-  /** Section type for automatic icon mapping */
-  groupType?: SectionType
-  /** Override icon for this group header */
-  icon?: HugeIconData
   children: React.ReactNode
 }
 
@@ -85,8 +78,6 @@ function CollapsibleGroup({
   title,
   description,
   defaultOpen = true,
-  groupType,
-  icon,
   children,
 }: CollapsibleGroupProps) {
   const [isOpen, setIsOpen] = useState(defaultOpen)
@@ -96,9 +87,6 @@ function CollapsibleGroup({
   if (!title) {
     return <>{children}</>
   }
-
-  // Resolve icon: explicit icon > groupType mapping > none
-  const resolvedIcon = icon ?? (groupType ? getSectionIcon(groupType) : undefined)
 
   return (
     <div>
@@ -111,21 +99,11 @@ function CollapsibleGroup({
           aria-expanded={isOpen}
           aria-controls={contentId}
         >
-          <div className="flex items-center gap-1.5">
-            {resolvedIcon && (
-              <HugeIcon
-                icon={resolvedIcon}
-                size="xs"
-                color="tertiary"
-                className="shrink-0"
-              />
+          <div>
+            <h5 className="text-tertiary text-xs font-medium">{title}</h5>
+            {description && (
+              <p className="text-tertiary mt-0.5 text-[10px]">{description}</p>
             )}
-            <div>
-              <h5 className="text-tertiary text-xs font-medium">{title}</h5>
-              {description && (
-                <p className="text-tertiary mt-0.5 text-[10px]">{description}</p>
-              )}
-            </div>
           </div>
           <AnimatedPlusMinus isOpen={isOpen} />
         </button>
@@ -165,8 +143,6 @@ function ControlGroupRenderer({ group, sectionId, onChange }: ControlGroupRender
     controls,
     columns = 1,
     defaultCollapsed = false,
-    groupType,
-    icon,
   } = group
 
   return (
@@ -174,8 +150,6 @@ function ControlGroupRenderer({ group, sectionId, onChange }: ControlGroupRender
       title={title}
       description={description}
       defaultOpen={!defaultCollapsed}
-      groupType={groupType}
-      icon={icon}
     >
       <ControlGrid columns={columns}>
         {controls.map((control) => (

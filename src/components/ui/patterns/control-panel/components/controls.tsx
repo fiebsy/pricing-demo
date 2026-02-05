@@ -316,7 +316,7 @@ interface ToggleControlProps {
 }
 
 export function ToggleControl({ control, onChange }: ToggleControlProps) {
-  const { value, label, icon, disabled } = control
+  const { value, label, disabled } = control
   const checked = value ?? false
 
   return (
@@ -330,10 +330,7 @@ export function ToggleControl({ control, onChange }: ToggleControlProps) {
         disabled && 'pointer-events-none opacity-50'
       )}
     >
-      <span className="flex items-center gap-1.5">
-        {icon && <span className="text-tertiary">{icon}</span>}
-        <span className="text-secondary whitespace-nowrap text-[11px] font-medium">{label}</span>
-      </span>
+      <span className="text-secondary whitespace-nowrap text-[11px] font-medium">{label}</span>
       <span
         className={cx(
           'flex h-5 w-9 shrink-0 items-center rounded-full p-0.5 transition-colors duration-150',
@@ -449,7 +446,6 @@ export function ControlRenderer({ control, sectionId, onChange }: ControlRendere
         onChange={handleChange as (v: number) => void}
         formatLabel={sliderControl.formatLabel}
         disabled={sliderControl.disabled}
-        icon={sliderControl.icon}
       />
     )
   }

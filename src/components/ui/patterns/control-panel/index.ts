@@ -24,7 +24,6 @@ export type {
   // Group & Section types
   ControlGroup,
   Section,
-  SectionType,
   // Preset types
   Preset,
   PresetConfig,
@@ -69,9 +68,6 @@ export type { InlineSliderProps } from './components/controls'
 // =============================================================================
 // Framework Enhancements
 // =============================================================================
-
-// Icons - Section icon registry with pre-populated Hugeicon mappings
-export { getSectionIcon, SECTION_ICON_MAP, hasSectionIcon } from './icons'
 
 // Tokens - Design token constants for consistent styling options
 export * from './tokens'

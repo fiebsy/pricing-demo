@@ -51,7 +51,13 @@ export const DEFAULT_LAYOUT_CONFIG: LayoutConfig = {
   borderRadius: 18,
   topGap: 0,
   bottomGap: 12,
+  leftGap: 0,
+  rightGap: 0,
+  maxLeftWidth: 200,
+  maxRightWidth: 200,
   backdropTopOffset: 0,
+  expandOriginX: 'center',
+  positionMode: 'overlay',
 }
 
 // ============================================================================
@@ -87,6 +93,28 @@ export const DEFAULT_BOTTOM_SLOT_CONFIG: SlotConfig = {
   borderColor: 'primary',
 }
 
+export const DEFAULT_LEFT_SLOT_CONFIG: SlotConfig = {
+  enabled: false,
+  delayOffset: 0,
+  durationOffset: -100,
+  background: 'secondary',
+  borderRadius: 14,
+  inset: 4,
+  borderWidth: 1,
+  borderColor: 'primary',
+}
+
+export const DEFAULT_RIGHT_SLOT_CONFIG: SlotConfig = {
+  enabled: false,
+  delayOffset: 0,
+  durationOffset: -100,
+  background: 'secondary',
+  borderRadius: 14,
+  inset: 4,
+  borderWidth: 1,
+  borderColor: 'primary',
+}
+
 // ============================================================================
 // COMPLETE DEFAULT CONFIG
 // ============================================================================
@@ -107,6 +135,8 @@ export const DEFAULT_BIAXIAL_EXPAND_CONFIG: BiaxialExpandConfig = {
   topSlot: DEFAULT_TOP_SLOT_CONFIG,
   triggerSlot: DEFAULT_TRIGGER_SLOT_CONFIG,
   bottomSlot: DEFAULT_BOTTOM_SLOT_CONFIG,
+  leftSlot: DEFAULT_LEFT_SLOT_CONFIG,
+  rightSlot: DEFAULT_RIGHT_SLOT_CONFIG,
   debug: false,
 }
 

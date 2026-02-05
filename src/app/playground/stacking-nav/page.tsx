@@ -9,7 +9,7 @@
 
 'use client'
 
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   UnifiedControlPanel,
   type ControlChangeEvent,
@@ -21,6 +21,8 @@ import {
   type ActivePath,
 } from '@/components/ui/features/stacking-nav-motion'
 
+import { Badge } from '@/components/ui/core/primitives/badge'
+
 import type {
   PlaygroundConfig,
   ConfigPreset,
@@ -31,6 +33,7 @@ import { NAV_VARIANTS } from './config/nav-items'
 import { SPRING_PRESETS, ENTRY_DIRECTION_PRESETS } from './config/options'
 import { CONFIG_PRESETS, DEFAULT_PLAYGROUND_CONFIG } from './config/presets'
 import { createPanelConfig } from './panels/panel-config'
+import { MOCK_CARDS } from './config/mock-content'
 
 // =============================================================================
 // MAIN PAGE
@@ -40,6 +43,10 @@ export default function StackingNavPlayground() {
   const [config, setConfig] = useState<PlaygroundConfig>(DEFAULT_PLAYGROUND_CONFIG)
   const [resetKey, setResetKey] = useState(0)
   const [currentPath, setCurrentPath] = useState<ActivePath>([])
+
+  // Height-locking refs to prevent scroll jump when filtering reduces content
+  const contentWrapperRef = useRef<HTMLDivElement>(null)
+  const heightLockRef = useRef(false)
 
   // Transform config for component
   // Apply timeScale to all duration-based values (lower timeScale = slower animation)
@@ -109,12 +116,28 @@ export default function StackingNavPlayground() {
       levelAllLabel: config.levelAllLabel,
       levelAllActiveVariant: config.levelAllActiveVariant,
       levelAllInactiveVariant: config.levelAllInactiveVariant,
+      // Container
+      minHeight: config.navMinHeight,
     }),
     [config]
   )
 
   // Get demo items based on variant
   const demoItems = NAV_VARIANTS[config.navVariant].items
+
+  // Filter cards based on current nav selection
+  const filteredCards = useMemo(() => {
+    // Only filter for 'orders' variant (which uses invoices/payments/refunds)
+    if (config.navVariant !== 'orders') return MOCK_CARDS
+    if (currentPath.length === 0) return MOCK_CARDS // "All"
+
+    return MOCK_CARDS.filter((card) => {
+      if (currentPath[0] && card.category !== currentPath[0]) return false
+      if (currentPath[1] && card.status !== currentPath[1]) return false
+      if (currentPath[2] && card.subStatus !== currentPath[2]) return false
+      return true
+    })
+  }, [currentPath, config.navVariant])
 
   // Panel config
   const panelConfig = useMemo(() => createPanelConfig(config), [config])
@@ -239,6 +262,7 @@ export default function StackingNavPlayground() {
   }, [])
 
   const handleSelectionChange = useCallback((path: ActivePath) => {
+    // Height-locking disabled for testing - shows raw scroll jump behavior
     setCurrentPath(path)
   }, [])
 
@@ -266,14 +290,14 @@ export default function StackingNavPlayground() {
     <div className={`min-h-screen ${bgClasses[config.pageBackground]}`}>
       {/* Scrollable container with sticky demo */}
       <div>
-        {/* Tall container for scroll space */}
-        <div className="min-h-[300vh]">
+        {/* Container for scroll space */}
+        <div className="min-h-screen">
           {/* Top spacer - scroll past this to trigger sticky */}
-          <div className="h-[50vh]" />
+          <div className="h-[120px]" />
 
-          {/* Sticky container */}
-          <div className={`sticky top-0 z-10 py-12 ${bgClasses[config.pageBackground]}`}>
-            <div className="flex items-center justify-center px-6">
+          {/* Sticky container with fade */}
+          <div className="sticky top-0 z-10">
+            <div className={`flex items-center justify-center px-6 py-2 ${bgClasses[config.pageBackground]}`}>
               <div
                 className={`relative flex w-full flex-nowrap justify-start ${
                   config.showContainerBounds
@@ -283,6 +307,10 @@ export default function StackingNavPlayground() {
                 style={{
                   maxWidth: `${config.containerWidth}px`,
                   overflow: config.containerOverflow,
+                  paddingTop: config.containerPaddingTop > 0 ? `${config.containerPaddingTop}px` : undefined,
+                  paddingRight: config.containerPaddingRight > 0 ? `${config.containerPaddingRight}px` : undefined,
+                  paddingBottom: config.containerPaddingBottom > 0 ? `${config.containerPaddingBottom}px` : undefined,
+                  paddingLeft: config.containerPaddingLeft > 0 ? `${config.containerPaddingLeft}px` : undefined,
                 }}
               >
                 <StackingNav
@@ -297,49 +325,176 @@ export default function StackingNavPlayground() {
                   onSelectionChange={handleSelectionChange}
                 />
 
-                {/* Right edge gradient mask */}
+                {/* Edge gradient masks - positioned outside container bounds */}
                 {config.showOverflowGradient && (
-                  <div
-                    className="pointer-events-none absolute inset-y-0 right-0 z-[200]"
-                    style={{
-                      width: `${config.gradientWidth}px`,
-                      background: `linear-gradient(to left, ${
-                        config.pageBackground === 'primary'
-                          ? 'var(--color-bg-primary)'
-                          : config.pageBackground === 'secondary'
-                            ? 'var(--color-bg-secondary)'
-                            : config.pageBackground === 'tertiary'
-                              ? 'var(--color-bg-tertiary)'
-                              : config.pageBackground === 'brand'
-                                ? 'var(--color-bg-brand-solid)'
-                                : config.pageBackground === 'black'
-                                  ? '#000'
-                                  : '#fff'
-                      }, transparent)`,
-                    }}
-                  />
+                  <>
+                    {/* Top edge - outside container */}
+                    <div
+                      className="pointer-events-none absolute z-[200]"
+                      style={{
+                        top: `-${config.gradientWidth}px`,
+                        left: `-${config.gradientWidth}px`,
+                        right: `-${config.gradientWidth}px`,
+                        height: `${config.gradientWidth}px`,
+                        background: `linear-gradient(to top, ${
+                          config.pageBackground === 'primary'
+                            ? 'var(--color-bg-primary)'
+                            : config.pageBackground === 'secondary'
+                              ? 'var(--color-bg-secondary)'
+                              : config.pageBackground === 'tertiary'
+                                ? 'var(--color-bg-tertiary)'
+                                : config.pageBackground === 'brand'
+                                  ? 'var(--color-bg-brand-solid)'
+                                  : config.pageBackground === 'black'
+                                    ? '#000'
+                                    : '#fff'
+                        }, transparent)`,
+                      }}
+                    />
+                    {/* Right edge - outside container */}
+                    <div
+                      className="pointer-events-none absolute z-[200]"
+                      style={{
+                        top: 0,
+                        bottom: 0,
+                        right: `-${config.gradientWidth}px`,
+                        width: `${config.gradientWidth}px`,
+                        background: `linear-gradient(to right, ${
+                          config.pageBackground === 'primary'
+                            ? 'var(--color-bg-primary)'
+                            : config.pageBackground === 'secondary'
+                              ? 'var(--color-bg-secondary)'
+                              : config.pageBackground === 'tertiary'
+                                ? 'var(--color-bg-tertiary)'
+                                : config.pageBackground === 'brand'
+                                  ? 'var(--color-bg-brand-solid)'
+                                  : config.pageBackground === 'black'
+                                    ? '#000'
+                                    : '#fff'
+                        }, transparent)`,
+                      }}
+                    />
+                    {/* Bottom edge - outside container */}
+                    <div
+                      className="pointer-events-none absolute z-[200]"
+                      style={{
+                        bottom: `-${config.gradientWidth}px`,
+                        left: `-${config.gradientWidth}px`,
+                        right: `-${config.gradientWidth}px`,
+                        height: `${config.gradientWidth}px`,
+                        background: `linear-gradient(to bottom, ${
+                          config.pageBackground === 'primary'
+                            ? 'var(--color-bg-primary)'
+                            : config.pageBackground === 'secondary'
+                              ? 'var(--color-bg-secondary)'
+                              : config.pageBackground === 'tertiary'
+                                ? 'var(--color-bg-tertiary)'
+                                : config.pageBackground === 'brand'
+                                  ? 'var(--color-bg-brand-solid)'
+                                  : config.pageBackground === 'black'
+                                    ? '#000'
+                                    : '#fff'
+                        }, transparent)`,
+                      }}
+                    />
+                    {/* Left edge - outside container */}
+                    <div
+                      className="pointer-events-none absolute z-[200]"
+                      style={{
+                        top: 0,
+                        bottom: 0,
+                        left: `-${config.gradientWidth}px`,
+                        width: `${config.gradientWidth}px`,
+                        background: `linear-gradient(to left, ${
+                          config.pageBackground === 'primary'
+                            ? 'var(--color-bg-primary)'
+                            : config.pageBackground === 'secondary'
+                              ? 'var(--color-bg-secondary)'
+                              : config.pageBackground === 'tertiary'
+                                ? 'var(--color-bg-tertiary)'
+                                : config.pageBackground === 'brand'
+                                  ? 'var(--color-bg-brand-solid)'
+                                  : config.pageBackground === 'black'
+                                    ? '#000'
+                                    : '#fff'
+                        }, transparent)`,
+                      }}
+                    />
+                  </>
                 )}
               </div>
             </div>
+            {/* Bottom fade for sticky nav */}
+            <div
+              className="pointer-events-none h-4"
+              style={{
+                background: `linear-gradient(to bottom, ${
+                  config.pageBackground === 'primary'
+                    ? 'var(--color-bg-primary)'
+                    : config.pageBackground === 'secondary'
+                      ? 'var(--color-bg-secondary)'
+                      : config.pageBackground === 'tertiary'
+                        ? 'var(--color-bg-tertiary)'
+                        : config.pageBackground === 'brand'
+                          ? 'var(--color-bg-brand-solid)'
+                          : config.pageBackground === 'black'
+                            ? '#000'
+                            : '#fff'
+                }, transparent)`,
+              }}
+            />
           </div>
 
-          {/* Content rows - scroll beneath sticky nav */}
-          <div className="flex justify-center px-6 py-8">
+          {/* Content cards - scroll beneath sticky nav */}
+          <div ref={contentWrapperRef} className="relative flex justify-center px-6 pt-4 pb-32">
             <div
-              className="w-full space-y-6"
+              className="grid w-full grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4"
               style={{ maxWidth: `${config.containerWidth}px` }}
             >
-              {Array.from({ length: 12 }).map((_, rowIndex) => (
-                <div key={rowIndex} className="flex gap-4">
-                  {Array.from({ length: 4 }).map((_, colIndex) => (
-                    <div
-                      key={colIndex}
-                      className="h-32 flex-1 rounded-2xl border border-primary/10 bg-tertiary/50"
-                    />
-                  ))}
+              {filteredCards.map((card) => (
+                <div
+                  key={card.id}
+                  className="shine-2-subtle rounded-2xl bg-secondary/30 p-4"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-xs text-primary/40">
+                        {card.title}
+                      </p>
+                      <p className="truncate text-xs text-primary/20">
+                        {card.subtitle}
+                      </p>
+                    </div>
+                    <Badge color="gray" size="xs" shape="squircle" className="opacity-50">
+                      {card.badgeLabel}
+                    </Badge>
+                  </div>
+                  <p className="mt-3 text-sm font-medium text-primary/40">
+                    {card.amount}
+                  </p>
                 </div>
               ))}
             </div>
+
+            {/* Gradient fade at bottom */}
+            <div
+              className="pointer-events-none absolute inset-x-0 bottom-0 h-32"
+              style={{
+                background: `linear-gradient(to top, ${
+                  config.pageBackground === 'primary'
+                    ? 'var(--color-bg-primary)'
+                    : config.pageBackground === 'secondary'
+                      ? 'var(--color-bg-secondary)'
+                      : config.pageBackground === 'tertiary'
+                        ? 'var(--color-bg-tertiary)'
+                        : config.pageBackground === 'brand'
+                          ? 'var(--color-bg-brand-solid)'
+                          : config.pageBackground === 'black'
+                            ? '#000'
+                            : '#fff'
+                }, transparent)`,
+              }}
+            />
           </div>
         </div>
       </div>

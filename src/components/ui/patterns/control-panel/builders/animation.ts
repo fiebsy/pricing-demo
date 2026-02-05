@@ -24,6 +24,7 @@ export interface AnimationValues {
   delay?: string
   spring?: string
   stagger?: number
+  slowMode?: boolean
 }
 
 export interface AnimationOptions extends BuilderOptions {
@@ -35,6 +36,8 @@ export interface AnimationOptions extends BuilderOptions {
   includeStagger?: boolean
   /** Max stagger value in ms (default: 200) */
   maxStagger?: number
+  /** Include slow mode toggle (default: true) */
+  includeSlowMode?: boolean
 }
 
 // -----------------------------------------------------------------------------
@@ -60,7 +63,25 @@ export function createAnimationSection(config: {
   const easingOptions = options.useCommonEasings !== false ? COMMON_EASING_OPTIONS : EASING_OPTIONS
   const maxStagger = options.maxStagger ?? 200
 
-  const groups: GroupDefinition[] = [
+  const groups: GroupDefinition[] = []
+
+  // Add slow mode control at the start if enabled (default: true)
+  if (options.includeSlowMode !== false) {
+    groups.push({
+      key: 'slowMode',
+      title: 'Debug',
+      controls: [
+        {
+          type: 'toggle',
+          id: 'slowMode',
+          label: 'Slow Mode (3x)',
+          value: values.slowMode ?? false,
+        } as Control,
+      ],
+    })
+  }
+
+  groups.push(
     {
       key: 'duration',
       title: 'Duration',
@@ -108,8 +129,8 @@ export function createAnimationSection(config: {
           })),
         } as Control,
       ],
-    },
-  ]
+    }
+  )
 
   // Add spring controls if enabled
   if (options.includeSpring) {
@@ -155,7 +176,6 @@ export function createAnimationSection(config: {
     {
       id: 'animation',
       title: 'Animation',
-      sectionType: 'animation',
     },
     groups,
     options

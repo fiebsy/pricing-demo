@@ -98,7 +98,6 @@ export function createColorsSection(config: {
     {
       id: 'colors',
       title: 'Colors',
-      sectionType: 'colors',
     },
     groups,
     options

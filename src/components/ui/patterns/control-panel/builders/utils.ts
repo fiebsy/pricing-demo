@@ -4,7 +4,7 @@
 // Shared utilities for section builder functions.
 // =============================================================================
 
-import type { Control, ControlGroup, Section, SectionType } from '../types'
+import type { Control, ControlGroup, Section } from '../types'
 
 // -----------------------------------------------------------------------------
 // Types
@@ -73,7 +73,6 @@ export function createSection(
     id: string
     title: string
     label?: string
-    sectionType: SectionType
   },
   groups: GroupDefinition[],
   options: BuilderOptions = {}
@@ -84,7 +83,6 @@ export function createSection(
     id: options.id ?? defaults.id,
     title: options.title ?? defaults.title,
     label: options.label ?? defaults.label ?? defaults.title,
-    sectionType: defaults.sectionType,
     defaultCollapsed: options.defaultCollapsed,
     groups: toControlGroups(filteredGroups),
   }

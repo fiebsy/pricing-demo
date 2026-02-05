@@ -17,6 +17,7 @@ import { cn } from '@/lib/utils'
 import { useBiaxialExpand } from '../context'
 import { getBackgroundClass, getBorderColorVar } from '../utils'
 import { getTopSectionClipPath, getSlotContainerClipPath } from '../utils'
+import { getHorizontalPosition } from '../utils/positioning'
 import { EASING_EXPO_OUT } from '../constants'
 import type { SlotProps } from '../types'
 
@@ -99,6 +100,10 @@ export const TopSlot: React.FC<SlotProps> = ({
   // Total height: slot height + inset (only for non-auto modes)
   const totalHeight = isAutoHeight ? undefined : (effectiveHeight! + inset)
 
+  // Get horizontal positioning based on expandOriginX
+  const expandOriginX = config.layout.expandOriginX ?? 'center'
+  const horizontalPos = getHorizontalPosition(expandOriginX, config.layout.panelWidth, config.layout.panelWidth)
+
   return (
     <div
       ref={refs.top}
@@ -106,9 +111,10 @@ export const TopSlot: React.FC<SlotProps> = ({
       style={{
         zIndex: 20,
         bottom: '100%',
-        left: '50%',
+        left: horizontalPos.left,
+        right: horizontalPos.right,
         width: config.layout.panelWidth,
-        marginLeft: -(config.layout.panelWidth / 2),
+        marginLeft: horizontalPos.marginLeft,
         marginBottom: config.layout.topGap ?? 0,
         ...(totalHeight !== undefined && { height: totalHeight }),
         clipPath: outerClipPath,

@@ -18,8 +18,10 @@ import type { MenuAppearance } from '@/components/ui/core/primitives/menu/types'
  * - 'top': Expands upward from the trigger
  * - 'trigger': The anchor element (input, button, etc.)
  * - 'bottom': Expands downward from the trigger
+ * - 'left': Expands leftward from the trigger
+ * - 'right': Expands rightward from the trigger
  */
-export type SlotPosition = 'top' | 'trigger' | 'bottom'
+export type SlotPosition = 'top' | 'trigger' | 'bottom' | 'left' | 'right'
 
 /**
  * Configuration for individual slots.
@@ -79,9 +81,21 @@ export type BorderColorOption =
 export type BackdropAnimationMode = 'size' | 'clip-path'
 
 /**
- * Expansion direction for content.
+ * Expansion direction for content (vertical).
  */
 export type ExpandOrigin = 'top' | 'center' | 'bottom'
+
+/**
+ * Horizontal expansion origin.
+ */
+export type ExpandOriginX = 'left' | 'center' | 'right'
+
+/**
+ * Position mode for expanded panel.
+ * - 'overlay': Panel floats above page content (default)
+ * - 'push': Expanding panel pushes content below it
+ */
+export type PositionMode = 'overlay' | 'push'
 
 /**
  * Core animation configuration.
@@ -131,6 +145,10 @@ export interface SlotDimensions {
   panelWidth: number
   /** Collapsed trigger width */
   triggerWidth: number
+  /** Left slot width when expanded */
+  leftWidth: number
+  /** Right slot width when expanded */
+  rightWidth: number
 }
 
 /**
@@ -156,8 +174,20 @@ export interface LayoutConfig {
   topGap: number
   /** Gap between trigger and bottom slot */
   bottomGap: number
+  /** Gap between left slot and trigger */
+  leftGap?: number
+  /** Gap between trigger and right slot */
+  rightGap?: number
+  /** Maximum width for left slot */
+  maxLeftWidth?: number
+  /** Maximum width for right slot */
+  maxRightWidth?: number
   /** Backdrop top offset */
   backdropTopOffset: number
+  /** Horizontal expansion origin @default 'center' */
+  expandOriginX?: ExpandOriginX
+  /** Position mode @default 'overlay' */
+  positionMode?: PositionMode
 }
 
 // ============================================================================
@@ -184,6 +214,8 @@ export interface BiaxialExpandConfig {
   topSlot: SlotConfig
   triggerSlot: SlotConfig
   bottomSlot: SlotConfig
+  leftSlot: SlotConfig
+  rightSlot: SlotConfig
 
   // Confidence level for visual feedback (0-1, null/undefined = no feedback)
   confidenceLevel?: number | null
@@ -222,13 +254,17 @@ export interface BiaxialExpandContextValue {
     top: React.RefObject<HTMLDivElement | null>
     trigger: React.RefObject<HTMLDivElement | null>
     bottom: React.RefObject<HTMLDivElement | null>
+    left: React.RefObject<HTMLDivElement | null>
+    right: React.RefObject<HTMLDivElement | null>
   }
 
   // Dimension setters (called by slots)
   setSlotHeight: (slot: SlotPosition, height: number) => void
+  setSlotWidth: (slot: 'left' | 'right', width: number) => void
 
   // Calculated values
   totalExpandedHeight: number
+  totalExpandedWidth: number
 
   // Animation timing
   timing: {

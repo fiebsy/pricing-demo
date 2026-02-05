@@ -22,16 +22,25 @@ import { BiaxialExpand, useBiaxialExpand } from '@/components/ui/core/primitives
 function MyExpandableComponent() {
   return (
     <BiaxialExpand.Root config={myConfig}>
-      {/* Visual backdrop (background, shadow) */}
-      <BiaxialExpand.Backdrop />
-
-      {/* Content that expands UPWARD */}
+      {/* Content that expands UPWARD (outside ContentLayer) */}
       <BiaxialExpand.TopSlot>
         <MyTopContent />
       </BiaxialExpand.TopSlot>
 
-      {/* Main content layer with trigger */}
+      {/* Visual backdrop (background, shadow) */}
+      <BiaxialExpand.Backdrop />
+
+      {/* Main content layer - unified clip-path for trigger, bottom, and horizontal slots */}
       <BiaxialExpand.Content>
+        {/* Horizontal slots go INSIDE Content for unified clipping */}
+        <BiaxialExpand.LeftSlot>
+          <MyLeftContent />
+        </BiaxialExpand.LeftSlot>
+
+        <BiaxialExpand.RightSlot>
+          <MyRightContent />
+        </BiaxialExpand.RightSlot>
+
         <BiaxialExpand.Trigger>
           <MyTriggerInput />
         </BiaxialExpand.Trigger>
@@ -53,21 +62,21 @@ function MyExpandableComponent() {
 ## Architecture
 
 ```
-┌─────────────────────────────────────┐
-│           TopSlot                   │  ← Expands UPWARD (filters, tabs, etc.)
-│   (clip-path animation reveal)      │
-├─────────────────────────────────────┤
-│                                     │
-│    ┌───────────────────────────┐    │
-│    │        Trigger            │    │  ← Always visible (input, button)
-│    └───────────────────────────┘    │
-│                                     │
-├─────────────────────────────────────┤
-│          BottomSlot                 │  ← Expands DOWNWARD (menu, results, chat)
-│   (clip-path animation reveal)      │
-└─────────────────────────────────────┘
-        ↑
-    Backdrop (background, shadow, shine effects)
+                     TopSlot (outside)
+                         ↑
+┌────────────────────────┴────────────────────────┐
+│                                                 │
+│   ┌─────────┬───────────────────┬──────────┐   │
+│   │LeftSlot │     Trigger       │ RightSlot│   │  ← ContentLayer (unified clip-path)
+│   │    ←    │                   │    →     │   │
+│   ├─────────┴───────────────────┴──────────┤   │
+│   │              BottomSlot                │   │
+│   │          (expands DOWNWARD)            │   │
+│   └────────────────────────────────────────┘   │
+│                                                 │
+└─────────────────────────────────────────────────┘
+                         ↑
+              Backdrop (background, shadow, shine)
 ```
 
 ### Component Hierarchy
@@ -76,8 +85,10 @@ function MyExpandableComponent() {
 |-----------|---------|
 | `Root` | Provider + state management |
 | `Backdrop` | Visual styling layer (bg, shadow, shine) |
-| `TopSlot` | Upward-expanding content area |
-| `Content` | Main clip-path container |
+| `TopSlot` | Upward-expanding content area (outside ContentLayer) |
+| `Content` | Main clip-path container (includes horizontal slots) |
+| `LeftSlot` | Leftward-expanding content (inside ContentLayer) |
+| `RightSlot` | Rightward-expanding content (inside ContentLayer) |
 | `Trigger` | Always-visible trigger element |
 | `ContentWrapper` | Positions bottom content |
 | `BottomSlot` | Downward-expanding content area |

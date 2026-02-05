@@ -141,10 +141,15 @@ export interface PlaygroundConfig {
 
   // Container debug
   containerWidth: number // px
+  navMinHeight: number // px (0 = auto)
   showContainerBounds: boolean
 
   // Container overflow
   containerOverflow: 'visible' | 'hidden' | 'clip'
   showOverflowGradient: boolean
   gradientWidth: number // px
+  containerPaddingTop: number // px
+  containerPaddingRight: number // px
+  containerPaddingBottom: number // px
+  containerPaddingLeft: number // px
 }

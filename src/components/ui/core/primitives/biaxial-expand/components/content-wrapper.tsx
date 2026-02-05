@@ -3,6 +3,9 @@
  *
  * Positions the bottom content area below the trigger.
  * Handles opacity fade animation for menu content.
+ *
+ * When horizontal slots are inside ContentLayer, the wrapper is positioned
+ * within the panel area (accounting for left/right slot contributions).
  */
 
 'use client'
@@ -25,8 +28,15 @@ export const ContentWrapper: React.FC<ContentWrapperProps> = ({
   const { expanded, config, dimensions, timing } = useBiaxialExpand()
 
   const { layout, animation } = config
-  const { triggerHeight, bottomGap } = layout
+  const { triggerHeight, bottomGap, panelWidth } = layout
   const { contentFadeDuration, contentFadeDelay } = animation
+
+  // Calculate left slot contribution to offset content wrapper
+  const leftInset = config.leftSlot.appearance?.inset ?? config.leftSlot.inset ?? 4
+  const leftGap = layout.leftGap ?? 0
+  const leftContribution = config.leftSlot.enabled
+    ? dimensions.leftWidth + (leftInset * 2) + leftGap
+    : 0
 
   // Position below trigger + gap (only apply gap when bottom slot is enabled)
   const effectiveBottomGap = config.bottomSlot.enabled ? bottomGap : 0
@@ -42,8 +52,8 @@ export const ContentWrapper: React.FC<ContentWrapperProps> = ({
       style={{
         position: 'absolute',
         top: topOffset,
-        left: 0,
-        right: 0,
+        left: leftContribution,
+        width: panelWidth,
         height: dimensions.bottomHeight,
         opacity: expanded ? 1 : 0,
         transition: `opacity ${fadeDuration}ms ${EASING_EXPO_OUT} ${fadeDelay}ms`,

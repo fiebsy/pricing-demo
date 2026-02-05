@@ -192,6 +192,9 @@ export interface StyleConfig {
   levelAllActiveVariant: ButtonVariant
   /** Button variant for level-all when inactive (a child is selected) */
   levelAllInactiveVariant: ButtonVariant
+
+  /** Minimum height of the nav container in pixels (0 = auto) */
+  minHeight: number
 }
 
 // =============================================================================

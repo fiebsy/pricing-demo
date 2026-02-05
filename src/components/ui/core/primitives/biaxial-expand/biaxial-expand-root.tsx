@@ -20,7 +20,7 @@ import {
 } from 'react'
 import { cn } from '@/lib/utils'
 import { BiaxialExpandProvider } from './context'
-import { DEFAULT_BIAXIAL_EXPAND_CONFIG } from './constants'
+import { DEFAULT_BIAXIAL_EXPAND_CONFIG, EASING_EXPO_OUT } from './constants'
 import { deepMerge } from './utils'
 import type {
   BiaxialExpandRootProps,
@@ -66,12 +66,22 @@ export const BiaxialExpandRoot: React.FC<BiaxialExpandRootProps> = ({
     ? (config.layout.maxTopHeight ?? config.topSlot.height ?? 48)
     : 0
 
+  const initialLeftWidth = config.leftSlot.enabled
+    ? (config.layout.maxLeftWidth ?? 200)
+    : 0
+
+  const initialRightWidth = config.rightSlot.enabled
+    ? (config.layout.maxRightWidth ?? 200)
+    : 0
+
   const [dimensions, setDimensions] = useState<SlotDimensions>({
     topHeight: initialTopHeight,
     triggerHeight: config.layout.triggerHeight,
     bottomHeight: config.layout.maxBottomHeight,
     panelWidth: config.layout.panelWidth,
     triggerWidth: config.layout.triggerWidth,
+    leftWidth: initialLeftWidth,
+    rightWidth: initialRightWidth,
   })
 
   // Refs
@@ -79,6 +89,8 @@ export const BiaxialExpandRoot: React.FC<BiaxialExpandRootProps> = ({
   const topRef = useRef<HTMLDivElement>(null)
   const triggerRef = useRef<HTMLDivElement>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
+  const leftRef = useRef<HTMLDivElement>(null)
+  const rightRef = useRef<HTMLDivElement>(null)
 
   // Expanded state handler
   const setExpanded = useCallback(
@@ -96,6 +108,18 @@ export const BiaxialExpandRoot: React.FC<BiaxialExpandRootProps> = ({
         const key = `${slot}Height` as keyof SlotDimensions
         if (prev[key] === height) return prev
         return { ...prev, [key]: height }
+      })
+    },
+    []
+  )
+
+  // Slot width setter (for horizontal slots)
+  const setSlotWidth = useCallback(
+    (slot: 'left' | 'right', width: number) => {
+      setDimensions((prev) => {
+        const key = `${slot}Width` as keyof SlotDimensions
+        if (prev[key] === width) return prev
+        return { ...prev, [key]: width }
       })
     },
     []
@@ -147,6 +171,22 @@ export const BiaxialExpandRoot: React.FC<BiaxialExpandRootProps> = ({
     return triggerHeight + bottomGap + dimensions.bottomHeight
   }, [config.layout, dimensions.bottomHeight])
 
+  // Calculate total expanded width (for horizontal push mode)
+  const totalExpandedWidth = useMemo(() => {
+    const { leftGap = 0, rightGap = 0, panelWidth } = config.layout
+    const leftSlotInset = config.leftSlot.inset ?? 4
+    const rightSlotInset = config.rightSlot.inset ?? 4
+
+    const leftContribution = config.leftSlot.enabled
+      ? dimensions.leftWidth + leftSlotInset + leftGap
+      : 0
+    const rightContribution = config.rightSlot.enabled
+      ? dimensions.rightWidth + rightSlotInset + rightGap
+      : 0
+
+    return leftContribution + panelWidth + rightContribution
+  }, [config.layout, config.leftSlot, config.rightSlot, dimensions.leftWidth, dimensions.rightWidth])
+
   // Calculate timing functions
   const timing = useMemo(() => {
     const { animation } = config
@@ -192,9 +232,13 @@ export const BiaxialExpandRoot: React.FC<BiaxialExpandRootProps> = ({
         top: topRef,
         trigger: triggerRef,
         bottom: bottomRef,
+        left: leftRef,
+        right: rightRef,
       },
       setSlotHeight,
+      setSlotWidth,
       totalExpandedHeight,
+      totalExpandedWidth,
       timing,
     }),
     [
@@ -205,10 +249,21 @@ export const BiaxialExpandRoot: React.FC<BiaxialExpandRootProps> = ({
       config,
       dimensions,
       setSlotHeight,
+      setSlotWidth,
       totalExpandedHeight,
+      totalExpandedWidth,
       timing,
     ]
   )
+
+  // Get position mode and timing for push mode
+  const positionMode = config.layout.positionMode ?? 'overlay'
+  const isPushMode = positionMode === 'push'
+
+  // Calculate container height for push mode
+  const containerHeight = isPushMode && expanded
+    ? totalExpandedHeight
+    : config.layout.triggerHeight
 
   return (
     <BiaxialExpandProvider value={contextValue}>
@@ -217,9 +272,13 @@ export const BiaxialExpandRoot: React.FC<BiaxialExpandRootProps> = ({
         className={cn('relative inline-block overflow-visible', className)}
         style={{
           width: config.layout.triggerWidth,
-          height: config.layout.triggerHeight,
+          height: containerHeight,
           // Elevate z-index when expanded so this menu appears above siblings
           zIndex: expanded ? 50 : 'auto',
+          // Animate height in push mode
+          transition: isPushMode
+            ? `height ${timing.duration}ms ${EASING_EXPO_OUT}`
+            : undefined,
         }}
       >
         {children}

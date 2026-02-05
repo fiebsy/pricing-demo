@@ -120,7 +120,6 @@ export function createTypographySection(config: {
     {
       id: 'typography',
       title: 'Typography',
-      sectionType: 'typography',
     },
     groups,
     options

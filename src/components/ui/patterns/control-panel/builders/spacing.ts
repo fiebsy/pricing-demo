@@ -201,7 +201,6 @@ export function createSpacingSection(config: {
     {
       id: 'spacing',
       title: 'Spacing',
-      sectionType: 'spacing',
     },
     groups,
     options

@@ -1,0 +1,406 @@
+/**
+ * BiaxialExpand Playground Presets
+ *
+ * Preset categories:
+ * - default: Balanced settings for general use
+ * - use-case: Specific implementations (command menu, metric card)
+ * - minimal: Simplified configurations
+ * - custom: User-defined variations
+ */
+
+import type { BiaxialExpandPresetMeta, BiaxialExpandPlaygroundConfig } from './types'
+
+// ============================================================================
+// DEFAULT CONFIG
+// ============================================================================
+
+export const DEFAULT_BIAXIAL_EXPAND_PLAYGROUND_CONFIG: BiaxialExpandPlaygroundConfig = {
+  layout: {
+    triggerWidth: 280,
+    triggerHeight: 44,
+    panelWidth: 380,
+    maxTopHeight: 0,
+    maxBottomHeight: 340,
+    maxLeftWidth: 120,
+    maxRightWidth: 120,
+    borderRadius: 20,
+    topGap: 0,
+    bottomGap: 12,
+    leftGap: 0,
+    rightGap: 0,
+    backdropTopOffset: 0,
+    expandOriginX: 'center',
+    positionMode: 'overlay',
+  },
+  animation: {
+    duration: 350,
+    collapseDuration: 125,
+    contentFadeDuration: 0,
+    contentFadeDelay: 0,
+    backdropMode: 'size',
+    backdropDelay: 0,
+    backdropDurationOffset: 0,
+    animateSlotContainers: true,
+    slotContainerDelay: 0,
+    slotContainerDurationOffset: 100,
+    expandOrigin: 'top',
+    topExpandOrigin: 'bottom',
+  },
+  appearance: {
+    borderRadius: '2xl',
+    shadow: '2xl',
+    shine: 'shine-2-subtle',
+    background: 'tertiary',
+    gradient: 'subtle-depth-md',
+    gradientColor: 'tertiary',
+    squircle: true,
+  },
+  topSlot: {
+    enabled: false,
+    heightMode: 'fixed',
+    height: 48,
+    delayOffset: 0,
+    durationOffset: -100,
+    background: 'secondary',
+    shine: 'none',
+    borderRadius: 14,
+    inset: 4,
+    borderWidth: 1,
+    borderColor: 'primary',
+  },
+  bottomSlot: {
+    enabled: true,
+    heightMode: 'dynamic',
+    height: 200,
+    delayOffset: 0,
+    durationOffset: 100,
+    background: 'secondary',
+    shine: 'none',
+    borderRadius: 14,
+    inset: 4,
+    borderWidth: 1,
+    borderColor: 'primary',
+  },
+  leftSlot: {
+    enabled: false,
+    heightMode: 'fixed',
+    height: 0,
+    delayOffset: 0,
+    durationOffset: -100,
+    background: 'secondary',
+    shine: 'none',
+    borderRadius: 14,
+    inset: 4,
+    borderWidth: 1,
+    borderColor: 'primary',
+  },
+  rightSlot: {
+    enabled: false,
+    heightMode: 'fixed',
+    height: 0,
+    delayOffset: 0,
+    durationOffset: -100,
+    background: 'secondary',
+    shine: 'none',
+    borderRadius: 14,
+    inset: 4,
+    borderWidth: 1,
+    borderColor: 'primary',
+  },
+  demo: {
+    variant: 'command-menu',
+    pageBackground: 'primary',
+    showDebug: false,
+    slowMo: false,
+  },
+}
+
+// ============================================================================
+// PRESETS
+// ============================================================================
+
+export const BIAXIAL_EXPAND_PRESETS: BiaxialExpandPresetMeta[] = [
+  {
+    id: 'default',
+    name: 'Default',
+    category: 'default',
+    description: 'Balanced settings for general use',
+    data: DEFAULT_BIAXIAL_EXPAND_PLAYGROUND_CONFIG,
+  },
+  {
+    id: 'command-menu',
+    name: 'Command Menu',
+    category: 'use-case',
+    description: 'Full command menu with search and menu content',
+    data: {
+      ...DEFAULT_BIAXIAL_EXPAND_PLAYGROUND_CONFIG,
+      layout: {
+        ...DEFAULT_BIAXIAL_EXPAND_PLAYGROUND_CONFIG.layout,
+        triggerWidth: 300,
+        panelWidth: 420,
+        maxBottomHeight: 380,
+      },
+      demo: {
+        variant: 'command-menu',
+        pageBackground: 'primary',
+        showDebug: false,
+        slowMo: false,
+      },
+    },
+  },
+  {
+    id: 'command-menu-with-filters',
+    name: 'Command Menu + Filters',
+    category: 'use-case',
+    description: 'Command menu with top filter bar',
+    data: {
+      ...DEFAULT_BIAXIAL_EXPAND_PLAYGROUND_CONFIG,
+      layout: {
+        ...DEFAULT_BIAXIAL_EXPAND_PLAYGROUND_CONFIG.layout,
+        triggerWidth: 300,
+        panelWidth: 420,
+        maxTopHeight: 60,
+        maxBottomHeight: 340,
+        topGap: 8,
+      },
+      topSlot: {
+        enabled: true,
+        heightMode: 'fixed',
+        height: 48,
+        delayOffset: 0,
+        durationOffset: -100,
+        background: 'secondary',
+        shine: 'none',
+        borderRadius: 14,
+        inset: 4,
+        borderWidth: 1,
+        borderColor: 'primary',
+      },
+      demo: {
+        variant: 'command-menu',
+        pageBackground: 'primary',
+        showDebug: false,
+        slowMo: false,
+      },
+    },
+  },
+  {
+    id: 'dashboard-metric',
+    name: 'Dashboard Metric',
+    category: 'use-case',
+    description: 'Metric card that expands to show details',
+    data: {
+      ...DEFAULT_BIAXIAL_EXPAND_PLAYGROUND_CONFIG,
+      layout: {
+        ...DEFAULT_BIAXIAL_EXPAND_PLAYGROUND_CONFIG.layout,
+        triggerWidth: 200,
+        triggerHeight: 80,
+        panelWidth: 320,
+        maxTopHeight: 0,
+        maxBottomHeight: 200,
+        borderRadius: 16,
+        topGap: 0,
+        bottomGap: 8,
+        backdropTopOffset: 0,
+      },
+      animation: {
+        ...DEFAULT_BIAXIAL_EXPAND_PLAYGROUND_CONFIG.animation,
+        duration: 300,
+        collapseDuration: 150,
+      },
+      appearance: {
+        borderRadius: 'xl',
+        shadow: 'lg',
+        shine: 'shine-1-subtle',
+        background: 'secondary',
+        gradient: 'subtle-depth-sm',
+        gradientColor: 'secondary',
+        squircle: true,
+      },
+      bottomSlot: {
+        enabled: true,
+        heightMode: 'auto',
+        height: 150,
+        delayOffset: 0,
+        durationOffset: 50,
+        background: 'tertiary',
+        shine: 'none',
+        borderRadius: 12,
+        inset: 4,
+        borderWidth: 1,
+        borderColor: 'secondary',
+      },
+      demo: {
+        variant: 'dashboard-metric',
+        pageBackground: 'primary',
+        showDebug: false,
+        slowMo: false,
+      },
+    },
+  },
+  {
+    id: 'minimal',
+    name: 'Minimal',
+    category: 'minimal',
+    description: 'Simplified with minimal styling',
+    data: {
+      ...DEFAULT_BIAXIAL_EXPAND_PLAYGROUND_CONFIG,
+      layout: {
+        ...DEFAULT_BIAXIAL_EXPAND_PLAYGROUND_CONFIG.layout,
+        triggerWidth: 200,
+        triggerHeight: 36,
+        panelWidth: 280,
+        maxTopHeight: 0,
+        maxBottomHeight: 200,
+        borderRadius: 12,
+        topGap: 0,
+        bottomGap: 8,
+        backdropTopOffset: 0,
+      },
+      appearance: {
+        borderRadius: 'lg',
+        shadow: 'md',
+        shine: 'none',
+        background: 'secondary',
+        gradient: 'none',
+        gradientColor: 'secondary',
+        squircle: false,
+      },
+      topSlot: {
+        ...DEFAULT_BIAXIAL_EXPAND_PLAYGROUND_CONFIG.topSlot,
+        enabled: false,
+      },
+      bottomSlot: {
+        enabled: true,
+        heightMode: 'auto',
+        height: 150,
+        delayOffset: 0,
+        durationOffset: 50,
+        background: 'none',
+        shine: 'none',
+        borderRadius: 8,
+        inset: 0,
+        borderWidth: 0,
+        borderColor: 'primary',
+      },
+      demo: {
+        variant: 'custom',
+        pageBackground: 'primary',
+        showDebug: false,
+        slowMo: false,
+      },
+    },
+  },
+  {
+    id: 'filter-dropdown',
+    name: 'Filter Dropdown',
+    category: 'use-case',
+    description: 'Top slot focus with filter bar above trigger',
+    data: {
+      ...DEFAULT_BIAXIAL_EXPAND_PLAYGROUND_CONFIG,
+      layout: {
+        ...DEFAULT_BIAXIAL_EXPAND_PLAYGROUND_CONFIG.layout,
+        triggerWidth: 180,
+        triggerHeight: 40,
+        panelWidth: 320,
+        maxTopHeight: 200,
+        maxBottomHeight: 0,
+        borderRadius: 16,
+        topGap: 8,
+        bottomGap: 0,
+        backdropTopOffset: 0,
+      },
+      topSlot: {
+        enabled: true,
+        heightMode: 'auto',
+        height: 150,
+        delayOffset: 0,
+        durationOffset: 0,
+        background: 'secondary',
+        shine: 'none',
+        borderRadius: 12,
+        inset: 4,
+        borderWidth: 1,
+        borderColor: 'primary',
+      },
+      bottomSlot: {
+        ...DEFAULT_BIAXIAL_EXPAND_PLAYGROUND_CONFIG.bottomSlot,
+        enabled: false,
+      },
+      demo: {
+        variant: 'custom',
+        pageBackground: 'primary',
+        showDebug: false,
+        slowMo: false,
+      },
+    },
+  },
+  {
+    id: 'horizontal-expand',
+    name: 'Horizontal Expand',
+    category: 'use-case',
+    description: 'Trigger with left and right action slots',
+    data: {
+      ...DEFAULT_BIAXIAL_EXPAND_PLAYGROUND_CONFIG,
+      layout: {
+        ...DEFAULT_BIAXIAL_EXPAND_PLAYGROUND_CONFIG.layout,
+        triggerWidth: 200,
+        triggerHeight: 48,
+        panelWidth: 280,
+        maxLeftWidth: 80,
+        maxRightWidth: 80,
+        maxBottomHeight: 0,
+        borderRadius: 16,
+        leftGap: 8,
+        rightGap: 8,
+        bottomGap: 0,
+      },
+      bottomSlot: {
+        ...DEFAULT_BIAXIAL_EXPAND_PLAYGROUND_CONFIG.bottomSlot,
+        enabled: false,
+      },
+      leftSlot: {
+        enabled: true,
+        heightMode: 'fixed',
+        height: 0,
+        delayOffset: 0,
+        durationOffset: -50,
+        background: 'secondary',
+        shine: 'none',
+        borderRadius: 12,
+        inset: 4,
+        borderWidth: 1,
+        borderColor: 'primary',
+      },
+      rightSlot: {
+        enabled: true,
+        heightMode: 'fixed',
+        height: 0,
+        delayOffset: 0,
+        durationOffset: -50,
+        background: 'secondary',
+        shine: 'none',
+        borderRadius: 12,
+        inset: 4,
+        borderWidth: 1,
+        borderColor: 'primary',
+      },
+      demo: {
+        variant: 'custom',
+        pageBackground: 'primary',
+        showDebug: false,
+        slowMo: false,
+      },
+    },
+  },
+]
+
+// ============================================================================
+// HELPERS
+// ============================================================================
+
+export const getPresetById = (id: string): BiaxialExpandPresetMeta | undefined =>
+  BIAXIAL_EXPAND_PRESETS.find((p) => p.id === id)
+
+export const getPresetsByCategory = (category: string): BiaxialExpandPresetMeta[] =>
+  BIAXIAL_EXPAND_PRESETS.filter((p) => p.category === category)

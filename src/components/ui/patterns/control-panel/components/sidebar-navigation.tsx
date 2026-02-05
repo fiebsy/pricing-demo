@@ -11,8 +11,6 @@ import { useState, type ReactNode } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { ScrollArea } from '@base-ui/react/scroll-area'
 import { cx } from '@/components/utils/cx'
-import { HugeIcon } from '@/components/ui/core/primitives/icon'
-import { getSectionIcon } from '../icons'
 import type { Section } from '../types'
 
 // -----------------------------------------------------------------------------
@@ -48,19 +46,6 @@ const labelVariants = {
     opacity: 1,
     x: 0,
     transition: { duration: 0.2 },
-  },
-}
-
-const iconVariants = {
-  collapsed: {
-    opacity: 0,
-    scale: 0.8,
-    transition: { duration: 0.1 },
-  },
-  expanded: {
-    opacity: 0.6,
-    scale: 1,
-    transition: { duration: 0.15, delay: 0.05 },
   },
 }
 
@@ -166,9 +151,6 @@ function SidebarItem({ section, isActive, isExpanded, onClick }: SidebarItemProp
   // Use short label for sidebar, fallback to title
   const label = section.label || section.tabLabel || section.title
 
-  // Resolve icon: explicit icon > sectionType mapping > none
-  const resolvedIcon = section.icon ?? (section.sectionType ? getSectionIcon(section.sectionType) : undefined)
-
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation()
     onClick()
@@ -201,28 +183,11 @@ function SidebarItem({ section, isActive, isExpanded, onClick }: SidebarItemProp
             animate="expanded"
             exit="collapsed"
             className={cx(
-              'pointer-events-none relative z-10 flex items-center gap-2 truncate text-left text-xs font-medium transition-colors duration-200',
+              'pointer-events-none relative z-10 truncate text-left text-xs font-medium transition-colors duration-200',
               isActive ? 'text-primary' : 'text-tertiary group-hover:text-secondary'
             )}
           >
-            {/* Icon (only shown when expanded and section has icon) */}
-            {resolvedIcon && (
-              <motion.span
-                variants={iconVariants}
-                initial="collapsed"
-                animate="expanded"
-                exit="collapsed"
-                className="shrink-0"
-              >
-                <HugeIcon
-                  icon={resolvedIcon}
-                  size="xs"
-                  color={isActive ? 'primary' : 'tertiary'}
-                  className="transition-colors duration-200 group-hover:text-secondary"
-                />
-              </motion.span>
-            )}
-            <span className="truncate">{label}</span>
+            {label}
           </motion.span>
         )}
       </AnimatePresence>

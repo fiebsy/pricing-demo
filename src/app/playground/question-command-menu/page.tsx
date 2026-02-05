@@ -230,7 +230,6 @@ function buildPanelConfig(
         id: 'stack',
         label: 'Stack',
         title: 'Stack Variants',
-        sectionType: 'layout',
         groups: [
           {
             title: 'Content Assignment',
@@ -294,7 +293,6 @@ function buildPanelConfig(
         id: 'top-slot',
         label: 'Top',
         title: 'Top Slot Configuration',
-        sectionType: 'layout',
         groups: [
           {
             title: 'Visibility',
@@ -435,7 +433,6 @@ function buildPanelConfig(
         id: 'bottom-slot',
         label: 'Bottom',
         title: 'Bottom Slot Configuration',
-        sectionType: 'layout',
         groups: [
           {
             title: 'Visibility',
@@ -576,7 +573,6 @@ function buildPanelConfig(
         id: 'layout',
         label: 'Layout',
         title: 'Layout Configuration',
-        sectionType: 'spacing',
         groups: [
           {
             title: 'Dimensions',
@@ -667,7 +663,6 @@ function buildPanelConfig(
         id: 'appearance',
         label: 'Style',
         title: 'Appearance',
-        sectionType: 'colors',
         groups: [
           {
             title: 'Background',

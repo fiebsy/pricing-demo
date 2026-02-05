@@ -3,6 +3,9 @@
  *
  * Container for the trigger element (search input, button, etc.).
  * Lives INSIDE the ContentLayer - positioned at top, animates width.
+ *
+ * When horizontal slots are present, the trigger's position is offset
+ * by the left slot contribution so it remains visually anchored.
  */
 
 'use client'
@@ -11,6 +14,7 @@ import * as React from 'react'
 import { cn } from '@/lib/utils'
 import { useBiaxialExpand } from '../context'
 import { EASING_EXPO_OUT } from '../constants'
+import { getTriggerOffset } from '../utils/positioning'
 import type { SlotProps } from '../types'
 
 export const TriggerSlot: React.FC<SlotProps> = ({
@@ -23,6 +27,7 @@ export const TriggerSlot: React.FC<SlotProps> = ({
     setHovered,
     config,
     timing,
+    dimensions,
     refs,
   } = useBiaxialExpand()
 
@@ -32,11 +37,22 @@ export const TriggerSlot: React.FC<SlotProps> = ({
     panelWidth,
     triggerWidth,
     triggerHeight,
+    expandOriginX = 'center',
   } = config.layout
 
-  // When collapsed, trigger is centered. When expanded, full width.
+  // Calculate left slot contribution to offset trigger position
+  const leftInset = config.leftSlot.appearance?.inset ?? config.leftSlot.inset ?? 4
+  const leftGap = config.layout.leftGap ?? 0
+  const leftContribution = config.leftSlot.enabled
+    ? dimensions.leftWidth + (leftInset * 2) + leftGap
+    : 0
+
+  // When collapsed, trigger position depends on expandOriginX. When expanded, full width.
   const currentWidth = expanded ? panelWidth : triggerWidth
-  const leftOffset = expanded ? 0 : (panelWidth - triggerWidth) / 2
+
+  // Base offset within the panel area, then add left contribution
+  const baseOffset = getTriggerOffset(expandOriginX, panelWidth, triggerWidth, expanded)
+  const leftOffset = leftContribution + baseOffset
 
   return (
     <div
@@ -47,7 +63,7 @@ export const TriggerSlot: React.FC<SlotProps> = ({
         className
       )}
       style={{
-        zIndex: 12,
+        zIndex: 14, // Above horizontal slots (13)
         top: 0,
         left: leftOffset,
         width: currentWidth,

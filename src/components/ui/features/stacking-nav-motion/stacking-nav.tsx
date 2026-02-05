@@ -244,7 +244,7 @@ export function StackingNav({
                 className
               )}
               style={{
-                minHeight: '100px', // Ensure container has height for absolute positioning
+                minHeight: styleConfig.minHeight > 0 ? `${styleConfig.minHeight}px` : undefined,
               }}
               role="navigation"
               aria-label="Stacking navigation"

@@ -57,6 +57,8 @@ import {
   TopSlot,
   TriggerSlot,
   BottomSlot,
+  LeftSlot,
+  RightSlot,
   Backdrop,
   ContentLayer,
   ContentWrapper,
@@ -77,6 +79,8 @@ export const BiaxialExpand = {
   TopSlot,
   Trigger: TriggerSlot,
   BottomSlot,
+  LeftSlot,
+  RightSlot,
   Backdrop,
   Content: ContentLayer,
   ContentWrapper,
@@ -88,7 +92,10 @@ export const BiaxialExpand = {
   MenuContent,
 }
 
-// Also export as BiaxialExpandV4 for backwards compatibility during migration
+/**
+ * @deprecated Use `BiaxialExpand` instead. This alias will be removed in a future version.
+ * The V4 suffix is no longer needed as BiaxialExpand is now the primary export.
+ */
 export const BiaxialExpandV4 = BiaxialExpand
 
 // Export individual components for tree-shaking
@@ -97,6 +104,8 @@ export {
   TopSlot,
   TriggerSlot,
   BottomSlot,
+  LeftSlot,
+  RightSlot,
   Backdrop,
   ContentLayer,
   ContentWrapper,
@@ -124,6 +133,8 @@ export type {
   BorderColorOption,
   BackdropAnimationMode,
   ExpandOrigin,
+  ExpandOriginX,
+  PositionMode,
   SearchInputProps,
   MenuContentProps,
   CommandGroup,

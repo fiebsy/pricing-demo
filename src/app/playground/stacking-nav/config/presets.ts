@@ -58,11 +58,16 @@ const PRESET_DEFAULT: Omit<PlaygroundConfig, 'configPreset' | 'navVariant'> = {
   hoverDelay: 0,
   slowMoEnabled: false,
   showPhaseIndicator: false,
-  containerWidth: 800,
+  containerWidth: 640,
+  navMinHeight: 100,
   showContainerBounds: false,
   containerOverflow: 'visible',
   showOverflowGradient: false,
   gradientWidth: 80,
+  containerPaddingTop: 0,
+  containerPaddingRight: 0,
+  containerPaddingBottom: 0,
+  containerPaddingLeft: 0,
 }
 
 export const CONFIG_PRESETS: Record<
