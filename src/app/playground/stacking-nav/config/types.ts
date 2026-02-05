@@ -10,7 +10,7 @@ import type {
 // TYPE ALIASES
 // =============================================================================
 
-export type ConfigPreset = 'default' | 'spring' | 'slowSpring' | 'custom'
+export type ConfigPreset = 'default' | 'custom'
 
 export type NavVariant = 'orders' | 'products' | 'content'
 

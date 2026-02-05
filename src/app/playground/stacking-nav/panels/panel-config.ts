@@ -127,9 +127,7 @@ export function createPanelConfig(config: PlaygroundConfig): UnifiedControlPanel
                 label: 'Preset',
                 value: config.configPreset,
                 options: [
-                  { value: 'default', label: 'Default (Easing)' },
-                  { value: 'spring', label: 'Spring (Physics)' },
-                  { value: 'slowSpring', label: 'Slow Spring' },
+                  { value: 'default', label: 'Default' },
                   { value: 'custom', label: 'Custom' },
                 ],
               },

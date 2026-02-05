@@ -9,7 +9,7 @@
 
 'use client'
 
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import {
   UnifiedControlPanel,
   type ControlChangeEvent,
@@ -19,7 +19,6 @@ import {
   type AnimationConfig,
   type StyleConfig,
   type ActivePath,
-  debugLog,
 } from '@/components/ui/features/stacking-nav-motion'
 
 import type {
@@ -41,35 +40,6 @@ export default function StackingNavPlayground() {
   const [config, setConfig] = useState<PlaygroundConfig>(DEFAULT_PLAYGROUND_CONFIG)
   const [resetKey, setResetKey] = useState(0)
   const [currentPath, setCurrentPath] = useState<ActivePath>([])
-  const [logCount, setLogCount] = useState(0)
-  const [logEnabled, setLogEnabled] = useState(false)
-
-  // Sync debug log enabled state
-  useEffect(() => {
-    if (logEnabled) {
-      debugLog.enable()
-    } else {
-      debugLog.disable()
-    }
-  }, [logEnabled])
-
-  // Subscribe to log updates
-  useEffect(() => {
-    return debugLog.subscribe(() => {
-      setLogCount(debugLog.getCount())
-    })
-  }, [])
-
-  const handleCopyLog = useCallback(() => {
-    const logText = debugLog.getEntriesFormatted()
-    navigator.clipboard.writeText(logText).then(() => {
-      console.log('Log copied to clipboard')
-    })
-  }, [])
-
-  const handleClearLog = useCallback(() => {
-    debugLog.clear()
-  }, [])
 
   // Transform config for component
   // Apply timeScale to all duration-based values (lower timeScale = slower animation)
@@ -294,45 +264,8 @@ export default function StackingNavPlayground() {
 
   return (
     <div className={`min-h-screen ${bgClasses[config.pageBackground]}`}>
-      {/* Version label */}
-      <div className="fixed left-4 top-4 z-50">
-        <div className="rounded-lg bg-green-600 px-3 py-1.5 text-xs font-semibold text-white shadow-md">
-          stacking-nav
-        </div>
-      </div>
-
-      {/* Debug log panel */}
-      <div className="fixed left-4 top-14 z-50 flex items-center gap-2">
-        <button
-          onClick={() => setLogEnabled(!logEnabled)}
-          className={`rounded-lg px-3 py-1.5 text-xs font-medium shadow-md transition-colors ${
-            logEnabled
-              ? 'bg-green-600 text-white'
-              : 'bg-secondary text-secondary hover:bg-tertiary'
-          }`}
-        >
-          {logEnabled ? `Logging (${logCount})` : 'Log Off'}
-        </button>
-        {logEnabled && (
-          <>
-            <button
-              onClick={handleCopyLog}
-              className="rounded-lg bg-secondary px-3 py-1.5 text-xs font-medium text-secondary shadow-md transition-colors hover:bg-tertiary"
-            >
-              Copy Log
-            </button>
-            <button
-              onClick={handleClearLog}
-              className="rounded-lg bg-secondary px-3 py-1.5 text-xs font-medium text-secondary shadow-md transition-colors hover:bg-tertiary"
-            >
-              Clear
-            </button>
-          </>
-        )}
-      </div>
-
       {/* Scrollable container with sticky demo */}
-      <div className="pr-[352px]">
+      <div>
         {/* Tall container for scroll space */}
         <div className="min-h-[300vh]">
           {/* Top spacer - scroll past this to trigger sticky */}
@@ -340,15 +273,15 @@ export default function StackingNavPlayground() {
 
           {/* Sticky container */}
           <div className={`sticky top-0 z-10 py-12 ${bgClasses[config.pageBackground]}`}>
-            <div className="flex items-center justify-center">
+            <div className="flex items-center justify-center px-6">
               <div
-                className={`relative flex flex-nowrap justify-start ${
+                className={`relative flex w-full flex-nowrap justify-start ${
                   config.showContainerBounds
                     ? 'outline outline-2 outline-dashed outline-red-500/50 bg-red-500/5'
                     : ''
                 }`}
                 style={{
-                  width: `${config.containerWidth}px`,
+                  maxWidth: `${config.containerWidth}px`,
                   overflow: config.containerOverflow,
                 }}
               >
@@ -391,17 +324,22 @@ export default function StackingNavPlayground() {
           </div>
 
           {/* Content rows - scroll beneath sticky nav */}
-          <div className="space-y-6 px-12 py-8">
-            {Array.from({ length: 12 }).map((_, rowIndex) => (
-              <div key={rowIndex} className="flex gap-4">
-                {Array.from({ length: 4 }).map((_, colIndex) => (
-                  <div
-                    key={colIndex}
-                    className="h-32 flex-1 rounded-2xl border border-primary/10 bg-tertiary/50"
-                  />
-                ))}
-              </div>
-            ))}
+          <div className="flex justify-center px-6 py-8">
+            <div
+              className="w-full space-y-6"
+              style={{ maxWidth: `${config.containerWidth}px` }}
+            >
+              {Array.from({ length: 12 }).map((_, rowIndex) => (
+                <div key={rowIndex} className="flex gap-4">
+                  {Array.from({ length: 4 }).map((_, colIndex) => (
+                    <div
+                      key={colIndex}
+                      className="h-32 flex-1 rounded-2xl border border-primary/10 bg-tertiary/50"
+                    />
+                  ))}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
