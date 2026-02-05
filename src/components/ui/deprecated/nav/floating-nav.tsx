@@ -18,7 +18,6 @@ import {
   AnalyticsUpIcon,
   Menu01Icon,
   GridIcon,
-  FilterIcon,
   Table01Icon,
   LayersIcon,
 } from '@hugeicons-pro/core-stroke-rounded'
@@ -72,16 +71,16 @@ const createNavMenuItems = (router: ReturnType<typeof useRouter>): MenuItemType[
     icon: LayersIcon as unknown as IconComponent,
     items: [
       {
-        id: 'filter-chip-motion',
-        label: 'Filter Chip Motion',
-        icon: FilterIcon as unknown as IconComponent,
-        onClick: () => router.push('/playground/archived/filter-chip-motion'),
+        id: 'stacking-nav',
+        label: 'Stacking Nav',
+        icon: LayersIcon as unknown as IconComponent,
+        onClick: () => router.push('/playground/stacking-nav'),
       } as MenuItemAction,
       {
-        id: 'sticky-data-table',
-        label: 'Sticky Data Table',
+        id: 'stacking-nav-table-motion',
+        label: 'Table Motion',
         icon: Table01Icon as unknown as IconComponent,
-        onClick: () => router.push('/playground/archived/sticky-data-table'),
+        onClick: () => router.push('/playground/stacking-nav-table-motion'),
       } as MenuItemAction,
     ],
   } as MenuItemSubmenu,
