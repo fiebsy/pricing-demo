@@ -17,7 +17,6 @@ import {
   Home01Icon,
   AnalyticsUpIcon,
   Menu01Icon,
-  GridIcon,
   Table01Icon,
   LayersIcon,
 } from '@hugeicons-pro/core-stroke-rounded'
@@ -56,12 +55,6 @@ const createNavMenuItems = (router: ReturnType<typeof useRouter>): MenuItemType[
         icon: AnalyticsUpIcon as unknown as IconComponent,
         onClick: () => router.push('/dashboard'),
       } as MenuItemAction,
-      {
-        id: 'studio',
-        label: 'Studio',
-        icon: GridIcon as unknown as IconComponent,
-        onClick: () => router.push('/studio'),
-      } as MenuItemAction,
     ],
   } as MenuItemSubmenu,
   {
@@ -81,33 +74,6 @@ const createNavMenuItems = (router: ReturnType<typeof useRouter>): MenuItemType[
         label: 'Table Motion',
         icon: Table01Icon as unknown as IconComponent,
         onClick: () => router.push('/playground/stacking-nav-table-motion'),
-      } as MenuItemAction,
-    ],
-  } as MenuItemSubmenu,
-  { id: 'sep-1', type: 'separator' },
-  {
-    id: 'hidden',
-    type: 'submenu',
-    label: 'Hidden',
-    icon: LayersIcon as unknown as IconComponent,
-    items: [
-      {
-        id: 'skwircle-demo',
-        label: 'Skwircle Demo',
-        icon: GridIcon as unknown as IconComponent,
-        onClick: () => router.push('/_hidden/playground/skwircle-demo'),
-      } as MenuItemAction,
-      {
-        id: 'skwircle-card',
-        label: 'Skwircle Card',
-        icon: GridIcon as unknown as IconComponent,
-        onClick: () => router.push('/_hidden/playground/skwircle-card'),
-      } as MenuItemAction,
-      {
-        id: 'hidden-sticky-table',
-        label: 'Sticky Table (Dev)',
-        icon: Table01Icon as unknown as IconComponent,
-        onClick: () => router.push('/_hidden/playground/sticky-data-table'),
       } as MenuItemAction,
     ],
   } as MenuItemSubmenu,
