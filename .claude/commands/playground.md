@@ -730,6 +730,42 @@ export default function $1Playground() {
 
 ---
 
+## Layout Gotchas
+
+The UnifiedControlPanel uses `position: fixed`, so your preview area does **NOT** need padding to reserve space for it.
+
+### Correct Pattern
+
+```tsx
+// Page layout - no padding needed for the panel
+<div className="relative h-screen overflow-hidden">
+  {/* Control panel overlays the preview */}
+  <UnifiedControlPanel config={panelConfig} onChange={handleChange} ... />
+
+  {/* Preview area takes full space */}
+  <div className="flex h-full items-center justify-center bg-primary">
+    <YourComponent />
+  </div>
+</div>
+```
+
+### Common Mistakes
+
+**Don't do this:**
+```tsx
+// WRONG - hardcoded padding causes layout shift when panel minimizes
+<div className="pr-[352px]">
+  <YourComponent />
+</div>
+```
+
+**Why `overflow-hidden`?**
+- Prevents double scrollbars (page + panel)
+- Contains the preview area within viewport bounds
+- Panel has its own internal ScrollArea for overflow
+
+---
+
 ## Key Requirements Summary
 
 1. **Preset System is MANDATORY** - Every playground must have presets
@@ -739,3 +775,4 @@ export default function $1Playground() {
 5. **Sliders for Values** - Use sliders for numeric controls (radius, padding)
 6. **Migration Path** - Document how presets become production variants
 7. **Demo Repo Paths** - Use `@/components/ui/patterns/control-panel` not frontend paths
+8. **No Panel Padding** - Panel is fixed position, don't add padding for it

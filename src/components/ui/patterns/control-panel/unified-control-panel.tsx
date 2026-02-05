@@ -30,7 +30,50 @@ import { ActionBar } from './components/action-bar'
 import { PanelToggleButton } from './components/panel-toggle-button'
 import { SidebarNavigation } from './components/sidebar-navigation'
 
-import type { ControlChangeEvent, UnifiedControlPanelProps } from './types'
+import type { ControlChangeEvent, UnifiedControlPanelProps, Section } from './types'
+
+// -----------------------------------------------------------------------------
+// Mobile Tab Bar Component
+// -----------------------------------------------------------------------------
+// Horizontal scrollable tabs visible only on mobile (touch devices)
+
+interface MobileTabBarProps {
+  sections: Section[]
+  activeTabId: string
+  onTabChange: (tabId: string) => void
+}
+
+function MobileTabBar({ sections, activeTabId, onTabChange }: MobileTabBarProps) {
+  if (sections.length <= 1) return null
+
+  return (
+    <div className="flex md:hidden border-b border-primary shrink-0">
+      <div className="flex overflow-x-auto scrollbar-hide touch-pan-x [-webkit-overflow-scrolling:touch] px-1 py-1.5 gap-1">
+        {sections.map((section) => {
+          const label = section.label || section.tabLabel || section.title
+          const isActive = section.id === activeTabId
+          return (
+            <button
+              key={section.id}
+              type="button"
+              onClick={() => onTabChange(section.id)}
+              className={cx(
+                'shrink-0 px-3 h-8 min-w-[60px] rounded-lg text-xs font-medium',
+                'transition-colors duration-150',
+                'outline-none focus-visible:ring-2 focus-visible:ring-brand-primary',
+                isActive
+                  ? 'bg-tertiary text-primary'
+                  : 'text-tertiary hover:text-secondary hover:bg-secondary_subtle'
+              )}
+            >
+              {label}
+            </button>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
 
 // Default position values
 const DEFAULT_POSITION = {
@@ -217,18 +260,18 @@ function PanelInner<T>({
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
         >
-          {/* Sidebar Navigation - Animates width on hover */}
+          {/* Sidebar Navigation - Animates width on hover (hidden on mobile) */}
           <motion.div
             initial={false}
-            animate={{ 
+            animate={{
               width: sidebarWidth,
               opacity: isPanelHovered ? 1 : 0,
             }}
-            transition={{ 
+            transition={{
               width: { duration: 0.2, ease: [0.4, 0, 0.2, 1] },
               opacity: { duration: 0.15 },
             }}
-            className="overflow-visible shrink-0 z-0"
+            className="hidden md:block overflow-visible shrink-0 z-0"
             style={{ height: panelMaxHeight }}
           >
             <div className="h-full" style={{ width: SIDEBAR_EXPANDED_WIDTH }}>
@@ -255,10 +298,17 @@ function PanelInner<T>({
               height: panelMaxHeight,
             }}
           >
+            {/* Mobile Tab Bar - visible only on touch devices */}
+            <MobileTabBar
+              sections={sections}
+              activeTabId={activeTab}
+              onTabChange={setActiveTab}
+            />
+
             {/* Active Section Content - Flex-based height, scrolls when needed */}
             {/* Note: Using absolute positioning on Viewport prevents layout shift during AnimatePresence transitions */}
             <ScrollArea.Root className="relative flex-1 min-h-0">
-              <ScrollArea.Viewport className="absolute inset-0 overflow-y-auto overscroll-contain">
+              <ScrollArea.Viewport className="absolute inset-0 overflow-y-auto overscroll-contain touch-pan-y [-webkit-overflow-scrolling:touch]">
                 <ScrollArea.Content>
                   <div className="p-2.5">
                     <AnimatePresence mode="popLayout" initial={false} custom={direction}>
