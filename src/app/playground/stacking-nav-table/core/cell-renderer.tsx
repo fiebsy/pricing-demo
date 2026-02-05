@@ -11,8 +11,20 @@ import React from 'react'
 import Image from 'next/image'
 import type { Character } from '../config/types'
 import { getOriginSlug } from '../config/origin-avatars'
-import { getCharacterAvatarPath } from '@/app/playground/character-avatars/config/characters'
 import { Badge, type BadgeColor, type BadgeStyle, type BadgeShape } from '@/components/ui/core/primitives/badge'
+
+// =============================================================================
+// CHARACTER AVATAR PATH (inlined from archived character-avatars)
+// =============================================================================
+
+/** Slugs that have PNG files (PokéAPI official artwork sprites) */
+const PNG_SLUGS = new Set(['pikachu', 'mewtwo', 'charizard', 'meowth', 'snorlax', 'eevee'])
+
+/** Returns the avatar image path for a character slug */
+function getCharacterAvatarPath(slug: string): string {
+  const ext = PNG_SLUGS.has(slug) ? 'png' : 'jpg'
+  return `/character-avatars/${slug}.${ext}`
+}
 
 // =============================================================================
 // THREAT LEVEL (wifi signal column)

@@ -5,7 +5,11 @@
  * @migration-target src/app/b/profile/components/chat/ChatBackdrop.tsx
  */
 
-import type { ChatOverlayState } from '@/app/b/profile/types'
+// =============================================================================
+// CHAT OVERLAY STATE (inlined from archived types)
+// =============================================================================
+
+export type ChatOverlayState = 'collapsed' | 'default' | 'expanded'
 
 // =============================================================================
 // BLUR HEIGHT CONFIG
