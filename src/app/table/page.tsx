@@ -33,6 +33,7 @@ import type { ToolbarLayoutConfig, ColumnConfig, BorderConfig, SortDirection } f
 import { ExpandingSearch } from '@/components/ui/deprecated/expanding-search'
 
 import type { PlaygroundConfig, PageBackground, BorderColor, DataVariantId } from './config/types'
+import { ThreatLevel, EmployeeStatus } from './config/types'
 import { DIRECTORY_ITEMS } from './config/nav-items'
 import { DIRECTORY_COLUMNS, COLUMN_LABELS } from './config/columns'
 import {
@@ -149,6 +150,35 @@ function reorderColumns(
 }
 
 // =============================================================================
+// METRIC TILE
+// =============================================================================
+
+interface MetricTileProps {
+  label: string
+  value: number
+  suffix?: string
+}
+
+function MetricTile({ label, value, suffix }: MetricTileProps) {
+  return (
+    <div className="flex flex-col gap-0.5">
+      <span className="text-tertiary text-[10px] font-medium uppercase tracking-wider">
+        {label}
+      </span>
+      <div className="text-primary text-lg font-semibold tabular-nums leading-none">
+        <NumberFlow
+          value={value}
+          locales="en-US"
+          transformTiming={{ duration: 200, easing: 'ease-out' }}
+          spinTiming={{ duration: 200, easing: 'ease-out' }}
+        />
+        {suffix && <span className="text-tertiary text-xs font-normal ml-0.5">{suffix}</span>}
+      </div>
+    </div>
+  )
+}
+
+// =============================================================================
 // MAIN PAGE
 // =============================================================================
 
@@ -234,6 +264,33 @@ export default function TablePlayground() {
   const activeColumns = isEmployees ? EMPLOYEE_COLUMNS : DIRECTORY_COLUMNS
   const activeColumnLabels = isEmployees ? EMPLOYEE_COLUMN_LABELS : COLUMN_LABELS
   const activeCountLabel = isEmployees ? 'employees' : 'characters'
+
+  // Compute metrics based on filtered data
+  const metrics = useMemo(() => {
+    if (isEmployees) {
+      const active = filteredData.filter((e) => e.status === EmployeeStatus.Active).length
+      const remote = filteredData.filter((e) => e.status === EmployeeStatus.Remote).length
+      const onLeave = filteredData.filter((e) => e.status === EmployeeStatus.OnLeave).length
+      return [
+        { label: 'Total', value: filteredData.length },
+        { label: 'Active', value: active },
+        { label: 'Remote', value: remote },
+        { label: 'On Leave', value: onLeave },
+      ]
+    } else {
+      const sTier = filteredData.filter((c) => c.threatLevel === ThreatLevel.STier).length
+      const avgPower = filteredData.length > 0
+        ? Math.round(filteredData.reduce((sum, c) => sum + ((c as { powerScore?: number }).powerScore ?? 0), 0) / filteredData.length)
+        : 0
+      const villains = filteredData.filter((c) => c.energy === 'villain-arc').length
+      return [
+        { label: 'Total', value: filteredData.length },
+        { label: 'S-Tier', value: sTier },
+        { label: 'Avg Power', value: avgPower },
+        { label: 'Villains', value: villains },
+      ]
+    }
+  }, [filteredData, isEmployees])
 
   // After filtered data renders, smoothly release the height lock
   useEffect(() => {
@@ -591,6 +648,13 @@ export default function TablePlayground() {
 
       <div className="min-h-screen">
         <div ref={contentWrapperRef} className="mx-auto px-6 mb-20" style={{ paddingTop: config.pageTopGap, maxWidth: config.pageMaxWidth }}>
+          {/* Metric Tiles */}
+          <div className="flex items-center gap-8 mb-4">
+            {metrics.map((metric) => (
+              <MetricTile key={metric.label} label={metric.label} value={metric.value} />
+            ))}
+          </div>
+
           {/* Data Table with Nav in Toolbar */}
           <StickyDataTable<Record<string, unknown>>
             data={isLoading ? [] : filteredData}
