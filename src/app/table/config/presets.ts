@@ -18,7 +18,7 @@ export const PRESET_DEFAULT: PlaygroundConfig = {
   toolbarPaddingBottom: 16,
   toolbarPaddingLeft: 2,
   toolbarPaddingRight: 0,
-  navToCountGap: 12,
+  navToCountGap: 8,
   tableOpacity: 100,
   tableMuted: false,
   enableColumnReorder: true,
