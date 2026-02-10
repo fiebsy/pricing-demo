@@ -74,14 +74,35 @@ export const BiaxialExpandRoot: React.FC<BiaxialExpandRootProps> = ({
     ? (config.layout.maxRightWidth ?? 200)
     : 0
 
+  // Calculate initial bottom height respecting heightMode
+  const bottomHeightMode = config.bottomSlot.heightMode ?? 'dynamic'
+  const initialBottomHeight = config.bottomSlot.enabled
+    ? (bottomHeightMode === 'fixed'
+        ? (config.bottomSlot.height ?? config.layout.maxBottomHeight)
+        : config.layout.maxBottomHeight)
+    : 0
+
+  // Calculate initial left/right heights if they drive panel height
+  const initialLeftHeight = config.leftSlot.enabled && config.leftSlot.drivesPanelHeight
+    ? (config.leftSlot.height ?? config.leftSlot.maxHeight ?? 200)
+    : 0
+
+  const initialRightHeight = config.rightSlot.enabled && config.rightSlot.drivesPanelHeight
+    ? (config.rightSlot.height ?? config.rightSlot.maxHeight ?? 200)
+    : 0
+
   const [dimensions, setDimensions] = useState<SlotDimensions>({
     topHeight: initialTopHeight,
     triggerHeight: config.layout.triggerHeight,
-    bottomHeight: config.layout.maxBottomHeight,
+    bottomHeight: initialBottomHeight,
     panelWidth: config.layout.panelWidth,
     triggerWidth: config.layout.triggerWidth,
     leftWidth: initialLeftWidth,
     rightWidth: initialRightWidth,
+    leftHeight: initialLeftHeight,
+    rightHeight: initialRightHeight,
+    leftAlignmentPadding: 0,
+    rightAlignmentPadding: 0,
   })
 
   // Refs
@@ -120,6 +141,18 @@ export const BiaxialExpandRoot: React.FC<BiaxialExpandRootProps> = ({
         const key = `${slot}Width` as keyof SlotDimensions
         if (prev[key] === width) return prev
         return { ...prev, [key]: width }
+      })
+    },
+    []
+  )
+
+  // Slot alignment padding setter (for horizontal slot vertical alignment)
+  const setSlotAlignmentPadding = useCallback(
+    (slot: 'left' | 'right', padding: number) => {
+      setDimensions((prev) => {
+        const key = `${slot}AlignmentPadding` as keyof SlotDimensions
+        if (prev[key] === padding) return prev
+        return { ...prev, [key]: padding }
       })
     },
     []
@@ -166,10 +199,33 @@ export const BiaxialExpandRoot: React.FC<BiaxialExpandRootProps> = ({
   }, [isLocked, setLocked])
 
   // Calculate total expanded height (for backdrop)
+  // Uses Math.max to allow any slot with drivesPanelHeight to contribute
   const totalExpandedHeight = useMemo(() => {
-    const { triggerHeight, bottomGap } = config.layout
-    return triggerHeight + bottomGap + dimensions.bottomHeight
-  }, [config.layout, dimensions.bottomHeight])
+    const { triggerHeight, bottomGap, topGap } = config.layout
+    const contributions: number[] = [triggerHeight]
+
+    // Bottom slot contribution (default driver)
+    if (config.bottomSlot.enabled && config.bottomSlot.drivesPanelHeight !== false) {
+      contributions.push(triggerHeight + bottomGap + dimensions.bottomHeight)
+    }
+
+    // Top slot contribution (when explicitly driving)
+    if (config.topSlot.enabled && config.topSlot.drivesPanelHeight) {
+      contributions.push(triggerHeight + (topGap ?? 0) + dimensions.topHeight)
+    }
+
+    // Left slot contribution (when explicitly driving)
+    if (config.leftSlot.enabled && config.leftSlot.drivesPanelHeight) {
+      contributions.push(dimensions.leftHeight)
+    }
+
+    // Right slot contribution (when explicitly driving)
+    if (config.rightSlot.enabled && config.rightSlot.drivesPanelHeight) {
+      contributions.push(dimensions.rightHeight)
+    }
+
+    return Math.max(...contributions)
+  }, [config, dimensions])
 
   // Calculate total expanded width (for horizontal push mode)
   const totalExpandedWidth = useMemo(() => {
@@ -237,6 +293,7 @@ export const BiaxialExpandRoot: React.FC<BiaxialExpandRootProps> = ({
       },
       setSlotHeight,
       setSlotWidth,
+      setSlotAlignmentPadding,
       totalExpandedHeight,
       totalExpandedWidth,
       timing,
@@ -250,6 +307,7 @@ export const BiaxialExpandRoot: React.FC<BiaxialExpandRootProps> = ({
       dimensions,
       setSlotHeight,
       setSlotWidth,
+      setSlotAlignmentPadding,
       totalExpandedHeight,
       totalExpandedWidth,
       timing,

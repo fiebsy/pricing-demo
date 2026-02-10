@@ -12,6 +12,7 @@ import type {
   ExpandOrigin,
   ExpandOriginX,
   PositionMode,
+  VerticalAlign,
 } from '@/components/ui/core/primitives/biaxial-expand'
 import type {
   BorderRadius,
@@ -30,6 +31,29 @@ export type PageBackground = 'primary' | 'secondary' | 'tertiary'
 export type HeightMode = 'fixed' | 'auto' | 'dynamic'
 
 // ============================================================================
+// TRIGGER CONFIGURATION
+// ============================================================================
+
+/**
+ * Styling configuration for trigger in a specific state (collapsed or expanded).
+ */
+export interface TriggerStateStyle {
+  background: BackgroundOption
+  shine: string
+  borderRadius: number
+  borderWidth: number
+  borderColor: BorderColorOption
+}
+
+/**
+ * Complete trigger playground configuration with collapsed and expanded states.
+ */
+export interface TriggerPlaygroundConfig {
+  collapsed: TriggerStateStyle
+  expanded: TriggerStateStyle
+}
+
+// ============================================================================
 // SLOT CONFIGURATION
 // ============================================================================
 
@@ -37,14 +61,37 @@ export interface SlotPlaygroundConfig {
   enabled: boolean
   heightMode: HeightMode
   height: number
-  delayOffset: number
-  durationOffset: number
+  /**
+   * Whether this slot's height contributes to panel height calculation.
+   * When true, the slot's configured height will be considered.
+   * The tallest slot wins via Math.max().
+   * @default true for bottom, false for top/left/right
+   */
+  drivesPanelHeight?: boolean
   background: BackgroundOption
   shine: string
   borderRadius: number
   inset: number
   borderWidth: number
   borderColor: BorderColorOption
+}
+
+/**
+ * Extended config for horizontal slots (left/right) with height/alignment options.
+ *
+ * Note: Width is controlled ONLY via layout.maxLeftWidth/maxRightWidth.
+ * Per-slot width controls were removed as they were never wired to the component.
+ */
+export interface HorizontalSlotPlaygroundConfig extends SlotPlaygroundConfig {
+  /** Maximum height for the slot (null = full panel height) - kept for backward compatibility */
+  maxHeight: number | null
+  /** Vertical alignment within the panel height */
+  verticalAlign: VerticalAlign
+  /**
+   * The height value to use when drivesPanelHeight is true.
+   * This height will contribute to panel height calculation.
+   */
+  drivingHeight?: number
 }
 
 // ============================================================================
@@ -85,6 +132,8 @@ export interface BiaxialExpandPlaygroundConfig {
     slotContainerDurationOffset: number
     expandOrigin: ExpandOrigin
     topExpandOrigin: ExpandOrigin
+    leftExpandOrigin: ExpandOriginX
+    rightExpandOrigin: ExpandOriginX
   }
 
   // Appearance
@@ -101,8 +150,11 @@ export interface BiaxialExpandPlaygroundConfig {
   // Slots
   topSlot: SlotPlaygroundConfig
   bottomSlot: SlotPlaygroundConfig
-  leftSlot: SlotPlaygroundConfig
-  rightSlot: SlotPlaygroundConfig
+  leftSlot: HorizontalSlotPlaygroundConfig
+  rightSlot: HorizontalSlotPlaygroundConfig
+
+  // Trigger styling
+  trigger: TriggerPlaygroundConfig
 
   // Demo settings
   demo: {

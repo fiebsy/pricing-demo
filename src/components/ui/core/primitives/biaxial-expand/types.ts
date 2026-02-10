@@ -33,10 +33,23 @@ export interface SlotConfig {
   heightMode?: 'fixed' | 'auto' | 'dynamic'
   /** Fixed height for this slot (px). If not set, auto-measures content */
   height?: number
-  /** Animation delay offset (ms) */
-  delayOffset?: number
-  /** Animation duration offset (ms) */
-  durationOffset?: number
+  /** Maximum height for horizontal slots (left/right). Limits slot height within the panel. */
+  maxHeight?: number
+  /** Vertical alignment for horizontal slots (left/right) within the panel height */
+  verticalAlign?: VerticalAlign
+  /**
+   * Whether this slot's height contributes to panel height calculation.
+   * When true, the slot's configured/measured height will be considered.
+   * The tallest slot wins via Math.max().
+   * @default true for bottom, false for top/left/right
+   */
+  drivesPanelHeight?: boolean
+  /**
+   * Height to use when this horizontal slot (left/right) is driving panel height.
+   * Only applies when drivesPanelHeight is true for left/right slots.
+   * @default 200
+   */
+  drivingHeight?: number
   /** Background option */
   background?: BackgroundOption
   /** Shine effect class (e.g., 'shine-2-subtle', 'none') */
@@ -91,6 +104,15 @@ export type ExpandOrigin = 'top' | 'center' | 'bottom'
 export type ExpandOriginX = 'left' | 'center' | 'right'
 
 /**
+ * Vertical alignment for horizontal slots (left/right).
+ * - 'top': Slot's top edge aligns with trigger's top edge
+ * - 'center': Slot centers vertically with the trigger
+ * - 'bottom': Slot's bottom edge aligns with trigger's bottom edge
+ * - 'full': Slot spans from ContentLayer top to bottom (ignores trigger position)
+ */
+export type VerticalAlign = 'top' | 'center' | 'bottom' | 'full'
+
+/**
  * Position mode for expanded panel.
  * - 'overlay': Panel floats above page content (default)
  * - 'push': Expanding panel pushes content below it
@@ -125,6 +147,10 @@ export interface AnimationConfig {
   expandOrigin: ExpandOrigin
   /** Expansion origin for top slot content (default: 'bottom' = expands upward) */
   topExpandOrigin?: ExpandOrigin
+  /** Expansion origin for left slot content (default: 'right' = expands leftward) */
+  leftExpandOrigin?: ExpandOriginX
+  /** Expansion origin for right slot content (default: 'left' = expands rightward) */
+  rightExpandOrigin?: ExpandOriginX
 }
 
 // ============================================================================
@@ -149,6 +175,14 @@ export interface SlotDimensions {
   leftWidth: number
   /** Right slot width when expanded */
   rightWidth: number
+  /** Left slot height when driving panel height */
+  leftHeight: number
+  /** Right slot height when driving panel height */
+  rightHeight: number
+  /** Alignment padding needed above trigger for left slot vertical alignment */
+  leftAlignmentPadding: number
+  /** Alignment padding needed above trigger for right slot vertical alignment */
+  rightAlignmentPadding: number
 }
 
 /**
@@ -261,6 +295,7 @@ export interface BiaxialExpandContextValue {
   // Dimension setters (called by slots)
   setSlotHeight: (slot: SlotPosition, height: number) => void
   setSlotWidth: (slot: 'left' | 'right', width: number) => void
+  setSlotAlignmentPadding: (slot: 'left' | 'right', padding: number) => void
 
   // Calculated values
   totalExpandedHeight: number

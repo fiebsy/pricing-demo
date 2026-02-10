@@ -94,8 +94,6 @@ function transformToV4Config(
       enabled: effectiveTopEnabled,
       heightMode: config.slots.top.heightMode,
       height: isTopFixed ? config.slots.top.fixedHeight : undefined,
-      delayOffset: config.slots.top.animation.delayOffset,
-      durationOffset: config.slots.top.animation.durationOffset,
       background: toSlotBackground(config.slots.top.appearance.background),
       borderRadius: config.slots.top.appearance.borderRadius,
       inset: config.slots.top.appearance.inset,
@@ -104,8 +102,6 @@ function transformToV4Config(
     },
     bottomSlot: {
       enabled: effectiveBottomEnabled,
-      delayOffset: config.slots.bottom.animation.delayOffset,
-      durationOffset: config.slots.bottom.animation.durationOffset,
       background: toSlotBackground(config.slots.bottom.appearance.background),
       borderRadius: config.slots.bottom.appearance.borderRadius,
       inset: config.slots.bottom.appearance.inset,
@@ -276,29 +272,29 @@ function InnerPreview({
       isLocked={isLocked}
       onLockedChange={onLockedChange}
     >
-      {/* Top Slot */}
-      {effectiveTopEnabled && (
-        <BiaxialExpandV4.TopSlot>
-          <UniversalSlot
-            position="top"
-            questionGroups={filteredGroups}
-            chatMessages={chatMessages}
-            isChatTyping={isChatTyping}
-            suggestions={suggestions}
-            onQuestionSelect={handleSelect}
-            onButtonSelect={handleButtonsSelect}
-            onFilterChange={handleFilterChange}
-            onSuggestionSelect={handleSuggestionSelect}
-            onChatRegenerate={onChatRegenerate}
-          />
-        </BiaxialExpandV4.TopSlot>
-      )}
-
       {/* Backdrop */}
       <BiaxialExpandV4.Backdrop />
 
-      {/* Content */}
+      {/* Content - all slots inside for unified clipping */}
       <BiaxialExpandV4.Content>
+        {/* Top Slot */}
+        {effectiveTopEnabled && (
+          <BiaxialExpandV4.TopSlot>
+            <UniversalSlot
+              position="top"
+              questionGroups={filteredGroups}
+              chatMessages={chatMessages}
+              isChatTyping={isChatTyping}
+              suggestions={suggestions}
+              onQuestionSelect={handleSelect}
+              onButtonSelect={handleButtonsSelect}
+              onFilterChange={handleFilterChange}
+              onSuggestionSelect={handleSuggestionSelect}
+              onChatRegenerate={onChatRegenerate}
+            />
+          </BiaxialExpandV4.TopSlot>
+        )}
+
         {/* Trigger */}
         <BiaxialExpandV4.Trigger>
           <UnifiedTrigger

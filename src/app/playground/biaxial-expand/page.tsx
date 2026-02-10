@@ -8,12 +8,11 @@
  */
 
 import { useCallback, useMemo, useState } from 'react'
-import { cn } from '@/lib/utils'
 import {
   UnifiedControlPanel,
+  PlaygroundLayout,
   type ControlChangeEvent,
 } from '@/components/ui/patterns/control-panel'
-import { PlaygroundSpeedControls } from '@/components/ui/patterns/playground-speed-controls'
 
 import { DemoSwitcher } from './core/demo-variants'
 import type { BiaxialExpandPlaygroundConfig } from './config/types'
@@ -68,6 +67,7 @@ export default function BiaxialExpandPlayground() {
   )
   const [activePresetId, setActivePresetId] = useState<string | null>('default')
   const [resetKey, setResetKey] = useState(0)
+  const [autoOpen, setAutoOpen] = useState(false)
 
   const handleChange = useCallback((event: ControlChangeEvent) => {
     // Handle preset-related changes
@@ -118,57 +118,61 @@ export default function BiaxialExpandPlayground() {
     setActivePresetId(null)
   }, [])
 
+  const handleShowDebugChange = useCallback((enabled: boolean) => {
+    setConfig((prev) => ({
+      ...prev,
+      demo: { ...prev.demo, showDebug: enabled },
+    }))
+    setActivePresetId(null)
+  }, [])
+
+  const handleAutoOpenChange = useCallback((enabled: boolean) => {
+    setAutoOpen(enabled)
+  }, [])
+
   const panelConfig = useMemo(
     () => buildBiaxialExpandPanelConfig(config, BIAXIAL_EXPAND_PRESETS, activePresetId),
     [config, activePresetId]
   )
 
   return (
-    <div className="relative h-screen overflow-hidden">
-      {/* Control Panel */}
-      <UnifiedControlPanel
-        config={panelConfig}
-        onChange={handleChange}
-        onPresetChange={handlePresetChange}
-        onReset={handleReset}
-        getConfigForCopy={() => config}
-      />
-
-      {/* Preview Area */}
-      <div
-        className={cn(
-          'relative h-full overflow-y-auto p-8 pr-[352px] transition-colors duration-200',
-          getPageBackgroundClass(config.demo.pageBackground)
-        )}
-      >
-        <div className="flex min-h-full items-center justify-center">
-          <div key={resetKey} className="flex items-center gap-4">
-            {/* Left test block - gets pushed when LeftSlot expands */}
-            {config.leftSlot.enabled && (
-              <div className="w-12 h-12 bg-tertiary rounded-xl border border-primary flex items-center justify-center shrink-0">
-                <span className="text-xs text-tertiary">L</span>
-              </div>
-            )}
-
-            <DemoSwitcher config={config} />
-
-            {/* Right test block - gets pushed when RightSlot expands */}
-            {config.rightSlot.enabled && (
-              <div className="w-12 h-12 bg-tertiary rounded-xl border border-primary flex items-center justify-center shrink-0">
-                <span className="text-xs text-tertiary">R</span>
-              </div>
-            )}
+    <PlaygroundLayout
+      controlPanel={
+        <UnifiedControlPanel
+          config={panelConfig}
+          onChange={handleChange}
+          onPresetChange={handlePresetChange}
+          onReset={handleReset}
+          getConfigForCopy={() => config}
+        />
+      }
+      debugControls={{
+        slowMo: config.demo.slowMo,
+        onSlowMoChange: handleSlowMoChange,
+        showDebug: config.demo.showDebug,
+        onShowDebugChange: handleShowDebugChange,
+        autoOpen,
+        onAutoOpenChange: handleAutoOpenChange,
+      }}
+      className={getPageBackgroundClass(config.demo.pageBackground)}
+    >
+      <div key={resetKey} className="flex items-center gap-4">
+        {/* Left test block - gets pushed when LeftSlot expands */}
+        {config.leftSlot.enabled && (
+          <div className="w-12 h-12 bg-tertiary rounded-xl border border-primary flex items-center justify-center shrink-0">
+            <span className="text-xs text-tertiary">L</span>
           </div>
-        </div>
+        )}
 
-        {/* Speed Controls */}
-        <div className="pointer-events-none absolute inset-x-0 bottom-8 flex justify-center pr-[352px]">
-          <PlaygroundSpeedControls
-            slowMo={config.demo.slowMo}
-            onSlowMoChange={handleSlowMoChange}
-          />
-        </div>
+        <DemoSwitcher config={config} autoOpen={autoOpen} />
+
+        {/* Right test block - gets pushed when RightSlot expands */}
+        {config.rightSlot.enabled && (
+          <div className="w-12 h-12 bg-tertiary rounded-xl border border-primary flex items-center justify-center shrink-0">
+            <span className="text-xs text-tertiary">R</span>
+          </div>
+        )}
       </div>
-    </div>
+    </PlaygroundLayout>
   )
 }

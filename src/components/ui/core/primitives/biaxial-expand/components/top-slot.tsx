@@ -4,6 +4,9 @@
  * Container for content that expands UPWARD from the trigger.
  * Can contain filter buttons, breadcrumbs, tabs, scrollable menus, or any custom content.
  *
+ * Now positioned INSIDE ContentLayer, so it is clipped by the parent's
+ * unified clip-path instead of needing its own outer clip-path.
+ *
  * Supports two height modes:
  * - Fixed: Use `topSlot.height` for simple content (filters, tabs)
  * - Dynamic: Use `layout.maxTopHeight` for scrollable content (menus, lists)
@@ -16,13 +19,9 @@ import { useEffect, useRef } from 'react'
 import { cn } from '@/lib/utils'
 import { useBiaxialExpand } from '../context'
 import { getBackgroundClass, getBorderColorVar } from '../utils'
-import { getTopSectionClipPath, getSlotContainerClipPath } from '../utils'
-import { getHorizontalPosition } from '../utils/positioning'
+import { getSlotContainerClipPath } from '../utils'
 import { EASING_EXPO_OUT } from '../constants'
 import type { SlotProps } from '../types'
-
-// Debug flag - set to true to visualize spacing layers
-const DEBUG_LAYOUT = false
 
 export const TopSlot: React.FC<SlotProps> = ({
   children,
@@ -32,6 +31,7 @@ export const TopSlot: React.FC<SlotProps> = ({
   const {
     expanded,
     config,
+    dimensions,
     setSlotHeight,
     timing,
     refs,
@@ -43,13 +43,17 @@ export const TopSlot: React.FC<SlotProps> = ({
   // Get heightMode from slot config (defaults to 'fixed')
   const heightMode = slotConfig.heightMode ?? 'fixed'
   const isAutoHeight = heightMode === 'auto'
+  const isDynamicHeight = heightMode === 'dynamic'
 
-  // Determine height mode
-  const useMaxHeight = config.layout.maxTopHeight !== undefined && !isAutoHeight
+  // Determine effective height based on mode:
+  // - 'fixed': Use slotConfig.height, fallback to 48
+  // - 'dynamic': Use layout.maxTopHeight (scrollable with max constraint)
+  //              If maxTopHeight is 0 or undefined, fallback to slotConfig.height or 200
+  // - 'auto': Measured by ResizeObserver (undefined here)
   const effectiveHeight = isAutoHeight
     ? undefined
-    : useMaxHeight
-      ? config.layout.maxTopHeight!
+    : isDynamicHeight
+      ? (config.layout.maxTopHeight || slotConfig.height || 200)
       : (slotConfig.height ?? 48)
 
   // Set height for dimension tracking
@@ -85,10 +89,8 @@ export const TopSlot: React.FC<SlotProps> = ({
   const delay = timing.slotDelay('top')
   const innerDuration = duration + (config.animation.slotContainerDurationOffset ?? 100)
 
-  // Outer wrapper uses clip-path for reveal from bottom
-  const outerClipPath = getTopSectionClipPath(expanded)
-
   // Inner container uses clip-path for compound "offset" effect
+  // No outer clip-path needed - ContentLayer handles clipping
   const innerOrigin = config.animation.topExpandOrigin ?? 'bottom'
   const innerClipPath = config.animation.animateSlotContainers
     ? getSlotContainerClipPath(expanded, innerOrigin)
@@ -100,27 +102,59 @@ export const TopSlot: React.FC<SlotProps> = ({
   // Total height: slot height + inset (only for non-auto modes)
   const totalHeight = isAutoHeight ? undefined : (effectiveHeight! + inset)
 
-  // Get horizontal positioning based on expandOriginX
-  const expandOriginX = config.layout.expandOriginX ?? 'center'
-  const horizontalPos = getHorizontalPosition(expandOriginX, config.layout.panelWidth, config.layout.panelWidth)
+  // Use config.debug instead of static flag
+  const showDebug = config.debug
+
+  // Calculate left slot contribution to know where the panel starts
+  const leftInset = config.leftSlot.appearance?.inset ?? config.leftSlot.inset ?? 4
+  const leftGap = config.layout.leftGap ?? 0
+  const leftContribution = config.leftSlot.enabled
+    ? dimensions.leftWidth + (leftInset * 2) + leftGap
+    : 0
+
+  // Calculate right slot contribution
+  const rightInset = config.rightSlot.appearance?.inset ?? config.rightSlot.inset ?? 4
+  const rightGap = config.layout.rightGap ?? 0
+  const rightContribution = config.rightSlot.enabled
+    ? dimensions.rightWidth + (rightInset * 2) + rightGap
+    : 0
+
+  // Calculate alignment padding (same as ContentLayer uses)
+  const maxAlignmentPadding = Math.max(
+    dimensions.leftAlignmentPadding,
+    dimensions.rightAlignmentPadding
+  )
+
+  // Debug logging
+  if (config.debug) {
+    console.log('[TopSlot] Position Debug:', {
+      heightMode,
+      effectiveHeight,
+      totalHeight,
+      leftContribution,
+      rightContribution,
+      maxAlignmentPadding,
+      topGap: config.layout.topGap ?? 0,
+    })
+  }
 
   return (
     <div
       ref={refs.top}
       className="absolute"
       style={{
-        zIndex: 20,
-        bottom: '100%',
-        left: horizontalPos.left,
-        right: horizontalPos.right,
+        zIndex: 12, // Above backdrop (11), below slots (13) and trigger (14)
+        // Position at top of ContentLayer, accounting for alignment padding
+        top: maxAlignmentPadding,
+        // Left position accounts for left slot contribution
+        left: leftContribution,
+        // Right position accounts for right slot contribution
+        right: rightContribution,
         width: config.layout.panelWidth,
-        marginLeft: horizontalPos.marginLeft,
-        marginBottom: config.layout.topGap ?? 0,
         ...(totalHeight !== undefined && { height: totalHeight }),
-        clipPath: outerClipPath,
-        transition: `clip-path ${duration}ms ${EASING_EXPO_OUT} ${delay}ms`,
+        // No outer clipPath - ContentLayer clips this
         ...(isAutoHeight && { paddingTop: inset, paddingLeft: inset, paddingRight: inset }),
-        ...(DEBUG_LAYOUT ? { background: 'rgba(255,0,0,0.3)', outline: '2px dashed red' } : {}),
+        ...(showDebug && { background: 'rgba(255,0,0,0.3)', outline: '2px dashed red' }),
       }}
     >
       {/* Inner container with compound animation */}
@@ -130,7 +164,7 @@ export const TopSlot: React.FC<SlotProps> = ({
           !isAutoHeight && 'absolute',
           'overflow-hidden',
           config.appearance.squircle && 'corner-squircle',
-          !DEBUG_LAYOUT && getBackgroundClass(slotConfig.background ?? 'secondary'),
+          !showDebug && getBackgroundClass(slotConfig.background ?? 'secondary'),
           slotConfig.shine && slotConfig.shine !== 'none' && slotConfig.shine,
           className
         )}
@@ -145,7 +179,7 @@ export const TopSlot: React.FC<SlotProps> = ({
           borderRadius: slotConfig.borderRadius ?? 14,
           clipPath: innerClipPath,
           transition: `clip-path ${innerDuration}ms ${EASING_EXPO_OUT} ${delay}ms`,
-          ...(DEBUG_LAYOUT ? { background: 'rgba(0,255,0,0.3)', outline: '2px dashed green' } : {}),
+          ...(showDebug && { background: 'rgba(0,255,0,0.3)', outline: '2px dashed green' }),
           ...(slotConfig.borderWidth && slotConfig.borderWidth > 0 && {
             borderTopWidth: slotConfig.borderWidth,
             borderLeftWidth: slotConfig.borderWidth,
@@ -158,6 +192,53 @@ export const TopSlot: React.FC<SlotProps> = ({
       >
         {children}
       </div>
+      {/* Debug overlay: shows slot boundaries and height info */}
+      {showDebug && (
+        <>
+          {/* Top edge marker */}
+          <div
+            style={{
+              position: 'absolute',
+              left: 0,
+              right: 0,
+              top: 0,
+              height: 2,
+              background: 'magenta',
+              pointerEvents: 'none',
+              zIndex: 100,
+            }}
+          />
+          {/* Bottom edge marker */}
+          <div
+            style={{
+              position: 'absolute',
+              left: 0,
+              right: 0,
+              bottom: 0,
+              height: 2,
+              background: 'yellow',
+              pointerEvents: 'none',
+              zIndex: 100,
+            }}
+          >
+            <span
+              style={{
+                position: 'absolute',
+                top: 4,
+                left: 4,
+                fontSize: 10,
+                color: 'yellow',
+                fontFamily: 'monospace',
+                whiteSpace: 'nowrap',
+                background: 'rgba(0,0,0,0.7)',
+                padding: '1px 4px',
+              }}
+            >
+              TOP SLOT h={effectiveHeight ?? 'auto'} mode={heightMode}
+            </span>
+          </div>
+        </>
+      )}
     </div>
   )
 }

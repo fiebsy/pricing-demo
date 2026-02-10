@@ -36,6 +36,8 @@ export const DEFAULT_ANIMATION_CONFIG: AnimationConfig = {
   slotContainerDurationOffset: 100,
   expandOrigin: 'top',
   topExpandOrigin: 'bottom',
+  leftExpandOrigin: 'right',
+  rightExpandOrigin: 'left',
 }
 
 // ============================================================================
@@ -67,8 +69,7 @@ export const DEFAULT_LAYOUT_CONFIG: LayoutConfig = {
 export const DEFAULT_TOP_SLOT_CONFIG: SlotConfig = {
   enabled: false,
   height: 48,
-  delayOffset: 0,
-  durationOffset: -100,
+  drivesPanelHeight: false,
   background: 'secondary',
   borderRadius: 14,
   inset: 4,
@@ -84,8 +85,9 @@ export const DEFAULT_TRIGGER_SLOT_CONFIG: SlotConfig = {
 
 export const DEFAULT_BOTTOM_SLOT_CONFIG: SlotConfig = {
   enabled: true,
-  delayOffset: 0,
-  durationOffset: 100,
+  heightMode: 'dynamic',
+  height: 200,
+  drivesPanelHeight: true,
   background: 'secondary',
   borderRadius: 14,
   inset: 4,
@@ -95,8 +97,7 @@ export const DEFAULT_BOTTOM_SLOT_CONFIG: SlotConfig = {
 
 export const DEFAULT_LEFT_SLOT_CONFIG: SlotConfig = {
   enabled: false,
-  delayOffset: 0,
-  durationOffset: -100,
+  drivesPanelHeight: false,
   background: 'secondary',
   borderRadius: 14,
   inset: 4,
@@ -106,8 +107,7 @@ export const DEFAULT_LEFT_SLOT_CONFIG: SlotConfig = {
 
 export const DEFAULT_RIGHT_SLOT_CONFIG: SlotConfig = {
   enabled: false,
-  delayOffset: 0,
-  durationOffset: -100,
+  drivesPanelHeight: false,
   background: 'secondary',
   borderRadius: 14,
   inset: 4,

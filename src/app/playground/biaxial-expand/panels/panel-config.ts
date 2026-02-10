@@ -22,6 +22,7 @@ import {
   POSITION_MODE_OPTIONS,
   HEIGHT_MODE_OPTIONS,
   SLOT_SHINE_OPTIONS,
+  VERTICAL_ALIGN_OPTIONS,
 } from '../config/options'
 
 // ============================================================================
@@ -37,6 +38,7 @@ export function buildBiaxialExpandPanelConfig(
     sections: [
       buildDemoSection(config),
       buildLayoutSection(config),
+      buildTriggerSection(config),
       buildAnimationSection(config),
       buildAppearanceSection(config),
       buildTopSlotSection(config),
@@ -97,31 +99,6 @@ function buildLayoutSection(config: BiaxialExpandPlaygroundConfig): Section {
     label: 'Layout',
     title: 'Layout Configuration',
     groups: [
-      {
-        title: 'Trigger',
-        controls: [
-          {
-            id: 'layout.triggerWidth',
-            type: 'slider',
-            label: 'Width',
-            value: config.layout.triggerWidth,
-            min: 120,
-            max: 600,
-            step: 10,
-            formatLabel: (v: number) => `${v}px`,
-          },
-          {
-            id: 'layout.triggerHeight',
-            type: 'slider',
-            label: 'Height',
-            value: config.layout.triggerHeight,
-            min: 32,
-            max: 100,
-            step: 4,
-            formatLabel: (v: number) => `${v}px`,
-          },
-        ],
-      },
       {
         title: 'Panel',
         controls: [
@@ -184,10 +161,10 @@ function buildLayoutSection(config: BiaxialExpandPlaygroundConfig): Section {
             type: 'slider',
             label: 'Max Bottom',
             value: config.layout.maxBottomHeight,
-            min: 100,
+            min: 0,
             max: 600,
             step: 20,
-            formatLabel: (v: number) => `${v}px`,
+            formatLabel: (v: number) => v === 0 ? 'None' : `${v}px`,
           },
         ],
       },
@@ -268,6 +245,133 @@ function buildLayoutSection(config: BiaxialExpandPlaygroundConfig): Section {
             max: 20,
             step: 1,
             formatLabel: (v: number) => `${v}px`,
+          },
+        ],
+      },
+    ],
+  }
+}
+
+function buildTriggerSection(config: BiaxialExpandPlaygroundConfig): Section {
+  return {
+    id: 'trigger',
+    label: 'Trigger',
+    title: 'Trigger Configuration',
+    groups: [
+      {
+        title: 'Size',
+        controls: [
+          {
+            id: 'layout.triggerWidth',
+            type: 'slider',
+            label: 'Width',
+            value: config.layout.triggerWidth,
+            min: 120,
+            max: 600,
+            step: 10,
+            formatLabel: (v: number) => `${v}px`,
+          },
+          {
+            id: 'layout.triggerHeight',
+            type: 'slider',
+            label: 'Height',
+            value: config.layout.triggerHeight,
+            min: 32,
+            max: 100,
+            step: 4,
+            formatLabel: (v: number) => `${v}px`,
+          },
+        ],
+      },
+      {
+        title: 'Collapsed Style',
+        controls: [
+          {
+            id: 'trigger.collapsed.background',
+            type: 'select',
+            label: 'Background',
+            value: config.trigger.collapsed.background,
+            options: [...BACKGROUND_OPTIONS],
+          },
+          {
+            id: 'trigger.collapsed.shine',
+            type: 'select',
+            label: 'Shine',
+            value: config.trigger.collapsed.shine,
+            options: [...SLOT_SHINE_OPTIONS],
+          },
+          {
+            id: 'trigger.collapsed.borderRadius',
+            type: 'slider',
+            label: 'Border Radius',
+            value: config.trigger.collapsed.borderRadius,
+            min: 0,
+            max: 24,
+            step: 2,
+            formatLabel: (v: number) => `${v}px`,
+          },
+          {
+            id: 'trigger.collapsed.borderWidth',
+            type: 'slider',
+            label: 'Border Width',
+            value: config.trigger.collapsed.borderWidth,
+            min: 0,
+            max: 4,
+            step: 1,
+            formatLabel: (v: number) => `${v}px`,
+          },
+          {
+            id: 'trigger.collapsed.borderColor',
+            type: 'select',
+            label: 'Border Color',
+            value: config.trigger.collapsed.borderColor,
+            options: [...BORDER_COLOR_OPTIONS],
+          },
+        ],
+      },
+      {
+        title: 'Expanded Style',
+        controls: [
+          {
+            id: 'trigger.expanded.background',
+            type: 'select',
+            label: 'Background',
+            value: config.trigger.expanded.background,
+            options: [...BACKGROUND_OPTIONS],
+          },
+          {
+            id: 'trigger.expanded.shine',
+            type: 'select',
+            label: 'Shine',
+            value: config.trigger.expanded.shine,
+            options: [...SLOT_SHINE_OPTIONS],
+          },
+          {
+            id: 'trigger.expanded.borderRadius',
+            type: 'slider',
+            label: 'Border Radius',
+            value: config.trigger.expanded.borderRadius,
+            min: 0,
+            max: 24,
+            step: 2,
+            formatLabel: (v: number) => `${v}px`,
+          },
+          {
+            id: 'trigger.expanded.borderWidth',
+            type: 'slider',
+            label: 'Border Width',
+            value: config.trigger.expanded.borderWidth,
+            min: 0,
+            max: 4,
+            step: 1,
+            formatLabel: (v: number) => `${v}px`,
+          },
+          {
+            id: 'trigger.expanded.borderColor',
+            type: 'select',
+            label: 'Border Color',
+            value: config.trigger.expanded.borderColor,
+            options: [...BORDER_COLOR_OPTIONS],
           },
         ],
       },
@@ -411,6 +515,20 @@ function buildAnimationSection(config: BiaxialExpandPlaygroundConfig): Section {
             value: config.animation.topExpandOrigin,
             options: [...EXPAND_ORIGIN_OPTIONS],
           },
+          {
+            id: 'animation.leftExpandOrigin',
+            type: 'select',
+            label: 'Left Slot',
+            value: config.animation.leftExpandOrigin,
+            options: [...EXPAND_ORIGIN_X_OPTIONS],
+          },
+          {
+            id: 'animation.rightExpandOrigin',
+            type: 'select',
+            label: 'Right Slot',
+            value: config.animation.rightExpandOrigin,
+            options: [...EXPAND_ORIGIN_X_OPTIONS],
+          },
         ],
       },
     ],
@@ -505,52 +623,33 @@ function buildTopSlotSection(config: BiaxialExpandPlaygroundConfig): Section {
             label: 'Enabled',
             value: config.topSlot.enabled,
           },
+          {
+            id: 'topSlot.drivesPanelHeight',
+            type: 'toggle',
+            label: 'Drives Panel Height',
+            value: config.topSlot.drivesPanelHeight ?? false,
+          },
         ],
       },
       {
-        title: 'Height',
+        title: 'Size',
         controls: [
           {
             id: 'topSlot.heightMode',
             type: 'select',
-            label: 'Mode',
+            label: 'Height Mode',
             value: config.topSlot.heightMode,
             options: [...HEIGHT_MODE_OPTIONS],
           },
           {
             id: 'topSlot.height',
             type: 'slider',
-            label: 'Fixed Height',
+            label: 'Height',
             value: config.topSlot.height,
             min: 32,
             max: 200,
             step: 4,
             formatLabel: (v: number) => `${v}px`,
-          },
-        ],
-      },
-      {
-        title: 'Animation Offsets',
-        controls: [
-          {
-            id: 'topSlot.delayOffset',
-            type: 'slider',
-            label: 'Delay Offset',
-            value: config.topSlot.delayOffset,
-            min: -100,
-            max: 100,
-            step: 10,
-            formatLabel: (v: number) => `${v}ms`,
-          },
-          {
-            id: 'topSlot.durationOffset',
-            type: 'slider',
-            label: 'Duration Offset',
-            value: config.topSlot.durationOffset,
-            min: -200,
-            max: 200,
-            step: 25,
-            formatLabel: (v: number) => `${v}ms`,
           },
         ],
       },
@@ -634,52 +733,33 @@ function buildBottomSlotSection(config: BiaxialExpandPlaygroundConfig): Section 
             label: 'Enabled',
             value: config.bottomSlot.enabled,
           },
+          {
+            id: 'bottomSlot.drivesPanelHeight',
+            type: 'toggle',
+            label: 'Drives Panel Height',
+            value: config.bottomSlot.drivesPanelHeight ?? true,
+          },
         ],
       },
       {
-        title: 'Height',
+        title: 'Size',
         controls: [
           {
             id: 'bottomSlot.heightMode',
             type: 'select',
-            label: 'Mode',
+            label: 'Height Mode',
             value: config.bottomSlot.heightMode,
             options: [...HEIGHT_MODE_OPTIONS],
           },
           {
             id: 'bottomSlot.height',
             type: 'slider',
-            label: 'Fixed Height',
+            label: 'Height',
             value: config.bottomSlot.height,
             min: 50,
             max: 400,
             step: 10,
             formatLabel: (v: number) => `${v}px`,
-          },
-        ],
-      },
-      {
-        title: 'Animation Offsets',
-        controls: [
-          {
-            id: 'bottomSlot.delayOffset',
-            type: 'slider',
-            label: 'Delay Offset',
-            value: config.bottomSlot.delayOffset,
-            min: -100,
-            max: 100,
-            step: 10,
-            formatLabel: (v: number) => `${v}ms`,
-          },
-          {
-            id: 'bottomSlot.durationOffset',
-            type: 'slider',
-            label: 'Duration Offset',
-            value: config.bottomSlot.durationOffset,
-            min: -200,
-            max: 200,
-            step: 25,
-            formatLabel: (v: number) => `${v}ms`,
           },
         ],
       },
@@ -749,6 +829,10 @@ function buildBottomSlotSection(config: BiaxialExpandPlaygroundConfig): Section 
 }
 
 function buildLeftSlotSection(config: BiaxialExpandPlaygroundConfig): Section {
+  // Determine which height control to show
+  const showDrivingHeight = config.leftSlot.drivesPanelHeight
+  const showMaxHeight = !config.leftSlot.drivesPanelHeight && config.leftSlot.verticalAlign !== 'full'
+
   return {
     id: 'leftSlot',
     label: 'Left Slot',
@@ -763,30 +847,68 @@ function buildLeftSlotSection(config: BiaxialExpandPlaygroundConfig): Section {
             label: 'Enabled',
             value: config.leftSlot.enabled,
           },
+          {
+            id: 'leftSlot.drivesPanelHeight',
+            type: 'toggle',
+            label: 'Drives Panel Height',
+            value: config.leftSlot.drivesPanelHeight ?? false,
+          },
         ],
       },
       {
-        title: 'Animation Offsets',
+        title: 'Size',
         controls: [
           {
-            id: 'leftSlot.delayOffset',
+            id: 'layout.maxLeftWidth',
             type: 'slider',
-            label: 'Delay Offset',
-            value: config.leftSlot.delayOffset,
-            min: -100,
-            max: 100,
+            label: 'Width',
+            value: config.layout.maxLeftWidth,
+            min: 40,
+            max: 400,
             step: 10,
-            formatLabel: (v: number) => `${v}ms`,
+            formatLabel: (v: number) => `${v}px`,
           },
+          // Show Driving Height when driving panel height
+          ...(showDrivingHeight
+            ? [
+                {
+                  id: 'leftSlot.drivingHeight',
+                  type: 'slider' as const,
+                  label: 'Height',
+                  value: config.leftSlot.drivingHeight ?? 200,
+                  min: 50,
+                  max: 500,
+                  step: 10,
+                  formatLabel: (v: number) => `${v}px`,
+                },
+              ]
+            : []),
+          // Show Max Height when NOT driving and NOT full align
+          ...(showMaxHeight
+            ? [
+                {
+                  id: 'leftSlot.maxHeight',
+                  type: 'slider' as const,
+                  label: 'Max Height',
+                  value: config.leftSlot.maxHeight ?? 300,
+                  min: 50,
+                  max: 500,
+                  step: 10,
+                  formatLabel: (v: number) => `${v}px`,
+                },
+              ]
+            : []),
+        ],
+      },
+      {
+        title: 'Alignment',
+        controls: [
           {
-            id: 'leftSlot.durationOffset',
-            type: 'slider',
-            label: 'Duration Offset',
-            value: config.leftSlot.durationOffset,
-            min: -200,
-            max: 200,
-            step: 25,
-            formatLabel: (v: number) => `${v}ms`,
+            id: 'leftSlot.verticalAlign',
+            type: 'select',
+            label: 'Vertical Align',
+            value: config.leftSlot.verticalAlign,
+            options: [...VERTICAL_ALIGN_OPTIONS],
           },
         ],
       },
@@ -856,6 +978,10 @@ function buildLeftSlotSection(config: BiaxialExpandPlaygroundConfig): Section {
 }
 
 function buildRightSlotSection(config: BiaxialExpandPlaygroundConfig): Section {
+  // Determine which height control to show
+  const showDrivingHeight = config.rightSlot.drivesPanelHeight
+  const showMaxHeight = !config.rightSlot.drivesPanelHeight && config.rightSlot.verticalAlign !== 'full'
+
   return {
     id: 'rightSlot',
     label: 'Right Slot',
@@ -870,30 +996,68 @@ function buildRightSlotSection(config: BiaxialExpandPlaygroundConfig): Section {
             label: 'Enabled',
             value: config.rightSlot.enabled,
           },
+          {
+            id: 'rightSlot.drivesPanelHeight',
+            type: 'toggle',
+            label: 'Drives Panel Height',
+            value: config.rightSlot.drivesPanelHeight ?? false,
+          },
         ],
       },
       {
-        title: 'Animation Offsets',
+        title: 'Size',
         controls: [
           {
-            id: 'rightSlot.delayOffset',
+            id: 'layout.maxRightWidth',
             type: 'slider',
-            label: 'Delay Offset',
-            value: config.rightSlot.delayOffset,
-            min: -100,
-            max: 100,
+            label: 'Width',
+            value: config.layout.maxRightWidth,
+            min: 40,
+            max: 400,
             step: 10,
-            formatLabel: (v: number) => `${v}ms`,
+            formatLabel: (v: number) => `${v}px`,
           },
+          // Show Driving Height when driving panel height
+          ...(showDrivingHeight
+            ? [
+                {
+                  id: 'rightSlot.drivingHeight',
+                  type: 'slider' as const,
+                  label: 'Height',
+                  value: config.rightSlot.drivingHeight ?? 200,
+                  min: 50,
+                  max: 500,
+                  step: 10,
+                  formatLabel: (v: number) => `${v}px`,
+                },
+              ]
+            : []),
+          // Show Max Height when NOT driving and NOT full align
+          ...(showMaxHeight
+            ? [
+                {
+                  id: 'rightSlot.maxHeight',
+                  type: 'slider' as const,
+                  label: 'Max Height',
+                  value: config.rightSlot.maxHeight ?? 300,
+                  min: 50,
+                  max: 500,
+                  step: 10,
+                  formatLabel: (v: number) => `${v}px`,
+                },
+              ]
+            : []),
+        ],
+      },
+      {
+        title: 'Alignment',
+        controls: [
           {
-            id: 'rightSlot.durationOffset',
-            type: 'slider',
-            label: 'Duration Offset',
-            value: config.rightSlot.durationOffset,
-            min: -200,
-            max: 200,
-            step: 25,
-            formatLabel: (v: number) => `${v}ms`,
+            id: 'rightSlot.verticalAlign',
+            type: 'select',
+            label: 'Vertical Align',
+            value: config.rightSlot.verticalAlign,
+            options: [...VERTICAL_ALIGN_OPTIONS],
           },
         ],
       },

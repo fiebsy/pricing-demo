@@ -10,7 +10,7 @@
 'use client'
 
 import * as React from 'react'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { cn } from '@/lib/utils'
 import { useBiaxialExpand } from '../context'
 import { getBackgroundClass, getBorderColorVar } from '../utils'
@@ -30,12 +30,56 @@ export const BottomSlot: React.FC<SlotProps> = ({
     timing,
   } = useBiaxialExpand()
 
+  const contentRef = useRef<HTMLDivElement>(null)
   const slotConfig = { ...config.bottomSlot, ...slotConfigOverride }
 
-  // Set height from config
+  // Get heightMode from slot config (defaults to 'dynamic' for backward compatibility)
+  const heightMode = slotConfig.heightMode ?? 'dynamic'
+  const isAutoHeight = heightMode === 'auto'
+
+  // Determine effective height based on mode:
+  // - 'fixed': Use bottomSlot.height, fallback to layout.maxBottomHeight
+  // - 'dynamic': Use layout.maxBottomHeight (scrollable with max constraint)
+  // - 'auto': Measured by ResizeObserver (undefined here)
+  const effectiveHeight = isAutoHeight
+    ? undefined
+    : heightMode === 'dynamic'
+      ? config.layout.maxBottomHeight
+      : (slotConfig.height ?? config.layout.maxBottomHeight)
+
+  // For fixed/dynamic: set height from config
   useEffect(() => {
-    setSlotHeight('bottom', slotConfig.enabled ? config.layout.maxBottomHeight : 0)
-  }, [config.layout.maxBottomHeight, slotConfig.enabled, setSlotHeight])
+    if (!isAutoHeight && effectiveHeight !== undefined) {
+      setSlotHeight('bottom', slotConfig.enabled ? effectiveHeight : 0)
+    }
+  }, [effectiveHeight, slotConfig.enabled, setSlotHeight, isAutoHeight])
+
+  // For auto mode: measure actual content height with ResizeObserver
+  useEffect(() => {
+    if (!isAutoHeight || !slotConfig.enabled || !contentRef.current) return
+
+    const measureHeight = () => {
+      const height = contentRef.current?.offsetHeight ?? 0
+      setSlotHeight('bottom', height)
+    }
+
+    measureHeight()
+
+    const observer = new ResizeObserver(measureHeight)
+    observer.observe(contentRef.current)
+
+    return () => observer.disconnect()
+  }, [isAutoHeight, slotConfig.enabled, setSlotHeight])
+
+  // Debug logging
+  if (config.debug) {
+    console.log('[BottomSlot] Height Debug:', {
+      heightMode,
+      slotConfigHeight: slotConfig.height,
+      maxBottomHeight: config.layout.maxBottomHeight,
+      effectiveHeight,
+    })
+  }
 
   // If slot is disabled, don't render
   if (!slotConfig.enabled) {
@@ -52,12 +96,16 @@ export const BottomSlot: React.FC<SlotProps> = ({
 
   const inset = slotConfig.inset ?? 4
 
+  // Use config.debug for debug visualization
+  const showDebug = config.debug
+
   return (
     <div
       className={cn(
         'absolute overflow-hidden',
         config.appearance.squircle && 'corner-squircle',
-        getBackgroundClass(slotConfig.background ?? 'secondary'),
+        !showDebug && getBackgroundClass(slotConfig.background ?? 'secondary'),
+        slotConfig.shine && slotConfig.shine !== 'none' && slotConfig.shine,
         className
       )}
       style={{
@@ -73,13 +121,62 @@ export const BottomSlot: React.FC<SlotProps> = ({
           borderStyle: 'solid',
           borderColor: getBorderColorVar(slotConfig.borderColor ?? 'primary'),
         }),
-        ...(config.debug && {
-          outline: '2px solid red',
-          outlineOffset: '-2px',
+        ...(showDebug && {
+          background: 'rgba(0,255,0,0.3)',
+          outline: '2px dashed green',
         }),
       }}
     >
-      {children}
+      <div ref={contentRef}>
+        {children}
+      </div>
+      {/* Debug overlay: shows slot boundaries and height info */}
+      {showDebug && (
+        <>
+          {/* Top edge marker */}
+          <div
+            style={{
+              position: 'absolute',
+              left: 0,
+              right: 0,
+              top: 0,
+              height: 2,
+              background: 'magenta',
+              pointerEvents: 'none',
+              zIndex: 100,
+            }}
+          />
+          {/* Bottom edge marker */}
+          <div
+            style={{
+              position: 'absolute',
+              left: 0,
+              right: 0,
+              bottom: 0,
+              height: 2,
+              background: 'yellow',
+              pointerEvents: 'none',
+              zIndex: 100,
+            }}
+          >
+            <span
+              style={{
+                position: 'absolute',
+                bottom: 4,
+                left: 4,
+                fontSize: 10,
+                color: 'yellow',
+                fontFamily: 'monospace',
+                whiteSpace: 'nowrap',
+                background: 'rgba(0,0,0,0.7)',
+                padding: '1px 4px',
+              }}
+            >
+              BOTTOM SLOT h={effectiveHeight ?? 'auto'} mode={heightMode}
+            </span>
+          </div>
+        </>
+      )}
     </div>
   )
 }

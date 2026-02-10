@@ -4,9 +4,9 @@
  * A composable, slot-based expand system with unified clip-path animations.
  *
  * ARCHITECTURE: Unified Model
- * - Trigger lives INSIDE Content for proper clip-path reveal
+ * - All slots (Top, Left, Right, Bottom) live INSIDE Content for unified clip-path reveal
  * - Backdrop provides visual styling (background, shadow, shine)
- * - TopSlot expands upward (separate from main content)
+ * - ContentLayer handles all clipping via a single clip-path
  *
  * @example Basic usage with search input
  * ```tsx
@@ -27,16 +27,24 @@
  * </BiaxialExpand.Root>
  * ```
  *
- * @example With top section
+ * @example With top and horizontal slots
  * ```tsx
  * <BiaxialExpand.Root>
- *   <BiaxialExpand.TopSlot>
- *     <BiaxialExpand.FilterBar />
- *   </BiaxialExpand.TopSlot>
- *
  *   <BiaxialExpand.Backdrop />
  *
  *   <BiaxialExpand.Content>
+ *     <BiaxialExpand.TopSlot>
+ *       <BiaxialExpand.FilterBar />
+ *     </BiaxialExpand.TopSlot>
+ *
+ *     <BiaxialExpand.LeftSlot>
+ *       <LeftContent />
+ *     </BiaxialExpand.LeftSlot>
+ *
+ *     <BiaxialExpand.RightSlot>
+ *       <RightContent />
+ *     </BiaxialExpand.RightSlot>
+ *
  *     <BiaxialExpand.Trigger>
  *       <BiaxialExpand.SearchInput placeholder="Search..." />
  *     </BiaxialExpand.Trigger>
@@ -135,6 +143,7 @@ export type {
   ExpandOrigin,
   ExpandOriginX,
   PositionMode,
+  VerticalAlign,
   SearchInputProps,
   MenuContentProps,
   CommandGroup,

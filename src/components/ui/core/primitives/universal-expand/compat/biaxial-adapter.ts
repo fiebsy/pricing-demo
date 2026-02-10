@@ -82,9 +82,11 @@ function convertSlotConfig(
     ? biaxialConfig.animation.topExpandOrigin
     : biaxialConfig.animation.expandOrigin
 
+  // Note: delayOffset and durationOffset were removed from BiaxialExpand
+  // Use default values from universal config
   const animation: SlotAnimation = {
-    delayOffset: biaxialSlot.delayOffset ?? defaultSlot.animation.delayOffset,
-    durationOffset: biaxialSlot.durationOffset ?? defaultSlot.animation.durationOffset,
+    delayOffset: defaultSlot.animation.delayOffset,
+    durationOffset: defaultSlot.animation.durationOffset,
     expandOrigin: mapExpandOrigin(legacyOrigin),
   }
 

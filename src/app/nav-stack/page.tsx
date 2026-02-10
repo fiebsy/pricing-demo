@@ -499,6 +499,7 @@ export default function StackingNavPlayground() {
         onChange={handleControlChange}
         onReset={handleReset}
         getConfigForCopy={getConfigForCopy}
+        defaultMinimized
       />
     </div>
   )

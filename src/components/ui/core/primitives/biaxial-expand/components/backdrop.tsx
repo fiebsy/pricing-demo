@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/core/primitives/menu/config'
 import { useBiaxialExpand } from '../context'
 import { EASING_EXPO_OUT } from '../constants'
-import { getHorizontalPosition, getClipPathInsets } from '../utils/positioning'
+import { getHorizontalPosition, getClipPathInsets, getHorizontalSlotBottomPosition } from '../utils/positioning'
 import type { BackdropProps } from '../types'
 
 // Debug flag - set to true to visualize backdrop layer
@@ -74,15 +74,57 @@ export const Backdrop: React.FC<BackdropProps> = ({ className }) => {
   const delay = animation.backdropDelay
 
   // Calculate total height including top section offset
+  // Use maxTopHeight/maxBottomHeight as fallbacks when dimensions haven't been measured yet
   const topSlotInset = config.topSlot.appearance?.inset ?? config.topSlot.inset ?? 4
   const topGap = layout.topGap ?? 0
-  const backdropTopOffset = layout.backdropTopOffset + (
-    config.topSlot.enabled ? dimensions.topHeight + topSlotInset + topGap : 0
+  const topSlotOffset = config.topSlot.enabled
+    ? (dimensions.topHeight || layout.maxTopHeight || 0) + topSlotInset + topGap
+    : 0
+
+  // Account for alignment padding from horizontal slots
+  // When slots use center/bottom alignment and are taller than trigger,
+  // the backdrop needs to extend upward to wrap them
+  const maxAlignmentPadding = Math.max(
+    dimensions.leftAlignmentPadding,
+    dimensions.rightAlignmentPadding
   )
 
-  // Total panel height (trigger + gap + bottom) - only apply gap when bottom slot is enabled
-  const effectiveBottomGap = config.bottomSlot.enabled ? layout.bottomGap : 0
-  const panelHeight = layout.triggerHeight + effectiveBottomGap + dimensions.bottomHeight
+  const backdropTopOffset = layout.backdropTopOffset + topSlotOffset + maxAlignmentPadding
+
+  // Calculate panel height considering all slots that can drive height
+  // Uses Math.max to let the tallest driving slot win
+  const calculatePanelHeight = () => {
+    const contributions: number[] = [layout.triggerHeight]
+
+    // Bottom slot contribution (default driver - drivesPanelHeight defaults to true)
+    if (config.bottomSlot.enabled && config.bottomSlot.drivesPanelHeight !== false) {
+      const effectiveBottomHeight = dimensions.bottomHeight || layout.maxBottomHeight
+      const effectiveBottomGap = layout.bottomGap
+      contributions.push(layout.triggerHeight + effectiveBottomGap + effectiveBottomHeight)
+    }
+
+    // Left slot contribution (when explicitly driving)
+    // Account for vertical alignment - only the portion below trigger top counts
+    if (config.leftSlot.enabled && config.leftSlot.drivesPanelHeight) {
+      const leftHeight = dimensions.leftHeight || config.leftSlot.drivingHeight || 0
+      const leftAlign = config.leftSlot.verticalAlign ?? 'top'
+      const leftBottom = getHorizontalSlotBottomPosition(leftAlign, layout.triggerHeight, leftHeight)
+      contributions.push(leftBottom)
+    }
+
+    // Right slot contribution (when explicitly driving)
+    // Account for vertical alignment - only the portion below trigger top counts
+    if (config.rightSlot.enabled && config.rightSlot.drivesPanelHeight) {
+      const rightHeight = dimensions.rightHeight || config.rightSlot.drivingHeight || 0
+      const rightAlign = config.rightSlot.verticalAlign ?? 'top'
+      const rightBottom = getHorizontalSlotBottomPosition(rightAlign, layout.triggerHeight, rightHeight)
+      contributions.push(rightBottom)
+    }
+
+    return Math.max(...contributions)
+  }
+
+  const panelHeight = calculatePanelHeight()
 
   // Get horizontal positioning based on expandOriginX
   const expandOriginX = layout.expandOriginX ?? 'center'

@@ -134,8 +134,21 @@ export const HEIGHT_MODE_OPTIONS = [
   { label: 'Dynamic', value: 'dynamic' },
 ] as const
 
+export const DIMENSION_MODE_OPTIONS = [
+  { label: 'Full', value: 'full' },
+  { label: 'Fixed', value: 'fixed' },
+  { label: 'Dynamic', value: 'dynamic' },
+] as const
+
 export const SLOT_SHINE_OPTIONS = [
   { label: 'None', value: 'none' },
   { label: 'Shine 1 Subtle', value: 'shine-1-subtle' },
   { label: 'Shine 2 Subtle', value: 'shine-2-subtle' },
+] as const
+
+export const VERTICAL_ALIGN_OPTIONS = [
+  { label: 'Top', value: 'top' },
+  { label: 'Center', value: 'center' },
+  { label: 'Bottom', value: 'bottom' },
+  { label: 'Full', value: 'full' },
 ] as const

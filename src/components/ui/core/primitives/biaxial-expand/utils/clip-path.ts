@@ -74,6 +74,9 @@ export function getBackdropClipPath(
  * When horizontal slots are inside ContentLayer, the layer is wider than panelWidth.
  * The clip-path must account for these contributions to properly clip/reveal the slots.
  *
+ * When horizontal slots need to span full visual height (including top slot area),
+ * the ContentLayer is extended upward. The topInset parameter clips this area when collapsed.
+ *
  * @param expanded - Whether the panel is expanded
  * @param panelHeight - Height of the main panel (trigger + bottomGap + bottomHeight)
  * @param triggerHeight - Height of the trigger area
@@ -82,6 +85,7 @@ export function getBackdropClipPath(
  * @param rightInset - Horizontal clip inset from right (based on expandOriginX)
  * @param leftContribution - Total width contributed by left slot (width + inset*2 + gap)
  * @param rightContribution - Total width contributed by right slot (width + inset*2 + gap)
+ * @param topInset - Top clip inset for extended ContentLayer (top slot contribution)
  */
 export function getExtendedContentClipPath(
   expanded: boolean,
@@ -91,7 +95,8 @@ export function getExtendedContentClipPath(
   leftInset: number,
   rightInset: number,
   leftContribution: number,
-  rightContribution: number
+  rightContribution: number,
+  topInset: number = 0
 ): string {
   if (expanded) {
     return `inset(0 0 0 0 round ${borderRadius}px)`
@@ -99,11 +104,13 @@ export function getExtendedContentClipPath(
 
   // Collapsed: show only trigger area
   // The left/right contributions need to be clipped entirely when collapsed
-  const bottomInset = panelHeight - triggerHeight
+  // The topInset clips the extended area for top slot when collapsed
+  // bottomInset must account for topInset to preserve correct trigger height
+  const bottomInset = panelHeight - triggerHeight - topInset
   const totalLeftInset = leftContribution + leftInset
   const totalRightInset = rightContribution + rightInset
 
-  return `inset(0 ${totalRightInset}px ${bottomInset}px ${totalLeftInset}px round ${borderRadius}px)`
+  return `inset(${topInset}px ${totalRightInset}px ${bottomInset}px ${totalLeftInset}px round ${borderRadius}px)`
 }
 
 // ============================================================================
@@ -224,7 +231,7 @@ export function getRightSectionBiaxialClipPath(expanded: boolean): string {
  */
 export function getBiaxialSlotContainerClipPath(
   expanded: boolean,
-  horizontalOrigin: 'left' | 'right',
+  horizontalOrigin: 'left' | 'center' | 'right',
   verticalOrigin: 'top' | 'bottom' = 'top'
 ): string {
   if (expanded) {
@@ -233,8 +240,18 @@ export function getBiaxialSlotContainerClipPath(
 
   const topInset = verticalOrigin === 'top' ? '0' : '100%'
   const bottomInset = verticalOrigin === 'bottom' ? '0' : '100%'
-  const leftInset = horizontalOrigin === 'left' ? '0' : '100%'
-  const rightInset = horizontalOrigin === 'right' ? '0' : '100%'
+
+  // For center, collapse from both sides toward the middle
+  let leftInset: string
+  let rightInset: string
+
+  if (horizontalOrigin === 'center') {
+    leftInset = '50%'
+    rightInset = '50%'
+  } else {
+    leftInset = horizontalOrigin === 'left' ? '0' : '100%'
+    rightInset = horizontalOrigin === 'right' ? '0' : '100%'
+  }
 
   return `inset(${topInset} ${rightInset} ${bottomInset} ${leftInset})`
 }

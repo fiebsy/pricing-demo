@@ -70,6 +70,8 @@ export function playgroundConfigToBiaxialConfig(
       slotContainerDurationOffset: playgroundConfig.animation.slotContainerDurationOffset * slowMoMultiplier,
       expandOrigin: playgroundConfig.animation.expandOrigin,
       topExpandOrigin: playgroundConfig.animation.topExpandOrigin,
+      leftExpandOrigin: playgroundConfig.animation.leftExpandOrigin,
+      rightExpandOrigin: playgroundConfig.animation.rightExpandOrigin,
     },
     appearance: {
       borderRadius: playgroundConfig.appearance.borderRadius,
@@ -84,8 +86,7 @@ export function playgroundConfigToBiaxialConfig(
       enabled: playgroundConfig.topSlot.enabled,
       heightMode: playgroundConfig.topSlot.heightMode,
       height: playgroundConfig.topSlot.height,
-      delayOffset: playgroundConfig.topSlot.delayOffset * slowMoMultiplier,
-      durationOffset: playgroundConfig.topSlot.durationOffset * slowMoMultiplier,
+      drivesPanelHeight: playgroundConfig.topSlot.drivesPanelHeight ?? false,
       background: playgroundConfig.topSlot.background,
       shine: playgroundConfig.topSlot.shine === 'none' ? undefined : playgroundConfig.topSlot.shine,
       borderRadius: playgroundConfig.topSlot.borderRadius,
@@ -97,8 +98,7 @@ export function playgroundConfigToBiaxialConfig(
       enabled: playgroundConfig.bottomSlot.enabled,
       heightMode: playgroundConfig.bottomSlot.heightMode,
       height: playgroundConfig.bottomSlot.height,
-      delayOffset: playgroundConfig.bottomSlot.delayOffset * slowMoMultiplier,
-      durationOffset: playgroundConfig.bottomSlot.durationOffset * slowMoMultiplier,
+      drivesPanelHeight: playgroundConfig.bottomSlot.drivesPanelHeight ?? true,
       background: playgroundConfig.bottomSlot.background,
       shine: playgroundConfig.bottomSlot.shine === 'none' ? undefined : playgroundConfig.bottomSlot.shine,
       borderRadius: playgroundConfig.bottomSlot.borderRadius,
@@ -108,25 +108,33 @@ export function playgroundConfigToBiaxialConfig(
     },
     leftSlot: {
       enabled: playgroundConfig.leftSlot.enabled,
-      delayOffset: playgroundConfig.leftSlot.delayOffset * slowMoMultiplier,
-      durationOffset: playgroundConfig.leftSlot.durationOffset * slowMoMultiplier,
+      drivesPanelHeight: playgroundConfig.leftSlot.drivesPanelHeight ?? false,
+      // Pass drivingHeight explicitly for vertical alignment calculations
+      drivingHeight: playgroundConfig.leftSlot.drivingHeight ?? 200,
+      // Also set height for backwards compatibility
+      height: playgroundConfig.leftSlot.drivingHeight ?? 200,
       background: playgroundConfig.leftSlot.background,
       shine: playgroundConfig.leftSlot.shine === 'none' ? undefined : playgroundConfig.leftSlot.shine,
       borderRadius: playgroundConfig.leftSlot.borderRadius,
       inset: playgroundConfig.leftSlot.inset,
       borderWidth: playgroundConfig.leftSlot.borderWidth,
       borderColor: playgroundConfig.leftSlot.borderColor,
+      verticalAlign: playgroundConfig.leftSlot.verticalAlign,
     },
     rightSlot: {
       enabled: playgroundConfig.rightSlot.enabled,
-      delayOffset: playgroundConfig.rightSlot.delayOffset * slowMoMultiplier,
-      durationOffset: playgroundConfig.rightSlot.durationOffset * slowMoMultiplier,
+      drivesPanelHeight: playgroundConfig.rightSlot.drivesPanelHeight ?? false,
+      // Pass drivingHeight explicitly for vertical alignment calculations
+      drivingHeight: playgroundConfig.rightSlot.drivingHeight ?? 200,
+      // Also set height for backwards compatibility
+      height: playgroundConfig.rightSlot.drivingHeight ?? 200,
       background: playgroundConfig.rightSlot.background,
       shine: playgroundConfig.rightSlot.shine === 'none' ? undefined : playgroundConfig.rightSlot.shine,
       borderRadius: playgroundConfig.rightSlot.borderRadius,
       inset: playgroundConfig.rightSlot.inset,
       borderWidth: playgroundConfig.rightSlot.borderWidth,
       borderColor: playgroundConfig.rightSlot.borderColor,
+      verticalAlign: playgroundConfig.rightSlot.verticalAlign,
     },
     debug: playgroundConfig.demo.showDebug,
   }
@@ -138,8 +146,11 @@ export function playgroundConfigToBiaxialConfig(
 
 function HorizontalSlotContent({ side }: { side: 'left' | 'right' }) {
   return (
-    <div className="flex items-center justify-center h-full px-2">
-      <div className="text-xs text-tertiary capitalize">{side}</div>
+    <div className="w-full h-full flex flex-col items-center justify-center p-4">
+      <div className="uppercase text-[10px] font-semibold tracking-widest text-tertiary mb-2">
+        {side} slot
+      </div>
+      <div className="w-12 h-1 rounded-full bg-quaternary" />
     </div>
   )
 }
@@ -150,9 +161,10 @@ function HorizontalSlotContent({ side }: { side: 'left' | 'right' }) {
 
 interface CommandMenuDemoProps {
   config: BiaxialExpandPlaygroundConfig
+  autoOpen?: boolean
 }
 
-export function CommandMenuDemo({ config }: CommandMenuDemoProps) {
+export function CommandMenuDemo({ config, autoOpen }: CommandMenuDemoProps) {
   const [filter, setFilter] = useState('')
   const [activeFilter, setActiveFilter] = useState('all')
 
@@ -163,20 +175,21 @@ export function CommandMenuDemo({ config }: CommandMenuDemoProps) {
   const biaxialConfig = playgroundConfigToBiaxialConfig(config)
 
   return (
-    <BiaxialExpand.Root config={biaxialConfig}>
-      {config.topSlot.enabled && (
-        <BiaxialExpand.TopSlot>
-          <BiaxialExpand.FilterBar
-            options={SAMPLE_FILTER_OPTIONS}
-            value={activeFilter}
-            onChange={setActiveFilter}
-          />
-        </BiaxialExpand.TopSlot>
-      )}
-
+    <BiaxialExpand.Root config={biaxialConfig} expanded={autoOpen || undefined}>
       <BiaxialExpand.Backdrop />
 
       <BiaxialExpand.Content>
+        {/* TopSlot inside ContentLayer for unified clipping */}
+        {config.topSlot.enabled && (
+          <BiaxialExpand.TopSlot>
+            <BiaxialExpand.FilterBar
+              options={SAMPLE_FILTER_OPTIONS}
+              value={activeFilter}
+              onChange={setActiveFilter}
+            />
+          </BiaxialExpand.TopSlot>
+        )}
+
         {/* Horizontal slots inside ContentLayer for unified clipping */}
         {config.leftSlot.enabled && (
           <BiaxialExpand.LeftSlot>
@@ -220,6 +233,7 @@ export function CommandMenuDemo({ config }: CommandMenuDemoProps) {
 
 interface DashboardMetricDemoProps {
   config: BiaxialExpandPlaygroundConfig
+  autoOpen?: boolean
 }
 
 function MetricTrigger({ metric }: { metric: MetricData }) {
@@ -276,12 +290,12 @@ function MetricDetails({ metric }: { metric: MetricData }) {
   )
 }
 
-export function DashboardMetricDemo({ config }: DashboardMetricDemoProps) {
+export function DashboardMetricDemo({ config, autoOpen }: DashboardMetricDemoProps) {
   const metric = SAMPLE_METRICS[0]
   const biaxialConfig = playgroundConfigToBiaxialConfig(config)
 
   return (
-    <BiaxialExpand.Root config={biaxialConfig}>
+    <BiaxialExpand.Root config={biaxialConfig} expanded={autoOpen || undefined}>
       <BiaxialExpand.Backdrop />
 
       <BiaxialExpand.Content>
@@ -320,6 +334,7 @@ export function DashboardMetricDemo({ config }: DashboardMetricDemoProps) {
 
 interface CustomDemoProps {
   config: BiaxialExpandPlaygroundConfig
+  autoOpen?: boolean
 }
 
 function CustomTrigger() {
@@ -375,20 +390,21 @@ function CustomBottomContent() {
   )
 }
 
-export function CustomDemo({ config }: CustomDemoProps) {
+export function CustomDemo({ config, autoOpen }: CustomDemoProps) {
   const biaxialConfig = playgroundConfigToBiaxialConfig(config)
 
   return (
-    <BiaxialExpand.Root config={biaxialConfig}>
-      {config.topSlot.enabled && (
-        <BiaxialExpand.TopSlot>
-          <CustomTopContent />
-        </BiaxialExpand.TopSlot>
-      )}
-
+    <BiaxialExpand.Root config={biaxialConfig} expanded={autoOpen || undefined}>
       <BiaxialExpand.Backdrop />
 
       <BiaxialExpand.Content>
+        {/* TopSlot inside ContentLayer for unified clipping */}
+        {config.topSlot.enabled && (
+          <BiaxialExpand.TopSlot>
+            <CustomTopContent />
+          </BiaxialExpand.TopSlot>
+        )}
+
         {/* Horizontal slots inside ContentLayer for unified clipping */}
         {config.leftSlot.enabled && (
           <BiaxialExpand.LeftSlot>
@@ -424,17 +440,18 @@ export function CustomDemo({ config }: CustomDemoProps) {
 
 interface DemoSwitcherProps {
   config: BiaxialExpandPlaygroundConfig
+  autoOpen?: boolean
 }
 
-export function DemoSwitcher({ config }: DemoSwitcherProps) {
+export function DemoSwitcher({ config, autoOpen }: DemoSwitcherProps) {
   switch (config.demo.variant) {
     case 'command-menu':
-      return <CommandMenuDemo config={config} />
+      return <CommandMenuDemo config={config} autoOpen={autoOpen} />
     case 'dashboard-metric':
-      return <DashboardMetricDemo config={config} />
+      return <DashboardMetricDemo config={config} autoOpen={autoOpen} />
     case 'custom':
-      return <CustomDemo config={config} />
+      return <CustomDemo config={config} autoOpen={autoOpen} />
     default:
-      return <CommandMenuDemo config={config} />
+      return <CommandMenuDemo config={config} autoOpen={autoOpen} />
   }
 }

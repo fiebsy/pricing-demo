@@ -22,17 +22,17 @@ import { BiaxialExpand, useBiaxialExpand } from '@/components/ui/core/primitives
 function MyExpandableComponent() {
   return (
     <BiaxialExpand.Root config={myConfig}>
-      {/* Content that expands UPWARD (outside ContentLayer) */}
-      <BiaxialExpand.TopSlot>
-        <MyTopContent />
-      </BiaxialExpand.TopSlot>
-
       {/* Visual backdrop (background, shadow) */}
       <BiaxialExpand.Backdrop />
 
-      {/* Main content layer - unified clip-path for trigger, bottom, and horizontal slots */}
+      {/* Main content layer - unified clip-path for ALL slots */}
       <BiaxialExpand.Content>
-        {/* Horizontal slots go INSIDE Content for unified clipping */}
+        {/* TopSlot INSIDE Content for unified clipping */}
+        <BiaxialExpand.TopSlot>
+          <MyTopContent />
+        </BiaxialExpand.TopSlot>
+
+        {/* Horizontal slots */}
         <BiaxialExpand.LeftSlot>
           <MyLeftContent />
         </BiaxialExpand.LeftSlot>
@@ -62,18 +62,18 @@ function MyExpandableComponent() {
 ## Architecture
 
 ```
-                     TopSlot (outside)
-                         ↑
-┌────────────────────────┴────────────────────────┐
-│                                                 │
-│   ┌─────────┬───────────────────┬──────────┐   │
-│   │LeftSlot │     Trigger       │ RightSlot│   │  ← ContentLayer (unified clip-path)
-│   │    ←    │                   │    →     │   │
-│   ├─────────┴───────────────────┴──────────┤   │
-│   │              BottomSlot                │   │
-│   │          (expands DOWNWARD)            │   │
-│   └────────────────────────────────────────┘   │
-│                                                 │
+┌─────────────────────────────────────────────────┐
+│              ContentLayer (unified clip-path)    │
+│   ┌────────────────────────────────────────┐    │
+│   │              TopSlot                   │    │
+│   │         (expands UPWARD)               │    │
+│   ├─────────┬───────────────────┬──────────┤    │
+│   │LeftSlot │     Trigger       │ RightSlot│    │
+│   │    ←    │                   │    →     │    │
+│   ├─────────┴───────────────────┴──────────┤    │
+│   │              BottomSlot                │    │
+│   │          (expands DOWNWARD)            │    │
+│   └────────────────────────────────────────┘    │
 └─────────────────────────────────────────────────┘
                          ↑
               Backdrop (background, shadow, shine)
@@ -85,8 +85,8 @@ function MyExpandableComponent() {
 |-----------|---------|
 | `Root` | Provider + state management |
 | `Backdrop` | Visual styling layer (bg, shadow, shine) |
-| `TopSlot` | Upward-expanding content area (outside ContentLayer) |
-| `Content` | Main clip-path container (includes horizontal slots) |
+| `Content` | Main clip-path container (all slots inside) |
+| `TopSlot` | Upward-expanding content area (inside ContentLayer) |
 | `LeftSlot` | Leftward-expanding content (inside ContentLayer) |
 | `RightSlot` | Rightward-expanding content (inside ContentLayer) |
 | `Trigger` | Always-visible trigger element |
@@ -205,14 +205,14 @@ const COMMAND_CONFIG = {
 function CommandMenu() {
   return (
     <BiaxialExpand.Root config={COMMAND_CONFIG}>
-      {/* Tabs expand ABOVE the input */}
-      <BiaxialExpand.TopSlot>
-        <TabBar tabs={['All', 'Commands', 'Files', 'Settings']} />
-      </BiaxialExpand.TopSlot>
-
       <BiaxialExpand.Backdrop />
 
       <BiaxialExpand.Content>
+        {/* Tabs expand ABOVE the input - inside Content for unified clipping */}
+        <BiaxialExpand.TopSlot>
+          <TabBar tabs={['All', 'Commands', 'Files', 'Settings']} />
+        </BiaxialExpand.TopSlot>
+
         <BiaxialExpand.Trigger>
           <CommandInput placeholder="Type a command..." />
         </BiaxialExpand.Trigger>

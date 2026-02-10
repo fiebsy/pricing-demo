@@ -68,7 +68,7 @@ const PRESET_DEFAULT: Omit<PlaygroundConfig, 'configPreset' | 'navVariant'> = {
   containerPaddingRight: 0,
   containerPaddingBottom: 0,
   containerPaddingLeft: 0,
-  showContentGrid: true,
+  showContentGrid: false,
 }
 
 export const CONFIG_PRESETS: Record<
