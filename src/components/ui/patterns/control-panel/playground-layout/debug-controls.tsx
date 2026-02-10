@@ -50,8 +50,8 @@ export function PlaygroundDebugControls({
         <div
           className={cn(
             'group flex flex-col items-center gap-1.5',
-            'transition-transform duration-150 ease-out',
-            autoOpen && 'scale-90'
+            'transition-all duration-150 ease-out',
+            autoOpen ? 'scale-90' : 'opacity-40 hover:opacity-100'
           )}
         >
           <button
@@ -90,8 +90,8 @@ export function PlaygroundDebugControls({
       <div
         className={cn(
           'group flex flex-col items-center gap-1.5',
-          'transition-transform duration-150 ease-out',
-          slowMo && 'scale-90'
+          'transition-all duration-150 ease-out',
+          slowMo ? 'scale-90' : 'opacity-40 hover:opacity-100'
         )}
       >
         <button
@@ -128,8 +128,8 @@ export function PlaygroundDebugControls({
       <div
         className={cn(
           'group flex flex-col items-center gap-1.5',
-          'transition-transform duration-150 ease-out',
-          showDebug && 'scale-90'
+          'transition-all duration-150 ease-out',
+          showDebug ? 'scale-90' : 'opacity-40 hover:opacity-100'
         )}
       >
         <button

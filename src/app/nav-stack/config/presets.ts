@@ -59,7 +59,7 @@ const PRESET_DEFAULT: Omit<PlaygroundConfig, 'configPreset' | 'navVariant'> = {
   slowMoEnabled: false,
   showPhaseIndicator: false,
   containerWidth: 640,
-  navMinHeight: 100,
+  navMinHeight: 70,
   showContainerBounds: false,
   containerOverflow: 'visible',
   showOverflowGradient: false,
@@ -68,7 +68,11 @@ const PRESET_DEFAULT: Omit<PlaygroundConfig, 'configPreset' | 'navVariant'> = {
   containerPaddingRight: 0,
   containerPaddingBottom: 0,
   containerPaddingLeft: 0,
-  showContentGrid: true,
+  showContentGrid: false,
+  navAlignment: 'left',
+  debugAlignment: 'left',
+  debugSpacing: 40,
+  debugOffsetX: 4,
 }
 
 export const CONFIG_PRESETS: Record<

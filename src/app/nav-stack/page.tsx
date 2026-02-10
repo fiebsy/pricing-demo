@@ -243,6 +243,10 @@ export default function StackingNavPlayground() {
       'levelAllInactiveVariant',
       'slowMoEnabled', // Debug feature - doesn't affect preset
       'showContentGrid', // Display toggle - doesn't affect preset
+      'navAlignment', // Layout option - doesn't affect preset
+      'debugAlignment', // Layout option - doesn't affect preset
+      'debugSpacing', // Layout option - doesn't affect preset
+      'debugOffsetX', // Layout option - doesn't affect preset
     ]
     // Button style & variant fields DO affect preset status (not in nonPresetFields)
     if (!nonPresetFields.includes(controlId)) {
@@ -275,8 +279,12 @@ export default function StackingNavPlayground() {
       showNumbers: config.showNumbers,
       showDebug: config.showDebug,
       showPhaseIndicator: config.showPhaseIndicator,
+      navAlignment: config.navAlignment,
+      debugAlignment: config.debugAlignment,
+      debugSpacing: config.debugSpacing,
+      debugOffsetX: config.debugOffsetX,
     }
-  }, [animationConfig, styleConfig, config.showNumbers, config.showDebug, config.showPhaseIndicator])
+  }, [animationConfig, styleConfig, config.showNumbers, config.showDebug, config.showPhaseIndicator, config.navAlignment, config.debugAlignment, config.debugSpacing, config.debugOffsetX])
 
   // Background class mapping
   const bgClasses: Record<PageBackground, string> = {
@@ -303,7 +311,9 @@ export default function StackingNavPlayground() {
               {/* Wrapper for nav + debug controls positioning */}
               <div className="relative w-full" style={{ maxWidth: `${config.containerWidth}px` }}>
                 <div
-                  className={`relative flex w-full flex-nowrap justify-start ${
+                  className={`relative flex w-full flex-nowrap ${
+                    config.navAlignment === 'center' ? 'justify-center' : 'justify-start'
+                  } ${
                     config.showContainerBounds
                       ? 'outline outline-2 outline-dashed outline-red-500/50 bg-red-500/5'
                       : ''
@@ -382,8 +392,14 @@ export default function StackingNavPlayground() {
                 })()}
                 </div>
 
-                {/* Debug Controls - Positioned 80px right and 400px below */}
-                <div className="absolute" style={{ left: '140px', top: '200px' }}>
+                {/* Debug Controls */}
+                <div
+                  className={`flex ${config.debugAlignment === 'center' ? 'justify-center' : 'justify-start'}`}
+                  style={{
+                    marginTop: `${config.debugSpacing}px`,
+                    marginLeft: config.debugOffsetX !== 0 ? `${config.debugOffsetX}px` : undefined,
+                  }}
+                >
                   <PlaygroundDebugControls
                     slowMo={config.slowMoEnabled}
                     onSlowMoChange={(enabled) =>

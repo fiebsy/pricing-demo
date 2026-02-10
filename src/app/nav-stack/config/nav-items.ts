@@ -12,62 +12,36 @@ import type { NavVariant } from './types'
 const ORDERS_ITEMS: StackItem[] = [
   { id: 'all', label: 'All' },
   {
-    id: 'invoices',
-    label: 'Invoices',
+    id: 'active',
+    label: 'Active',
     children: [
+      { id: 'healthy', label: 'Healthy' },
       {
-        id: 'inv-pending',
-        label: 'Pending',
+        id: 'at-risk',
+        label: 'At risk',
         children: [
-          { id: 'inv-draft', label: 'Draft' },
-          { id: 'inv-review', label: 'Review' },
-          { id: 'inv-awaiting', label: 'Awaiting' },
+          { id: 'risk-low', label: 'Low' },
+          { id: 'risk-medium', label: 'Medium' },
+          { id: 'risk-high', label: 'High' },
         ],
       },
-      {
-        id: 'inv-active',
-        label: 'Active',
-        children: [
-          { id: 'inv-sent', label: 'Sent' },
-          { id: 'inv-viewed', label: 'Viewed' },
-          { id: 'inv-partial', label: 'Partial' },
-        ],
-      },
-      { id: 'inv-paid', label: 'Paid' },
-      { id: 'inv-overdue', label: 'Overdue' },
     ],
   },
   {
-    id: 'payments',
-    label: 'Payments',
+    id: 'closed',
+    label: 'Closed',
     children: [
+      { id: 'completed', label: 'Completed' },
       {
-        id: 'pay-process',
-        label: 'Process',
+        id: 'clawbacks',
+        label: 'Clawbacks',
         children: [
-          { id: 'pay-init', label: 'Started' },
-          { id: 'pay-verify', label: 'Verify' },
-          { id: 'pay-confirm', label: 'Confirm' },
+          { id: 'clawback-default', label: 'Default' },
+          { id: 'clawback-chargeback', label: 'Chargeback' },
+          { id: 'clawback-canceled', label: 'Canceled' },
         ],
       },
-      {
-        id: 'pay-complete',
-        label: 'Complete',
-        children: [
-          { id: 'pay-cleared', label: 'Cleared' },
-          { id: 'pay-settled', label: 'Settled' },
-        ],
-      },
-      { id: 'pay-failed', label: 'Failed' },
-    ],
-  },
-  {
-    id: 'refunds',
-    label: 'Refunds',
-    children: [
-      { id: 'ref-request', label: 'Request' },
-      { id: 'ref-approved', label: 'Approved' },
-      { id: 'ref-issued', label: 'Issued' },
+      { id: 'declined', label: 'Declined' },
     ],
   },
 ]

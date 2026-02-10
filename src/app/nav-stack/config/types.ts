@@ -155,4 +155,12 @@ export interface PlaygroundConfig {
 
   // Content display
   showContentGrid: boolean
+
+  // Nav alignment
+  navAlignment: 'left' | 'center'
+
+  // Debug controls layout
+  debugAlignment: 'left' | 'center'
+  debugSpacing: number // px margin-top
+  debugOffsetX: number // px horizontal offset
 }

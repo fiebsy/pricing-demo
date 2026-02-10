@@ -675,6 +675,51 @@ export function createPanelConfig(config: PlaygroundConfig): UnifiedControlPanel
             ],
           },
           {
+            title: 'Alignment',
+            controls: [
+              {
+                id: 'navAlignment',
+                type: 'select',
+                label: 'Nav Alignment',
+                value: config.navAlignment,
+                options: [
+                  { value: 'left', label: 'Left' },
+                  { value: 'center', label: 'Center' },
+                ],
+              },
+              {
+                id: 'debugAlignment',
+                type: 'select',
+                label: 'Debug Alignment',
+                value: config.debugAlignment,
+                options: [
+                  { value: 'left', label: 'Left' },
+                  { value: 'center', label: 'Center' },
+                ],
+              },
+              {
+                id: 'debugSpacing',
+                type: 'slider',
+                label: 'Debug Spacing',
+                value: config.debugSpacing,
+                min: 0,
+                max: 300,
+                step: 8,
+                formatLabel: (v: number) => `${v}px`,
+              },
+              {
+                id: 'debugOffsetX',
+                type: 'slider',
+                label: 'Debug Offset X',
+                value: config.debugOffsetX,
+                min: -100,
+                max: 100,
+                step: 4,
+                formatLabel: (v: number) => (v === 0 ? '0' : `${v}px`),
+              },
+            ],
+          },
+          {
             title: 'Debug',
             controls: [
               {
