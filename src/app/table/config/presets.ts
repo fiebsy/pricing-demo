@@ -93,6 +93,12 @@ export const PRESET_DEFAULT: PlaygroundConfig = {
   barBaselineStatusColor: 'warning',
   navVariant: 'default',
   showNavDebug: false,
+  // Metrics
+  showMetrics: true,
+  metricsGap: 16,
+  metricsValueSize: 20,
+  metricsLabelSize: 10,
+  metricsBottomGap: 16,
 }
 
 export const PRESET_COMPACT: PlaygroundConfig = {
@@ -182,6 +188,12 @@ export const PRESET_COMPACT: PlaygroundConfig = {
   barBaselineStatusColor: 'neutral',
   navVariant: 'default',
   showNavDebug: false,
+  // Metrics
+  showMetrics: false,
+  metricsGap: 12,
+  metricsValueSize: 16,
+  metricsLabelSize: 9,
+  metricsBottomGap: 12,
 }
 
 export type PresetId = 'default' | 'compact'

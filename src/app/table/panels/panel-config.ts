@@ -988,6 +988,78 @@ export function createPanelConfig(config: PlaygroundConfig): PanelConfig {
           },
         ],
       },
+      {
+        id: 'metrics',
+        title: 'Metrics',
+        tabLabel: 'Metrics',
+        groups: [
+          {
+            title: 'Display',
+            controls: [
+              {
+                id: 'showMetrics',
+                type: 'toggle',
+                label: 'Show Metrics',
+                value: config.showMetrics,
+              },
+            ],
+          },
+          ...(config.showMetrics
+            ? [
+                {
+                  title: 'Sizing',
+                  controls: [
+                    {
+                      id: 'metricsValueSize',
+                      type: 'slider' as const,
+                      label: 'Value Size',
+                      value: config.metricsValueSize,
+                      min: 12,
+                      max: 32,
+                      step: 1,
+                      formatLabel: (v: number) => `${v}px`,
+                    },
+                    {
+                      id: 'metricsLabelSize',
+                      type: 'slider' as const,
+                      label: 'Label Size',
+                      value: config.metricsLabelSize,
+                      min: 8,
+                      max: 14,
+                      step: 1,
+                      formatLabel: (v: number) => `${v}px`,
+                    },
+                  ],
+                },
+                {
+                  title: 'Spacing',
+                  controls: [
+                    {
+                      id: 'metricsGap',
+                      type: 'slider' as const,
+                      label: 'Gap',
+                      value: config.metricsGap,
+                      min: 8,
+                      max: 48,
+                      step: 4,
+                      formatLabel: (v: number) => `${v}px`,
+                    },
+                    {
+                      id: 'metricsBottomGap',
+                      type: 'slider' as const,
+                      label: 'Bottom Gap',
+                      value: config.metricsBottomGap,
+                      min: 8,
+                      max: 32,
+                      step: 4,
+                      formatLabel: (v: number) => `${v}px`,
+                    },
+                  ],
+                },
+              ]
+            : []),
+        ],
+      },
     ],
     defaultActiveTab: 'layout',
     position: {

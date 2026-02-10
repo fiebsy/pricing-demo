@@ -198,4 +198,10 @@ export interface PlaygroundConfig {
   // Nav
   navVariant: NavVariant
   showNavDebug: boolean
+  // Metrics
+  showMetrics: boolean
+  metricsGap: number
+  metricsValueSize: number
+  metricsLabelSize: number
+  metricsBottomGap: number
 }

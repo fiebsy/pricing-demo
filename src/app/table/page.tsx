@@ -157,22 +157,30 @@ interface MetricTileProps {
   label: string
   value: number
   suffix?: string
+  valueSize: number
+  labelSize: number
 }
 
-function MetricTile({ label, value, suffix }: MetricTileProps) {
+function MetricTile({ label, value, suffix, valueSize, labelSize }: MetricTileProps) {
   return (
     <div className="flex flex-col gap-0.5">
-      <span className="text-tertiary text-[10px] font-medium uppercase tracking-wider">
+      <span
+        className="text-tertiary font-medium uppercase tracking-wider"
+        style={{ fontSize: labelSize }}
+      >
         {label}
       </span>
-      <div className="text-primary text-lg font-semibold tabular-nums leading-none">
+      <div
+        className="text-primary font-semibold tabular-nums leading-none"
+        style={{ fontSize: valueSize }}
+      >
         <NumberFlow
           value={value}
           locales="en-US"
           transformTiming={{ duration: 200, easing: 'ease-out' }}
           spinTiming={{ duration: 200, easing: 'ease-out' }}
         />
-        {suffix && <span className="text-tertiary text-xs font-normal ml-0.5">{suffix}</span>}
+        {suffix && <span className="text-tertiary font-normal ml-0.5" style={{ fontSize: labelSize }}>{suffix}</span>}
       </div>
     </div>
   )
@@ -649,11 +657,22 @@ export default function TablePlayground() {
       <div className="min-h-screen">
         <div ref={contentWrapperRef} className="mx-auto px-6 mb-20" style={{ paddingTop: config.pageTopGap, maxWidth: config.pageMaxWidth }}>
           {/* Metric Tiles */}
-          <div className="flex items-center gap-8 mb-4">
-            {metrics.map((metric) => (
-              <MetricTile key={metric.label} label={metric.label} value={metric.value} />
-            ))}
-          </div>
+          {config.showMetrics && (
+            <div
+              className="flex items-center justify-between"
+              style={{ marginBottom: config.metricsBottomGap, gap: config.metricsGap }}
+            >
+              {metrics.map((metric) => (
+                <MetricTile
+                  key={metric.label}
+                  label={metric.label}
+                  value={metric.value}
+                  valueSize={config.metricsValueSize}
+                  labelSize={config.metricsLabelSize}
+                />
+              ))}
+            </div>
+          )}
 
           {/* Data Table with Nav in Toolbar */}
           <StickyDataTable<Record<string, unknown>>
