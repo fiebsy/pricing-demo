@@ -10,7 +10,7 @@
 import { useState, type ReactNode } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { ScrollArea } from '@base-ui/react/scroll-area'
-import { cx } from '@/components/utils/cx'
+import { cx } from '../utils'
 import type { Section } from '../types'
 
 // -----------------------------------------------------------------------------

@@ -9,14 +9,14 @@
 
 import { Children, useEffect, useState, type ReactNode } from 'react'
 import { Select } from '@base-ui/react/select'
-import { cx } from '@/components/utils/cx'
+import { cx } from '../utils'
 
 // React Aria
 import { Switch } from 'react-aria-components'
 
-// Core primitives
-import { InlineSlider, TickSlider } from '@/components/ui/core/primitives/slider'
-import { InlineSelect, inlineSelectStyles } from '@/components/ui/core/primitives/select'
+// Internal primitives
+import { InlineSlider, TickSlider } from '../primitives/slider'
+import { InlineSelect, inlineSelectStyles } from '../primitives/select'
 
 // Enhanced controls
 import { FontWeightSelect } from '../controls/font-weight-select'
@@ -162,7 +162,7 @@ export function SliderControl({ control, onChange }: SliderControlProps) {
 // -----------------------------------------------------------------------------
 
 export { InlineSlider }
-export type { InlineSliderProps } from '@/components/ui/core/primitives/slider'
+export type { InlineSliderProps } from '../primitives/slider'
 
 // -----------------------------------------------------------------------------
 // Select Control

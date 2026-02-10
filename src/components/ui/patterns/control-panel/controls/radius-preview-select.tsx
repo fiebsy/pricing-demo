@@ -9,8 +9,8 @@
 
 import { useState } from 'react'
 import { Select } from '@base-ui/react/select'
-import { cx } from '@/components/utils/cx'
-import { inlineSelectStyles as styles } from '@/components/ui/core/primitives/select'
+import { cx } from '../utils'
+import { inlineSelectStyles as styles } from '../primitives/select'
 import { ScrollablePopupContent } from './scrollable-popup-content'
 import type { RadiusOption } from '../tokens/radius'
 

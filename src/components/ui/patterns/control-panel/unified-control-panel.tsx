@@ -22,7 +22,7 @@
 import { useCallback, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { ScrollArea } from '@base-ui/react/scroll-area'
-import { cx } from '@/components/utils/cx'
+import { cx } from './utils'
 
 import { PanelProvider, usePanelContext } from './context'
 import { ActiveSectionContent } from './components/section-renderer'

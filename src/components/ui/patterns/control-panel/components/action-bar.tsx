@@ -11,13 +11,13 @@ import { Select } from '@base-ui/react/select'
 import Copy01Icon from '@hugeicons-pro/core-stroke-rounded/Copy01Icon'
 import Tick01Icon from '@hugeicons-pro/core-stroke-rounded/Tick01Icon'
 import RefreshIcon from '@hugeicons-pro/core-stroke-rounded/RefreshIcon'
-import { cx } from '@/components/utils/cx'
-import { inlineSelectStyles as selectStyles } from '@/components/ui/core/primitives/select'
+import { cx } from '../utils'
+import { inlineSelectStyles as selectStyles } from '../primitives/select'
 import { ScrollablePopupContent } from '../controls/scrollable-popup-content'
 
-// Prod components
-import { ButtonUtility } from '@/components/ui/core/primitives/button-utility'
-import { HugeIcon } from '@/components/ui/core/primitives/icon'
+// Internal primitives
+import { ButtonUtility } from '../primitives/button-utility'
+import { HugeIcon } from '../primitives/icon'
 
 import type { PresetConfig } from '../types'
 

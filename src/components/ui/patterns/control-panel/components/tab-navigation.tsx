@@ -11,8 +11,8 @@
 
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import MinusSignIcon from '@hugeicons-pro/core-stroke-rounded/MinusSignIcon'
-import { cx } from '@/components/utils/cx'
-import { HugeIcon } from '@/components/ui/core/primitives/icon'
+import { cx } from '../utils'
+import { HugeIcon } from '../primitives/icon'
 
 // -----------------------------------------------------------------------------
 // Scrollable Tab List Container

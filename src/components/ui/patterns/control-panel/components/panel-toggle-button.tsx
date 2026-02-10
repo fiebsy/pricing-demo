@@ -8,7 +8,7 @@
 'use client'
 
 import { motion } from 'motion/react'
-import { cx } from '@/components/utils/cx'
+import { cx } from '../utils'
 
 // -----------------------------------------------------------------------------
 // Animated Plus/Minus Icon

@@ -8,7 +8,7 @@
 'use client'
 
 import { useState, useId } from 'react'
-import { cx } from '@/components/utils/cx'
+import { cx } from '../utils'
 import { ControlGrid, ControlRenderer } from './controls'
 import type { ControlGroup, Section } from '../types'
 

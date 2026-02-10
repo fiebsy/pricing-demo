@@ -86,3 +86,46 @@ export type {
   ColorEnhancedSelectProps,
   RadiusPreviewSelectProps,
 } from './controls'
+
+// =============================================================================
+// Playground Layout (internal)
+// =============================================================================
+
+export { PlaygroundLayout } from './playground-layout'
+export type {
+  PlaygroundLayoutProps,
+  DebugControlsConfig,
+  DebugPosition,
+} from './playground-layout'
+
+// Debug controls (also available via PlaygroundLayout)
+export {
+  PlaygroundDebugControls,
+  type PlaygroundDebugControlsProps,
+} from './playground-layout'
+
+// =============================================================================
+// Internal Primitives (re-exported for advanced usage)
+// =============================================================================
+
+// Utils
+export { cx, cn } from './utils'
+
+// Primitives - if needed outside the control panel
+export {
+  HugeIcon,
+  Icon,
+  ButtonUtility,
+  InlineSelect,
+  TickSlider,
+  TurtleIcon,
+  BunnyIcon,
+  inlineSelectStyles,
+} from './primitives'
+
+export type {
+  HugeIconProps,
+  ButtonUtilityProps,
+  InlineSelectProps,
+  SelectOption,
+} from './primitives'
