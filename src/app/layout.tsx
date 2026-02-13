@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Script from 'next/script'
 import { neueHaasGroteskText, neueHaasGroteskDisplay } from '@/lib/fonts'
 import { ThemeProvider } from '@/components/theme-provider'
 import { FloatingNav } from '@/components/ui/deprecated/nav'
@@ -39,6 +40,11 @@ export default function RootLayout({
           <ThemeToggle />
           {children}
         </ThemeProvider>
+        <Script
+          src="https://cdn.visitors.now/v.js"
+          data-token="af259df8-450f-400a-908b-092ec6965653"
+          strategy="afterInteractive"
+        />
       </body>
     </html>
   )
