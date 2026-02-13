@@ -2,6 +2,11 @@
  * Navigation Control Panel Configuration
  *
  * Defines the sections and controls for the UnifiedControlPanel.
+ *
+ * Structure:
+ * - Site: Top-level container settings (content width, nav match)
+ * - Page: Page-level settings (header, tabs, spacing)
+ * - Nav: Navigation-specific controls (layout, logo, nav items, dropdown)
  */
 
 import type {
@@ -51,13 +56,267 @@ const TEXT_COLOR_OPTIONS: SemanticColorOption[] = [
   { label: 'Brand', value: 'brand', cssVar: '--color-brand-500', category: 'brand' },
 ]
 
-export function createNavPanelConfig(config: NavConfig): PanelConfig {
-  const layoutSection: Section = {
-    id: 'layout',
-    label: 'Layout',
-    title: 'Layout Settings',
+export function createNavPanelConfig(config: NavConfig, activePresetId?: string | null): PanelConfig {
+  // =============================================================================
+  // Section 1: Site
+  // Top-level container settings affecting the entire site
+  // =============================================================================
+  const siteSection: Section = {
+    id: 'site',
+    label: 'Site',
+    title: 'Site Settings',
     groups: [
       {
+        controls: [
+          {
+            id: 'contentMaxWidth',
+            type: 'select',
+            label: 'Content Width',
+            value: String(config.contentMaxWidth),
+            options: [
+              { label: '700px', value: '700' },
+              { label: '800px', value: '800' },
+              { label: '900px', value: '900' },
+              { label: '1000px', value: '1000' },
+              { label: '1100px', value: '1100' },
+              { label: '1200px', value: '1200' },
+              { label: '1400px', value: '1400' },
+              { label: '1600px', value: '1600' },
+              { label: 'Full', value: '9999' },
+            ],
+          } satisfies SelectControl,
+          {
+            id: 'navMatchContent',
+            type: 'toggle',
+            label: 'Nav Match Content',
+            value: config.navMatchContent,
+          } satisfies ToggleControl,
+        ],
+      },
+    ],
+  }
+
+  // =============================================================================
+  // Section 2: Page
+  // Page-level settings including header and tabs
+  // =============================================================================
+  const pageSection: Section = {
+    id: 'page',
+    label: 'Page',
+    title: 'Page Settings',
+    groups: [
+      {
+        title: 'Header',
+        controls: [
+          {
+            id: 'pageHeader.showTitle',
+            type: 'toggle',
+            label: 'Show Title',
+            value: config.pageHeader.showTitle,
+          } satisfies ToggleControl,
+          {
+            id: 'pageHeader.titleSize',
+            type: 'select',
+            label: 'Title Size',
+            value: config.pageHeader.titleSize,
+            options: [
+              { label: 'LG', value: 'lg' },
+              { label: 'XL', value: 'xl' },
+              { label: '2XL', value: '2xl' },
+              { label: '3XL', value: '3xl' },
+            ],
+            disabled: !config.pageHeader.showTitle,
+          } satisfies SelectControl,
+          {
+            id: 'pageHeader.showDescription',
+            type: 'toggle',
+            label: 'Show Description',
+            value: config.pageHeader.showDescription,
+            disabled: !config.pageHeader.showTitle,
+          } satisfies ToggleControl,
+        ],
+      },
+      {
+        title: 'Tabs',
+        controls: [
+          {
+            id: 'tabBar.show',
+            type: 'toggle',
+            label: 'Show Tab Bar',
+            value: config.tabBar.show,
+          } satisfies ToggleControl,
+          {
+            id: 'tabBar.indicatorStyle',
+            type: 'select',
+            label: 'Indicator Style',
+            value: config.tabBar.indicatorStyle,
+            options: [
+              { label: 'Underline', value: 'underline' },
+              { label: 'Pill', value: 'pill' },
+              { label: 'None', value: 'none' },
+            ],
+            disabled: !config.tabBar.show,
+          } satisfies SelectControl,
+          {
+            id: 'tabBar.gap',
+            type: 'select',
+            label: 'Tab Gap',
+            value: config.tabBar.gap,
+            options: [
+              { label: 'Small', value: 'sm' },
+              { label: 'Medium', value: 'md' },
+              { label: 'Large', value: 'lg' },
+            ],
+            disabled: !config.tabBar.show,
+          } satisfies SelectControl,
+          {
+            id: 'tabBar.showContainerBorder',
+            type: 'toggle',
+            label: 'Container Border',
+            value: config.tabBar.showContainerBorder,
+            disabled: !config.tabBar.show || config.tabBar.indicatorStyle !== 'underline',
+          } satisfies ToggleControl,
+          {
+            id: 'tabBar.showHoverBackground',
+            type: 'toggle',
+            label: 'Hover Background',
+            value: config.tabBar.showHoverBackground,
+            disabled: !config.tabBar.show,
+          } satisfies ToggleControl,
+          {
+            id: 'tabBar.showActiveBackground',
+            type: 'toggle',
+            label: 'Active Background',
+            value: config.tabBar.showActiveBackground,
+            disabled: !config.tabBar.show || config.tabBar.indicatorStyle !== 'pill',
+          } satisfies ToggleControl,
+        ],
+      },
+      {
+        title: 'Tab Text',
+        controls: [
+          {
+            id: 'tabBar.textSize',
+            type: 'select',
+            label: 'Size',
+            value: config.tabBar.textSize,
+            options: TEXT_SIZE_OPTIONS,
+            disabled: !config.tabBar.show,
+          } satisfies SelectControl,
+          {
+            id: 'tabBar.textWeight',
+            type: 'font-weight-select',
+            label: 'Weight',
+            value: config.tabBar.textWeight,
+            options: FONT_WEIGHT_OPTIONS,
+            disabled: !config.tabBar.show,
+          } satisfies FontWeightSelectControl,
+        ],
+      },
+      {
+        title: 'Tab Default Color',
+        controls: [
+          {
+            id: 'tabBar.textColor',
+            type: 'color-enhanced-select',
+            label: 'Color',
+            value: config.tabBar.textColor,
+            options: TEXT_COLOR_OPTIONS,
+            showGroups: false,
+            disabled: !config.tabBar.show,
+          } satisfies ColorEnhancedSelectControl,
+          {
+            id: 'tabBar.textOpacity',
+            type: 'slider',
+            label: 'Opacity',
+            value: config.tabBar.textOpacity,
+            min: 0,
+            max: 100,
+            step: 5,
+            formatLabel: (v) => `${v}%`,
+            disabled: !config.tabBar.show,
+          } satisfies SliderControl,
+        ],
+      },
+      {
+        title: 'Tab Active Color',
+        controls: [
+          {
+            id: 'tabBar.activeColor',
+            type: 'color-enhanced-select',
+            label: 'Color',
+            value: config.tabBar.activeColor,
+            options: TEXT_COLOR_OPTIONS,
+            showGroups: false,
+            disabled: !config.tabBar.show,
+          } satisfies ColorEnhancedSelectControl,
+          {
+            id: 'tabBar.activeOpacity',
+            type: 'slider',
+            label: 'Opacity',
+            value: config.tabBar.activeOpacity,
+            min: 0,
+            max: 100,
+            step: 5,
+            formatLabel: (v) => `${v}%`,
+            disabled: !config.tabBar.show,
+          } satisfies SliderControl,
+        ],
+      },
+      {
+        title: 'Tab Position',
+        controls: [
+          {
+            id: 'pageHeader.tabBarPosition',
+            type: 'select',
+            label: 'Position',
+            value: config.pageHeader.tabBarPosition,
+            options: [
+              { label: 'Above Metrics', value: 'above-metrics' },
+              { label: 'Below Metrics', value: 'below-metrics' },
+            ],
+          } satisfies SelectControl,
+        ],
+      },
+      {
+        title: 'Spacing',
+        controls: [
+          {
+            id: 'pageHeader.topSpacing',
+            type: 'slider',
+            label: 'Top Spacing',
+            value: config.pageHeader.topSpacing,
+            min: 0,
+            max: 64,
+            step: 4,
+            formatLabel: (v) => `${v}px`,
+          } satisfies SliderControl,
+          {
+            id: 'pageHeader.bottomSpacing',
+            type: 'slider',
+            label: 'Bottom Spacing',
+            value: config.pageHeader.bottomSpacing,
+            min: 0,
+            max: 64,
+            step: 4,
+            formatLabel: (v) => `${v}px`,
+          } satisfies SliderControl,
+        ],
+      },
+    ],
+  }
+
+  // =============================================================================
+  // Section 3: Nav
+  // Navigation-specific controls grouped together
+  // =============================================================================
+  const navSection: Section = {
+    id: 'nav',
+    label: 'Nav',
+    title: 'Navigation Settings',
+    groups: [
+      {
+        title: 'Layout',
         controls: [
           {
             id: 'navLayout',
@@ -120,7 +379,7 @@ export function createNavPanelConfig(config: NavConfig): PanelConfig {
         ],
       },
       {
-        title: 'Navigation',
+        title: 'Mode',
         controls: [
           {
             id: 'navMode',
@@ -151,16 +410,8 @@ export function createNavPanelConfig(config: NavConfig): PanelConfig {
           } satisfies ToggleControl,
         ],
       },
-    ],
-  }
-
-  const logoSection: Section = {
-    id: 'logo',
-    label: 'Logo',
-    title: 'Logo Settings',
-    groups: [
       {
-        title: 'Image',
+        title: 'Logo Image',
         controls: [
           {
             id: 'showLogoImage',
@@ -205,7 +456,7 @@ export function createNavPanelConfig(config: NavConfig): PanelConfig {
         ],
       },
       {
-        title: 'Text',
+        title: 'Logo Text',
         controls: [
           {
             id: 'logoText.size',
@@ -241,16 +492,8 @@ export function createNavPanelConfig(config: NavConfig): PanelConfig {
           } satisfies SliderControl,
         ],
       },
-    ],
-  }
-
-  const navItemSection: Section = {
-    id: 'navItem',
-    label: 'Nav Item',
-    title: 'Nav Item Settings',
-    groups: [
       {
-        title: 'Text Style',
+        title: 'Nav Item Style',
         controls: [
           {
             id: 'navItemSize',
@@ -269,7 +512,7 @@ export function createNavPanelConfig(config: NavConfig): PanelConfig {
         ],
       },
       {
-        title: 'Default Color',
+        title: 'Nav Item Default',
         controls: [
           {
             id: 'navItemColor',
@@ -292,7 +535,7 @@ export function createNavPanelConfig(config: NavConfig): PanelConfig {
         ],
       },
       {
-        title: 'Active Color',
+        title: 'Nav Item Active',
         controls: [
           {
             id: 'navItemActiveColor',
@@ -315,7 +558,7 @@ export function createNavPanelConfig(config: NavConfig): PanelConfig {
         ],
       },
       {
-        title: 'Backgrounds',
+        title: 'Nav Item Background',
         controls: [
           {
             id: 'showNavItemHoverBackground',
@@ -331,15 +574,8 @@ export function createNavPanelConfig(config: NavConfig): PanelConfig {
           } satisfies ToggleControl,
         ],
       },
-    ],
-  }
-
-  const dropdownSection: Section = {
-    id: 'dropdown',
-    label: 'Dropdown',
-    title: 'Dropdown Settings',
-    groups: [
       {
+        title: 'Dropdown',
         controls: [
           {
             id: 'showDropdownIcon',
@@ -364,215 +600,8 @@ export function createNavPanelConfig(config: NavConfig): PanelConfig {
     ],
   }
 
-  const tabBarSection: Section = {
-    id: 'tabBar',
-    label: 'Tabs',
-    title: 'Tab Bar Settings',
-    groups: [
-      {
-        controls: [
-          {
-            id: 'tabBar.show',
-            type: 'toggle',
-            label: 'Show Tab Bar',
-            value: config.tabBar.show,
-          } satisfies ToggleControl,
-          {
-            id: 'tabBar.indicatorStyle',
-            type: 'select',
-            label: 'Indicator Style',
-            value: config.tabBar.indicatorStyle,
-            options: [
-              { label: 'Underline', value: 'underline' },
-              { label: 'Pill', value: 'pill' },
-              { label: 'None', value: 'none' },
-            ],
-            disabled: !config.tabBar.show,
-          } satisfies SelectControl,
-          {
-            id: 'tabBar.gap',
-            type: 'select',
-            label: 'Tab Gap',
-            value: config.tabBar.gap,
-            options: [
-              { label: 'Small', value: 'sm' },
-              { label: 'Medium', value: 'md' },
-              { label: 'Large', value: 'lg' },
-            ],
-            disabled: !config.tabBar.show,
-          } satisfies SelectControl,
-          {
-            id: 'tabBar.showContainerBorder',
-            type: 'toggle',
-            label: 'Container Border',
-            value: config.tabBar.showContainerBorder,
-            disabled: !config.tabBar.show || config.tabBar.indicatorStyle !== 'underline',
-          } satisfies ToggleControl,
-          {
-            id: 'tabBar.showHoverBackground',
-            type: 'toggle',
-            label: 'Hover Background',
-            value: config.tabBar.showHoverBackground,
-            disabled: !config.tabBar.show,
-          } satisfies ToggleControl,
-          {
-            id: 'tabBar.showActiveBackground',
-            type: 'toggle',
-            label: 'Active Background',
-            value: config.tabBar.showActiveBackground,
-            disabled: !config.tabBar.show || config.tabBar.indicatorStyle !== 'pill',
-          } satisfies ToggleControl,
-        ],
-      },
-      {
-        title: 'Text Style',
-        controls: [
-          {
-            id: 'tabBar.textSize',
-            type: 'select',
-            label: 'Size',
-            value: config.tabBar.textSize,
-            options: TEXT_SIZE_OPTIONS,
-            disabled: !config.tabBar.show,
-          } satisfies SelectControl,
-          {
-            id: 'tabBar.textWeight',
-            type: 'font-weight-select',
-            label: 'Weight',
-            value: config.tabBar.textWeight,
-            options: FONT_WEIGHT_OPTIONS,
-            disabled: !config.tabBar.show,
-          } satisfies FontWeightSelectControl,
-        ],
-      },
-      {
-        title: 'Default Color',
-        controls: [
-          {
-            id: 'tabBar.textColor',
-            type: 'color-enhanced-select',
-            label: 'Color',
-            value: config.tabBar.textColor,
-            options: TEXT_COLOR_OPTIONS,
-            showGroups: false,
-            disabled: !config.tabBar.show,
-          } satisfies ColorEnhancedSelectControl,
-          {
-            id: 'tabBar.textOpacity',
-            type: 'slider',
-            label: 'Opacity',
-            value: config.tabBar.textOpacity,
-            min: 0,
-            max: 100,
-            step: 5,
-            formatLabel: (v) => `${v}%`,
-            disabled: !config.tabBar.show,
-          } satisfies SliderControl,
-        ],
-      },
-      {
-        title: 'Active Color',
-        controls: [
-          {
-            id: 'tabBar.activeColor',
-            type: 'color-enhanced-select',
-            label: 'Color',
-            value: config.tabBar.activeColor,
-            options: TEXT_COLOR_OPTIONS,
-            showGroups: false,
-            disabled: !config.tabBar.show,
-          } satisfies ColorEnhancedSelectControl,
-          {
-            id: 'tabBar.activeOpacity',
-            type: 'slider',
-            label: 'Opacity',
-            value: config.tabBar.activeOpacity,
-            min: 0,
-            max: 100,
-            step: 5,
-            formatLabel: (v) => `${v}%`,
-            disabled: !config.tabBar.show,
-          } satisfies SliderControl,
-        ],
-      },
-    ],
-  }
-
-  const pageHeaderSection: Section = {
-    id: 'pageHeader',
-    label: 'Header',
-    title: 'Page Header Settings',
-    groups: [
-      {
-        controls: [
-          {
-            id: 'pageHeader.showTitle',
-            type: 'toggle',
-            label: 'Show Title',
-            value: config.pageHeader.showTitle,
-          } satisfies ToggleControl,
-          {
-            id: 'pageHeader.titleSize',
-            type: 'select',
-            label: 'Title Size',
-            value: config.pageHeader.titleSize,
-            options: [
-              { label: 'LG', value: 'lg' },
-              { label: 'XL', value: 'xl' },
-              { label: '2XL', value: '2xl' },
-              { label: '3XL', value: '3xl' },
-            ],
-            disabled: !config.pageHeader.showTitle,
-          } satisfies SelectControl,
-          {
-            id: 'pageHeader.showDescription',
-            type: 'toggle',
-            label: 'Show Description',
-            value: config.pageHeader.showDescription,
-            disabled: !config.pageHeader.showTitle,
-          } satisfies ToggleControl,
-          {
-            id: 'pageHeader.tabBarPosition',
-            type: 'select',
-            label: 'Tab Position',
-            value: config.pageHeader.tabBarPosition,
-            options: [
-              { label: 'Above Metrics', value: 'above-metrics' },
-              { label: 'Below Metrics', value: 'below-metrics' },
-            ],
-          } satisfies SelectControl,
-        ],
-      },
-      {
-        title: 'Spacing',
-        controls: [
-          {
-            id: 'pageHeader.topSpacing',
-            type: 'slider',
-            label: 'Top Spacing',
-            value: config.pageHeader.topSpacing,
-            min: 0,
-            max: 64,
-            step: 4,
-            formatLabel: (v) => `${v}px`,
-          } satisfies SliderControl,
-          {
-            id: 'pageHeader.bottomSpacing',
-            type: 'slider',
-            label: 'Bottom Spacing',
-            value: config.pageHeader.bottomSpacing,
-            min: 0,
-            max: 64,
-            step: 4,
-            formatLabel: (v) => `${v}px`,
-          } satisfies SliderControl,
-        ],
-      },
-    ],
-  }
-
   return {
-    sections: [layoutSection, logoSection, navItemSection, dropdownSection, tabBarSection, pageHeaderSection],
+    sections: [siteSection, pageSection, navSection],
     title: 'Nav Experiment',
     minimizedTitle: 'Nav',
     showReset: true,
@@ -585,7 +614,7 @@ export function createNavPanelConfig(config: NavConfig): PanelConfig {
     },
     presetConfig: {
       presets: NAV_PRESETS,
-      activePresetId: null,
+      activePresetId: activePresetId ?? null,
       showCopyButton: true,
       copyLabel: 'Copy Config',
     },

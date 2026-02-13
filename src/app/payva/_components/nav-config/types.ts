@@ -165,6 +165,12 @@ export interface NavConfig {
   // Page Header styling
   /** Page header configuration */
   pageHeader: PageHeaderConfig
+
+  // Content width controls
+  /** Content area max width in pixels (9999 = full width) */
+  contentMaxWidth: number
+  /** Match nav width to content max width */
+  navMatchContent: boolean
 }
 
 export interface NavPreset {

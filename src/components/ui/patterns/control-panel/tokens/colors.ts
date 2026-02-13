@@ -20,7 +20,7 @@ export interface SemanticColorOption {
 // -----------------------------------------------------------------------------
 // Semantic Text Colors
 // -----------------------------------------------------------------------------
-// CSS variable names must match theme.css / theme-delphi.css exactly.
+// CSS variable names must match theme.css exactly.
 // Pattern: --text-color-{name} for neutral, --text-color-{category}-primary for semantic
 // -----------------------------------------------------------------------------
 
@@ -42,7 +42,7 @@ export const SEMANTIC_TEXT_COLORS: SemanticColorOption[] = [
 // -----------------------------------------------------------------------------
 // Semantic Background Colors
 // -----------------------------------------------------------------------------
-// CSS variable names must match theme.css / theme-delphi.css exactly.
+// CSS variable names must match theme.css exactly.
 // Pattern: --background-color-{name} for neutral, --background-color-{category}-primary for semantic
 // -----------------------------------------------------------------------------
 
@@ -71,7 +71,7 @@ export const SEMANTIC_BG_COLORS: SemanticColorOption[] = [
 // -----------------------------------------------------------------------------
 // Semantic Border Colors
 // -----------------------------------------------------------------------------
-// CSS variable names must match theme.css / theme-delphi.css exactly.
+// CSS variable names must match theme.css exactly.
 // Note: Only success and error have border color tokens defined.
 // -----------------------------------------------------------------------------
 

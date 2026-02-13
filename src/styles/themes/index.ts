@@ -5,27 +5,12 @@
  * This module provides route-specific theme overrides that transform
  * the PAYVA design system for individual pages.
  *
- * AVAILABLE THEMES:
- * ─────────────────
- * - Delphi: Warm, earthy aesthetic with orange brand and cream backgrounds
- *
  * USAGE:
  * ──────
- * ```tsx
- * // In your route's layout.tsx
- * import '@/styles/themes/theme-delphi.css'
- * import { DelphiThemeProvider } from '@/styles/themes'
- *
- * export default function Layout({ children }) {
- *   return (
- *     <DelphiThemeProvider>
- *       {children}
- *     </DelphiThemeProvider>
- *   )
- * }
- * ```
- *
- * See README.md for full documentation on creating new themes.
+ * Create a new theme CSS file in this directory and import it in your
+ * route's layout.tsx. Use CSS custom properties to override the base
+ * theme tokens defined in theme.css.
  */
 
-export { DelphiThemeProvider } from './delphi-theme-provider'
+// No themes currently exported
+export {}

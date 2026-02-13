@@ -13,7 +13,6 @@ import Tick01Icon from '@hugeicons-pro/core-stroke-rounded/Tick01Icon'
 import RefreshIcon from '@hugeicons-pro/core-stroke-rounded/RefreshIcon'
 import { cx } from '../utils'
 import { inlineSelectStyles as selectStyles } from '../primitives/select'
-import { ScrollablePopupContent } from '../controls/scrollable-popup-content'
 
 // Internal primitives
 import { ButtonUtility } from '../primitives/button-utility'
@@ -117,21 +116,19 @@ export function ActionBar<T>({
                 collisionPadding={8}
                 className="z-[99]"
               >
-                <Select.Popup className={cx(selectStyles.popup, 'p-0')}>
-                  <ScrollablePopupContent className="overscroll-contain p-1">
-                    {presets.map((preset) => (
-                      <Select.Item
-                        key={preset.id}
-                        value={preset.id}
-                        className={selectStyles.popupItem}
-                      >
-                        <Select.ItemText>{preset.name}</Select.ItemText>
-                        <Select.ItemIndicator className={selectStyles.itemIndicator}>
-                          <CheckIcon />
-                        </Select.ItemIndicator>
-                      </Select.Item>
-                    ))}
-                  </ScrollablePopupContent>
+                <Select.Popup className={cx(selectStyles.popup, 'p-1 max-h-[280px] overflow-y-auto')}>
+                  {presets.map((preset) => (
+                    <Select.Item
+                      key={preset.id}
+                      value={preset.id}
+                      className={selectStyles.popupItem}
+                    >
+                      <Select.ItemText>{preset.name}</Select.ItemText>
+                      <Select.ItemIndicator className={selectStyles.itemIndicator}>
+                        <CheckIcon />
+                      </Select.ItemIndicator>
+                    </Select.Item>
+                  ))}
                 </Select.Popup>
               </Select.Positioner>
             </Select.Portal>

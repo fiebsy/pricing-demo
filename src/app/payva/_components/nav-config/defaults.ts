@@ -73,4 +73,8 @@ export const DEFAULT_NAV_CONFIG: NavConfig = {
 
   // Page Header styling
   pageHeader: DEFAULT_PAGE_HEADER_CONFIG,
+
+  // Content width controls
+  contentMaxWidth: 1200,
+  navMatchContent: false,
 }

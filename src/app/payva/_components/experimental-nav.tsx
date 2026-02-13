@@ -124,6 +124,8 @@ export function ExperimentalNav({ config }: ExperimentalNavProps) {
     logoImageSize,
     logoImageRadius,
     logoImageSquircle,
+    contentMaxWidth,
+    navMatchContent,
   } = config
 
   const isInline = navLayout === 'inline'
@@ -230,14 +232,22 @@ export function ExperimentalNav({ config }: ExperimentalNavProps) {
 
   // Inline layout - everything in one row
   if (isInline) {
+    const constrainNav = navMatchContent && contentMaxWidth !== 9999
+
     return (
       <header className={cn(
         'sticky top-0 z-50 bg-primary',
         showBorder && 'border-b border-primary'
       )}>
         <div
-          className="flex items-center justify-between px-6"
-          style={{ height: navHeight }}
+          className={cn(
+            'flex items-center justify-between',
+            constrainNav ? 'mx-auto' : 'px-6'
+          )}
+          style={{
+            height: navHeight,
+            maxWidth: constrainNav ? contentMaxWidth : undefined,
+          }}
         >
           {/* Left: Logo + Nav */}
           <div className="flex items-center gap-4">
@@ -267,6 +277,8 @@ export function ExperimentalNav({ config }: ExperimentalNavProps) {
   }
 
   // Stacked layout - two rows (original layout)
+  const constrainNav = navMatchContent && contentMaxWidth !== 9999
+
   return (
     <header className={cn(
       'sticky top-0 z-50 bg-primary',
@@ -274,20 +286,42 @@ export function ExperimentalNav({ config }: ExperimentalNavProps) {
     )}>
       {/* Brand Row */}
       <div
-        className="flex items-center justify-between px-6"
-        style={{ height: navHeight }}
+        className={cn(
+          'relative flex items-center justify-between',
+          constrainNav ? 'mx-auto' : 'px-6'
+        )}
+        style={{
+          height: navHeight,
+          maxWidth: constrainNav ? contentMaxWidth : undefined,
+        }}
       >
         {renderLogo()}
 
-        {/* Search + Avatar */}
+        {/* Center: Search (when centered) */}
+        {searchPosition === 'center' && (
+          <div className="absolute left-1/2 -translate-x-1/2">
+            {renderSearch()}
+          </div>
+        )}
+
+        {/* Right: Search (when right) + Avatar */}
         <div className="flex items-center gap-4">
-          {renderSearch()}
+          {searchPosition === 'right' && renderSearch()}
           <UserMenu />
         </div>
       </div>
 
       {/* Tabs Row */}
-      <div className="px-6 pb-1" style={{ paddingTop: logoNavGap }}>
+      <div
+        className={cn(
+          'pb-1',
+          constrainNav ? 'mx-auto' : 'px-6'
+        )}
+        style={{
+          paddingTop: logoNavGap,
+          maxWidth: constrainNav ? contentMaxWidth : undefined,
+        }}
+      >
         {/* Negative margin aligns first nav item text with logo */}
         <div className="-ml-3">
           {isGrouped ? renderGroupedNav() : renderFlatTabs()}

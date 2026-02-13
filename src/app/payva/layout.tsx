@@ -17,11 +17,23 @@ interface PayvaLayoutProps {
 
 export default function PayvaLayout({ children }: PayvaLayoutProps) {
   const [navConfig, setNavConfig] = useState<NavConfig>(DEFAULT_NAV_CONFIG)
+  const [activePresetId, setActivePresetId] = useState<string | null>('default')
 
   const handleConfigChange = useCallback((event: ControlChangeEvent) => {
     const { controlId, value } = event
 
+    // Clear active preset when user manually changes a control
+    setActivePresetId(null)
+
     setNavConfig((prev) => {
+      // Handle contentMaxWidth conversion from string to number
+      if (controlId === 'contentMaxWidth') {
+        return {
+          ...prev,
+          contentMaxWidth: Number(value),
+        }
+      }
+
       // Handle nested properties like "logoText.size" or "tabBar.tabText.size"
       if (controlId.includes('.')) {
         const parts = controlId.split('.')
@@ -76,16 +88,18 @@ export default function PayvaLayout({ children }: PayvaLayoutProps) {
 
   const handleReset = useCallback(() => {
     setNavConfig(DEFAULT_NAV_CONFIG)
+    setActivePresetId('default')
   }, [])
 
   const handlePresetChange = useCallback((presetId: string) => {
     const presetData = getPresetById(presetId)
     if (presetData) {
       setNavConfig(presetData)
+      setActivePresetId(presetId)
     }
   }, [])
 
-  const panelConfig = createNavPanelConfig(navConfig)
+  const panelConfig = createNavPanelConfig(navConfig, activePresetId)
 
   return (
     <div className="relative flex min-h-screen flex-col bg-primary">
@@ -95,7 +109,10 @@ export default function PayvaLayout({ children }: PayvaLayoutProps) {
           className="relative z-10 flex-1 px-6 pb-6"
           style={{ paddingTop: navConfig.pageTopGap }}
         >
-          <div className="mx-auto max-w-[1200px]">
+          <div
+            className="mx-auto"
+            style={{ maxWidth: navConfig.contentMaxWidth === 9999 ? 'none' : navConfig.contentMaxWidth }}
+          >
             {children}
           </div>
         </main>

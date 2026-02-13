@@ -60,7 +60,7 @@ export function validateToken(token: SemanticColorOption): ValidationResult {
     valid: false,
     token,
     resolvedValue: null,
-    error: `CSS variable "${token.cssVar}" did not resolve. Check theme.css or theme-delphi.css.`,
+    error: `CSS variable "${token.cssVar}" did not resolve. Check theme.css.`,
   }
 }
 

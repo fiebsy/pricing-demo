@@ -69,7 +69,7 @@ function EnhancedSwatch({ cssVar, size, className }: EnhancedSwatchProps) {
         warnedVariables.add(cssVar)
         console.warn(
           `[ColorEnhancedSelect] CSS variable "${cssVar}" did not resolve.\n` +
-          `Check that this variable exists in theme.css or theme-delphi.css.\n` +
+          `Check that this variable exists in theme.css.\n` +
           `Using fallback color: ${FALLBACK_COLOR}`
         )
       }
