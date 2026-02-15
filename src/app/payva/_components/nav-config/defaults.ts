@@ -4,6 +4,69 @@
 
 import type { NavConfig, TabBarConfig, PageHeaderConfig } from './types'
 
+// Nav item visibility presets
+type NavItemVisibility = Pick<
+  NavConfig,
+  | 'showOverviewNav'
+  | 'showOrders'
+  | 'showPayouts'
+  | 'showRisk'
+  | 'showProducts'
+  | 'showSales'
+  | 'showPayments'
+  | 'showCollections'
+  | 'showDocuments'
+  | 'showTeam'
+  | 'showAgreements'
+  | 'showWebhooks'
+>
+
+export const NAV_ITEMS_PRESETS: Record<string, NavItemVisibility> = {
+  default: {
+    showOverviewNav: false,
+    showOrders: true,
+    showPayouts: true,
+    showRisk: true,
+    showProducts: true,
+    showSales: false,
+    showPayments: false,
+    showCollections: false,
+    showDocuments: false,
+    showTeam: false,
+    showAgreements: false,
+    showWebhooks: false,
+  },
+  minimal: {
+    showOverviewNav: true,
+    showOrders: true,
+    showPayouts: false,
+    showRisk: false,
+    showProducts: true,
+    showSales: false,
+    showPayments: false,
+    showCollections: false,
+    showDocuments: false,
+    showTeam: false,
+    showAgreements: false,
+    showWebhooks: false,
+  },
+  expanded: {
+    showOverviewNav: true,
+    showOrders: true,
+    showPayouts: true,
+    showRisk: true,
+    showProducts: true,
+    showSales: true,
+    showPayments: true,
+    showCollections: true,
+    showDocuments: true,
+    showTeam: true,
+    showAgreements: true,
+    showWebhooks: true,
+  },
+  // Custom uses whatever the user has configured
+}
+
 export const DEFAULT_TAB_BAR_CONFIG: TabBarConfig = {
   show: false,
   indicatorStyle: 'none',
@@ -55,8 +118,39 @@ export const DEFAULT_NAV_CONFIG: NavConfig = {
   showNavItemHoverBackground: true,
   showNavItemActiveBackground: false,
 
-  // Navigation items
+  // Navigation items visibility
   showOverviewNav: false,
+  showOrders: true,
+  showPayouts: true,
+  showRisk: true,
+  showProducts: true,
+  showSales: false,
+  showPayments: false,
+  showCollections: false,
+  showDocuments: false,
+  showTeam: false,
+  showAgreements: false,
+  showWebhooks: false,
+
+  // Custom navigation items
+  customNavItems: [],
+
+  // Nav item configuration
+  navItemsPreset: 'default',
+  navItemOrder: [
+    'overview',
+    'sales',
+    'orders',
+    'products',
+    'payouts',
+    'payments',
+    'collections',
+    'risk',
+    'documents',
+    'team',
+    'agreements',
+    'webhooks',
+  ],
 
   // Dropdown styling
   showDropdownIcon: false,

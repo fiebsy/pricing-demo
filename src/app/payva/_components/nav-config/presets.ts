@@ -5,6 +5,22 @@
 import type { NavPreset, NavConfig } from './types'
 import { DEFAULT_NAV_CONFIG, DEFAULT_TAB_BAR_CONFIG, DEFAULT_PAGE_HEADER_CONFIG } from './defaults'
 
+// Default nav item order
+const DEFAULT_NAV_ORDER = [
+  'overview',
+  'sales',
+  'orders',
+  'products',
+  'payouts',
+  'payments',
+  'collections',
+  'risk',
+  'documents',
+  'team',
+  'agreements',
+  'webhooks',
+]
+
 // Default - Uses DEFAULT_NAV_CONFIG as-is
 const defaultPreset: NavConfig = {
   ...DEFAULT_NAV_CONFIG,
@@ -36,7 +52,22 @@ const narrow: NavConfig = {
   navItemActiveOpacity: 100,
   showNavItemHoverBackground: true,
   showNavItemActiveBackground: false,
+  // Nav items - preset defines which are visible
   showOverviewNav: false,
+  showOrders: true,
+  showPayouts: true,
+  showRisk: true,
+  showProducts: true,
+  showSales: false,
+  showPayments: false,
+  showCollections: false,
+  showDocuments: false,
+  showTeam: false,
+  showAgreements: false,
+  showWebhooks: false,
+  customNavItems: [],
+  navItemsPreset: 'default',
+  navItemOrder: DEFAULT_NAV_ORDER,
   showDropdownIcon: false,
   dropdownIconSize: 'sm',
   showLogoImage: true,
@@ -97,7 +128,22 @@ const uniswap: NavConfig = {
   navItemActiveOpacity: 100,
   showNavItemHoverBackground: true,
   showNavItemActiveBackground: false,
+  // Nav items - preset defines which are visible
   showOverviewNav: false,
+  showOrders: true,
+  showPayouts: true,
+  showRisk: true,
+  showProducts: true,
+  showSales: false,
+  showPayments: false,
+  showCollections: false,
+  showDocuments: false,
+  showTeam: false,
+  showAgreements: false,
+  showWebhooks: false,
+  customNavItems: [],
+  navItemsPreset: 'default',
+  navItemOrder: DEFAULT_NAV_ORDER,
   showDropdownIcon: false,
   dropdownIconSize: 'sm',
   showLogoImage: true,

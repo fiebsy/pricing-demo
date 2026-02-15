@@ -1,8 +1,8 @@
 /**
  * Orders Page - Chart Section
  *
- * Placeholder for future chart components.
+ * Exports chart components and panel configuration.
  */
 
-// Future: Export chart components here
-// export { OrdersChart } from './OrdersChart'
+export { OrdersChart } from './OrdersChart'
+export { createChartSection } from './panel-config'

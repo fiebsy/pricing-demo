@@ -9,12 +9,14 @@
  * - Nav: Navigation-specific controls (layout, logo, nav items, dropdown)
  */
 
+import type { ReactNode } from 'react'
 import type {
   PanelConfig,
   Section,
   SelectControl,
   ToggleControl,
   SliderControl,
+  CustomControl,
   FontWeightSelectControl,
   ColorEnhancedSelectControl,
 } from '@/components/ui/patterns/control-panel'
@@ -22,6 +24,18 @@ import type { FontWeightOption } from '@/components/ui/patterns/control-panel/to
 import type { SemanticColorOption } from '@/components/ui/patterns/control-panel/tokens/colors'
 import type { NavConfig } from './types'
 import { NAV_PRESETS } from './presets'
+
+interface UserNavPreset {
+  id: string
+  name: string
+}
+
+export interface NavPanelOptions {
+  /** Render function for the reorderable nav items (Custom preset only) */
+  renderNavItems?: () => ReactNode
+  /** User-created nav item presets */
+  userPresets?: UserNavPreset[]
+}
 
 // =============================================================================
 // Enhanced Control Options
@@ -56,7 +70,12 @@ const TEXT_COLOR_OPTIONS: SemanticColorOption[] = [
   { label: 'Brand', value: 'brand', cssVar: '--color-brand-500', category: 'brand' },
 ]
 
-export function createNavPanelConfig(config: NavConfig, activePresetId?: string | null): PanelConfig {
+export function createNavPanelConfig(
+  config: NavConfig,
+  activePresetId?: string | null,
+  options?: NavPanelOptions
+): PanelConfig {
+  const isCustomNavItems = config.navItemsPreset === 'custom'
   // =============================================================================
   // Section 1: Site
   // Top-level container settings affecting the entire site
@@ -402,12 +421,39 @@ export function createNavPanelConfig(config: NavConfig, activePresetId?: string 
               { label: 'None', value: 'none' },
             ],
           } satisfies SelectControl,
+        ],
+      },
+      {
+        title: 'Nav Items',
+        controls: [
           {
-            id: 'showOverviewNav',
-            type: 'toggle',
-            label: 'Show Overview',
-            value: config.showOverviewNav,
-          } satisfies ToggleControl,
+            id: 'navItemsPreset',
+            type: 'select',
+            label: 'Preset',
+            value: config.navItemsPreset,
+            options: [
+              { label: 'Default', value: 'default' },
+              { label: 'Minimal', value: 'minimal' },
+              { label: 'Expanded', value: 'expanded' },
+              { label: 'Custom', value: 'custom' },
+              // Add user-created presets
+              ...(options?.userPresets?.map((preset) => ({
+                label: preset.name,
+                value: preset.id,
+              })) ?? []),
+            ],
+          } satisfies SelectControl,
+          // Show reorderable items only when Custom is selected
+          ...(isCustomNavItems && options?.renderNavItems
+            ? [
+                {
+                  id: 'navItemsReorderable',
+                  type: 'custom',
+                  label: 'Items',
+                  render: options.renderNavItems,
+                } satisfies CustomControl,
+              ]
+            : []),
         ],
       },
       {

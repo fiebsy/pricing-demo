@@ -4,7 +4,7 @@
  * Preset configurations for common page styles.
  */
 
-import type { OrdersPageConfig, PresetId, ColumnVisibility, TableBorderConfig } from '../types'
+import type { OrdersPageConfig, PresetId, ColumnVisibility, TableBorderConfig, ChartConfig, FilterConfig } from '../types'
 
 // =============================================================================
 // DEFAULT COLUMN VISIBILITY
@@ -29,6 +29,38 @@ const DEFAULT_TABLE_BORDER: TableBorderConfig = {
   rowBorderColor: 'secondary',
   cellBorderColor: 'secondary',
   tableBorderRadius: 8,
+}
+
+const DEFAULT_CHART_CONFIG: ChartConfig = {
+  showChart: true,
+  chartType: 'line',
+  stackMode: 'none',
+  chartHeight: 200,
+  chartToTableGap: 24,
+  chartWidthMode: 'container',
+  chartCustomWidth: 1200,
+  chartAlignment: 'center',
+  lineStrokeWidth: 1.5,
+  lineShowFill: true,
+  lineShowDots: false,
+  lineCurved: true,
+  barGap: 2,
+  barRadius: 2,
+  barOpacity: 80,
+  colorMode: 'neutral',
+  primaryColor: '4',
+  semanticColor: 'success',
+  showTooltip: true,
+  showXAxis: false,
+  showYAxis: false,
+  showGridLines: false,
+  showLegend: false,
+  legendPosition: 'top',
+}
+
+const DEFAULT_FILTER_CONFIG: FilterConfig = {
+  showToolbarFilter: true,
+  showTopFilter: false,
 }
 
 // =============================================================================
@@ -122,6 +154,12 @@ export const PRESET_DEFAULT: OrdersPageConfig = {
 
   // Table Borders
   tableBorder: DEFAULT_TABLE_BORDER,
+
+  // Chart
+  chart: DEFAULT_CHART_CONFIG,
+
+  // Filter
+  filter: DEFAULT_FILTER_CONFIG,
 }
 
 // =============================================================================
@@ -225,6 +263,20 @@ export const PRESET_MINIMAL: OrdersPageConfig = {
     cellBorderColor: 'secondary',
     tableBorderRadius: 0,
   },
+
+  // Chart - minimal style
+  chart: {
+    ...DEFAULT_CHART_CONFIG,
+    showChart: true,
+    chartType: 'line',
+    lineShowFill: false,
+    lineShowDots: true,
+    showGridLines: false,
+    showYAxis: false,
+  },
+
+  // Filter
+  filter: DEFAULT_FILTER_CONFIG,
 }
 
 // =============================================================================
@@ -328,6 +380,19 @@ export const PRESET_ELEVATED: OrdersPageConfig = {
     cellBorderColor: 'secondary',
     tableBorderRadius: 16,
   },
+
+  // Chart - elevated style with bars
+  chart: {
+    ...DEFAULT_CHART_CONFIG,
+    showChart: true,
+    chartType: 'bar',
+    barRadius: 4,
+    barOpacity: 90,
+    chartHeight: 240,
+  },
+
+  // Filter
+  filter: DEFAULT_FILTER_CONFIG,
 }
 
 // =============================================================================
@@ -431,6 +496,20 @@ export const PRESET_BRAND: OrdersPageConfig = {
     cellBorderColor: 'brand',
     tableBorderRadius: 12,
   },
+
+  // Chart - brand style
+  chart: {
+    ...DEFAULT_CHART_CONFIG,
+    showChart: true,
+    chartType: 'line',
+    lineShowFill: true,
+    lineCurved: true,
+    colorMode: 'chart',
+    primaryColor: '1',
+  },
+
+  // Filter
+  filter: DEFAULT_FILTER_CONFIG,
 }
 
 // =============================================================================

@@ -138,9 +138,45 @@ export interface NavConfig {
   /** Show background on active nav item */
   showNavItemActiveBackground: boolean
 
-  // Navigation items
+  // Navigation items visibility
   /** Show Overview in navigation (hidden by default) */
   showOverviewNav: boolean
+  /** Show Orders in navigation */
+  showOrders: boolean
+  /** Show Payouts in navigation */
+  showPayouts: boolean
+  /** Show Risk in navigation */
+  showRisk: boolean
+  /** Show Products in navigation */
+  showProducts: boolean
+  /** Show Sales in navigation */
+  showSales: boolean
+  /** Show Payments in navigation */
+  showPayments: boolean
+  /** Show Collections in navigation */
+  showCollections: boolean
+  /** Show Documents in navigation */
+  showDocuments: boolean
+  /** Show Team in navigation */
+  showTeam: boolean
+  /** Show Agreements in navigation */
+  showAgreements: boolean
+  /** Show Webhooks in navigation */
+  showWebhooks: boolean
+
+  // Custom navigation items
+  /** User-created nav items */
+  customNavItems: Array<{
+    id: string
+    label: string
+    visible: boolean
+  }>
+
+  // Nav item configuration
+  /** Nav items preset - determines which items are shown */
+  navItemsPreset: 'default' | 'minimal' | 'expanded' | 'custom'
+  /** Order of nav items - array of item IDs (used when navItemsPreset is 'custom') */
+  navItemOrder: string[]
 
   // Dropdown styling
   /** Show dropdown arrow icon */

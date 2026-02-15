@@ -196,6 +196,17 @@ export interface TableBorderConfig {
 }
 
 // =============================================================================
+// FILTER CONFIG
+// =============================================================================
+
+export interface FilterConfig {
+  /** Show status filter in table toolbar */
+  showToolbarFilter: boolean
+  /** Show status filter above metrics */
+  showTopFilter: boolean
+}
+
+// =============================================================================
 // ORDERS PAGE CONFIG (Full page configuration)
 // =============================================================================
 
@@ -215,6 +226,12 @@ export interface OrdersPageConfig extends SummaryCardConfig {
 
   // Table Borders
   tableBorder: TableBorderConfig
+
+  // Chart
+  chart: ChartConfig
+
+  // Filter
+  filter: FilterConfig
 }
 
 // =============================================================================
@@ -222,3 +239,59 @@ export interface OrdersPageConfig extends SummaryCardConfig {
 // =============================================================================
 
 export type PresetId = 'default' | 'minimal' | 'elevated' | 'brand'
+
+// =============================================================================
+// CHART TYPES
+// =============================================================================
+
+export type ChartType = 'line' | 'bar'
+export type StackMode = 'none' | 'status' | 'plan' | 'route'
+export type ChartColorMode = 'neutral' | 'semantic' | 'chart'
+export type ChartColorId = '1' | '2' | '3' | '4'
+export type SemanticColorId = 'success' | 'warning' | 'error' | 'info'
+export type ChartWidthMode = 'container' | 'viewport' | 'custom' | 'left-to-center' | 'left-to-container'
+export type ChartAlignment = 'center' | 'right'
+
+export interface ChartConfig {
+  // Visibility
+  showChart: boolean
+
+  // Type & Stacking
+  chartType: ChartType
+  stackMode: StackMode
+
+  // Dimensions
+  chartHeight: number
+  chartToTableGap: number
+  chartWidthMode: ChartWidthMode
+  chartCustomWidth: number
+  chartAlignment: ChartAlignment
+
+  // Line Options
+  lineStrokeWidth: number
+  lineShowFill: boolean
+  lineShowDots: boolean
+  lineCurved: boolean
+
+  // Bar Options
+  barGap: number
+  barRadius: number
+  barOpacity: number
+
+  // Colors
+  colorMode: ChartColorMode
+  primaryColor: ChartColorId       // Used when colorMode='chart'
+  semanticColor: SemanticColorId   // Used when colorMode='semantic'
+
+  // Tooltip
+  showTooltip: boolean
+
+  // Axes & Grid
+  showXAxis: boolean
+  showYAxis: boolean
+  showGridLines: boolean
+
+  // Legend
+  showLegend: boolean
+  legendPosition: 'top' | 'bottom'
+}

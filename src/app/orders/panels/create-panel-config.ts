@@ -1,10 +1,14 @@
 /**
  * Orders Page - Combined Panel Configuration
  *
- * Combines panel sections from all sections into a unified control panel config.
+ * Organizes controls into 4 logical sections:
+ * 1. Page Layout - Overall page settings (preset, background, gaps)
+ * 2. Metrics - Header metrics tiles (typography, padding, style, shady)
+ * 3. Toolbar - Filter toolbar configuration (placeholder)
+ * 4. Table - Table columns and styling
  */
 
-import type { PanelConfig } from '@/components/ui/patterns/control-panel'
+import type { PanelConfig, Section } from '@/components/ui/patterns/control-panel'
 import type { OrdersPageConfig } from '../types'
 import { PAGE_BACKGROUND_OPTIONS, PRESET_OPTIONS } from '../config/options'
 import {
@@ -15,24 +19,20 @@ import {
   createShadySection,
 } from '../sections/header-metrics'
 import { createColumnsSection, createTableSection } from '../sections/table'
+import { createChartSection } from '../sections/chart'
+import { createFilterSection } from '../sections/filter-toolbar'
 
 // =============================================================================
-// MAIN PANEL CONFIG
+// SECTION 1: PAGE LAYOUT
 // =============================================================================
 
-export function createPanelConfig(config: OrdersPageConfig): PanelConfig {
-  // Get section configs
-  const layoutSection = createLayoutSection(config)
-  const typographySection = createTypographySection(config)
-  const paddingSection = createPaddingSection(config)
-  const styleSection = createStyleSection(config)
-  const shadySection = createShadySection(config)
-  const columnsSection = createColumnsSection(config)
-  const tableSection = createTableSection(config)
+function createPageLayoutSection(config: OrdersPageConfig): Section {
+  const metricsLayoutSection = createLayoutSection(config)
 
-  // Add preset and page controls to layout section
-  const enhancedLayoutSection = {
-    ...layoutSection,
+  return {
+    id: 'page-layout',
+    title: 'Page Layout',
+    tabLabel: 'Page',
     groups: [
       {
         title: 'Preset',
@@ -78,21 +78,89 @@ export function createPanelConfig(config: OrdersPageConfig): PanelConfig {
           },
         ],
       },
-      ...(layoutSection.groups ?? []),
+      // Include metrics container size and stack order from layout section
+      ...(metricsLayoutSection.groups ?? []),
     ],
   }
+}
+
+// =============================================================================
+// SECTION 2: METRICS HEADER
+// =============================================================================
+
+function createMetricsSection(config: OrdersPageConfig): Section {
+  const typographySection = createTypographySection(config)
+  const paddingSection = createPaddingSection(config)
+  const styleSection = createStyleSection(config)
+  const shadySection = createShadySection(config)
 
   return {
-    sections: [
-      enhancedLayoutSection,
-      typographySection,
-      paddingSection,
-      styleSection,
-      shadySection,
-      columnsSection,
-      tableSection,
+    id: 'metrics',
+    title: 'Metrics Header',
+    tabLabel: 'Metrics',
+    groups: [
+      // Typography groups
+      ...(typographySection.groups ?? []),
+      // Padding groups
+      ...(paddingSection.groups ?? []),
+      // Style groups (background, border, corner, shine)
+      ...(styleSection.groups ?? []),
+      // Shady container groups
+      ...(shadySection.groups ?? []),
     ],
-    defaultActiveTab: 'layout',
+  }
+}
+
+// =============================================================================
+// SECTION 3: TOOLBAR
+// =============================================================================
+
+function createToolbarSection(config: OrdersPageConfig): Section {
+  const filterSection = createFilterSection(config)
+
+  return {
+    id: 'toolbar',
+    title: 'Toolbar',
+    tabLabel: 'Toolbar',
+    groups: filterSection.groups ?? [],
+  }
+}
+
+// =============================================================================
+// SECTION 4: TABLE
+// =============================================================================
+
+function createTableConfigSection(config: OrdersPageConfig): Section {
+  const columnsSection = createColumnsSection(config)
+  const tableStyleSection = createTableSection(config)
+
+  return {
+    id: 'table-config',
+    title: 'Table',
+    tabLabel: 'Table',
+    groups: [
+      // Column visibility and reorder
+      ...(columnsSection.groups ?? []),
+      // Table border styling
+      ...(tableStyleSection.groups ?? []),
+    ],
+  }
+}
+
+// =============================================================================
+// MAIN PANEL CONFIG
+// =============================================================================
+
+export function createPanelConfig(config: OrdersPageConfig): PanelConfig {
+  return {
+    sections: [
+      createPageLayoutSection(config),
+      createMetricsSection(config),
+      createChartSection(config),
+      createToolbarSection(config),
+      createTableConfigSection(config),
+    ],
+    defaultActiveTab: 'page-layout',
     position: {
       top: '16px',
       bottom: '16px',

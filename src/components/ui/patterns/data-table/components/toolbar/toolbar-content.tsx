@@ -15,6 +15,7 @@
 import type { ReactNode } from 'react'
 import type { ColumnConfig, SelectionState } from '../../types'
 import type { ToolbarLayoutConfig } from '../../config'
+import { AnimatedCount } from '@/components/ui/core/primitives/animated-count'
 import { ColumnControlPanel } from './column-control-panel'
 import { ExportToolbar } from './export-toolbar'
 
@@ -119,7 +120,17 @@ export function ToolbarContent({
   // Default count renderer
   const renderDefaultCount = (value: number | undefined, label: string) => (
     <>
-      <span className="text-secondary">{value?.toLocaleString()}</span> {label}
+      {value !== undefined ? (
+        <AnimatedCount
+          value={value}
+          duration={400}
+          formatValue={(v) => Math.round(v).toLocaleString()}
+          className="text-secondary"
+        />
+      ) : (
+        <span className="text-secondary">0</span>
+      )}{' '}
+      {label}
     </>
   )
 

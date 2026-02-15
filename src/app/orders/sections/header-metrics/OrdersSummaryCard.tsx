@@ -7,6 +7,7 @@
 
 import type { SummaryCardData, SummaryCardConfig } from '../../types'
 import { Badge } from '@/components/ui/core/primitives/badge'
+import { AnimatedCount } from '@/components/ui/core/primitives/animated-count'
 import {
   buildContainerClasses,
   buildContainerStyles,
@@ -44,8 +45,19 @@ export function OrdersSummaryCard({ data, config, className = '' }: OrdersSummar
   const subtext2Classes = buildSubtext2Classes(config)
   const subtext2Styles = buildSubtext2Styles(config)
 
+  // Parse numeric value for animation (fallback to text if not a number)
+  const numericValue = parseFloat(data.value)
+  const isNumeric = !isNaN(numericValue) && isFinite(numericValue)
+
   // Individual elements
-  const valueElement = (
+  const valueElement = isNumeric ? (
+    <AnimatedCount
+      value={numericValue}
+      duration={500}
+      className={valueClasses}
+      style={valueStyles}
+    />
+  ) : (
     <span className={valueClasses} style={valueStyles}>{data.value}</span>
   )
 

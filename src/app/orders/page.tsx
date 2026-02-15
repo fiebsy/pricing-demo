@@ -20,7 +20,7 @@ import type { ActivePath } from '@/components/ui/features/stacking-nav'
 import type { SortDirection, ColumnConfig } from '@/components/ui/patterns/data-table'
 
 // Types
-import type { OrdersPageConfig, PresetId, PageBackground, ColumnVisibility, SummaryCardData, TableBorderConfig } from './types'
+import type { OrdersPageConfig, PresetId, PageBackground, ColumnVisibility, SummaryCardData, TableBorderConfig, ChartConfig, FilterConfig } from './types'
 import { DEFAULT_COLUMN_ORDER } from './types'
 
 // Config
@@ -31,6 +31,7 @@ import { createPanelConfig } from './panels/create-panel-config'
 import { OrdersSummaryCard } from './sections/header-metrics'
 import { StackingNavWrapper, SearchWrapper, filterData } from './sections/filter-toolbar'
 import { OrdersTable, ORDER_COLUMNS, COLUMN_LABELS, createRenderCell } from './sections/table'
+import { OrdersChart } from './sections/chart'
 
 // Data
 import { ORDER_DATA, calculateMetrics } from './data'
@@ -97,24 +98,19 @@ export default function OrdersPage() {
   // Summary cards data
   const summaryCards: SummaryCardData[] = useMemo(() => [
     {
-      value: String(metrics.totalOrders),
-      subtext1: 'Total Orders',
-      subtext2: 'All time',
-    },
-    {
       value: String(metrics.activeOrders),
-      subtext1: 'Active Orders',
+      subtext1: 'Active',
       subtext2: 'In progress',
     },
     {
-      value: String(metrics.closedOrders),
-      subtext1: 'Closed Orders',
-      subtext2: 'Completed',
+      value: String(metrics.atRiskOrders),
+      subtext1: 'At risk',
+      subtext2: 'Needs attention',
     },
     {
-      value: String(metrics.atRiskOrders),
-      subtext1: 'At Risk',
-      subtext2: 'Needs attention',
+      value: String(metrics.closedOrders),
+      subtext1: 'Closed',
+      subtext2: 'Completed',
     },
   ], [metrics])
 
@@ -244,6 +240,32 @@ export default function OrdersPage() {
       return
     }
 
+    // Handle nested chart controls
+    if (controlId.startsWith('chart.')) {
+      const chartKey = controlId.replace('chart.', '') as keyof ChartConfig
+      setConfig((prev) => ({
+        ...prev,
+        chart: {
+          ...prev.chart,
+          [chartKey]: value,
+        },
+      }))
+      return
+    }
+
+    // Handle nested filter controls
+    if (controlId.startsWith('filter.')) {
+      const filterKey = controlId.replace('filter.', '') as keyof FilterConfig
+      setConfig((prev) => ({
+        ...prev,
+        filter: {
+          ...prev.filter,
+          [filterKey]: value,
+        },
+      }))
+      return
+    }
+
     setConfig((prev) => ({ ...prev, [controlId]: value }))
   }, [])
 
@@ -264,13 +286,99 @@ export default function OrdersPage() {
     tertiary: 'bg-tertiary',
   }
 
+  // Chart width styles for breakout modes
+  const getChartBreakoutStyle = (): React.CSSProperties => {
+    const containerMaxWidth = 960
+    const containerPadding = 24 // px-6 = 24px
+    const effectiveContainerWidth = containerMaxWidth - (containerPadding * 2) // 912px
+    const halfContainer = effectiveContainerWidth / 2 // 456px
+
+    switch (config.chart.chartWidthMode) {
+      case 'viewport':
+        return {
+          width: '100vw',
+          maxWidth: '100vw',
+          marginLeft: 'calc(-50vw + 50%)',
+        }
+
+      // Left edge at viewport, right edge at viewport center
+      case 'left-to-center':
+        return {
+          width: 'min(50vw, 100vw)',
+          maxWidth: '100vw',
+          marginLeft: 'calc(-50vw + 50%)',
+        }
+
+      // Left edge at viewport, right edge at container right (aligns with table)
+      case 'left-to-container':
+        return {
+          width: `min(calc(50vw + ${halfContainer}px), 100vw)`,
+          maxWidth: '100vw',
+          marginLeft: 'calc(-50vw + 50%)',
+        }
+
+      case 'custom': {
+        const customWidth = config.chart.chartCustomWidth
+        const alignment = config.chart.chartAlignment
+        const responsiveWidth = `min(${customWidth}px, 100vw)`
+
+        if (alignment === 'right') {
+          if (customWidth <= effectiveContainerWidth) {
+            return {
+              width: customWidth,
+              maxWidth: '100%',
+              marginLeft: 'auto',
+            }
+          }
+          return {
+            width: responsiveWidth,
+            maxWidth: '100vw',
+            marginLeft: 'auto',
+            marginRight: `calc(-50vw + 50% + ${containerPadding}px)`,
+          }
+        }
+
+        // Center-aligned (default)
+        if (customWidth <= effectiveContainerWidth) {
+          return {
+            width: customWidth,
+            maxWidth: '100%',
+            marginLeft: 'auto',
+            marginRight: 'auto',
+          }
+        }
+        return {
+          width: responsiveWidth,
+          maxWidth: '100vw',
+          marginLeft: 'calc(-50vw + 50%)',
+          marginRight: 'calc(-50vw + 50%)',
+        }
+      }
+
+      case 'container':
+      default:
+        return {}
+    }
+  }
+
   return (
     <div className={`min-h-screen ${bgClasses[config.pageBackground]}`}>
       {/* Main Content */}
       <div className="min-h-screen">
         <div className="mx-auto px-6" style={{ maxWidth: 960, paddingTop: config.layoutTopGap, paddingBottom: 48 }}>
+          {/* Top Filter Bar - Above Metrics */}
+          {config.filter.showTopFilter && (
+            <div className="mb-6">
+              <StackingNavWrapper
+                resetKey={resetKey}
+                onSelectionChange={handleSelectionChange}
+                onReset={handleTableReset}
+              />
+            </div>
+          )}
+
           {/* Header Metrics Row */}
-          <div className="flex items-stretch gap-4" style={{ marginBottom: config.metricsToTableGap }}>
+          <div className="flex items-stretch gap-4" style={{ marginBottom: config.chart.showChart ? config.metricsToTableGap : config.metricsToTableGap }}>
             {summaryCards.map((card, index) => (
               <OrdersSummaryCard
                 key={index}
@@ -279,6 +387,20 @@ export default function OrdersPage() {
               />
             ))}
           </div>
+
+          {/* Orders Chart - Container Width */}
+          {config.chart.showChart && config.chart.chartWidthMode === 'container' && (
+            <div style={{ marginBottom: config.chart.chartToTableGap }}>
+              <OrdersChart data={ORDER_DATA} config={config.chart} />
+            </div>
+          )}
+
+          {/* Orders Chart - Breakout (Viewport or Custom Width) */}
+          {config.chart.showChart && config.chart.chartWidthMode !== 'container' && (
+            <div style={{ marginBottom: config.chart.chartToTableGap, ...getChartBreakoutStyle() }}>
+              <OrdersChart data={ORDER_DATA} config={config.chart} />
+            </div>
+          )}
 
           {/* Table with Filter Toolbar */}
           <div ref={contentWrapperRef}>
@@ -295,11 +417,13 @@ export default function OrdersPage() {
               sortDirection={sortDirection}
               borderConfig={config.tableBorder}
               leftToolbar={
-                <StackingNavWrapper
-                  resetKey={resetKey}
-                  onSelectionChange={handleSelectionChange}
-                  onReset={handleTableReset}
-                />
+                config.filter.showToolbarFilter ? (
+                  <StackingNavWrapper
+                    resetKey={resetKey}
+                    onSelectionChange={handleSelectionChange}
+                    onReset={handleTableReset}
+                  />
+                ) : undefined
               }
               rightToolbar={
                 <SearchWrapper

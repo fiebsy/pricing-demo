@@ -17,14 +17,57 @@ import {
   productsItem,
 } from './nav-config'
 
-// Flat navigation items (for flat mode)
-const flatTabs = [
-  { label: 'Overview', href: '/payva/overview' },
-  { label: 'Orders', href: '/payva/orders' },
-  { label: 'Payouts', href: '/payva/payouts' },
-  { label: 'Risk', href: '/payva/risk' },
-  { label: 'Products', href: '/payva/products' },
+// Navigation item definitions (visibility controlled by config)
+interface NavTabDef {
+  id: string
+  label: string
+  href: string
+}
+
+const NAV_TABS: NavTabDef[] = [
+  { id: 'overview', label: 'Overview', href: '/payva/overview' },
+  { id: 'sales', label: 'Sales', href: '/payva/sales' },
+  { id: 'orders', label: 'Orders', href: '/payva/orders' },
+  { id: 'products', label: 'Products', href: '/payva/products' },
+  { id: 'payouts', label: 'Payouts', href: '/payva/payouts' },
+  { id: 'payments', label: 'Payments', href: '/payva/payments' },
+  { id: 'collections', label: 'Collections', href: '/payva/collections' },
+  { id: 'risk', label: 'Risk', href: '/payva/risk' },
+  { id: 'documents', label: 'Documents', href: '/payva/documents' },
+  { id: 'team', label: 'Team', href: '/payva/team' },
+  { id: 'agreements', label: 'Agreements', href: '/payva/agreements' },
+  { id: 'webhooks', label: 'Webhooks', href: '/payva/webhooks' },
 ]
+
+// Visibility flag mapping
+type NavVisibilityKey =
+  | 'showOverviewNav'
+  | 'showSales'
+  | 'showOrders'
+  | 'showProducts'
+  | 'showPayouts'
+  | 'showPayments'
+  | 'showCollections'
+  | 'showRisk'
+  | 'showDocuments'
+  | 'showTeam'
+  | 'showAgreements'
+  | 'showWebhooks'
+
+const NAV_VISIBILITY_MAP: Record<string, NavVisibilityKey> = {
+  overview: 'showOverviewNav',
+  sales: 'showSales',
+  orders: 'showOrders',
+  products: 'showProducts',
+  payouts: 'showPayouts',
+  payments: 'showPayments',
+  collections: 'showCollections',
+  risk: 'showRisk',
+  documents: 'showDocuments',
+  team: 'showTeam',
+  agreements: 'showAgreements',
+  webhooks: 'showWebhooks',
+}
 
 // Text style utilities
 const TEXT_SIZE_CLASSES = {
@@ -119,47 +162,101 @@ export function ExperimentalNav({ config }: ExperimentalNavProps) {
     navItemActiveOpacity,
     showNavItemHoverBackground,
     showNavItemActiveBackground,
-    showOverviewNav,
     showLogoImage,
     logoImageSize,
     logoImageRadius,
     logoImageSquircle,
     contentMaxWidth,
     navMatchContent,
+    // Custom nav items
+    customNavItems,
   } = config
 
   const isInline = navLayout === 'inline'
   const isGrouped = navMode === 'grouped'
 
-  // Render flat navigation tabs
-  const renderFlatTabs = () => (
-    <nav className="flex gap-1">
-      {flatTabs.map((tab) => {
-        const isActive = pathname === tab.href
-        const color = isActive ? navItemActiveColor : navItemColor
-        const opacity = isActive ? navItemActiveOpacity : navItemOpacity
+  // Build visible tabs based on config, respecting navItemOrder
+  const getVisibleTabs = () => {
+    const tabs: NavTabDef[] = []
+    const { navItemOrder } = config
 
-        return (
-          <Link
-            key={tab.href}
-            href={tab.href}
-            className={cn(
-              'relative px-3 py-2 transition-colors rounded-lg',
-              getNavItemClasses(navItemSize, navItemWeight, color),
-              isActive && showNavItemActiveBackground && 'bg-secondary',
-              !isActive && showNavItemHoverBackground && 'hover:bg-secondary/50'
-            )}
-            style={getOpacityStyle(opacity)}
-          >
-            {tab.label}
-          </Link>
-        )
-      })}
-    </nav>
-  )
+    // Add built-in tabs in the order specified by navItemOrder
+    for (const itemId of navItemOrder) {
+      const visibilityKey = NAV_VISIBILITY_MAP[itemId]
+      if (visibilityKey && config[visibilityKey]) {
+        const tabDef = NAV_TABS.find((t) => t.id === itemId)
+        if (tabDef) {
+          tabs.push(tabDef)
+        }
+      }
+    }
+
+    // Add visible custom items
+    for (const item of customNavItems) {
+      if (item.visible) {
+        tabs.push({ id: item.id, label: item.label, href: '#' })
+      }
+    }
+
+    return tabs
+  }
+
+  const visibleTabs = getVisibleTabs()
+
+  // Render flat navigation tabs
+  const renderFlatTabs = () => {
+    return (
+      <nav className="flex gap-1">
+        {visibleTabs.map((tab) => {
+          const isActive = pathname === tab.href
+          const color = isActive ? navItemActiveColor : navItemColor
+          const opacity = isActive ? navItemActiveOpacity : navItemOpacity
+
+          return (
+            <Link
+              key={tab.id}
+              href={tab.href}
+              className={cn(
+                'relative px-3 py-2 transition-colors rounded-lg',
+                getNavItemClasses(navItemSize, navItemWeight, color),
+                isActive && showNavItemActiveBackground && 'bg-secondary',
+                !isActive && showNavItemHoverBackground && 'hover:bg-secondary/50'
+              )}
+              style={getOpacityStyle(opacity)}
+            >
+              {tab.label}
+            </Link>
+          )
+        })}
+      </nav>
+    )
+  }
 
   // Render grouped navigation (Overview + Money dropdown + Products)
   const renderGroupedNav = () => {
+    // Money dropdown items (items that go inside the dropdown - exclude overview, products, custom)
+    const moneyItems = visibleTabs.filter(
+      (tab) =>
+        tab.id !== 'overview' &&
+        tab.id !== 'products' &&
+        tab.id !== 'custom'
+    )
+
+    // Build dynamic money section for dropdown
+    const dynamicMoneySection = {
+      ...moneySection,
+      items: moneyItems.map((tab) => ({
+        id: tab.id,
+        label: tab.label,
+        href: tab.href,
+      })),
+    }
+
+    // Check visibility for standalone items
+    const showOverview = visibleTabs.some((t) => t.id === 'overview')
+    const showProducts = visibleTabs.some((t) => t.id === 'products')
+    const customTab = visibleTabs.find((t) => t.id === 'custom')
+
     const isOverviewActive = pathname === '/payva/overview'
     const isProductsActive = pathname === '/payva/products'
     const overviewColor = isOverviewActive ? navItemActiveColor : navItemColor
@@ -169,8 +266,8 @@ export function ExperimentalNav({ config }: ExperimentalNavProps) {
 
     return (
       <nav className="flex items-center gap-1">
-        {/* Overview - standalone (hidden by default) */}
-        {showOverviewNav && (
+        {/* Overview - standalone (if visible) */}
+        {showOverview && (
           <Link
             href="/payva/overview"
             className={cn(
@@ -185,22 +282,40 @@ export function ExperimentalNav({ config }: ExperimentalNavProps) {
           </Link>
         )}
 
-        {/* Money section with dropdown */}
-        <SectionDropdown section={moneySection} config={config} />
+        {/* Money section with dropdown (only show if there are items) */}
+        {moneyItems.length > 0 && (
+          <SectionDropdown section={dynamicMoneySection} config={config} />
+        )}
 
-        {/* Products - standalone */}
-        <Link
-          href="/payva/products"
-          className={cn(
-            'px-3 py-2 transition-colors rounded-lg',
-            getNavItemClasses(navItemSize, navItemWeight, productsColor),
-            isProductsActive && showNavItemActiveBackground && 'bg-secondary',
-            !isProductsActive && showNavItemHoverBackground && 'hover:bg-secondary/50'
-          )}
-          style={getOpacityStyle(productsOpacity)}
-        >
-          Products
-        </Link>
+        {/* Products - standalone (if visible) */}
+        {showProducts && (
+          <Link
+            href="/payva/products"
+            className={cn(
+              'px-3 py-2 transition-colors rounded-lg',
+              getNavItemClasses(navItemSize, navItemWeight, productsColor),
+              isProductsActive && showNavItemActiveBackground && 'bg-secondary',
+              !isProductsActive && showNavItemHoverBackground && 'hover:bg-secondary/50'
+            )}
+            style={getOpacityStyle(productsOpacity)}
+          >
+            Products
+          </Link>
+        )}
+
+        {/* Custom - standalone (if visible) */}
+        {customTab && (
+          <Link
+            href={customTab.href}
+            className={cn(
+              'px-3 py-2 transition-colors rounded-lg',
+              getNavItemClasses(navItemSize, navItemWeight, navItemColor)
+            )}
+            style={getOpacityStyle(navItemOpacity)}
+          >
+            {customTab.label}
+          </Link>
+        )}
       </nav>
     )
   }

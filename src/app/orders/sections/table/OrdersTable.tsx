@@ -6,7 +6,7 @@
  */
 
 import type { ReactNode } from 'react'
-import NumberFlow from '@number-flow/react'
+import { AnimatedCount } from '@/components/ui/core/primitives/animated-count'
 import { StickyDataTable } from '@/components/ui/patterns/data-table'
 import { TableEmptyState } from '@/components/ui/patterns/data-table/components/core/table-empty-state'
 import type { ToolbarLayoutConfig, SortDirection, ColumnConfig } from '@/components/ui/patterns/data-table'
@@ -104,12 +104,11 @@ function createToolbarConfig(
       label: countLabel,
       renderer: (
         <span className="text-tertiary text-xs font-medium">
-          <NumberFlow
+          <AnimatedCount
             value={countValue}
-            locales="en-US"
+            duration={300}
+            formatValue={(v) => Math.round(v).toLocaleString()}
             className="text-secondary"
-            transformTiming={{ duration: 200, easing: 'ease-out' }}
-            spinTiming={{ duration: 200, easing: 'ease-out' }}
           />
           {' '}{countLabel}
         </span>

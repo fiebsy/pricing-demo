@@ -46,3 +46,7 @@ export * from './menu'
 export { InlineSlider, TickSlider } from './slider'
 export type { InlineSliderProps, SliderBaseProps } from './slider'
 export { sliderConfig, inlineSliderStyles, tickSliderStyles } from './slider'
+
+// Animated Count
+export { AnimatedCount, countEasings } from './animated-count'
+export type { AnimatedCountProps } from './animated-count'
