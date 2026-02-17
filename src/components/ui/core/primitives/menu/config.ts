@@ -128,7 +128,21 @@ export const DEFAULT_FEATURES: Required<MenuFeatures> = {
   submenu: true,
   animateHeight: true,
   revealAnimation: true,
+  unifiedHover: false,
 }
+
+/**
+ * Default unified hover configuration.
+ * Snappy, responsive spring for smooth indicator gliding.
+ */
+export const DEFAULT_UNIFIED_HOVER = {
+  enabled: false,
+  stiffness: 550,
+  damping: 34,
+  mass: 0.8,
+  background: 'tertiary',
+  borderRadius: 12,
+} as const
 
 // ============================================================================
 // Appearance Defaults

@@ -20,6 +20,7 @@ import {
   BACKGROUND_OPTIONS,
   GRADIENT_OPTIONS,
   SPRING_PRESET_OPTIONS,
+  HOVER_BACKGROUND_OPTIONS,
 } from '../config/options'
 
 // ============================================================================
@@ -37,6 +38,7 @@ export function buildFilterMenuPanelConfig(
       buildMenuSection(config),
       buildAppearanceSection(config),
       buildAnimationSection(config),
+      buildUnifiedHoverSection(config),
     ],
     presetConfig: {
       presets: presets.map((p) => ({
@@ -427,6 +429,89 @@ function buildAnimationSection(config: FilterMenuConfig): Section {
           },
         ],
       },
+    ],
+  }
+}
+
+function buildUnifiedHoverSection(config: FilterMenuConfig): Section {
+  const isEnabled = config.unifiedHover?.enabled ?? false
+
+  return {
+    id: 'unifiedHover',
+    label: 'Hover',
+    title: 'Unified Hover Indicator',
+    groups: [
+      {
+        title: 'Enable',
+        controls: [
+          {
+            id: 'unifiedHover.enabled',
+            type: 'toggle',
+            label: 'Enable Unified Hover',
+            value: isEnabled,
+          },
+        ],
+      },
+      // Only show spring and style controls when enabled
+      ...(isEnabled ? [
+        {
+          title: 'Spring Physics',
+          controls: [
+            {
+              id: 'unifiedHover.stiffness',
+              type: 'slider' as const,
+              label: 'Stiffness',
+              value: config.unifiedHover?.stiffness ?? 550,
+              min: 100,
+              max: 600,
+              step: 25,
+              formatLabel: (v: number) => `${v}`,
+            },
+            {
+              id: 'unifiedHover.damping',
+              type: 'slider' as const,
+              label: 'Damping',
+              value: config.unifiedHover?.damping ?? 34,
+              min: 10,
+              max: 50,
+              step: 2,
+              formatLabel: (v: number) => `${v}`,
+            },
+            {
+              id: 'unifiedHover.mass',
+              type: 'slider' as const,
+              label: 'Mass',
+              value: config.unifiedHover?.mass ?? 0.8,
+              min: 0.5,
+              max: 2,
+              step: 0.1,
+              formatLabel: (v: number) => `${v.toFixed(1)}`,
+            },
+          ],
+        },
+        {
+          title: 'Style',
+          controls: [
+            {
+              id: 'unifiedHover.background',
+              type: 'select' as const,
+              label: 'Background',
+              value: config.unifiedHover?.background ?? 'tertiary',
+              options: [...HOVER_BACKGROUND_OPTIONS],
+            },
+            {
+              id: 'unifiedHover.borderRadius',
+              type: 'slider' as const,
+              label: 'Border Radius',
+              value: config.unifiedHover?.borderRadius ?? 12,
+              min: 0,
+              max: 24,
+              step: 2,
+              formatLabel: (v: number) => `${v}px`,
+            },
+          ],
+        },
+      ] : []),
     ],
   }
 }

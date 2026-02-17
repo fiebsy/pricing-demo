@@ -117,3 +117,14 @@ export const SPRING_PRESET_OPTIONS = [
   { label: 'Bouncy', value: 'bouncy' },
   { label: 'Custom', value: 'custom' },
 ] as const
+
+// ============================================================================
+// Unified Hover Options
+// ============================================================================
+
+export const HOVER_BACKGROUND_OPTIONS = [
+  { label: 'Primary', value: 'primary' },
+  { label: 'Secondary', value: 'secondary' },
+  { label: 'Tertiary', value: 'tertiary' },
+  { label: 'Quaternary', value: 'quaternary' },
+] as const

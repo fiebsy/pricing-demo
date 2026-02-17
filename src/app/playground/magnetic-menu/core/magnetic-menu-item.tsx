@@ -329,7 +329,7 @@ export function MagneticMenuItem({
   borderRadius,
   onClick,
 }: MagneticMenuItemProps) {
-  const ref = useRef<HTMLDivElement>(null)
+  const ref = useRef<HTMLButtonElement>(null)
   const unifiedHover = useUnifiedHover()
 
   // Use standalone hook with options
@@ -363,12 +363,12 @@ export function MagneticMenuItem({
   }, [id, isUnifiedMode, unifiedHover])
 
   return (
-    <motion.div
+    <motion.button
       ref={ref}
-      className="group relative"
+      type="button"
+      className="group relative w-full text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-1"
       onClick={onClick}
       onMouseEnter={handleMouseEnter}
-      whileTap={{ scale: 0.98 }}
     >
       {/* Background layer - only render for per-item mode */}
       {!isUnifiedMode && (
@@ -401,7 +401,7 @@ export function MagneticMenuItem({
           {label}
         </span>
       </motion.div>
-    </motion.div>
+    </motion.button>
   )
 }
 

@@ -244,6 +244,7 @@ export const FilterMenuPreview: React.FC<FilterMenuPreviewProps> = ({
         onSelect={(item) => handleFilterSelect(item.id)}
         appearance={config.menu.appearance}
         animation={config.animation}
+        unifiedHover={config.unifiedHover}
       />
     </div>
   )

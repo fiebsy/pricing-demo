@@ -61,6 +61,12 @@
 export { Menu } from './menu'
 export { MenuItem as MenuItemComponent } from './menu-item'
 export { MenuBackButton } from './menu-back-button'
+export {
+  UnifiedHoverProvider,
+  UnifiedHoverIndicator,
+  UnifiedHoverContainer,
+  useUnifiedHover,
+} from './unified-hover'
 
 // ============================================================================
 // Types
@@ -91,6 +97,7 @@ export type {
   Background,
   GradientPattern,
   GradientColor,
+  UnifiedHoverConfig,
 } from './types'
 
 // ============================================================================
@@ -101,6 +108,7 @@ export {
   DEFAULT_APPEARANCE,
   DEFAULT_ANIMATION,
   DEFAULT_FEATURES,
+  DEFAULT_UNIFIED_HOVER,
   DEFAULT_MENU_WIDTH,
   DEFAULT_SIDE_OFFSET,
   Z_INDEX,

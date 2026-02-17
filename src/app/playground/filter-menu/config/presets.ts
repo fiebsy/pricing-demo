@@ -19,6 +19,7 @@ import {
 import type { ComponentType } from 'react'
 
 import type { FilterMenuConfig, FilterMenuPresetMeta, FilterMenuItem } from './types'
+import type { UnifiedHoverConfig } from '@/components/ui/core/primitives/menu'
 
 // ============================================================================
 // Default Menu Items (matching dashboard filters)
@@ -79,6 +80,19 @@ export const DEFAULT_FILTER_ITEMS: FilterMenuItem[] = [
 ]
 
 // ============================================================================
+// Unified Hover Defaults
+// ============================================================================
+
+export const DEFAULT_UNIFIED_HOVER: UnifiedHoverConfig = {
+  enabled: false,
+  stiffness: 550,
+  damping: 34,
+  mass: 0.8,
+  background: 'tertiary',
+  borderRadius: 12,
+}
+
+// ============================================================================
 // Default Configuration
 // ============================================================================
 
@@ -115,6 +129,7 @@ export const DEFAULT_FILTER_MENU_CONFIG: FilterMenuConfig = {
     blurOnFade: false,
     animateOnClose: false,
   },
+  unifiedHover: DEFAULT_UNIFIED_HOVER,
 }
 
 // ============================================================================
@@ -255,6 +270,19 @@ export const FILTER_MENU_PRESETS: FilterMenuPresetMeta[] = [
         animateHeight: true,
         opacityDuration: 300,
         quickOutDuration: 100,
+      },
+    },
+  },
+  {
+    id: 'unified-hover',
+    name: 'Unified Hover',
+    category: 'custom',
+    description: 'Gliding hover indicator with spring physics',
+    data: {
+      ...DEFAULT_FILTER_MENU_CONFIG,
+      unifiedHover: {
+        ...DEFAULT_UNIFIED_HOVER,
+        enabled: true,
       },
     },
   },

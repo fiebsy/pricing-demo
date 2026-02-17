@@ -256,6 +256,60 @@ export interface MenuFeatures {
    * @default true
    */
   revealAnimation?: boolean
+
+  /**
+   * Enable unified hover indicator.
+   * When true, a single spring-animated background glides between items
+   * instead of per-item CSS hover effects.
+   * @default false
+   */
+  unifiedHover?: boolean
+}
+
+// ============================================================================
+// Unified Hover Configuration
+// ============================================================================
+
+/**
+ * Configuration for the unified hover indicator.
+ * A single spring-animated background that glides between menu items.
+ */
+export interface UnifiedHoverConfig {
+  /**
+   * Enable unified hover indicator.
+   * @default false
+   */
+  enabled: boolean
+
+  /**
+   * Spring stiffness - higher = faster, snappier.
+   * @default 550
+   */
+  stiffness: number
+
+  /**
+   * Spring damping - higher = less oscillation.
+   * @default 34
+   */
+  damping: number
+
+  /**
+   * Spring mass - higher = more momentum.
+   * @default 0.8
+   */
+  mass: number
+
+  /**
+   * Background color token (semantic).
+   * @default 'tertiary'
+   */
+  background: string
+
+  /**
+   * Border radius in pixels.
+   * @default 12
+   */
+  borderRadius: number
 }
 
 // ============================================================================
@@ -305,6 +359,8 @@ export interface MenuProps {
   animation?: AnimationConfig
   /** Feature toggles */
   features?: MenuFeatures
+  /** Unified hover indicator configuration */
+  unifiedHover?: UnifiedHoverConfig
   /** Additional className for popup */
   className?: string
 }

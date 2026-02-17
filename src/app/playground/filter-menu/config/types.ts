@@ -6,7 +6,7 @@
  */
 
 import type { ComponentType } from 'react'
-import type { MenuAppearance, MenuSide, MenuAlign, AnimationConfig } from '@/components/ui/core/primitives/menu'
+import type { MenuAppearance, MenuSide, MenuAlign, AnimationConfig, UnifiedHoverConfig } from '@/components/ui/core/primitives/menu'
 
 // ============================================================================
 // Menu Item Types
@@ -79,6 +79,8 @@ export interface FilterMenuConfig {
   menu: MenuConfig
   items: FilterMenuItem[]
   animation: AnimationConfig
+  /** Unified hover indicator configuration */
+  unifiedHover?: UnifiedHoverConfig
 }
 
 // ============================================================================

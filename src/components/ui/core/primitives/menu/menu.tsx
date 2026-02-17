@@ -38,9 +38,11 @@ import {
   createRevealVariants,
   createReducedMotionVariants,
   createRevealTransition,
+  DEFAULT_UNIFIED_HOVER,
 } from './config'
 import { MenuItem as MenuItemComponent } from './menu-item'
 import { MenuBackButton } from './menu-back-button'
+import { UnifiedHoverProvider, UnifiedHoverContainer } from './unified-hover'
 
 // ============================================================================
 // Component
@@ -72,6 +74,7 @@ export const Menu: React.FC<MenuProps> = ({
   appearance,
   animation,
   features,
+  unifiedHover,
   className,
 }) => {
   // ============================================================================
@@ -115,6 +118,16 @@ export const Menu: React.FC<MenuProps> = ({
   const mergedFeatures = useMemo(
     () => ({ ...DEFAULT_FEATURES, ...features }),
     [features]
+  )
+
+  const mergedUnifiedHover = useMemo(
+    () => ({
+      ...DEFAULT_UNIFIED_HOVER,
+      ...unifiedHover,
+      // Also check features.unifiedHover as a shorthand toggle
+      enabled: unifiedHover?.enabled ?? mergedFeatures.unifiedHover ?? false,
+    }),
+    [unifiedHover, mergedFeatures.unifiedHover]
   )
 
   // Detect reduced motion preference (moved up for use in variants)
@@ -580,16 +593,23 @@ export const Menu: React.FC<MenuProps> = ({
                         transition={panelTransition}
                       >
                         {header}
-                        <div className="flex flex-col gap-1">
-                          {filteredItems.map((item) => (
-                            <MenuItemComponent
-                              key={item.id}
-                              item={item}
-                              onSubmenuClick={mergedFeatures.submenu ? navigateToSubmenu : undefined}
-                              onSelect={() => handleSelect(item)}
-                            />
-                          ))}
-                        </div>
+                        <UnifiedHoverProvider
+                          enabled={mergedUnifiedHover.enabled}
+                          config={mergedUnifiedHover}
+                          isActive={!inSubmenu}
+                        >
+                          <UnifiedHoverContainer className="relative flex flex-col gap-1">
+                            {filteredItems.map((item) => (
+                              <MenuItemComponent
+                                key={item.id}
+                                item={item}
+                                onSubmenuClick={mergedFeatures.submenu ? navigateToSubmenu : undefined}
+                                onSelect={() => handleSelect(item)}
+                                unifiedHoverEnabled={mergedUnifiedHover.enabled}
+                              />
+                            ))}
+                          </UnifiedHoverContainer>
+                        </UnifiedHoverProvider>
                       </motion.div>
 
                       {/* Panel B - Submenu (only rendered when submenu feature is enabled) */}
@@ -606,16 +626,23 @@ export const Menu: React.FC<MenuProps> = ({
                                 title={submenu.title}
                                 onBack={navigateBack}
                               />
-                              <div className="flex flex-col gap-1">
-                                {submenu.items.map((item) => (
-                                  <MenuItemComponent
-                                    key={item.id}
-                                    item={item}
-                                    onSubmenuClick={navigateToSubmenu}
-                                    onSelect={() => handleSelect(item)}
-                                  />
-                                ))}
-                              </div>
+                              <UnifiedHoverProvider
+                                enabled={mergedUnifiedHover.enabled}
+                                config={mergedUnifiedHover}
+                                isActive={inSubmenu}
+                              >
+                                <UnifiedHoverContainer className="relative flex flex-col gap-1">
+                                  {submenu.items.map((item) => (
+                                    <MenuItemComponent
+                                      key={item.id}
+                                      item={item}
+                                      onSubmenuClick={navigateToSubmenu}
+                                      onSelect={() => handleSelect(item)}
+                                      unifiedHoverEnabled={mergedUnifiedHover.enabled}
+                                    />
+                                  ))}
+                                </UnifiedHoverContainer>
+                              </UnifiedHoverProvider>
                             </>
                           )}
                         </motion.div>

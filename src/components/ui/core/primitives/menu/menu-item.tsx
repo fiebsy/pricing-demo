@@ -10,7 +10,7 @@
 
 'use client'
 
-import React from 'react'
+import React, { useRef, useCallback } from 'react'
 import { Menu } from '@base-ui/react/menu'
 import ArrowRight01Icon from '@hugeicons-pro/core-stroke-rounded/ArrowRight01Icon'
 import Tick02Icon from '@hugeicons-pro/core-stroke-rounded/Tick02Icon'
@@ -24,6 +24,7 @@ import {
   INTERACTIVE_STATES,
   getSeparatorClasses,
 } from './config'
+import { useUnifiedHover } from './unified-hover'
 
 // ============================================================================
 // Types
@@ -33,15 +34,17 @@ interface MenuItemComponentProps {
   item: MenuItem
   onSubmenuClick?: (menuId: string) => void
   onSelect: () => void
+  /** Whether unified hover is enabled (disables per-item CSS hover) */
+  unifiedHoverEnabled?: boolean
 }
 
 // ============================================================================
 // Styles
 // ============================================================================
 
-const baseItemStyles = cn(
+/** Base item styles without hover (hover is added conditionally) */
+const baseItemStylesNoHover = cn(
   'flex cursor-pointer items-center justify-between',
-  INTERACTIVE_STATES.hover,
   INTERACTIVE_STATES.focusVisible,
   // Squircle corners sync with container via data attribute
   'group-data-[squircle]/menu:corner-squircle',
@@ -52,6 +55,13 @@ const baseItemStyles = cn(
   MENU_ITEM_STYLES.minHeight,
   MENU_ITEM_STYLES.textSize
 )
+
+/** Get item styles with or without hover based on unified hover state */
+function getBaseItemStyles(unifiedHoverEnabled: boolean): string {
+  return unifiedHoverEnabled
+    ? baseItemStylesNoHover
+    : cn(baseItemStylesNoHover, INTERACTIVE_STATES.hover)
+}
 
 const itemRadiusStyle: React.CSSProperties = {
   borderRadius: 'var(--menu-item-radius, 12px)',
@@ -83,7 +93,27 @@ export const MenuItemComponent: React.FC<MenuItemComponentProps> = ({
   item,
   onSubmenuClick,
   onSelect,
+  unifiedHoverEnabled = false,
 }) => {
+  const ref = useRef<HTMLDivElement>(null)
+  const unifiedHover = useUnifiedHover()
+
+  // Get the appropriate base styles based on unified hover state
+  const baseItemStyles = getBaseItemStyles(unifiedHoverEnabled)
+
+  // Handle mouse enter to report item position for unified hover
+  const handleMouseEnter = useCallback(() => {
+    if (unifiedHover?.enabled && ref.current) {
+      const rect = ref.current.getBoundingClientRect()
+      unifiedHover.setHoveredItem(item.id, {
+        top: rect.top,
+        left: rect.left,
+        width: rect.width,
+        height: rect.height,
+      })
+    }
+  }, [item.id, unifiedHover])
+
   // Separator - spans full width, 50% opacity
   // Note: Uses 'list' context (no my-1) because parent container has gap-1 which provides spacing
   if (item.type === 'separator') {
@@ -112,6 +142,7 @@ export const MenuItemComponent: React.FC<MenuItemComponentProps> = ({
     const checkboxItem = item as MenuItemCheckboxType
     return (
       <Menu.CheckboxItem
+        ref={ref as React.RefObject<HTMLDivElement>}
         checked={checkboxItem.checked}
         onCheckedChange={checkboxItem.onCheckedChange}
         disabled={checkboxItem.disabled}
@@ -122,6 +153,7 @@ export const MenuItemComponent: React.FC<MenuItemComponentProps> = ({
           'data-[disabled]:pointer-events-none data-[disabled]:opacity-50'
         )}
         style={itemRadiusStyle}
+        onMouseEnter={handleMouseEnter}
       >
         <div className={cn('flex min-w-0 flex-1 items-center', MENU_ITEM_STYLES.iconGap)}>
           <CheckboxBase checked={checkboxItem.checked} size="sm" />
@@ -135,6 +167,7 @@ export const MenuItemComponent: React.FC<MenuItemComponentProps> = ({
   if (item.type === 'submenu') {
     return (
       <div
+        ref={ref}
         onClick={(e) => {
           e.preventDefault()
           e.stopPropagation()
@@ -150,6 +183,7 @@ export const MenuItemComponent: React.FC<MenuItemComponentProps> = ({
         aria-haspopup="menu"
         aria-expanded={false}
         tabIndex={-1}
+        onMouseEnter={handleMouseEnter}
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowRight') {
             e.preventDefault()
@@ -193,6 +227,7 @@ export const MenuItemComponent: React.FC<MenuItemComponentProps> = ({
   // Action item
   return (
     <Menu.Item
+      ref={ref as React.RefObject<HTMLDivElement>}
       disabled={item.disabled}
       closeOnClick
       onClick={() => {
@@ -205,6 +240,7 @@ export const MenuItemComponent: React.FC<MenuItemComponentProps> = ({
         'data-[disabled]:pointer-events-none data-[disabled]:opacity-50'
       )}
       style={itemRadiusStyle}
+      onMouseEnter={handleMouseEnter}
     >
       <div className={cn('flex min-w-0 flex-1 items-center', MENU_ITEM_STYLES.iconGap)}>
         {item.icon && (

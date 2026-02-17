@@ -40,9 +40,9 @@ export const DEFAULT_MAGNETIC_MENU_CONFIG: MagneticMenuConfig = {
   background: {
     showBlurCircle: true,
     blurCircleColor: 'brand-solid',
-    blurCircleOpacity: 0.15,
+    blurCircleOpacity: 0.1,
     blurCircleSize: 400,
-    blurAmount: 110,
+    blurAmount: 40,
     showPattern: true,
     patternType: 'diagonal',
     patternOpacity: 0.04,
