@@ -18,7 +18,6 @@ import { cn } from '@/lib/utils'
 import { HugeIcon } from '@/components/ui/core/primitives/icon'
 import {
   MENU_ITEM_STYLES,
-  INTERACTIVE_STATES,
   getSeparatorClasses,
 } from './config'
 
@@ -45,11 +44,7 @@ export const MenuBackButton: React.FC<MenuBackButtonProps> = ({
           MENU_ITEM_STYLES.iconGap,
           MENU_ITEM_STYLES.textSize,
           MENU_ITEM_STYLES.textWeight,
-          'text-primary',
-          INTERACTIVE_STATES.hover,
-          INTERACTIVE_STATES.active,
-          INTERACTIVE_STATES.focusVisible,
-          'corner-squircle',
+          'text-secondary hover:text-primary',
           'transition-colors duration-150',
           'motion-reduce:transition-none',
           'outline-none'

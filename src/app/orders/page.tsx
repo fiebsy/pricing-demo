@@ -20,7 +20,7 @@ import type { ActivePath } from '@/components/ui/features/stacking-nav'
 import type { SortDirection, ColumnConfig } from '@/components/ui/patterns/data-table'
 
 // Types
-import type { OrdersPageConfig, PresetId, PageBackground, ColumnVisibility, SummaryCardData, TableBorderConfig, ChartConfig, FilterConfig } from './types'
+import type { OrdersPageConfig, PresetId, PageBackground, ColumnVisibility, SummaryCardData, TableBorderConfig, ChartConfig, FilterConfig, AutoRouteStateConfig, StatusBadgeConfig } from './types'
 import { DEFAULT_COLUMN_ORDER } from './types'
 
 // Config
@@ -116,7 +116,13 @@ export default function OrdersPage() {
 
   // Cell renderer
   type CellRenderer = (columnKey: string, row: Record<string, unknown>, index: number) => ReactNode
-  const cellRenderer = useMemo<CellRenderer>(() => createRenderCell() as CellRenderer, [])
+  const cellRenderer = useMemo<CellRenderer>(
+    () => createRenderCell({
+      autoRouteBadge: config.autoRouteBadge,
+      statusBadge: config.statusBadge,
+    }) as CellRenderer,
+    [config.autoRouteBadge, config.statusBadge]
+  )
 
   // Filter columns by visibility, then reorder by columnOrder state
   const visibleColumns = useMemo(() => {
@@ -261,6 +267,38 @@ export default function OrdersPage() {
         filter: {
           ...prev.filter,
           [filterKey]: value,
+        },
+      }))
+      return
+    }
+
+    // Handle nested autoRouteBadge controls (autoRouteBadge.on.* or autoRouteBadge.off.*)
+    if (controlId.startsWith('autoRouteBadge.')) {
+      const parts = controlId.replace('autoRouteBadge.', '').split('.')
+      if (parts.length === 2) {
+        const [state, key] = parts as ['on' | 'off', keyof AutoRouteStateConfig]
+        setConfig((prev) => ({
+          ...prev,
+          autoRouteBadge: {
+            ...prev.autoRouteBadge,
+            [state]: {
+              ...prev.autoRouteBadge[state],
+              [key]: value,
+            },
+          },
+        }))
+        return
+      }
+    }
+
+    // Handle nested statusBadge controls
+    if (controlId.startsWith('statusBadge.')) {
+      const badgeKey = controlId.replace('statusBadge.', '') as keyof StatusBadgeConfig
+      setConfig((prev) => ({
+        ...prev,
+        statusBadge: {
+          ...prev.statusBadge,
+          [badgeKey]: value,
         },
       }))
       return

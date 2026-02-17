@@ -43,6 +43,40 @@ export type BadgeShape = 'pill' | 'rounded' | 'squircle'
 export type BadgeStyle = 'default' | 'modern'
 
 // =============================================================================
+// STATUS BADGE TYPES
+// =============================================================================
+
+export type StatusBadgeIconType = 'none' | 'checkmark' | 'alert' | 'cancel' | 'task-done'
+export type StatusBadgeIconPosition = 'none' | 'leading' | 'trailing'
+export type StatusBadgeIconStyle = 'stroke' | 'solid' | 'bulk'
+
+export interface StatusBadgeConfig {
+  iconType: StatusBadgeIconType
+  iconPosition: StatusBadgeIconPosition
+  iconStyle: StatusBadgeIconStyle
+}
+
+// =============================================================================
+// AUTOROUTE BADGE TYPES
+// =============================================================================
+
+export type AutoRouteBadgeIconStyle = 'stroke' | 'solid' | 'bulk'
+export type AutoRouteBadgeDisplayMode = 'badge' | 'icon-only'
+export type AutoRouteBadgeGradient = 'none' | 'neutral' | 'brand' | 'success' | 'warning' | 'purple' | 'ocean'
+
+export interface AutoRouteStateConfig {
+  iconStyle: AutoRouteBadgeIconStyle
+  displayMode: AutoRouteBadgeDisplayMode
+  showText: boolean
+  gradient: AutoRouteBadgeGradient
+}
+
+export interface AutoRouteBadgeConfig {
+  on: AutoRouteStateConfig
+  off: AutoRouteStateConfig
+}
+
+// =============================================================================
 // ORDER RECORD TYPES
 // =============================================================================
 
@@ -77,6 +111,8 @@ export interface OrderRecord {
   type: string
   /** Display text for Status column */
   displayStatus: string
+  /** Order total in dollars */
+  total: number
 }
 
 // =============================================================================
@@ -90,11 +126,12 @@ export interface ColumnVisibility {
   plan: boolean
   type: boolean
   status: boolean
+  total: boolean
 }
 
-export type ColumnKey = 'customer' | 'order' | 'route' | 'plan' | 'type' | 'status'
+export type ColumnKey = 'customer' | 'order' | 'route' | 'plan' | 'type' | 'status' | 'total'
 
-export const DEFAULT_COLUMN_ORDER: ColumnKey[] = ['order', 'customer', 'route', 'plan', 'type', 'status']
+export const DEFAULT_COLUMN_ORDER: ColumnKey[] = ['order', 'customer', 'route', 'plan', 'type', 'status', 'total']
 
 // =============================================================================
 // SUMMARY CARD TYPES
@@ -232,6 +269,12 @@ export interface OrdersPageConfig extends SummaryCardConfig {
 
   // Filter
   filter: FilterConfig
+
+  // AutoRoute Badge
+  autoRouteBadge: AutoRouteBadgeConfig
+
+  // Status Badge
+  statusBadge: StatusBadgeConfig
 }
 
 // =============================================================================

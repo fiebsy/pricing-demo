@@ -31,7 +31,7 @@ import {
 
 interface MenuItemComponentProps {
   item: MenuItem
-  onSubmenuClick: (menuId: string) => void
+  onSubmenuClick?: (menuId: string) => void
   onSelect: () => void
 }
 
@@ -43,8 +43,9 @@ const baseItemStyles = cn(
   'flex cursor-pointer items-center justify-between',
   INTERACTIVE_STATES.hover,
   INTERACTIVE_STATES.focusVisible,
-  INTERACTIVE_STATES.active,
-  'corner-squircle transition-colors duration-150',
+  // Squircle corners sync with container via data attribute
+  'group-data-[squircle]/menu:corner-squircle',
+  'transition-colors duration-150',
   'motion-reduce:transition-none',
   'relative outline-none select-none',
   MENU_ITEM_STYLES.paddingX,
@@ -137,7 +138,7 @@ export const MenuItemComponent: React.FC<MenuItemComponentProps> = ({
         onClick={(e) => {
           e.preventDefault()
           e.stopPropagation()
-          onSubmenuClick(item.id)
+          onSubmenuClick?.(item.id)
         }}
         className={cn(
           baseItemStyles,
@@ -152,7 +153,7 @@ export const MenuItemComponent: React.FC<MenuItemComponentProps> = ({
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowRight') {
             e.preventDefault()
-            onSubmenuClick(item.id)
+            onSubmenuClick?.(item.id)
           }
         }}
       >

@@ -52,6 +52,11 @@ const LAST_NAMES = [
 const ROUTES = ['AutoRoute', 'Off'] as const
 const PLANS = ['PAC', 'Upfront'] as const
 
+function generateTotal(): number {
+  // Generate random total between $1,000 and $15,000
+  return Math.round((1000 + seededRandom() * 14000) * 100) / 100
+}
+
 // Status configuration matching nav hierarchy
 const ACTIVE_STATUSES = ['healthy', 'at-risk'] as const
 const RISK_LEVELS = ['risk-low', 'risk-medium', 'risk-high'] as const
@@ -161,6 +166,7 @@ function generateOrderRecords(count: number): OrderRecord[] {
       order: generateOrderId(),
       route: generateRoute(),
       plan: generatePlan(),
+      total: generateTotal(),
       ...statusConfig,
     })
   }

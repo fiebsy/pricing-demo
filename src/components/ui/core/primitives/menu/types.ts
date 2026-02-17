@@ -120,42 +120,156 @@ export interface MenuAppearance {
 // Animation Types
 // ============================================================================
 
-/**
- * Opacity animation modes for panel transitions.
- *
- * @see TRANSITION-ANIMATION.md for detailed documentation
- */
-export type OpacityMode =
-  | 'none'                  // Both panels visible during slide (debug)
-  | 'instant'               // Opacity flips immediately
-  | 'instant-out-fade-in'   // Outgoing instant, incoming fades
-  | 'quick-out-fade-in'     // Outgoing quick fade, incoming fades with delay
-  | 'crossfade'             // Both fade simultaneously
-  | 'sequential'            // Outgoing fades first, then incoming
+/** Spring preset names */
+export type SpringPreset = 'default' | 'snappy' | 'smooth' | 'bouncy' | 'custom'
 
+/**
+ * Animation configuration for spring-based panel transitions.
+ */
 export interface AnimationConfig {
-  /** Duration of panel slide transition (ms) */
-  duration?: number
-  /** CSS easing function for slide */
-  easing?: string
-  /** Enable height animation between panels */
+  /**
+   * Spring preset for quick selection.
+   * @default 'default'
+   */
+  springPreset?: SpringPreset
+
+  /**
+   * Spring stiffness - higher = faster, snappier.
+   * Only used when springPreset === 'custom'.
+   * @default 650
+   */
+  springStiffness?: number
+
+  /**
+   * Spring damping - higher = less oscillation.
+   * Only used when springPreset === 'custom'.
+   * @default 38
+   */
+  springDamping?: number
+
+  /**
+   * Spring mass - higher = more momentum.
+   * Only used when springPreset === 'custom'.
+   * @default 0.9
+   */
+  springMass?: number
+
+  /**
+   * Duration of incoming panel opacity fade (ms).
+   * @default 220
+   */
+  opacityDuration?: number
+
+  /**
+   * Duration of outgoing panel quick fade (ms).
+   * @default 80
+   */
+  quickOutDuration?: number
+
+  /**
+   * Enable height animation between panels.
+   * @default true
+   */
   animateHeight?: boolean
 
   /**
-   * Opacity animation mode for panel transitions.
-   * @default 'quick-out-fade-in'
+   * Sync opacity transitions to spring timing.
+   * When true, opacity uses spring physics instead of fixed duration.
+   * @default false
    */
-  opacityMode?: OpacityMode
-  /** Duration of incoming panel fade (ms) */
-  opacityDuration?: number
-  /** CSS easing function for opacity transitions */
-  opacityEasing?: string
-  /** Duration of outgoing panel fade for quick-out mode (ms). 0 = instant */
-  quickOutDuration?: number
-  /** Delay before incoming panel starts fading in (ms) */
-  fadeInDelay?: number
-  /** Delay for sequential mode (ms) */
-  staggerDelay?: number
+  syncOpacityToSpring?: boolean
+
+  /**
+   * Enable slow motion debug mode.
+   * When true, spring animations run at 10% speed for debugging.
+   * @default false
+   */
+  slowMoEnabled?: boolean
+
+  /**
+   * Enable blur effect during crossfade transitions.
+   * Panels blur when fading out for a depth-of-field effect.
+   * @default false
+   */
+  blurOnFade?: boolean
+
+  /**
+   * Blur radius in pixels when fading out.
+   * Only used when blurOnFade is true.
+   * @default 4
+   */
+  blurAmount?: number
+
+  // ---- Reveal Animation Settings ----
+
+  /**
+   * Duration of reveal animation in ms.
+   * @default 200
+   */
+  revealDuration?: number
+
+  /**
+   * Starting scale for reveal animation (0-1).
+   * Lower values = more dramatic scale effect.
+   * @default 0.4
+   */
+  revealScale?: number
+
+  /**
+   * Slide offset ratio relative to sideOffset.
+   * 0 = no slide, 1 = full sideOffset distance.
+   * @default 0.5
+   */
+  revealSlideRatio?: number
+
+  /**
+   * Enable exit animation when menu closes.
+   * When false, menu disappears instantly on close.
+   * @default true
+   */
+  animateOnClose?: boolean
+}
+
+// ============================================================================
+// Feature Toggles
+// ============================================================================
+
+/**
+ * Feature toggles for Menu functionality.
+ */
+export interface MenuFeatures {
+  /**
+   * Enable submenu navigation.
+   * When false, only renders flat menu items.
+   * @default true
+   */
+  submenu?: boolean
+
+  /**
+   * Enable height animation between panels.
+   * @default true
+   */
+  animateHeight?: boolean
+
+  /**
+   * Enable reveal animation on open.
+   * @default true
+   */
+  revealAnimation?: boolean
+}
+
+// ============================================================================
+// Trigger Types
+// ============================================================================
+
+/**
+ * State passed to render prop triggers.
+ */
+export interface TriggerState {
+  /** Whether the menu is currently open */
+  isOpen: boolean
+  /** Toggle the menu open/closed */
+  toggle: () => void
 }
 
 // ============================================================================
@@ -165,8 +279,8 @@ export interface AnimationConfig {
 export interface MenuProps {
   /** Menu items to display */
   items: MenuItem[]
-  /** Trigger element (required) */
-  trigger: ReactNode
+  /** Trigger element - can be a ReactNode or render prop receiving trigger state */
+  trigger: ReactNode | ((state: TriggerState) => ReactNode)
   /** Header content slot */
   header?: ReactNode
   /** Menu width in pixels */
@@ -179,6 +293,8 @@ export interface MenuProps {
   sideOffset?: number
   /** Offset along alignment axis (pixels) */
   alignOffset?: number
+  /** Controlled open state */
+  open?: boolean
   /** Callback when menu opens/closes */
   onOpenChange?: (open: boolean) => void
   /** Callback when an action item is selected */
@@ -187,6 +303,8 @@ export interface MenuProps {
   appearance?: MenuAppearance
   /** Animation configuration */
   animation?: AnimationConfig
+  /** Feature toggles */
+  features?: MenuFeatures
   /** Additional className for popup */
   className?: string
 }

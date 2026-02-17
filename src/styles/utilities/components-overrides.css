@@ -237,3 +237,43 @@ html:has([data-radix-select-content][data-state="open"]) {
   scrollbar-color: var(--color-border-primary) var(--color-bg-secondary);
 }
 
+/* ========================================
+   React Flow - Dark Mode Controls
+   ======================================== */
+
+/* Controls panel background */
+.dark .react-flow__controls {
+  background-color: rgb(17 24 39) !important; /* gray-900 */
+  border-color: rgb(55 65 81) !important; /* gray-700 */
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3) !important;
+}
+
+/* Control buttons */
+.dark .react-flow__controls-button {
+  background-color: rgb(17 24 39) !important; /* gray-900 */
+  border-color: rgb(55 65 81) !important; /* gray-700 */
+  fill: rgb(156 163 175) !important; /* gray-400 */
+}
+
+.dark .react-flow__controls-button:hover {
+  background-color: rgb(31 41 55) !important; /* gray-800 */
+}
+
+.dark .react-flow__controls-button svg {
+  fill: rgb(156 163 175) !important; /* gray-400 */
+}
+
+.dark .react-flow__controls-button:hover svg {
+  fill: rgb(229 231 235) !important; /* gray-200 */
+}
+
+/* MiniMap dark mode */
+.dark .react-flow__minimap {
+  background-color: rgb(17 24 39) !important; /* gray-900 */
+  border-color: rgb(55 65 81) !important; /* gray-700 */
+}
+
+.dark .react-flow__minimap-mask {
+  fill: rgb(0 0 0 / 0.6) !important;
+}
+

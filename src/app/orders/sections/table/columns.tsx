@@ -49,6 +49,12 @@ export const ORDER_COLUMNS: ColumnConfig[] = [
     align: 'center',
     sortable: true,
   },
+  {
+    key: 'total',
+    width: 110,
+    align: 'right',
+    sortable: true,
+  },
 ]
 
 // =============================================================================
@@ -62,11 +68,12 @@ export const COLUMN_LABELS: Record<string, string> = {
   plan: 'Plan',
   type: 'Type',
   status: 'Status',
+  total: 'Total',
 }
 
 // =============================================================================
 // COLUMN KEYS
 // =============================================================================
 
-export const COLUMN_KEYS = ['order', 'customer', 'route', 'plan', 'type', 'status'] as const
+export const COLUMN_KEYS = ['order', 'customer', 'route', 'plan', 'type', 'status', 'total'] as const
 export type ColumnKey = typeof COLUMN_KEYS[number]

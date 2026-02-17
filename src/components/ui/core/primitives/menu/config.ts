@@ -7,12 +7,16 @@
  * @module prod/base/menu/config
  */
 
+import type { Variants } from 'motion/react'
 import type {
   MenuAppearance,
   AnimationConfig,
   BorderRadius,
   Shadow,
   Background,
+  SpringPreset,
+  MenuFeatures,
+  MenuSide,
 } from './types'
 
 // ============================================================================
@@ -34,53 +38,96 @@ export const Z_INDEX = {
 // Animation Constants
 // ============================================================================
 
-/** Expo ease-out for smooth deceleration */
+/** Expo ease-out for smooth deceleration (used in reveal animation) */
 export const EASING_EXPO_OUT = 'cubic-bezier(0.16, 1, 0.3, 1)'
 
-/** Ease-out for opacity transitions */
-export const EASING_EASE_OUT = 'cubic-bezier(0, 0, 0.2, 1)'
+// ============================================================================
+// Spring Presets
+// ============================================================================
 
-/** Ease-in-out for symmetric transitions */
-export const EASING_EASE_IN_OUT = 'cubic-bezier(0.4, 0, 0.2, 1)'
+/**
+ * Spring presets for physics-based animations.
+ * Each preset defines stiffness, damping, and mass values.
+ *
+ * Curated based on Motion.dev spring visualization:
+ * - default: Balanced, minimal overshoot - reliable for most UI
+ * - snappy: Quick response with subtle bounce - responsive feel
+ * - smooth: Gentle, relaxed - elegant transitions
+ * - bouncy: Playful with visible overshoot - fun interactions
+ */
+export const SPRING_PRESETS: Record<Exclude<SpringPreset, 'custom'>, { stiffness: number; damping: number; mass: number }> = {
+  default: { stiffness: 650, damping: 38, mass: 0.9 },
+  snappy: { stiffness: 700, damping: 28, mass: 0.8 },
+  smooth: { stiffness: 400, damping: 30, mass: 1 },
+  bouncy: { stiffness: 600, damping: 20, mass: 1 },
+} as const
+
+/**
+ * Get spring configuration from preset or custom values.
+ */
+export function getSpringConfig(animation: AnimationConfig): { stiffness: number; damping: number; mass: number } {
+  if (animation.springPreset && animation.springPreset !== 'custom') {
+    return SPRING_PRESETS[animation.springPreset]
+  }
+  return {
+    stiffness: animation.springStiffness ?? 650,
+    damping: animation.springDamping ?? 38,
+    mass: animation.springMass ?? 0.9,
+  }
+}
+
+/**
+ * Approximate spring settling time based on damping.
+ * Higher damping = faster settling.
+ * Used for syncing opacity to spring duration.
+ */
+export function getSpringSettlingTime(damping: number): number {
+  // Empirical formula: ~8000 / damping gives reasonable approximation
+  // damping=30 → ~267ms, damping=15 → ~533ms, damping=45 → ~178ms
+  return Math.round(8000 / damping)
+}
 
 /**
  * Default animation configuration.
  *
- * Uses 'crossfade' mode with smooth timing:
- * - Both panels fade simultaneously
- * - 280ms slide with 220ms fade (~80% overlap)
- * - Symmetric easing for balanced feel
- *
- * @see TRANSITION-ANIMATION.md for mode documentation
+ * Uses spring physics for panel transitions with crossfade opacity:
+ * - Spring preset: 'default' (stiffness: 650, damping: 38, mass: 0.9)
+ * - Opacity: 220ms incoming, 80ms outgoing (asymmetric crossfade)
  */
 export const DEFAULT_ANIMATION: Required<AnimationConfig> = {
-  duration: 280,
-  easing: EASING_EXPO_OUT,
-  animateHeight: true,
-  opacityMode: 'crossfade',
+  // Spring settings
+  springPreset: 'default',
+  springStiffness: 650,
+  springDamping: 38,
+  springMass: 0.9,
+
+  // Crossfade timing
   opacityDuration: 220,
-  opacityEasing: EASING_EASE_IN_OUT,
-  quickOutDuration: 80, // Used by crossfade for faster fade-out + pointer-events delay
-  fadeInDelay: 0,
-  staggerDelay: 0,
+  quickOutDuration: 80,
+
+  // Options
+  animateHeight: true,
+  syncOpacityToSpring: true,
+  slowMoEnabled: false,
+
+  // Blur effect
+  blurOnFade: true,
+  blurAmount: 4,
+
+  // Reveal animation
+  revealDuration: 200,
+  revealScale: 0.4,
+  revealSlideRatio: 0.5,
+  animateOnClose: true,
 }
 
 /**
- * Previous default - quick-out-fade-in mode.
- * Kept for easy reversion if needed.
- *
- * @deprecated Use DEFAULT_ANIMATION instead
+ * Default feature toggles.
  */
-export const PREVIOUS_DEFAULT_ANIMATION: Required<AnimationConfig> = {
-  duration: 250,
-  easing: EASING_EXPO_OUT,
+export const DEFAULT_FEATURES: Required<MenuFeatures> = {
+  submenu: true,
   animateHeight: true,
-  opacityMode: 'quick-out-fade-in',
-  opacityDuration: 140,
-  opacityEasing: EASING_EASE_OUT,
-  quickOutDuration: 0,
-  fadeInDelay: 20,
-  staggerDelay: 0,
+  revealAnimation: true,
 }
 
 // ============================================================================
@@ -279,18 +326,7 @@ export function getItemRadius(containerRadius: BorderRadius): number {
 // Reveal Animation Config
 // ============================================================================
 
-/**
- * Toggle for legacy animation system.
- *
- * Set to `true` for custom reveal animation (40% scale, dynamic slide offset)
- * via CSS keyframe injection. This matches the design spec exactly.
- *
- * Set to `false` for Tailwind's animate classes (95% scale, 8px slide) -
- * less dramatic but doesn't require runtime CSS injection.
- */
-export const USE_LEGACY_ANIMATION = true
-
-/** Reveal animation settings for menu open */
+/** Reveal animation settings for menu open (default values) */
 export const REVEAL_ANIMATION = {
   /** Animation duration in ms */
   duration: 200,
@@ -302,38 +338,86 @@ export const REVEAL_ANIMATION = {
   slideOffsetRatio: 0.5,
 } as const
 
-/**
- * Tailwind animation classes for reveal effect.
- *
- * NOTE: tailwindcss-animate doesn't support our custom animation values
- * (40% scale start, dynamic slide offset based on sideOffset).
- * The standard classes use fixed values (95% scale, 8px slide).
- *
- * For now, we use the legacy CSS keyframe injection which provides
- * the exact animation matching the original design.
- *
- * To switch to legacy animation, set USE_LEGACY_ANIMATION = true above.
- * To use standard Tailwind animations (less dramatic), set it to false.
- */
-export const REVEAL_ANIMATION_CLASSES = [
-  // Standard Tailwind animate classes (simpler animation)
-  'data-[state=open]:animate-in',
-  'data-[state=closed]:animate-out',
-  'data-[state=open]:fade-in-0',
-  'data-[state=closed]:fade-out-0',
-  'data-[state=open]:zoom-in-95',
-  'data-[state=closed]:zoom-out-95',
-  'data-[side=bottom]:slide-in-from-top-2',
-  'data-[side=bottom]:slide-out-to-top-2',
-  'data-[side=top]:slide-in-from-bottom-2',
-  'data-[side=top]:slide-out-to-bottom-2',
-] as const
+/** Expo-out easing as array format for Motion */
+export const REVEAL_EASING = [0.16, 1, 0.3, 1] as const
+
+/** Motion-compatible transition (expo-out as array format) */
+export const REVEAL_TRANSITION = {
+  duration: REVEAL_ANIMATION.duration / 1000, // 0.2s
+  ease: REVEAL_EASING,
+}
+
+/** Configuration for reveal variants */
+export interface RevealVariantConfig {
+  /** Menu side position */
+  side: MenuSide
+  /** Offset from trigger in pixels */
+  sideOffset: number
+  /** Starting scale (0-1), default 0.4 */
+  scale?: number
+  /** Slide offset ratio (0-1), default 0.5 */
+  slideRatio?: number
+  /** Enable exit animation, default true */
+  animateOnClose?: boolean
+}
 
 /**
- * Get reveal animation classes as an array
+ * Factory for direction-aware reveal variants.
+ * Creates scale + slide animation based on menu side.
  */
-export function getRevealAnimationClasses(): readonly string[] {
-  return REVEAL_ANIMATION_CLASSES
+export function createRevealVariants(config: RevealVariantConfig): Variants {
+  const {
+    side,
+    sideOffset,
+    scale = REVEAL_ANIMATION.scaleStart,
+    slideRatio = REVEAL_ANIMATION.slideOffsetRatio,
+    animateOnClose = true,
+  } = config
+
+  const slideOffset = Math.round(sideOffset * slideRatio)
+  // bottom = menu appears below trigger, animates upward (-1)
+  // top = menu appears above trigger, animates downward (+1)
+  const slideDirection = side === 'bottom' ? -1 : 1
+
+  const hidden = {
+    opacity: 0,
+    scale,
+    y: slideDirection * slideOffset,
+  }
+
+  const visible = {
+    opacity: 1,
+    scale: REVEAL_ANIMATION.scaleEnd,
+    y: 0,
+  }
+
+  // Exit can be disabled (instant disappear) or mirror hidden state
+  const exit = animateOnClose
+    ? { opacity: 0, scale, y: slideDirection * slideOffset }
+    : { opacity: 0 } // Instant fade for disabled exit
+
+  return { hidden, visible, exit }
+}
+
+/**
+ * Reduced motion variants - instant fade only, no scale/translate.
+ */
+export function createReducedMotionVariants(animateOnClose = true): Variants {
+  return {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1 },
+    exit: animateOnClose ? { opacity: 0 } : { opacity: 0 },
+  }
+}
+
+/**
+ * Create reveal transition with custom duration.
+ */
+export function createRevealTransition(durationMs: number, slowMoScale = 1) {
+  return {
+    duration: (durationMs / 1000) * slowMoScale,
+    ease: REVEAL_EASING,
+  }
 }
 
 // ============================================================================

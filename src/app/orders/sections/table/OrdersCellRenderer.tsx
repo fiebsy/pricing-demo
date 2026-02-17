@@ -5,9 +5,64 @@
  */
 
 import type { ReactNode } from 'react'
+import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/core/primitives/badge'
-import FlashIcon from '@hugeicons-pro/core-stroke-rounded/FlashIcon'
-import type { OrderRecord } from '../../types'
+import { HugeIcon } from '@/components/ui/core/primitives/icon'
+import { getFlashIcon, getFlashOffIcon } from './route-badge-icons'
+import { GradientIcon, type GradientPreset } from './gradient-icon'
+import type { OrderRecord, AutoRouteBadgeConfig, AutoRouteBadgeIconStyle, AutoRouteStateConfig, StatusBadgeConfig, StatusBadgeIconStyle, StatusBadgeIconType } from '../../types'
+
+// Status icons - import all variants
+import CheckmarkCircle02IconStroke from '@hugeicons-pro/core-stroke-rounded/CheckmarkCircle02Icon'
+import CheckmarkCircle02IconSolid from '@hugeicons-pro/core-solid-rounded/CheckmarkCircle02Icon'
+import CheckmarkCircle02IconBulk from '@hugeicons-pro/core-bulk-rounded/CheckmarkCircle02Icon'
+import Alert02IconStroke from '@hugeicons-pro/core-stroke-rounded/Alert02Icon'
+import Alert02IconSolid from '@hugeicons-pro/core-solid-rounded/Alert02Icon'
+import Alert02IconBulk from '@hugeicons-pro/core-bulk-rounded/Alert02Icon'
+import Cancel01IconStroke from '@hugeicons-pro/core-stroke-rounded/Cancel01Icon'
+import Cancel01IconSolid from '@hugeicons-pro/core-solid-rounded/Cancel01Icon'
+import Cancel01IconBulk from '@hugeicons-pro/core-bulk-rounded/Cancel01Icon'
+import TaskDone01IconStroke from '@hugeicons-pro/core-stroke-rounded/TaskDone01Icon'
+import TaskDone01IconSolid from '@hugeicons-pro/core-solid-rounded/TaskDone01Icon'
+import TaskDone01IconBulk from '@hugeicons-pro/core-bulk-rounded/TaskDone01Icon'
+
+// Map icon style to HugeIcon variant
+const ICON_STYLE_TO_VARIANT: Record<AutoRouteBadgeIconStyle, 'stroke' | 'solid' | 'bulk'> = {
+  stroke: 'stroke',
+  solid: 'solid',
+  bulk: 'bulk',
+}
+
+// Helper to render icon with or without gradient/fill
+function renderRouteIcon(
+  icon: unknown,
+  config: AutoRouteStateConfig,
+  className?: string
+) {
+  const variant = ICON_STYLE_TO_VARIANT[config.iconStyle]
+
+  // Use GradientIcon for any fill option (gradient or solid color)
+  if (config.gradient !== 'none') {
+    return (
+      <GradientIcon
+        icon={icon as Parameters<typeof GradientIcon>[0]['icon']}
+        size={14}
+        gradient={config.gradient as GradientPreset}
+        className={className}
+      />
+    )
+  }
+
+  // No fill - use HugeIcon with utility gray (matches badge icon color)
+  return (
+    <HugeIcon
+      icon={icon}
+      size={14}
+      variant={variant}
+      className={cn('text-utility-gray-500', className)}
+    />
+  )
+}
 
 // =============================================================================
 // CUSTOMER AVATAR
@@ -61,6 +116,30 @@ const STATUS_COLORS: Record<string, BadgeColor> = {
   'Declined': 'gray',
 }
 
+// Status icons by user-selectable type
+const STATUS_ICONS: Record<Exclude<StatusBadgeIconType, 'none'>, Record<StatusBadgeIconStyle, unknown>> = {
+  checkmark: {
+    stroke: CheckmarkCircle02IconStroke,
+    solid: CheckmarkCircle02IconSolid,
+    bulk: CheckmarkCircle02IconBulk,
+  },
+  alert: {
+    stroke: Alert02IconStroke,
+    solid: Alert02IconSolid,
+    bulk: Alert02IconBulk,
+  },
+  cancel: {
+    stroke: Cancel01IconStroke,
+    solid: Cancel01IconSolid,
+    bulk: Cancel01IconBulk,
+  },
+  'task-done': {
+    stroke: TaskDone01IconStroke,
+    solid: TaskDone01IconSolid,
+    bulk: TaskDone01IconBulk,
+  },
+}
+
 // =============================================================================
 // CELL RENDERER
 // =============================================================================
@@ -71,7 +150,21 @@ type CellRenderer = (
   index: number
 ) => ReactNode
 
-export function createRenderCell(): CellRenderer {
+interface RenderCellConfig {
+  autoRouteBadge: AutoRouteBadgeConfig
+  statusBadge: StatusBadgeConfig
+}
+
+export function createRenderCell(config: RenderCellConfig): CellRenderer {
+  const { autoRouteBadge, statusBadge } = config
+
+  // Pre-resolve configs and icons for both states
+  const onConfig = autoRouteBadge.on
+  const offConfig = autoRouteBadge.off
+
+  const FlashIconOn = getFlashIcon(onConfig.iconStyle)
+  const FlashIconOff = getFlashOffIcon(offConfig.iconStyle)
+
   return (columnKey: string, row: Record<string, unknown>): ReactNode => {
     const record = row as unknown as OrderRecord
 
@@ -93,24 +186,41 @@ export function createRenderCell(): CellRenderer {
           </span>
         )
 
-      case 'route':
+      case 'route': {
+        const isAutoRoute = record.route === 'AutoRoute'
+        const stateConfig = isAutoRoute ? onConfig : offConfig
+        const RouteIcon = isAutoRoute ? FlashIconOn : FlashIconOff
+
+        // Icon-only mode: render just the icon without badge wrapper
+        if (stateConfig.displayMode === 'icon-only') {
+          return renderRouteIcon(RouteIcon, stateConfig, 'text-tertiary')
+        }
+
+        // Badge mode: render icon inside badge with optional text
         return (
           <Badge
             size="xs"
             shape="rounded"
             color="gray"
-            iconLeading={FlashIcon}
+            iconLeading={renderRouteIcon(RouteIcon, stateConfig)}
           >
-            {record.route}
+            {stateConfig.showText ? record.route : null}
           </Badge>
         )
+      }
 
-      case 'plan':
+      case 'plan': {
+        const isAutoRoute = record.route === 'AutoRoute'
+        const stateConfig = isAutoRoute ? onConfig : offConfig
+        const RouteIcon = isAutoRoute ? FlashIconOn : FlashIconOff
+
         return (
-          <span className="text-tertiary text-xs">
+          <span className="text-tertiary flex items-center gap-1.5 text-xs">
+            {renderRouteIcon(RouteIcon, stateConfig)}
             {record.plan}
           </span>
         )
+      }
 
       case 'type': {
         const isActive = record.type === 'Active'
@@ -131,16 +241,45 @@ export function createRenderCell(): CellRenderer {
         )
       }
 
-      case 'status':
+      case 'status': {
+        const StatusIcon = statusBadge.iconType !== 'none'
+          ? STATUS_ICONS[statusBadge.iconType][statusBadge.iconStyle]
+          : null
+
+        // Default to 'leading' when icon is selected but position is 'none'
+        const effectivePosition = statusBadge.iconType !== 'none' && statusBadge.iconPosition === 'none'
+          ? 'leading'
+          : statusBadge.iconPosition
+
+        const icon = StatusIcon && effectivePosition !== 'none' ? (
+          <HugeIcon
+            icon={StatusIcon}
+            size={12}
+            variant={statusBadge.iconStyle}
+          />
+        ) : null
+
         return (
-          <Badge
-            color={STATUS_COLORS[record.displayStatus] || 'gray'}
-            size="xs"
-            shape="squircle"
-            style="default"
-          >
-            {record.displayStatus}
-          </Badge>
+          <span className="flex items-center gap-1.5">
+            {effectivePosition === 'leading' && icon}
+            <Badge
+              color={STATUS_COLORS[record.displayStatus] || 'gray'}
+              size="xs"
+              shape="squircle"
+              style="default"
+            >
+              {record.displayStatus}
+            </Badge>
+            {effectivePosition === 'trailing' && icon}
+          </span>
+        )
+      }
+
+      case 'total':
+        return (
+          <span className="text-primary tabular-nums text-sm">
+            {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(record.total)}
+          </span>
         )
 
       default:

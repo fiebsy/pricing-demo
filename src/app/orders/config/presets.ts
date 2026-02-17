@@ -4,7 +4,7 @@
  * Preset configurations for common page styles.
  */
 
-import type { OrdersPageConfig, PresetId, ColumnVisibility, TableBorderConfig, ChartConfig, FilterConfig } from '../types'
+import type { OrdersPageConfig, PresetId, ColumnVisibility, TableBorderConfig, ChartConfig, FilterConfig, AutoRouteBadgeConfig, StatusBadgeConfig } from '../types'
 
 // =============================================================================
 // DEFAULT COLUMN VISIBILITY
@@ -17,6 +17,7 @@ const ALL_COLUMNS_VISIBLE: ColumnVisibility = {
   plan: true,
   type: true,
   status: true,
+  total: true,
 }
 
 const DEFAULT_TABLE_BORDER: TableBorderConfig = {
@@ -37,7 +38,7 @@ const DEFAULT_CHART_CONFIG: ChartConfig = {
   stackMode: 'none',
   chartHeight: 200,
   chartToTableGap: 24,
-  chartWidthMode: 'container',
+  chartWidthMode: 'left-to-container',
   chartCustomWidth: 1200,
   chartAlignment: 'center',
   lineStrokeWidth: 1.5,
@@ -61,6 +62,27 @@ const DEFAULT_CHART_CONFIG: ChartConfig = {
 const DEFAULT_FILTER_CONFIG: FilterConfig = {
   showToolbarFilter: true,
   showTopFilter: false,
+}
+
+const DEFAULT_AUTO_ROUTE_BADGE: AutoRouteBadgeConfig = {
+  on: {
+    iconStyle: 'solid',
+    displayMode: 'icon-only',
+    showText: false,
+    gradient: 'ocean',
+  },
+  off: {
+    iconStyle: 'stroke',
+    displayMode: 'icon-only',
+    showText: false,
+    gradient: 'neutral',
+  },
+}
+
+const DEFAULT_STATUS_BADGE: StatusBadgeConfig = {
+  iconType: 'none',
+  iconPosition: 'none',
+  iconStyle: 'stroke',
 }
 
 // =============================================================================
@@ -147,7 +169,15 @@ export const PRESET_DEFAULT: OrdersPageConfig = {
   shadyShineIntensity: 'subtle',
 
   // Column Visibility
-  columnVisibility: ALL_COLUMNS_VISIBLE,
+  columnVisibility: {
+    customer: true,
+    order: true,
+    route: false,
+    plan: true,
+    type: true,
+    status: true,
+    total: true,
+  },
 
   // Column Reorder
   enableColumnReorder: true,
@@ -160,6 +190,12 @@ export const PRESET_DEFAULT: OrdersPageConfig = {
 
   // Filter
   filter: DEFAULT_FILTER_CONFIG,
+
+  // AutoRoute Badge
+  autoRouteBadge: DEFAULT_AUTO_ROUTE_BADGE,
+
+  // Status Badge
+  statusBadge: DEFAULT_STATUS_BADGE,
 }
 
 // =============================================================================
@@ -277,6 +313,12 @@ export const PRESET_MINIMAL: OrdersPageConfig = {
 
   // Filter
   filter: DEFAULT_FILTER_CONFIG,
+
+  // AutoRoute Badge
+  autoRouteBadge: DEFAULT_AUTO_ROUTE_BADGE,
+
+  // Status Badge
+  statusBadge: DEFAULT_STATUS_BADGE,
 }
 
 // =============================================================================
@@ -393,6 +435,12 @@ export const PRESET_ELEVATED: OrdersPageConfig = {
 
   // Filter
   filter: DEFAULT_FILTER_CONFIG,
+
+  // AutoRoute Badge
+  autoRouteBadge: DEFAULT_AUTO_ROUTE_BADGE,
+
+  // Status Badge
+  statusBadge: DEFAULT_STATUS_BADGE,
 }
 
 // =============================================================================
@@ -510,6 +558,12 @@ export const PRESET_BRAND: OrdersPageConfig = {
 
   // Filter
   filter: DEFAULT_FILTER_CONFIG,
+
+  // AutoRoute Badge
+  autoRouteBadge: DEFAULT_AUTO_ROUTE_BADGE,
+
+  // Status Badge
+  statusBadge: DEFAULT_STATUS_BADGE,
 }
 
 // =============================================================================

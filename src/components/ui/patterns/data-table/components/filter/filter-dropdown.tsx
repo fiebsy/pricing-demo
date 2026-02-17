@@ -377,8 +377,7 @@ export const FilterDropdown: React.FC<FilterDropdownProps> = ({
         align="start"
         onOpenChange={handleOpenChange}
         animation={{
-          duration: 300,
-          easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
+          springPreset: 'smooth',
           animateHeight: true,
         }}
       />

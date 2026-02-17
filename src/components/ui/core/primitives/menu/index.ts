@@ -1,7 +1,7 @@
 /**
  * Menu - Public Exports
  *
- * Base menu component with reveal animation, panel navigation,
+ * Base menu component with spring animations, panel navigation,
  * and configurable appearance. Built on Base UI primitives.
  *
  * @module prod/base/menu
@@ -17,6 +17,39 @@
  *   ]}
  *   trigger={<button>Actions</button>}
  *   onSelect={(item) => handleAction(item.id)}
+ * />
+ * ```
+ *
+ * @example Spring Preset
+ * ```tsx
+ * <Menu
+ *   items={items}
+ *   trigger={trigger}
+ *   animation={{
+ *     springPreset: 'snappy',
+ *   }}
+ * />
+ * ```
+ *
+ * @example Render Prop Trigger
+ * ```tsx
+ * <Menu
+ *   items={items}
+ *   trigger={({ isOpen, toggle }) => (
+ *     <MyTrigger active={isOpen} onClick={toggle} />
+ *   )}
+ * />
+ * ```
+ *
+ * @example Feature Toggles
+ * ```tsx
+ * <Menu
+ *   items={items}
+ *   trigger={trigger}
+ *   features={{
+ *     submenu: false,  // Disable submenu navigation
+ *     animateHeight: false,  // Disable height animation
+ *   }}
  * />
  * ```
  */
@@ -43,11 +76,13 @@ export type {
   MenuItemSubmenu,
   MenuItemSeparator,
   MenuItemLabel,
-  MenuItemBase,
   MenuSide,
   MenuAlign,
   MenuAppearance,
   AnimationConfig,
+  SpringPreset,
+  MenuFeatures,
+  TriggerState,
   PanelState,
   IconType,
   BorderRadius,
@@ -65,11 +100,9 @@ export type {
 export {
   DEFAULT_APPEARANCE,
   DEFAULT_ANIMATION,
+  DEFAULT_FEATURES,
   DEFAULT_MENU_WIDTH,
   DEFAULT_SIDE_OFFSET,
-  REVEAL_ANIMATION,
-  REVEAL_ANIMATION_CLASSES,
-  USE_LEGACY_ANIMATION,
   Z_INDEX,
   EASING_EXPO_OUT,
   MENU_ITEM_STYLES,
@@ -80,8 +113,20 @@ export {
   getGradientStyles,
   getItemRadius,
   getSeparatorClasses,
-  getRevealAnimationClasses,
   BORDER_RADIUS_CLASSES,
   SHADOW_CLASSES,
   BACKGROUND_CLASSES,
+  // Spring animation exports
+  SPRING_PRESETS,
+  getSpringConfig,
+  getSpringSettlingTime,
+  // Reveal animation exports (Motion variants)
+  REVEAL_ANIMATION,
+  REVEAL_EASING,
+  REVEAL_TRANSITION,
+  createRevealVariants,
+  createReducedMotionVariants,
+  createRevealTransition,
 } from './config'
+
+export type { RevealVariantConfig } from './config'

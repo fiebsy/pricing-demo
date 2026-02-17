@@ -1,99 +1,46 @@
 /**
- * Menu - Main Component
+ * Menu - Spring Animation Component
  *
- * Base menu component with reveal animation, panel navigation,
- * and configurable appearance. Built on Base UI primitives.
+ * Uses motion/react for physics-based spring animations on height and slide.
+ * Built on Base UI primitives with configurable appearance and behavior.
  *
- * This is the foundation for FilterMenu and other menu derivatives.
- *
- * @module prod/base/menu/menu
+ * @module prod/base/menu
  */
 
 'use client'
 
 import React, { useState, useCallback, useMemo, useRef, useLayoutEffect, useEffect, cloneElement, isValidElement } from 'react'
 import { Menu as BaseMenu } from '@base-ui/react/menu'
+import { motion, useMotionValue, useTransform, useReducedMotion, animate, AnimatePresence } from 'motion/react'
 
 import { cn } from '@/lib/utils'
 
-// CSS-driven panel transitions (no JS during animation)
-import './menu-transitions.css'
 import type {
   MenuProps,
   MenuItem,
   MenuSide,
   MenuAlign,
   PanelState,
+  TriggerState,
 } from './types'
 import {
   DEFAULT_APPEARANCE,
   DEFAULT_ANIMATION,
+  DEFAULT_FEATURES,
   DEFAULT_MENU_WIDTH,
   DEFAULT_SIDE_OFFSET,
-  REVEAL_ANIMATION,
-  USE_LEGACY_ANIMATION,
   Z_INDEX,
   getPopupClasses,
   getGradientStyles,
   getItemRadius,
-  getRevealAnimationClasses,
-  EASING_EXPO_OUT,
+  getSpringConfig,
+  getSpringSettlingTime,
+  createRevealVariants,
+  createReducedMotionVariants,
+  createRevealTransition,
 } from './config'
 import { MenuItem as MenuItemComponent } from './menu-item'
 import { MenuBackButton } from './menu-back-button'
-
-// ============================================================================
-// Reveal Animation Hook (Legacy - kept for easy revert)
-// ============================================================================
-
-/**
- * Legacy reveal animation using CSS keyframe injection.
- * Only used when USE_LEGACY_ANIMATION is true.
- * Kept for easy revert if Tailwind animations cause issues.
- */
-function useRevealAnimationLegacy(isOpen: boolean, sideOffset: number) {
-  const idRef = useRef(`menu-${Math.random().toString(36).substr(2, 9)}`)
-  const uniqueClass = `menu-popup-${idRef.current}`
-
-  const animationCss = useMemo(() => {
-    if (!isOpen) return ''
-
-    // Use centralized reveal animation config
-    const { duration, scaleStart, scaleEnd, slideOffsetRatio } = REVEAL_ANIMATION
-    const easing = EASING_EXPO_OUT
-    const slideOffset = Math.round(sideOffset * slideOffsetRatio)
-
-    const keyframe = `menu-reveal-${idRef.current}`
-    const opacityKeyframe = `menu-opacity-${idRef.current}`
-
-    return `
-      .${uniqueClass}[data-side="bottom"][data-open] {
-        transform-origin: var(--transform-origin) !important;
-        animation: ${keyframe}-bottom ${duration}ms ${easing} both,
-                   ${opacityKeyframe} ${duration}ms ${easing} both !important;
-      }
-      .${uniqueClass}[data-side="top"][data-open] {
-        transform-origin: var(--transform-origin) !important;
-        animation: ${keyframe}-top ${duration}ms ${easing} both,
-                   ${opacityKeyframe} ${duration}ms ${easing} both !important;
-      }
-      @keyframes ${keyframe}-bottom {
-        from { transform: scale(${scaleStart}) translateY(-${slideOffset}px); }
-        to { transform: scale(${scaleEnd}) translateY(0); }
-      }
-      @keyframes ${keyframe}-top {
-        from { transform: scale(${scaleStart}) translateY(${slideOffset}px); }
-        to { transform: scale(${scaleEnd}) translateY(0); }
-      }
-      @keyframes ${opacityKeyframe} {
-        from { opacity: 0; }
-        to { opacity: 1; }
-      }
-    `
-  }, [isOpen, sideOffset, uniqueClass])
-
-  return { uniqueClass, animationCss }
-}
 
 // ============================================================================
 // Component
@@ -104,9 +51,11 @@ function useRevealAnimationLegacy(isOpen: boolean, sideOffset: number) {
  *
  * Features:
  * - Reveal animation (scale + slide + fade)
- * - Panel navigation with sliding strip
- * - Height animation between panels
+ * - Panel navigation with sliding strip (spring-animated)
+ * - Height animation between panels (spring-animated)
  * - Configurable appearance (shine, shadow, squircle, gradient)
+ * - Feature toggles for submenu, height animation, reveal animation
+ * - Render prop trigger for custom trigger state handling
  */
 export const Menu: React.FC<MenuProps> = ({
   items,
@@ -117,17 +66,22 @@ export const Menu: React.FC<MenuProps> = ({
   align = 'start',
   sideOffset = DEFAULT_SIDE_OFFSET,
   alignOffset = 0,
+  open: controlledOpen,
   onOpenChange: externalOnOpenChange,
   onSelect: externalOnSelect,
   appearance,
   animation,
+  features,
   className,
 }) => {
   // ============================================================================
   // State
   // ============================================================================
 
-  const [isOpen, setIsOpen] = useState(false)
+  const [internalOpen, setInternalOpen] = useState(false)
+  const isControlled = controlledOpen !== undefined
+  const isOpen = isControlled ? controlledOpen : internalOpen
+
   const [submenu, setSubmenu] = useState<PanelState | null>(null)
   const [isAnimatingToSubmenu, setIsAnimatingToSubmenu] = useState(false)
   const [isAnimatingBack, setIsAnimatingBack] = useState(false)
@@ -141,24 +95,8 @@ export const Menu: React.FC<MenuProps> = ({
   const rootPanelRef = useRef<HTMLDivElement>(null)
   const submenuPanelRef = useRef<HTMLDivElement>(null)
   const wasOpenRef = useRef(false)
-
-  // Reveal animation - conditionally use legacy or Tailwind approach
-  const legacyAnimation = useRevealAnimationLegacy(isOpen, sideOffset)
-  const revealClasses = useMemo(() => getRevealAnimationClasses(), [])
-
-  // Close menu on scroll to prevent animation issues with sticky positioning
-  useEffect(() => {
-    if (!isOpen) return
-
-    const handleScroll = () => {
-      setIsOpen(false)
-      externalOnOpenChange?.(false)
-    }
-
-    // Use capture phase to catch scroll before it causes position updates
-    window.addEventListener('scroll', handleScroll, { passive: true, capture: true })
-    return () => window.removeEventListener('scroll', handleScroll, { capture: true })
-  }, [isOpen, externalOnOpenChange])
+  const animationTokenRef = useRef(0)
+  const backTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   // ============================================================================
   // Configuration
@@ -174,36 +112,116 @@ export const Menu: React.FC<MenuProps> = ({
     [animation]
   )
 
+  const mergedFeatures = useMemo(
+    () => ({ ...DEFAULT_FEATURES, ...features }),
+    [features]
+  )
+
+  // Detect reduced motion preference (moved up for use in variants)
+  const prefersReducedMotion = useReducedMotion()
+
+  // Memoized reveal variants (direction-aware, configurable)
+  const revealVariants = useMemo(() => {
+    if (!mergedFeatures.revealAnimation) return undefined
+    const animateOnClose = mergedAnimation.animateOnClose
+    if (prefersReducedMotion) return createReducedMotionVariants(animateOnClose)
+    return createRevealVariants({
+      side,
+      sideOffset,
+      scale: mergedAnimation.revealScale,
+      slideRatio: mergedAnimation.revealSlideRatio,
+      animateOnClose,
+    })
+  }, [
+    side,
+    sideOffset,
+    prefersReducedMotion,
+    mergedFeatures.revealAnimation,
+    mergedAnimation.revealScale,
+    mergedAnimation.revealSlideRatio,
+    mergedAnimation.animateOnClose,
+  ])
+
+  // Memoized transition (with slow-mo support, configurable duration)
+  const revealTransition = useMemo(() => {
+    if (prefersReducedMotion) return { duration: 0 }
+    const slowMoScale = mergedAnimation.slowMoEnabled ? 10 : 1
+    return createRevealTransition(mergedAnimation.revealDuration, slowMoScale)
+  }, [prefersReducedMotion, mergedAnimation.slowMoEnabled, mergedAnimation.revealDuration])
+
+  // Close menu on scroll to prevent animation issues with sticky positioning
+  useEffect(() => {
+    if (!isOpen) return
+
+    const handleScroll = () => {
+      if (!isControlled) {
+        setInternalOpen(false)
+      }
+      externalOnOpenChange?.(false)
+    }
+
+    // Use capture phase to catch scroll before it causes position updates
+    window.addEventListener('scroll', handleScroll, { passive: true, capture: true })
+    return () => window.removeEventListener('scroll', handleScroll, { capture: true })
+  }, [isOpen, isControlled, externalOnOpenChange])
+
+  // Get spring config from preset or custom values
+  // When reduced motion is preferred, use instant transitions (very high stiffness/damping)
+  // When slow motion is enabled, scale spring parameters for 10% speed
+  const springConfig = useMemo(
+    () => {
+      if (prefersReducedMotion) {
+        // Instant transition: very stiff spring with high damping = no oscillation, near-instant
+        return { stiffness: 10000, damping: 1000, mass: 1 }
+      }
+
+      const baseConfig = getSpringConfig(mergedAnimation)
+
+      // Slow motion debug feature: scale spring parameters
+      // Quadratic multiplier on stiffness makes slow motion pronounced
+      // Linear damping scaling maintains animation feel
+      if (mergedAnimation.slowMoEnabled) {
+        const scale = 0.1 // 10% speed
+        const springMultiplier = scale * scale // Quadratic
+        return {
+          stiffness: baseConfig.stiffness * springMultiplier,
+          damping: baseConfig.damping * scale,
+          mass: baseConfig.mass,
+        }
+      }
+
+      return baseConfig
+    },
+    [mergedAnimation, prefersReducedMotion]
+  )
+
+  // ============================================================================
+  // Spring Animations
+  // ============================================================================
+
+  // Slide position: 0 = root panel, -50 = submenu panel (percentage)
+  // Using useMotionValue + animate() instead of useSpring so we can update config dynamically
+  const slideX = useMotionValue(0)
+
+  // Container height: animates between root and submenu heights
+  const containerHeight = useMotionValue(rootHeight || 100)
+
+  // Transform slideX to percentage string for CSS
+  const slideXTransform = useTransform(slideX, (v) => `${v}%`)
+
   // ============================================================================
   // Height Measurement
-  // ============================================================================
-  //
-  // Height animation between panels requires accurate measurements of both
-  // root and submenu panel heights. This is tricky because:
-  //
-  // 1. Initial open: rootHeight must be measured synchronously before the
-  //    first render to avoid a flash of auto-height.
-  //
-  // 2. Navigate to submenu: submenuHeight is measured after 2 animation frames
-  //    to ensure the submenu content has rendered (see Submenu Animation Trigger).
-  //
-  // 3. Navigate back: rootHeight must be re-measured in navigateBack() because
-  //    the root panel may have been at 0 opacity during crossfade, and we need
-  //    the current accurate height for a smooth transition.
-  //
-  // ResizeObserver handles ongoing changes (e.g., dynamic content), but the
-  // synchronous measurements ensure we have valid heights at critical moments.
   // ============================================================================
 
   useLayoutEffect(() => {
     if (!isOpen) return
 
     // Immediate synchronous measurement for initial height
-    // This prevents height animation from starting at 0
     if (rootPanelRef.current) {
       const rect = rootPanelRef.current.getBoundingClientRect()
       if (rect.height > 0) {
         setRootHeight(rect.height)
+        containerHeight.set(rect.height)
       }
     }
 
@@ -223,10 +241,26 @@ export const Menu: React.FC<MenuProps> = ({
     if (submenuPanelRef.current) observer.observe(submenuPanelRef.current)
 
     return () => observer.disconnect()
-  }, [isOpen, submenu]) // Re-run when submenu changes to observe new panel
+  }, [isOpen, submenu, containerHeight])
 
-  // Note: Submenu animation is now triggered directly in navigateToSubmenu
-  // with a single RAF for faster response
+  // ============================================================================
+  // Animation State Updates
+  // ============================================================================
+
+  const inSubmenu = isAnimatingToSubmenu && !isAnimatingBack
+  const targetHeight = inSubmenu ? submenuHeight : rootHeight
+  const canAnimateHeight = mergedFeatures.animateHeight && mergedAnimation.animateHeight && targetHeight > 0
+
+  // Update spring values when navigation state changes
+  useEffect(() => {
+    // Animate slide position with current spring config
+    animate(slideX, inSubmenu ? -50 : 0, { type: 'spring', ...springConfig })
+
+    // Animate height if enabled
+    if (canAnimateHeight && targetHeight > 0) {
+      animate(containerHeight, targetHeight, { type: 'spring', ...springConfig })
+    }
+  }, [inSubmenu, targetHeight, canAnimateHeight, slideX, containerHeight, springConfig])
 
   // ============================================================================
   // Reset on Close
@@ -234,15 +268,35 @@ export const Menu: React.FC<MenuProps> = ({
 
   useEffect(() => {
     if (!isOpen && wasOpenRef.current) {
+      // Clear any pending back timeout
+      if (backTimeoutRef.current) {
+        clearTimeout(backTimeoutRef.current)
+        backTimeoutRef.current = null
+      }
+
       const timeout = setTimeout(() => {
         setSubmenu(null)
         setIsAnimatingToSubmenu(false)
         setIsAnimatingBack(false)
+        // Reset springs to initial position
+        slideX.set(0)
+        // Reset height state so it gets freshly measured on reopen
+        setRootHeight(0)
+        setSubmenuHeight(0)
       }, 200)
       return () => clearTimeout(timeout)
     }
     wasOpenRef.current = isOpen
-  }, [isOpen])
+  }, [isOpen, slideX])
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (backTimeoutRef.current) {
+        clearTimeout(backTimeoutRef.current)
+      }
+    }
+  }, [])
 
   // ============================================================================
   // Handlers
@@ -250,17 +304,34 @@ export const Menu: React.FC<MenuProps> = ({
 
   const handleOpenChange = useCallback(
     (open: boolean) => {
-      setIsOpen(open)
+      if (!isControlled) {
+        setInternalOpen(open)
+      }
       externalOnOpenChange?.(open)
     },
-    [externalOnOpenChange]
+    [isControlled, externalOnOpenChange]
   )
 
+  const toggle = useCallback(() => {
+    handleOpenChange(!isOpen)
+  }, [handleOpenChange, isOpen])
+
   const navigateToSubmenu = useCallback((menuId: string) => {
+    if (!mergedFeatures.submenu) return
+
     const submenuItem = items.find(
       (item) => item.id === menuId && item.type === 'submenu'
     )
     if (submenuItem && submenuItem.type === 'submenu') {
+      // Cancel any pending back timeout
+      if (backTimeoutRef.current) {
+        clearTimeout(backTimeoutRef.current)
+        backTimeoutRef.current = null
+      }
+
+      // Increment token to invalidate any pending animations
+      const currentToken = ++animationTokenRef.current
+
       // Batch all state updates together (React 18+ auto-batches)
       setDirection('forward')
       setIsAnimatingBack(false)
@@ -271,6 +342,9 @@ export const Menu: React.FC<MenuProps> = ({
       })
       // Trigger animation immediately on next frame (single RAF, not double)
       requestAnimationFrame(() => {
+        // Guard: Only proceed if this is still the current animation
+        if (animationTokenRef.current !== currentToken) return
+
         if (submenuPanelRef.current) {
           const rect = submenuPanelRef.current.getBoundingClientRect()
           if (rect.height > 0) {
@@ -280,9 +354,17 @@ export const Menu: React.FC<MenuProps> = ({
         setIsAnimatingToSubmenu(true)
       })
     }
-  }, [items])
+  }, [items, mergedFeatures.submenu])
 
   const navigateBack = useCallback(() => {
+    // Cancel any pending back timeout
+    if (backTimeoutRef.current) {
+      clearTimeout(backTimeoutRef.current)
+    }
+
+    // Increment token to invalidate pending forward animations
+    const currentToken = ++animationTokenRef.current
+
     // Re-measure root height synchronously before animation
     if (rootPanelRef.current) {
       const rect = rootPanelRef.current.getBoundingClientRect()
@@ -294,12 +376,23 @@ export const Menu: React.FC<MenuProps> = ({
     setDirection('back')
     setIsAnimatingBack(true)
     setIsAnimatingToSubmenu(false)
+
+    // For spring animations, use approximate settling time based on damping
+    // Use minimal delay when reduced motion is preferred
+    // Scale settling time for slow motion
+    const slowMoScale = mergedAnimation.slowMoEnabled ? 0.1 : 1
+    const settleTime = prefersReducedMotion ? 50 : getSpringSettlingTime(springConfig.damping) / slowMoScale
+
     // Clean up after animation completes
-    setTimeout(() => {
+    backTimeoutRef.current = setTimeout(() => {
+      // Guard: Only cleanup if this is still the current animation
+      if (animationTokenRef.current !== currentToken) return
+
       setSubmenu(null)
       setIsAnimatingBack(false)
-    }, mergedAnimation.duration)
-  }, [mergedAnimation.duration])
+      backTimeoutRef.current = null
+    }, settleTime)
+  }, [springConfig.damping, prefersReducedMotion, mergedAnimation.slowMoEnabled])
 
   const handleSelect = useCallback((item?: MenuItem) => {
     if (item && item.type !== 'separator' && item.type !== 'label' && item.type !== 'submenu' && item.type !== 'checkbox') {
@@ -309,37 +402,94 @@ export const Menu: React.FC<MenuProps> = ({
   }, [handleOpenChange, externalOnSelect])
 
   // ============================================================================
-  // Animation State
+  // Opacity & Blur Animation Config
   // ============================================================================
 
-  const inSubmenu = isAnimatingToSubmenu && !isAnimatingBack
-  const targetHeight = inSubmenu ? submenuHeight : rootHeight
-  const canAnimateHeight = mergedAnimation.animateHeight && targetHeight > 0
+  // Determine base transition settings for opacity (and blur if enabled)
+  const baseTransition = useMemo(() => {
+    // Instant transition when reduced motion is preferred
+    if (prefersReducedMotion) {
+      return {
+        type: 'tween' as const,
+        duration: 0,
+      }
+    }
 
-  // CSS custom properties for transitions (memoized to prevent style reconciliation)
-  const animationCssVars = useMemo(() => ({
-    '--menu-slide-duration': `${mergedAnimation.duration}ms`,
-    '--menu-slide-easing': mergedAnimation.easing,
-    '--menu-fade-duration': `${mergedAnimation.opacityDuration}ms`,
-    '--menu-fade-easing': mergedAnimation.opacityEasing,
-    '--menu-quick-out-duration': `${mergedAnimation.quickOutDuration}ms`,
-    '--menu-fade-in-delay': `${mergedAnimation.fadeInDelay}ms`,
-    '--menu-stagger-delay': `${mergedAnimation.staggerDelay}ms`,
-    '--menu-height-transition': canAnimateHeight
-      ? `height ${mergedAnimation.duration}ms ${mergedAnimation.easing}`
-      : 'none',
-    '--menu-target-height': targetHeight > 0 ? `${targetHeight}px` : 'auto',
-  } as React.CSSProperties), [
-    mergedAnimation.duration,
-    mergedAnimation.easing,
-    mergedAnimation.opacityDuration,
-    mergedAnimation.opacityEasing,
-    mergedAnimation.quickOutDuration,
-    mergedAnimation.fadeInDelay,
-    mergedAnimation.staggerDelay,
-    canAnimateHeight,
-    targetHeight,
-  ])
+    // Slow motion scale for tween duration (spring already has scaled config)
+    const slowMoScale = mergedAnimation.slowMoEnabled ? 0.1 : 1
+
+    if (mergedAnimation.syncOpacityToSpring) {
+      // Use spring for opacity too (springConfig already has slow-mo scaling applied)
+      return {
+        type: 'spring' as const,
+        ...springConfig,
+      }
+    }
+    // Use tween with configured duration, scaled for slow motion
+    return {
+      type: 'tween' as const,
+      duration: (mergedAnimation.opacityDuration / 1000) / slowMoScale,
+      ease: 'easeInOut' as const,
+    }
+  }, [mergedAnimation.syncOpacityToSpring, mergedAnimation.opacityDuration, mergedAnimation.slowMoEnabled, springConfig, prefersReducedMotion])
+
+  // Build panel transition - if blur is enabled, apply same timing to filter property
+  const panelTransition = useMemo(() => {
+    if (mergedAnimation.blurOnFade && !prefersReducedMotion) {
+      return {
+        opacity: baseTransition,
+        filter: baseTransition,
+      }
+    }
+    return baseTransition
+  }, [baseTransition, mergedAnimation.blurOnFade, prefersReducedMotion])
+
+  // Build animate props for root panel
+  const rootPanelAnimate = useMemo(() => {
+    const base = { opacity: inSubmenu ? 0 : 1 }
+    if (mergedAnimation.blurOnFade && !prefersReducedMotion) {
+      return {
+        ...base,
+        filter: inSubmenu ? `blur(${mergedAnimation.blurAmount}px)` : 'blur(0px)',
+      }
+    }
+    return base
+  }, [inSubmenu, mergedAnimation.blurOnFade, mergedAnimation.blurAmount, prefersReducedMotion])
+
+  // Build animate props for submenu panel
+  const submenuPanelAnimate = useMemo(() => {
+    const base = { opacity: inSubmenu ? 1 : 0 }
+    if (mergedAnimation.blurOnFade && !prefersReducedMotion) {
+      return {
+        ...base,
+        filter: inSubmenu ? 'blur(0px)' : `blur(${mergedAnimation.blurAmount}px)`,
+      }
+    }
+    return base
+  }, [inSubmenu, mergedAnimation.blurOnFade, mergedAnimation.blurAmount, prefersReducedMotion])
+
+  // ============================================================================
+  // Trigger Rendering
+  // ============================================================================
+
+  const triggerState: TriggerState = useMemo(() => ({
+    isOpen,
+    toggle,
+  }), [isOpen, toggle])
+
+  const renderedTrigger = useMemo(() => {
+    // If trigger is a render prop function, call it with state
+    if (typeof trigger === 'function') {
+      return trigger(triggerState)
+    }
+    // Otherwise, inject data-active attribute into trigger element
+    if (isValidElement(trigger)) {
+      return cloneElement(trigger as React.ReactElement<{ 'data-active'?: boolean }>, {
+        'data-active': isOpen || undefined,
+      })
+    }
+    return trigger
+  }, [trigger, triggerState, isOpen])
 
   // ============================================================================
   // Render
@@ -349,110 +499,136 @@ export const Menu: React.FC<MenuProps> = ({
   const gradientStyles = getGradientStyles(mergedAppearance)
   const itemRadius = getItemRadius(mergedAppearance.borderRadius)
 
+  // Filter items to exclude submenus when submenu feature is disabled
+  const filteredItems = useMemo(() => {
+    if (mergedFeatures.submenu) return items
+    return items.filter((item) => item.type !== 'submenu')
+  }, [items, mergedFeatures.submenu])
+
   return (
-    <>
-      {/* Inject reveal animation CSS (legacy mode only) */}
-      {USE_LEGACY_ANIMATION && isOpen && legacyAnimation.animationCss && (
-        <style>{legacyAnimation.animationCss}</style>
-      )}
+    <BaseMenu.Root open={isOpen} onOpenChange={handleOpenChange} modal={false}>
+      <BaseMenu.Trigger nativeButton={false} render={<span className="outline-none focus:outline-none" />}>
+        {renderedTrigger}
+      </BaseMenu.Trigger>
 
-      <BaseMenu.Root open={isOpen} onOpenChange={handleOpenChange} modal={false}>
-        <BaseMenu.Trigger nativeButton={false} render={<span className="outline-none focus:outline-none" />}>
-          {/* Inject data-active attribute into trigger when menu is open */}
-          {isValidElement(trigger)
-            ? cloneElement(trigger as React.ReactElement<{ 'data-active'?: boolean }>, { 'data-active': isOpen || undefined })
-            : trigger}
-        </BaseMenu.Trigger>
-
-        <BaseMenu.Portal>
-          <BaseMenu.Positioner
-            side={side as MenuSide}
-            align={align as MenuAlign}
-            sideOffset={sideOffset}
-            alignOffset={alignOffset}
-            collisionPadding={8}
-            style={{ zIndex: Z_INDEX.MENU_POSITIONER }}
-          >
-            <BaseMenu.Popup
-              data-menu-popup=""
-              data-state={isOpen ? 'open' : 'closed'}
-              data-side={side}
-              className={cn(
-                'overflow-hidden',
-                // Use legacy animation (CSS keyframe injection)
-                USE_LEGACY_ANIMATION ? legacyAnimation.uniqueClass : revealClasses,
-                // Accessibility: respect reduced motion preference
-                'motion-reduce:animate-none motion-reduce:transition-none',
-                popupClasses,
-                className
-              )}
-              style={{
-                width,
-                '--menu-item-radius': `${itemRadius}px`,
-                ...gradientStyles,
-              } as React.CSSProperties}
+      <AnimatePresence>
+        {isOpen && (
+          <BaseMenu.Portal keepMounted>
+            <BaseMenu.Positioner
+              side={side as MenuSide}
+              align={align as MenuAlign}
+              sideOffset={sideOffset}
+              alignOffset={alignOffset}
+              collisionPadding={8}
+              style={{ zIndex: Z_INDEX.MENU_POSITIONER }}
             >
-              {/* Animation Container - CSS handles all transitions via data attributes */}
-              <div
-                style={animationCssVars}
-                data-menu-view={inSubmenu ? 'submenu' : 'root'}
-                data-menu-direction={direction}
-                data-menu-mode={mergedAnimation.opacityMode}
+              <BaseMenu.Popup
+                data-menu-popup=""
+                data-state={isOpen ? 'open' : 'closed'}
+                data-side={side}
+                data-squircle={mergedAppearance.squircle || undefined}
+                render={
+                  revealVariants ? (
+                    <motion.div
+                      variants={revealVariants}
+                      initial="hidden"
+                      animate="visible"
+                      exit="exit"
+                      transition={revealTransition}
+                      style={{
+                        transformOrigin: 'var(--transform-origin)',
+                        willChange: 'transform, opacity',
+                      }}
+                    />
+                  ) : undefined
+                }
+                className={cn(
+                  'group/menu overflow-hidden',
+                  // Accessibility: respect reduced motion preference
+                  'motion-reduce:animate-none motion-reduce:transition-none',
+                  popupClasses,
+                  className
+                )}
+                style={{
+                  width,
+                  '--menu-item-radius': `${itemRadius}px`,
+                  ...gradientStyles,
+                } as React.CSSProperties}
               >
-                {/* Height Wrapper - animates between panel heights */}
-                <div className="menu-height-wrapper relative overflow-hidden">
-                  {/* Sliding Strip - 200% width, translateX for panel switching */}
-                  <div className="menu-sliding-strip flex items-start w-[200%]">
-                    {/* Panel A - Root Menu */}
-                    <div
-                      ref={rootPanelRef}
-                      className="menu-panel-root w-1/2 flex-shrink-0 p-1"
+                {/* Animation Container - uses motion/react springs */}
+                <div
+                  data-menu-view={inSubmenu ? 'submenu' : 'root'}
+                  data-menu-direction={direction}
+                >
+                  {/* Height Wrapper - spring-animated height */}
+                  <motion.div
+                    className="menu-height-wrapper relative overflow-hidden"
+                    style={{
+                      height: canAnimateHeight ? containerHeight : 'auto',
+                    }}
+                  >
+                    {/* Sliding Strip - spring-animated translateX */}
+                    <motion.div
+                      className="menu-sliding-strip flex items-start w-[200%]"
+                      style={{ x: slideXTransform }}
                     >
-                      {header}
-                      <div className="flex flex-col gap-1">
-                        {items.map((item) => (
-                          <MenuItemComponent
-                            key={item.id}
-                            item={item}
-                            onSubmenuClick={navigateToSubmenu}
-                            onSelect={() => handleSelect(item)}
-                          />
-                        ))}
-                      </div>
-                    </div>
+                      {/* Panel A - Root Menu */}
+                      <motion.div
+                        ref={rootPanelRef}
+                        className="menu-panel-root w-1/2 flex-shrink-0 p-1"
+                        animate={rootPanelAnimate}
+                        transition={panelTransition}
+                      >
+                        {header}
+                        <div className="flex flex-col gap-1">
+                          {filteredItems.map((item) => (
+                            <MenuItemComponent
+                              key={item.id}
+                              item={item}
+                              onSubmenuClick={mergedFeatures.submenu ? navigateToSubmenu : undefined}
+                              onSelect={() => handleSelect(item)}
+                            />
+                          ))}
+                        </div>
+                      </motion.div>
 
-                    {/* Panel B - Submenu */}
-                    <div
-                      ref={submenuPanelRef}
-                      className="menu-panel-submenu w-1/2 flex-shrink-0 p-1"
-                    >
-                      {submenu && (
-                        <>
-                          <MenuBackButton
-                            title={submenu.title}
-                            onBack={navigateBack}
-                          />
-                          <div className="flex flex-col gap-1">
-                            {submenu.items.map((item) => (
-                              <MenuItemComponent
-                                key={item.id}
-                                item={item}
-                                onSubmenuClick={navigateToSubmenu}
-                                onSelect={() => handleSelect(item)}
+                      {/* Panel B - Submenu (only rendered when submenu feature is enabled) */}
+                      {mergedFeatures.submenu && (
+                        <motion.div
+                          ref={submenuPanelRef}
+                          className="menu-panel-submenu w-1/2 flex-shrink-0 p-1"
+                          animate={submenuPanelAnimate}
+                          transition={panelTransition}
+                        >
+                          {submenu && (
+                            <>
+                              <MenuBackButton
+                                title={submenu.title}
+                                onBack={navigateBack}
                               />
-                            ))}
-                          </div>
-                        </>
+                              <div className="flex flex-col gap-1">
+                                {submenu.items.map((item) => (
+                                  <MenuItemComponent
+                                    key={item.id}
+                                    item={item}
+                                    onSubmenuClick={navigateToSubmenu}
+                                    onSelect={() => handleSelect(item)}
+                                  />
+                                ))}
+                              </div>
+                            </>
+                          )}
+                        </motion.div>
                       )}
-                    </div>
-                  </div>
+                    </motion.div>
+                  </motion.div>
                 </div>
-              </div>
-            </BaseMenu.Popup>
-          </BaseMenu.Positioner>
-        </BaseMenu.Portal>
-      </BaseMenu.Root>
-    </>
+              </BaseMenu.Popup>
+            </BaseMenu.Positioner>
+          </BaseMenu.Portal>
+        )}
+      </AnimatePresence>
+    </BaseMenu.Root>
   )
 }
 
