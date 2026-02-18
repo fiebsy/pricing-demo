@@ -201,10 +201,11 @@ export default function HomePage(): React.ReactElement {
             <div
               className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full transition-opacity duration-300"
               style={{
-                width: 200,
-                height: 200,
-                background: `radial-gradient(circle, ${textColor || 'var(--color-bg-brand-solid)'} 0%, transparent 70%)`,
-                opacity: 0.2,
+                width: 300,
+                height: 300,
+                borderRadius: '70% 30% 50% 50% / 30% 40% 60% 70%',
+                background: `radial-gradient(circle, ${textColor || 'var(--color-bg-brand-solid)'} 0%, transparent 50%)`,
+                opacity: 0.35,
               }}
             />
             <div className="relative rounded-3xl corner-squircle bg-primary p-1 shine-3 hover:shine-3-intense">
