@@ -197,15 +197,14 @@ export default function HomePage(): React.ReactElement {
             className="relative cursor-pointer rounded-3xl corner-squircle shadow-2xl transition-all duration-150 active:scale-90"
             style={{ touchAction: 'manipulation' }}
           >
-            {/* Blur circle - behind asset */}
+            {/* Glow circle - behind asset (radial gradient for mobile performance) */}
             <div
-              className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full"
+              className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full transition-opacity duration-300"
               style={{
-                width: 200,
-                height: 200,
-                opacity: 0.15,
-                filter: 'blur(40px)',
-                backgroundColor: 'var(--color-bg-brand-solid)',
+                width: 280,
+                height: 280,
+                background: `radial-gradient(circle, ${textColor || 'var(--color-bg-brand-solid)'} 0%, transparent 70%)`,
+                opacity: 0.25,
               }}
             />
             <div className="relative rounded-3xl corner-squircle bg-primary p-1 shine-3 hover:shine-3-intense">
