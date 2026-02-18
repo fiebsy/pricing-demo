@@ -171,7 +171,7 @@ export function LandingHero({
           type="button"
           initial={{ opacity: 0 }}
           animate={{ opacity: isMediaReady ? 1 : 0 }}
-          whileTap={{ scale: config.interaction.scaleOnClick }}
+          whileTap={{ scale: config.interaction.scaleOnClick, transition: { duration: 0.1 } }}
           transition={{ duration: 0.3 }}
           onClick={onClick}
           onMouseEnter={onMouseEnter}
