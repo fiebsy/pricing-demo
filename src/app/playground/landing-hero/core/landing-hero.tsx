@@ -17,7 +17,7 @@ import {
   getOuterContainerStyles,
   getInnerContainerClasses,
   getInnerContainerStyles,
-  getBlurCircleColorVar,
+  getGlowStyle,
   getActiveScaleClass,
   getShadowClass,
 } from '../utils/class-builders'
@@ -80,15 +80,14 @@ export function LandingHero({ config, onClick, onMouseEnter, onMouseLeave }: Lan
   const innerStyles = getInnerContainerStyles(config)
   const activeScaleClass = getActiveScaleClass(config.interaction.scaleOnClick)
 
-  const blurCircleStyle = {
-    width: background.blurCircleSize,
-    height: background.blurCircleSize,
-    opacity: background.blurCircleOpacity,
-    filter: `blur(${background.blurAmount}px)`,
-    backgroundColor: getBlurCircleColorVar(background.blurCircleColor),
-  }
+  const glowStyle = getGlowStyle(
+    background.glowColor,
+    background.glowSize,
+    background.glowOpacity,
+    background.glowShape
+  )
 
-  const isAssetPosition = background.blurCirclePosition === 'asset'
+  const isAssetPosition = background.glowPosition === 'asset'
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-primary">
@@ -99,10 +98,10 @@ export function LandingHero({ config, onClick, onMouseEnter, onMouseLeave }: Lan
         </div>
       )}
 
-      {/* Blur circle - fixed centered in viewport (only when position is 'center') */}
-      {background.showBlurCircle && !isAssetPosition && (
+      {/* Glow - fixed centered in viewport (only when position is 'center') */}
+      {background.showGlow && !isAssetPosition && (
         <div className="pointer-events-none fixed inset-0 z-0 flex items-center justify-center">
-          <div className="rounded-full" style={blurCircleStyle} />
+          <div style={glowStyle} />
         </div>
       )}
 
@@ -117,11 +116,11 @@ export function LandingHero({ config, onClick, onMouseEnter, onMouseLeave }: Lan
           className={`relative cursor-pointer transition-all duration-150 ${getShadowClass(config.image.shadow)} ${config.image.outerCorner === 'squircle' ? 'corner-squircle' : ''} ${activeScaleClass}`}
           style={{ borderRadius: `${config.image.outerBorderRadius}px` }}
         >
-          {/* Blur circle behind asset (only when position is 'asset') */}
-          {background.showBlurCircle && isAssetPosition && (
+          {/* Glow behind asset (only when position is 'asset') */}
+          {background.showGlow && isAssetPosition && (
             <div
-              className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full"
-              style={blurCircleStyle}
+              className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+              style={glowStyle}
             />
           )}
           {/* Visual container with shine and background */}

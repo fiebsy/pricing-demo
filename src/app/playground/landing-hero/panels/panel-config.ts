@@ -8,8 +8,9 @@ import type { PanelConfig, Section } from '@/components/ui/patterns/control-pane
 import type { LandingHeroConfig, LandingHeroPresetMeta } from '../config/types'
 import {
   PATTERN_TYPE_OPTIONS,
-  BLUR_CIRCLE_COLOR_OPTIONS,
-  BLUR_CIRCLE_POSITION_OPTIONS,
+  GLOW_COLOR_OPTIONS,
+  GLOW_POSITION_OPTIONS,
+  GLOW_SHAPE_OPTIONS,
   SHINE_TYPE_OPTIONS,
   SHINE_INTENSITY_OPTIONS,
   SHADOW_SIZE_OPTIONS,
@@ -51,7 +52,7 @@ export function buildLandingHeroPanelConfig(
 
 function buildBackgroundSection(config: LandingHeroConfig): Section {
   const showPatternControls = config.background.showPattern
-  const showBlurControls = config.background.showBlurCircle
+  const showGlowControls = config.background.showGlow
 
   return {
     id: 'background',
@@ -92,62 +93,59 @@ function buildBackgroundSection(config: LandingHeroConfig): Section {
             : []),
         ],
       },
-      // Blur Circle Group
+      // Glow Group
       {
-        title: 'Blur Circle',
+        title: 'Glow',
         controls: [
           {
-            id: 'background.showBlurCircle',
+            id: 'background.showGlow',
             type: 'toggle',
-            label: 'Show Blur Circle',
-            value: config.background.showBlurCircle,
+            label: 'Show Glow',
+            value: config.background.showGlow,
           },
-          // Conditional blur controls
-          ...(showBlurControls
+          // Conditional glow controls
+          ...(showGlowControls
             ? [
                 {
-                  id: 'background.blurCirclePosition',
+                  id: 'background.glowPosition',
                   type: 'select' as const,
                   label: 'Position',
-                  value: config.background.blurCirclePosition,
-                  options: [...BLUR_CIRCLE_POSITION_OPTIONS],
+                  value: config.background.glowPosition,
+                  options: [...GLOW_POSITION_OPTIONS],
                 },
                 {
-                  id: 'background.blurCircleColor',
+                  id: 'background.glowShape',
+                  type: 'select' as const,
+                  label: 'Shape',
+                  value: config.background.glowShape,
+                  options: [...GLOW_SHAPE_OPTIONS],
+                },
+                {
+                  id: 'background.glowColor',
                   type: 'select' as const,
                   label: 'Color',
-                  value: config.background.blurCircleColor,
-                  options: [...BLUR_CIRCLE_COLOR_OPTIONS],
+                  value: config.background.glowColor,
+                  options: [...GLOW_COLOR_OPTIONS],
                 },
                 {
-                  id: 'background.blurCircleSize',
+                  id: 'background.glowSize',
                   type: 'slider' as const,
                   label: 'Size',
-                  value: config.background.blurCircleSize,
+                  value: config.background.glowSize,
                   min: 100,
-                  max: 800,
-                  step: 50,
+                  max: 400,
+                  step: 20,
                   formatLabel: (v: number) => `${v}px`,
                 },
                 {
-                  id: 'background.blurCircleOpacity',
+                  id: 'background.glowOpacity',
                   type: 'slider' as const,
                   label: 'Opacity',
-                  value: config.background.blurCircleOpacity,
+                  value: config.background.glowOpacity,
                   min: 0,
                   max: 0.5,
                   step: 0.05,
                   formatLabel: (v: number) => `${(v * 100).toFixed(0)}%`,
-                },
-                {
-                  id: 'background.blurAmount',
-                  type: 'slider' as const,
-                  label: 'Blur Amount',
-                  value: config.background.blurAmount,
-                  min: 0,
-                  max: 100,
-                  step: 10,
-                  formatLabel: (v: number) => `${v}px`,
                 },
               ]
             : []),

@@ -16,10 +16,10 @@ export const PATTERN_TYPE_OPTIONS = [
 ] as const
 
 // ============================================================================
-// Blur Circle Options
+// Glow Options
 // ============================================================================
 
-export const BLUR_CIRCLE_COLOR_OPTIONS = [
+export const GLOW_COLOR_OPTIONS = [
   { label: 'Brand Solid', value: 'brand-solid' },
   { label: 'Brand', value: 'brand' },
   { label: 'Success', value: 'success' },
@@ -28,9 +28,16 @@ export const BLUR_CIRCLE_COLOR_OPTIONS = [
   { label: 'Info', value: 'info' },
 ] as const
 
-export const BLUR_CIRCLE_POSITION_OPTIONS = [
+export const GLOW_POSITION_OPTIONS = [
   { label: 'Center of Page', value: 'center' },
   { label: 'Behind Asset', value: 'asset' },
+] as const
+
+export const GLOW_SHAPE_OPTIONS = [
+  { label: 'Circle', value: 'circle' },
+  { label: 'Blob', value: 'blob' },
+  { label: 'Blob 2', value: 'blob-2' },
+  { label: 'Blob 3', value: 'blob-3' },
 ] as const
 
 // ============================================================================

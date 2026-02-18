@@ -15,8 +15,9 @@ export type ShineIntensity = '' | '-subtle' | '-intense'
 export type ShadowSize = 'none' | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl'
 export type CornerStyle = 'round' | 'squircle'
 export type BackdropBlur = 'none' | 'sm' | 'md' | 'lg'
-export type BlurCircleColor = 'brand-solid' | 'brand' | 'success' | 'warning' | 'error' | 'info'
-export type BlurCirclePosition = 'center' | 'asset'
+export type GlowColor = 'brand-solid' | 'brand' | 'success' | 'warning' | 'error' | 'info'
+export type GlowPosition = 'center' | 'asset'
+export type GlowShape = 'circle' | 'blob' | 'blob-2' | 'blob-3'
 
 // ============================================================================
 // Background Configuration
@@ -29,18 +30,18 @@ export interface BackgroundConfig {
   patternType: PatternType
   /** Pattern opacity (0-0.2) */
   patternOpacity: number
-  /** Show blur circle in center */
-  showBlurCircle: boolean
-  /** Blur circle color (semantic) */
-  blurCircleColor: BlurCircleColor
-  /** Blur circle size in pixels */
-  blurCircleSize: number
-  /** Blur circle opacity (0-1) */
-  blurCircleOpacity: number
-  /** Blur amount in pixels */
-  blurAmount: number
-  /** Blur circle position: center of page or behind asset */
-  blurCirclePosition: BlurCirclePosition
+  /** Show glow effect */
+  showGlow: boolean
+  /** Glow color (semantic) */
+  glowColor: GlowColor
+  /** Glow size in pixels */
+  glowSize: number
+  /** Glow opacity (0-0.5) */
+  glowOpacity: number
+  /** Glow shape */
+  glowShape: GlowShape
+  /** Glow position: center of page or behind asset */
+  glowPosition: GlowPosition
 }
 
 // ============================================================================

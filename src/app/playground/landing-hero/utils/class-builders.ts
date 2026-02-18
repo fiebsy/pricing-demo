@@ -4,7 +4,7 @@
  * Maps configuration values to Tailwind classes and inline styles
  */
 
-import type { LandingHeroConfig, ShineType, ShineIntensity, ShadowSize, BackdropBlur, BlurCircleColor } from '../config/types'
+import type { LandingHeroConfig, ShineType, ShineIntensity, ShadowSize, BackdropBlur, GlowColor, GlowShape } from '../config/types'
 
 // ============================================================================
 // Shine Class Builder
@@ -71,11 +71,11 @@ export function getBackdropBlurClass(blur: BackdropBlur): string {
 }
 
 // ============================================================================
-// Blur Circle Color to CSS Variable
+// Glow Color to CSS Variable
 // ============================================================================
 
-export function getBlurCircleColorVar(color: BlurCircleColor): string {
-  const colorMap: Record<BlurCircleColor, string> = {
+export function getGlowColorVar(color: GlowColor): string {
+  const colorMap: Record<GlowColor, string> = {
     'brand-solid': 'var(--color-bg-brand-solid)',
     'brand': 'var(--color-bg-brand)',
     'success': 'var(--color-bg-success)',
@@ -84,6 +84,40 @@ export function getBlurCircleColorVar(color: BlurCircleColor): string {
     'info': 'var(--color-bg-info)',
   }
   return colorMap[color]
+}
+
+// ============================================================================
+// Glow Shape Border Radius
+// ============================================================================
+
+export function getGlowShapeBorderRadius(shape: GlowShape): string {
+  const shapeMap: Record<GlowShape, string> = {
+    'circle': '50%',
+    'blob': '60% 40% 30% 70% / 60% 30% 70% 40%',
+    'blob-2': '40% 60% 70% 30% / 40% 50% 50% 60%',
+    'blob-3': '70% 30% 50% 50% / 30% 40% 60% 70%',
+  }
+  return shapeMap[shape]
+}
+
+// ============================================================================
+// Glow Style (radial gradient)
+// ============================================================================
+
+export function getGlowStyle(
+  color: GlowColor,
+  size: number,
+  opacity: number,
+  shape: GlowShape
+): React.CSSProperties {
+  const colorVar = getGlowColorVar(color)
+  return {
+    width: size,
+    height: size,
+    background: `radial-gradient(circle, ${colorVar} 0%, transparent 70%)`,
+    opacity,
+    borderRadius: getGlowShapeBorderRadius(shape),
+  }
 }
 
 // ============================================================================

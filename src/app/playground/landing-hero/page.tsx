@@ -5,7 +5,7 @@
  * Migration target: src/components/ui/prod/features/landing-hero
  *
  * Features:
- * - Background effects: SVG patterns, blur circle
+ * - Background effects: SVG patterns, radial gradient glow with shape variants
  * - Image container: shine, shadow, corners, padding
  * - Interactive states: click scale, hover shine
  * - Live preview matching landing page
@@ -121,7 +121,7 @@ export default function LandingHeroPlayground() {
           <p>
             Pattern: <span className="text-primary">{config.background.showPattern ? config.background.patternType : 'off'}</span>
             {' · '}
-            Blur Circle: <span className="text-primary">{config.background.showBlurCircle ? `${config.background.blurCircleSize}px` : 'off'}</span>
+            Glow: <span className="text-primary">{config.background.showGlow ? `${config.background.glowSize}px ${config.background.glowShape}` : 'off'}</span>
           </p>
           <p className="mt-1">
             Shine: <span className="text-primary">{config.image.shine}{config.image.shineIntensity}</span>
