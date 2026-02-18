@@ -171,12 +171,11 @@ export function LandingHero({
           type="button"
           initial={{ opacity: 0 }}
           animate={{ opacity: isMediaReady ? 1 : 0 }}
-          whileTap={{ scale: config.interaction.scaleOnClick, transition: { duration: 0.05 } }}
           transition={{ duration: 0.3 }}
           onClick={onClick}
           onMouseEnter={onMouseEnter}
           onMouseLeave={onMouseLeave}
-          className={`relative cursor-pointer transition-shadow duration-150 ${!isVideo ? getShadowClass(config.image.shadow) : ''} ${!isVideo && config.image.outerCorner === 'squircle' ? 'corner-squircle' : ''}`}
+          className={`relative cursor-pointer transition-transform duration-100 active:scale-90 ${!isVideo ? getShadowClass(config.image.shadow) : ''} ${!isVideo && config.image.outerCorner === 'squircle' ? 'corner-squircle' : ''}`}
           style={isVideo ? undefined : { borderRadius: `${config.image.outerBorderRadius}px` }}
         >
           {/* Glow behind asset (only when position is 'asset') */}
