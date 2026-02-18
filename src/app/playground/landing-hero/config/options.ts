@@ -5,6 +5,15 @@
  */
 
 // ============================================================================
+// Media Type Options
+// ============================================================================
+
+export const MEDIA_TYPE_OPTIONS = [
+  { label: 'Image', value: 'image' },
+  { label: 'Video', value: 'video' },
+] as const
+
+// ============================================================================
 // Pattern Options
 // ============================================================================
 
@@ -26,6 +35,7 @@ export const GLOW_COLOR_OPTIONS = [
   { label: 'Warning', value: 'warning' },
   { label: 'Error', value: 'error' },
   { label: 'Info', value: 'info' },
+  { label: 'Gray', value: 'gray' },
 ] as const
 
 export const GLOW_POSITION_OPTIONS = [
@@ -91,4 +101,16 @@ export const BACKDROP_BLUR_OPTIONS = [
   { label: 'Small', value: 'sm' },
   { label: 'Medium', value: 'md' },
   { label: 'Large', value: 'lg' },
+] as const
+
+// ============================================================================
+// Squircle Level Options
+// ============================================================================
+
+export const SQUIRCLE_LEVEL_OPTIONS = [
+  { label: 'None', value: 'none' },
+  { label: 'Subtle', value: 'subtle' },
+  { label: 'Moderate', value: 'moderate' },
+  { label: 'Rounded', value: 'rounded' },
+  { label: 'Pill', value: 'pill' },
 ] as const

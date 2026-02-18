@@ -10,14 +10,16 @@
 // ============================================================================
 
 export type PatternType = 'dots' | 'grid' | 'diagonal' | 'none'
+export type MediaType = 'image' | 'video'
 export type ShineType = 'none' | 'shine-0' | 'shine-1' | 'shine-2' | 'shine-3' | 'shine-brand'
 export type ShineIntensity = '' | '-subtle' | '-intense'
 export type ShadowSize = 'none' | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl'
 export type CornerStyle = 'round' | 'squircle'
 export type BackdropBlur = 'none' | 'sm' | 'md' | 'lg'
-export type GlowColor = 'brand-solid' | 'brand' | 'success' | 'warning' | 'error' | 'info'
+export type GlowColor = 'brand-solid' | 'brand' | 'success' | 'warning' | 'error' | 'info' | 'gray'
 export type GlowPosition = 'center' | 'asset'
 export type GlowShape = 'circle' | 'blob' | 'blob-2' | 'blob-3'
+export type SquircleLevel = 'none' | 'subtle' | 'moderate' | 'rounded' | 'pill'
 
 // ============================================================================
 // Background Configuration
@@ -44,6 +46,24 @@ export interface BackgroundConfig {
   glowShape: GlowShape
   /** Glow position: center of page or behind asset */
   glowPosition: GlowPosition
+  /** Glow blur amount in pixels */
+  glowBlur: number
+  /** Show secondary blob */
+  showSecondaryBlob: boolean
+  /** Secondary blob color */
+  secondaryBlobColor: GlowColor
+  /** Secondary blob size in pixels */
+  secondaryBlobSize: number
+  /** Secondary blob opacity */
+  secondaryBlobOpacity: number
+  /** Secondary blob spread (where gradient fades) */
+  secondaryBlobSpread: number
+  /** Secondary blob blur amount in pixels */
+  secondaryBlobBlur: number
+  /** Secondary blob X offset from center */
+  secondaryBlobOffsetX: number
+  /** Secondary blob Y offset from center */
+  secondaryBlobOffsetY: number
 }
 
 // ============================================================================
@@ -51,6 +71,8 @@ export interface BackgroundConfig {
 // ============================================================================
 
 export interface ImageConfig {
+  /** Media type: image or video */
+  mediaType: MediaType
   /** Shine effect type */
   shine: ShineType
   /** Shine intensity modifier */
@@ -63,6 +85,8 @@ export interface ImageConfig {
   outerBorderRadius: number
   /** Inner border radius in pixels */
   innerBorderRadius: number
+  /** Squircle level preset */
+  squircleLevel: SquircleLevel
   /** Padding in pixels */
   padding: number
   /** Backdrop blur effect */

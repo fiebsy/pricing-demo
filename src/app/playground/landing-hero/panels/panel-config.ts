@@ -7,6 +7,7 @@
 import type { PanelConfig, Section } from '@/components/ui/patterns/control-panel'
 import type { LandingHeroConfig, LandingHeroPresetMeta } from '../config/types'
 import {
+  MEDIA_TYPE_OPTIONS,
   PATTERN_TYPE_OPTIONS,
   GLOW_COLOR_OPTIONS,
   GLOW_POSITION_OPTIONS,
@@ -16,6 +17,7 @@ import {
   SHADOW_SIZE_OPTIONS,
   CORNER_STYLE_OPTIONS,
   BACKDROP_BLUR_OPTIONS,
+  SQUIRCLE_LEVEL_OPTIONS,
 } from '../config/options'
 
 // ============================================================================
@@ -157,6 +159,99 @@ function buildBackgroundSection(config: LandingHeroConfig): Section {
                   step: 5,
                   formatLabel: (v: number) => `${v}%`,
                 },
+                {
+                  id: 'background.glowBlur',
+                  type: 'slider' as const,
+                  label: 'Blur',
+                  value: config.background.glowBlur,
+                  min: 0,
+                  max: 50,
+                  step: 2,
+                  formatLabel: (v: number) => `${v}px`,
+                },
+              ]
+            : []),
+        ],
+      },
+      // Secondary Blob Group
+      {
+        title: 'Secondary Blob',
+        controls: [
+          {
+            id: 'background.showSecondaryBlob',
+            type: 'toggle',
+            label: 'Show Secondary Blob',
+            value: config.background.showSecondaryBlob,
+          },
+          ...(config.background.showSecondaryBlob
+            ? [
+                {
+                  id: 'background.secondaryBlobColor',
+                  type: 'select' as const,
+                  label: 'Color',
+                  value: config.background.secondaryBlobColor,
+                  options: [...GLOW_COLOR_OPTIONS],
+                },
+                {
+                  id: 'background.secondaryBlobSize',
+                  type: 'slider' as const,
+                  label: 'Size',
+                  value: config.background.secondaryBlobSize,
+                  min: 50,
+                  max: 400,
+                  step: 10,
+                  formatLabel: (v: number) => `${v}px`,
+                },
+                {
+                  id: 'background.secondaryBlobOpacity',
+                  type: 'slider' as const,
+                  label: 'Opacity',
+                  value: config.background.secondaryBlobOpacity,
+                  min: 0,
+                  max: 1,
+                  step: 0.05,
+                  formatLabel: (v: number) => `${(v * 100).toFixed(0)}%`,
+                },
+                {
+                  id: 'background.secondaryBlobSpread',
+                  type: 'slider' as const,
+                  label: 'Spread',
+                  value: config.background.secondaryBlobSpread,
+                  min: 20,
+                  max: 100,
+                  step: 5,
+                  formatLabel: (v: number) => `${v}%`,
+                },
+                {
+                  id: 'background.secondaryBlobBlur',
+                  type: 'slider' as const,
+                  label: 'Blur',
+                  value: config.background.secondaryBlobBlur,
+                  min: 0,
+                  max: 50,
+                  step: 2,
+                  formatLabel: (v: number) => `${v}px`,
+                },
+                {
+                  id: 'background.secondaryBlobOffsetX',
+                  type: 'slider' as const,
+                  label: 'Offset X',
+                  value: config.background.secondaryBlobOffsetX,
+                  min: -200,
+                  max: 200,
+                  step: 10,
+                  formatLabel: (v: number) => `${v}px`,
+                },
+                {
+                  id: 'background.secondaryBlobOffsetY',
+                  type: 'slider' as const,
+                  label: 'Offset Y',
+                  value: config.background.secondaryBlobOffsetY,
+                  min: -200,
+                  max: 200,
+                  step: 10,
+                  formatLabel: (v: number) => `${v}px`,
+                },
               ]
             : []),
         ],
@@ -168,9 +263,22 @@ function buildBackgroundSection(config: LandingHeroConfig): Section {
 function buildImageSection(config: LandingHeroConfig): Section {
   return {
     id: 'image',
-    label: 'Image',
-    title: 'Image Container',
+    label: 'Media',
+    title: 'Media Container',
     groups: [
+      // Media Type Group
+      {
+        title: 'Media Type',
+        controls: [
+          {
+            id: 'image.mediaType',
+            type: 'select',
+            label: 'Type',
+            value: config.image.mediaType,
+            options: [...MEDIA_TYPE_OPTIONS],
+          },
+        ],
+      },
       // Shine Group
       {
         title: 'Shine Effect',
@@ -234,6 +342,13 @@ function buildImageSection(config: LandingHeroConfig): Section {
             max: 32,
             step: 4,
             formatLabel: (v: number) => `${v}px`,
+          },
+          {
+            id: 'image.squircleLevel',
+            type: 'select',
+            label: 'Squircle Level',
+            value: config.image.squircleLevel,
+            options: [...SQUIRCLE_LEVEL_OPTIONS],
           },
           {
             id: 'image.padding',

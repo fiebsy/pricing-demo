@@ -82,6 +82,7 @@ export function getGlowColorVar(color: GlowColor): string {
     'warning': 'var(--color-bg-warning)',
     'error': 'var(--color-bg-error)',
     'info': 'var(--color-bg-info)',
+    'gray': 'var(--color-utility-gray-500)',
   }
   return colorMap[color]
 }
@@ -109,7 +110,8 @@ export function getGlowStyle(
   size: number,
   opacity: number,
   spread: number,
-  shape: GlowShape
+  shape: GlowShape,
+  blur: number = 0
 ): React.CSSProperties {
   const colorVar = getGlowColorVar(color)
   return {
@@ -118,6 +120,7 @@ export function getGlowStyle(
     background: `radial-gradient(circle, ${colorVar} 0%, transparent ${spread}%)`,
     opacity,
     borderRadius: getGlowShapeBorderRadius(shape),
+    filter: blur > 0 ? `blur(${blur}px)` : undefined,
   }
 }
 
