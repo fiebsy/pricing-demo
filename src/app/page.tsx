@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Tooltip as BaseTooltip } from '@base-ui/react/tooltip'
 
 // -----------------------------------------------------------------------------
@@ -131,6 +131,15 @@ export default function HomePage(): React.ReactElement {
   const [isVideoPlaying, setIsVideoPlaying] = useState(false)
   const videoRef = useRef<HTMLVideoElement>(null)
 
+  // Force video to load first frame on mount (needed for mobile)
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.load()
+      // Seek slightly to force first frame render
+      videoRef.current.currentTime = 0.001
+    }
+  }, [])
+
   const handleClick = useCallback(
     (e: React.MouseEvent) => {
       // Play turtle video from start
@@ -186,6 +195,7 @@ export default function HomePage(): React.ReactElement {
               setTooltipOpen(false)
             }}
             className="relative cursor-pointer rounded-3xl corner-squircle shadow-2xl transition-all duration-150 active:scale-90"
+            style={{ touchAction: 'manipulation' }}
           >
             {/* Blur circle - behind asset */}
             <div
