@@ -1,40 +1,8 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Tooltip as BaseTooltip } from '@base-ui/react/tooltip'
-
-// -----------------------------------------------------------------------------
-// Background Components (from magnet page)
-// -----------------------------------------------------------------------------
-
-function SVGPattern({ type, opacity }: { type: string; opacity: number }) {
-  if (type === 'none') return null
-
-  const patterns: Record<string, React.ReactNode> = {
-    dots: (
-      <pattern id="dots" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
-        <circle cx="2" cy="2" r="1" fill="currentColor" />
-      </pattern>
-    ),
-    grid: (
-      <pattern id="grid" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
-        <path d="M 20 0 L 0 0 0 20" fill="none" stroke="currentColor" strokeWidth="0.5" />
-      </pattern>
-    ),
-    diagonal: (
-      <pattern id="diagonal" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse">
-        <path d="M 0 10 L 10 0" stroke="currentColor" strokeWidth="0.5" />
-      </pattern>
-    ),
-  }
-
-  return (
-    <svg className="absolute inset-0 w-full h-full text-primary" style={{ opacity }}>
-      <defs>{patterns[type]}</defs>
-      <rect width="100%" height="100%" fill={`url(#${type})`} />
-    </svg>
-  )
-}
+import { LandingHero } from '@/app/playground/landing-hero/core/landing-hero'
+import { DEFAULT_LANDING_HERO_CONFIG } from '@/app/playground/landing-hero/config/presets'
 
 // -----------------------------------------------------------------------------
 // Types
@@ -67,8 +35,6 @@ interface Particle {
 // -----------------------------------------------------------------------------
 
 const COLORS = ['#8b5cf6', '#06b6d4', '#f59e0b', '#ec4899', '#10b981', '#f43f5e', '#22c55e', '#eab308']
-const GREETINGS = ['hi', 'sup', 'yo', 'ciao', 'hey', 'hola', 'oi', 'howdy', 'ahoy']
-const OUCH_WORDS = ['ouch', 'oof', 'egh', 'ow', 'yikes', 'ack', 'oops', 'hey!']
 const PARTICLE_SHAPES: ParticleShape[] = ['circle', 'square', 'star']
 
 const PARTICLE_CONFIG = {
@@ -84,7 +50,6 @@ const SHAPE_BORDER_RADIUS: Record<ParticleShape, string> = {
 
 const TEXT_FLASH_DURATION = 300
 const PARTICLE_LIFETIME = 1200
-const DEFAULT_TOOLTIP_COLOR = '#1a1a1a' // Matches bg-primary-solid
 
 // -----------------------------------------------------------------------------
 // Utilities
@@ -120,15 +85,10 @@ function createParticle(x: number, y: number, index: number, config: ParticleCon
 // Component
 // -----------------------------------------------------------------------------
 
-const TURTLE_VIDEO_SRC = '/turtle/turtles3.mp4'
-
 export default function HomePage(): React.ReactElement {
   const [particles, setParticles] = useState<Particle[]>([])
   const [isHovered, setIsHovered] = useState(false)
   const [textColor, setTextColor] = useState<string | null>(null)
-  const [greeting, setGreeting] = useState('hi')
-  const [tooltipOpen, setTooltipOpen] = useState(false)
-  const [isVideoPlaying, setIsVideoPlaying] = useState(false)
   const videoRef = useRef<HTMLVideoElement>(null)
 
   // Force video to load first frame on mount (needed for mobile)
@@ -148,7 +108,6 @@ export default function HomePage(): React.ReactElement {
         videoRef.current.play().catch(() => {
           // Ignore autoplay errors
         })
-        setIsVideoPlaying(true)
       }
 
       const config = isHovered ? PARTICLE_CONFIG.hovered : PARTICLE_CONFIG.normal
@@ -158,9 +117,6 @@ export default function HomePage(): React.ReactElement {
       const newParticleIds = new Set(newParticles.map((p) => p.id))
 
       setParticles((prev) => [...prev, ...newParticles])
-
-      // Show ouch word on click
-      setGreeting(randomFrom(OUCH_WORDS))
 
       setTextColor(randomFrom(COLORS))
       setTimeout(() => setTextColor(null), TEXT_FLASH_DURATION)
@@ -172,110 +128,43 @@ export default function HomePage(): React.ReactElement {
     [isHovered]
   )
 
+  const handleMouseEnter = useCallback(() => {
+    setIsHovered(true)
+  }, [])
+
+  const handleMouseLeave = useCallback(() => {
+    setIsHovered(false)
+  }, [])
+
+  const handleVideoEnded = useCallback(() => {
+    if (videoRef.current) {
+      videoRef.current.currentTime = 0
+    }
+  }, [])
+
   return (
-    <div className="relative min-h-screen bg-primary overflow-hidden">
-      {/* SVG Pattern - fixed to viewport */}
-      <div className="fixed inset-0 pointer-events-none z-0">
-        <SVGPattern type="diagonal" opacity={0.04} />
-      </div>
-
-      {/* Content */}
-      <div className="relative z-10 flex min-h-screen flex-col items-center justify-center gap-4">
-      <BaseTooltip.Provider delay={0} closeDelay={0}>
-        <BaseTooltip.Root open={tooltipOpen}>
-          <BaseTooltip.Trigger
-            onClick={handleClick}
-            onMouseEnter={() => {
-              setIsHovered(true)
-              setGreeting(randomFrom(GREETINGS))
-              setTooltipOpen(true)
-            }}
-            onMouseLeave={() => {
-              setIsHovered(false)
-              setTooltipOpen(false)
-            }}
-            className="relative cursor-pointer rounded-3xl corner-squircle shadow-2xl transition-all duration-150 active:scale-90"
-            style={{ touchAction: 'manipulation' }}
-          >
-            {/* Glow circle - behind asset (radial gradient for mobile performance) */}
-            <div
-              className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full transition-opacity duration-300"
-              style={{
-                width: 300,
-                height: 300,
-                borderRadius: '70% 30% 50% 50% / 30% 40% 60% 70%',
-                background: `radial-gradient(circle, ${textColor || 'var(--color-bg-brand-solid)'} 0%, transparent 50%)`,
-                opacity: 0.35,
-              }}
-            />
-            <div className="relative rounded-3xl corner-squircle bg-primary p-1 shine-3 hover:shine-3-intense">
-              <div className="overflow-hidden rounded-[20px] corner-squircle">
-                <video
-                  ref={videoRef}
-                  src={TURTLE_VIDEO_SRC}
-                  height={80}
-                  width={142}
-                  playsInline
-                  preload="auto"
-                  muted={false}
-                  onEnded={() => {
-                    setIsVideoPlaying(false)
-                    if (videoRef.current) {
-                      videoRef.current.currentTime = 0
-                    }
-                  }}
-                  className="pointer-events-none select-none"
-                  style={{ height: 80, width: 142, objectFit: 'cover' }}
-                />
-              </div>
-            </div>
-          </BaseTooltip.Trigger>
-
-          {/* Tooltip disabled for now
-          <AnimatePresence>
-            {tooltipOpen && (
-              <BaseTooltip.Portal keepMounted>
-                <BaseTooltip.Positioner side="top" sideOffset={12} className="z-40">
-                  <BaseTooltip.Popup
-                    render={
-                      <motion.div
-                        initial={{ opacity: 0, y: 4 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 4 }}
-                        transition={{ duration: 0.1, ease: 'easeOut' }}
-                      />
-                    }
-                    className="relative overflow-hidden rounded-lg corner-squircle px-2 pb-1 shine-1-shadow-lg transition-[width,background-color] duration-200 ease-out"
-                    style={{ backgroundColor: textColor || DEFAULT_TOOLTIP_COLOR }}
-                  >
-                    <div
-                      className="pointer-events-none absolute inset-0 rounded-lg"
-                      style={{
-                        background: 'linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(0,0,0,0.06) 100%)',
-                      }}
-                    />
-                    <span className="relative text-xs font-semibold text-white whitespace-nowrap">
-                      {greeting}
-                    </span>
-                  </BaseTooltip.Popup>
-                </BaseTooltip.Positioner>
-              </BaseTooltip.Portal>
-            )}
-          </AnimatePresence>
-          */}
-        </BaseTooltip.Root>
-      </BaseTooltip.Provider>
-
-      <p
-        className="text-xl font-medium text-primary transition-colors duration-300"
-        style={{
-          opacity: isHovered ? 1 : 0.5,
-          color: textColor || undefined
-        }}
+    <>
+      <LandingHero
+        config={DEFAULT_LANDING_HERO_CONFIG}
+        onClick={handleClick}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        videoRef={videoRef}
+        onVideoEnded={handleVideoEnded}
+        glowColorOverride={textColor}
       >
-        i like skwircles
-      </p>
+        <p
+          className="text-xl font-medium text-primary transition-colors duration-300"
+          style={{
+            opacity: isHovered ? 1 : 0.5,
+            color: textColor || undefined,
+          }}
+        >
+          i like skwircles
+        </p>
+      </LandingHero>
 
+      {/* Confetti particles */}
       {particles.map((particle) => (
         <span
           key={particle.id}
@@ -314,7 +203,6 @@ export default function HomePage(): React.ReactElement {
           }
         }
       `}</style>
-      </div>
-    </div>
+    </>
   )
 }
