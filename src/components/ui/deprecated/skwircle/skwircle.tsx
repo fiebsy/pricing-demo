@@ -52,6 +52,7 @@ import {
   createSkwircleCard,
   createSkwircleInput,
   createSkwircleAvatar,
+  createSkwircleVideo,
 } from './components'
 
 /**
@@ -253,6 +254,8 @@ const SkwircleBase: React.FC<SkwircleProps> = ({
       ref={containerRef}
       className={`group relative ${disabled ? 'cursor-not-allowed opacity-50' : ''} ${className}`}
       style={{
+        // DEBUG: red = outer container
+        backgroundColor: 'red',
         ...style,
         display:
           style?.display ||
@@ -320,6 +323,8 @@ const SkwircleBase: React.FC<SkwircleProps> = ({
         ref={contentRef}
         className={contentWrapperClassName ?? variantConfig.contentWrapperClassName}
         style={{
+          // DEBUG: blue = content wrapper
+          backgroundColor: 'blue',
           position: 'relative',
           zIndex: 1,
           margin: totalBorderOffset,
@@ -366,3 +371,4 @@ Skwircle.Badge = createSkwircleBadge(SkwircleBase)
 Skwircle.Card = createSkwircleCard(SkwircleBase)
 Skwircle.Input = createSkwircleInput(SkwircleBase)
 Skwircle.Avatar = createSkwircleAvatar(SkwircleBase)
+Skwircle.Video = createSkwircleVideo(SkwircleBase)

@@ -463,6 +463,14 @@ export type SkwircleButtonProps = Omit<SkwircleProps, 'variant'>
 export type SkwircleBadgeProps = Omit<SkwircleProps, 'variant'>
 export type SkwircleInputProps = Omit<SkwircleProps, 'variant'>
 export type SkwircleAvatarProps = Omit<SkwircleProps, 'variant'>
+export type SkwircleVideoProps = Omit<SkwircleProps, 'variant' | 'children'> & {
+  src: string
+  poster?: string
+  autoPlay?: boolean
+  loop?: boolean
+  muted?: boolean
+  playsInline?: boolean
+}
 
 // =============================================================================
 // COMPOUND COMPONENT TYPE
@@ -477,4 +485,5 @@ export interface SkwircleComponent extends React.FC<SkwircleProps> {
   Badge: React.FC<SkwircleBadgeProps>
   Input: React.FC<SkwircleInputProps>
   Avatar: React.FC<SkwircleAvatarProps>
+  Video: React.FC<SkwircleVideoProps>
 }

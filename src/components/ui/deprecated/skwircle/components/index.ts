@@ -70,3 +70,6 @@ export { createSkwircleInput, type SkwircleInputProps } from './skwircle-input'
 
 // Avatar component
 export { createSkwircleAvatar, type SkwircleAvatarProps } from './skwircle-avatar'
+
+// Video component
+export { createSkwircleVideo, type SkwircleVideoProps } from './skwircle-video'

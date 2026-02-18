@@ -12,7 +12,7 @@
 
 import { useState } from 'react'
 import Image from 'next/image'
-import { motion } from 'motion/react'
+import { motion, useAnimate } from 'motion/react'
 import { SkwircleClip } from '@/components/ui/core/skwircle-clip'
 import type { LandingHeroConfig, SquircleLevel } from '../config/types'
 
@@ -110,6 +110,18 @@ export function LandingHero({
   // Use external ref if provided, else auto-play behavior
   const isExternallyControlled = Boolean(videoRef)
 
+  // Imperative animation for responsive press feedback
+  const [scope, animate] = useAnimate()
+
+  const handlePointerDown = () => {
+    // Stop any running animation and immediately scale down
+    animate(scope.current, { scale: config.interaction.scaleOnClick }, { duration: 0.06 })
+  }
+
+  const handlePointerUp = () => {
+    animate(scope.current, { scale: 1 }, { duration: 0.12, type: 'spring', stiffness: 500, damping: 25 })
+  }
+
   const outerClasses = getOuterContainerClasses(config)
   const outerStyles = getOuterContainerStyles(config)
   const innerClasses = getInnerContainerClasses(config)
@@ -168,12 +180,15 @@ export function LandingHero({
         {/* Interactive wrapper with shadow - transparent, handles all interaction */}
         {/* Entry animation hides clip path calculation delay */}
         <motion.button
+          ref={scope}
           type="button"
           initial={{ opacity: 0 }}
           animate={{ opacity: isMediaReady ? 1 : 0 }}
-          whileTap={{ scale: config.interaction.scaleOnClick, transition: { duration: 0.05 } }}
           transition={{ duration: 0.3 }}
           onClick={onClick}
+          onPointerDown={handlePointerDown}
+          onPointerUp={handlePointerUp}
+          onPointerLeave={handlePointerUp}
           onMouseEnter={onMouseEnter}
           onMouseLeave={onMouseLeave}
           className={`relative cursor-pointer transition-shadow duration-150 ${!isVideo ? getShadowClass(config.image.shadow) : ''} ${!isVideo && config.image.outerCorner === 'squircle' ? 'corner-squircle' : ''}`}
