@@ -63,10 +63,16 @@ export { MenuItem as MenuItemComponent } from './menu-item'
 export { MenuBackButton } from './menu-back-button'
 export {
   UnifiedHoverProvider,
-  UnifiedHoverIndicator,
   UnifiedHoverContainer,
   useUnifiedHover,
 } from './unified-hover'
+
+// ============================================================================
+// Hooks
+// ============================================================================
+
+export { useMenuAnimation } from './hooks'
+export type { UseMenuAnimationProps, UseMenuAnimationReturn } from './hooks'
 
 // ============================================================================
 // Types
@@ -105,6 +111,7 @@ export type {
 // ============================================================================
 
 export {
+  // Defaults
   DEFAULT_APPEARANCE,
   DEFAULT_ANIMATION,
   DEFAULT_FEATURES,
@@ -112,29 +119,31 @@ export {
   DEFAULT_MENU_WIDTH,
   DEFAULT_SIDE_OFFSET,
   Z_INDEX,
-  EASING_EXPO_OUT,
-  MENU_ITEM_STYLES,
-  MENU_ITEM_STYLES_SMALL,
-  SEPARATOR_STYLES,
-  INTERACTIVE_STATES,
-  getPopupClasses,
-  getGradientStyles,
-  getItemRadius,
-  getSeparatorClasses,
-  BORDER_RADIUS_CLASSES,
-  SHADOW_CLASSES,
-  BACKGROUND_CLASSES,
-  // Spring animation exports
+  ANIMATION_TIMING,
+  // Spring animation
   SPRING_PRESETS,
   getSpringConfig,
   getSpringSettlingTime,
-  // Reveal animation exports (Motion variants)
+  // Reveal animation
+  EASING_EXPO_OUT,
   REVEAL_ANIMATION,
   REVEAL_EASING,
   REVEAL_TRANSITION,
   createRevealVariants,
   createReducedMotionVariants,
   createRevealTransition,
+  // Styling
+  BORDER_RADIUS_CLASSES,
+  SHADOW_CLASSES,
+  BACKGROUND_CLASSES,
+  getPopupClasses,
+  getGradientStyles,
+  getItemRadius,
+  MENU_ITEM_STYLES,
+  MENU_ITEM_STYLES_SMALL,
+  SEPARATOR_STYLES,
+  getSeparatorClasses,
+  INTERACTIVE_STATES,
 } from './config'
 
 export type { RevealVariantConfig } from './config'

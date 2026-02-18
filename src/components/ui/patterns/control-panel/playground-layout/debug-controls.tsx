@@ -7,11 +7,14 @@
  * Buttons with press scale effect and labels.
  */
 
+import { useRef } from 'react'
 import { cn } from '../utils'
 import { HugeIcon } from '../primitives/icon'
 import Bug02Icon from '@hugeicons-pro/core-stroke-rounded/Bug02Icon'
 import ViewIcon from '@hugeicons-pro/core-stroke-rounded/ViewIcon'
 import { TurtleIcon } from '../primitives/custom-icons'
+
+const TURTLE_AUDIO_SRC = '/turtle/turtlesaudio2.mp3'
 
 export interface PlaygroundDebugControlsProps {
   slowMo: boolean
@@ -43,6 +46,20 @@ export function PlaygroundDebugControls({
   onAutoOpenChange,
   className,
 }: PlaygroundDebugControlsProps) {
+  const audioRef = useRef<HTMLAudioElement | null>(null)
+
+  const handleSlowMoClick = () => {
+    // Play turtle audio
+    if (!audioRef.current) {
+      audioRef.current = new Audio(TURTLE_AUDIO_SRC)
+    }
+    audioRef.current.currentTime = 0
+    audioRef.current.play().catch(() => {
+      // Ignore autoplay errors
+    })
+    onSlowMoChange(!slowMo)
+  }
+
   return (
     <div className={cn('pointer-events-auto flex items-center gap-3', className)}>
       {/* Auto Open */}
@@ -99,7 +116,7 @@ export function PlaygroundDebugControls({
           role="switch"
           aria-checked={slowMo}
           aria-label={slowMo ? 'Slow motion enabled' : 'Normal speed'}
-          onClick={() => onSlowMoChange(!slowMo)}
+          onClick={handleSlowMoClick}
           className={cn(
             buttonStyles,
             'hover:bg-tertiary',

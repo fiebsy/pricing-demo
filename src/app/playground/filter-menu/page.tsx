@@ -87,18 +87,8 @@ export default function FilterMenuPlayground() {
     [config, activePresetId]
   )
 
-  // Apply slow-mo to animation config
-  const effectiveConfig = useMemo<FilterMenuConfig>(() => {
-    if (!slowMo) return config
-
-    return {
-      ...config,
-      animation: {
-        ...config.animation,
-        slowMoEnabled: true,
-      },
-    }
-  }, [config, slowMo])
+  // Use config directly (slow-mo is no longer supported)
+  const effectiveConfig = config
 
   return (
     <PlaygroundLayout
@@ -116,6 +106,10 @@ export default function FilterMenuPlayground() {
             const filteredAnimation: Partial<typeof animation> = {
               springPreset: animation.springPreset,
               animateHeight: animation.animateHeight,
+              animateOnClose: animation.animateOnClose,
+              revealDuration: animation.revealDuration,
+              revealScale: animation.revealScale,
+              revealSlideRatio: animation.revealSlideRatio,
             }
 
             // Only include custom spring params when preset is 'custom'
@@ -123,23 +117,6 @@ export default function FilterMenuPlayground() {
               filteredAnimation.springStiffness = animation.springStiffness
               filteredAnimation.springDamping = animation.springDamping
               filteredAnimation.springMass = animation.springMass
-            }
-
-            // Crossfade settings
-            filteredAnimation.syncOpacityToSpring = animation.syncOpacityToSpring
-
-            // Only include duration values when NOT synced to spring
-            if (!animation.syncOpacityToSpring) {
-              filteredAnimation.opacityDuration = animation.opacityDuration
-              filteredAnimation.quickOutDuration = animation.quickOutDuration
-            }
-
-            // Blur settings
-            filteredAnimation.blurOnFade = animation.blurOnFade
-
-            // Only include blur amount when blur is enabled
-            if (animation.blurOnFade) {
-              filteredAnimation.blurAmount = animation.blurAmount
             }
 
             return { ...rest, animation: filteredAnimation }

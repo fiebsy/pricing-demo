@@ -15,7 +15,6 @@ import { Menu } from '@/components/ui/core/primitives/menu'
 import type { MenuItemType, MenuItemAction, MenuItemSubmenu } from '@/components/ui/core/primitives/menu'
 import {
   Home01Icon,
-  AnalyticsUpIcon,
   Menu01Icon,
   Table01Icon,
   LayersIcon,
@@ -38,42 +37,28 @@ interface FloatingNavProps {
 // Navigation menu items with submenus
 const createNavMenuItems = (router: ReturnType<typeof useRouter>): MenuItemType[] => [
   {
-    id: 'main',
+    id: 'stuff',
     type: 'submenu',
-    label: 'Main',
-    icon: Home01Icon as unknown as IconComponent,
-    items: [
-      {
-        id: 'home',
-        label: 'Home',
-        icon: Home01Icon as unknown as IconComponent,
-        onClick: () => router.push('/'),
-      } as MenuItemAction,
-      {
-        id: 'dashboard',
-        label: 'Dashboard',
-        icon: AnalyticsUpIcon as unknown as IconComponent,
-        onClick: () => router.push('/dashboard'),
-      } as MenuItemAction,
-    ],
-  } as MenuItemSubmenu,
-  {
-    id: 'playground',
-    type: 'submenu',
-    label: 'Playground',
+    label: 'Stuff',
     icon: LayersIcon as unknown as IconComponent,
     items: [
       {
-        id: 'stacking-nav',
-        label: 'Stacking Nav',
+        id: 'nav-stack',
+        label: 'Nav Stack',
         icon: LayersIcon as unknown as IconComponent,
-        onClick: () => router.push('/playground/stacking-nav'),
+        onClick: () => router.push('/nav-stack'),
       } as MenuItemAction,
       {
-        id: 'stacking-nav-table-motion',
-        label: 'Table Motion',
+        id: 'magnet',
+        label: 'Magnet',
+        icon: Home01Icon as unknown as IconComponent,
+        onClick: () => router.push('/magnet'),
+      } as MenuItemAction,
+      {
+        id: 'table',
+        label: 'Table',
         icon: Table01Icon as unknown as IconComponent,
-        onClick: () => router.push('/playground/stacking-nav-table-motion'),
+        onClick: () => router.push('/table'),
       } as MenuItemAction,
     ],
   } as MenuItemSubmenu,

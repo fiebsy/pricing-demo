@@ -84,11 +84,11 @@ export const DEFAULT_FILTER_ITEMS: FilterMenuItem[] = [
 // ============================================================================
 
 export const DEFAULT_UNIFIED_HOVER: UnifiedHoverConfig = {
-  enabled: false,
+  enabled: true,
   stiffness: 550,
   damping: 34,
   mass: 0.8,
-  background: 'tertiary',
+  background: 'quaternary',
   borderRadius: 12,
 }
 
@@ -125,8 +125,6 @@ export const DEFAULT_FILTER_MENU_CONFIG: FilterMenuConfig = {
   animation: {
     springPreset: 'default',
     animateHeight: true,
-    syncOpacityToSpring: true,
-    blurOnFade: false,
     animateOnClose: false,
   },
   unifiedHover: DEFAULT_UNIFIED_HOVER,
@@ -253,8 +251,6 @@ export const FILTER_MENU_PRESETS: FilterMenuPresetMeta[] = [
       animation: {
         springPreset: 'snappy',
         animateHeight: true,
-        opacityDuration: 180,
-        quickOutDuration: 60,
       },
     },
   },
@@ -268,8 +264,6 @@ export const FILTER_MENU_PRESETS: FilterMenuPresetMeta[] = [
       animation: {
         springPreset: 'bouncy',
         animateHeight: true,
-        opacityDuration: 300,
-        quickOutDuration: 100,
       },
     },
   },

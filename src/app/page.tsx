@@ -1,9 +1,40 @@
 'use client'
 
-import Image from 'next/image'
-import { useCallback, useState } from 'react'
-import { motion, AnimatePresence } from 'motion/react'
+import { useCallback, useRef, useState } from 'react'
 import { Tooltip as BaseTooltip } from '@base-ui/react/tooltip'
+
+// -----------------------------------------------------------------------------
+// Background Components (from magnet page)
+// -----------------------------------------------------------------------------
+
+function SVGPattern({ type, opacity }: { type: string; opacity: number }) {
+  if (type === 'none') return null
+
+  const patterns: Record<string, React.ReactNode> = {
+    dots: (
+      <pattern id="dots" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+        <circle cx="2" cy="2" r="1" fill="currentColor" />
+      </pattern>
+    ),
+    grid: (
+      <pattern id="grid" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+        <path d="M 20 0 L 0 0 0 20" fill="none" stroke="currentColor" strokeWidth="0.5" />
+      </pattern>
+    ),
+    diagonal: (
+      <pattern id="diagonal" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse">
+        <path d="M 0 10 L 10 0" stroke="currentColor" strokeWidth="0.5" />
+      </pattern>
+    ),
+  }
+
+  return (
+    <svg className="absolute inset-0 w-full h-full text-primary" style={{ opacity }}>
+      <defs>{patterns[type]}</defs>
+      <rect width="100%" height="100%" fill={`url(#${type})`} />
+    </svg>
+  )
+}
 
 // -----------------------------------------------------------------------------
 // Types
@@ -89,15 +120,28 @@ function createParticle(x: number, y: number, index: number, config: ParticleCon
 // Component
 // -----------------------------------------------------------------------------
 
+const TURTLE_VIDEO_SRC = '/turtle/turtles3.mp4'
+
 export default function HomePage(): React.ReactElement {
   const [particles, setParticles] = useState<Particle[]>([])
   const [isHovered, setIsHovered] = useState(false)
   const [textColor, setTextColor] = useState<string | null>(null)
   const [greeting, setGreeting] = useState('hi')
   const [tooltipOpen, setTooltipOpen] = useState(false)
+  const [isVideoPlaying, setIsVideoPlaying] = useState(false)
+  const videoRef = useRef<HTMLVideoElement>(null)
 
   const handleClick = useCallback(
     (e: React.MouseEvent) => {
+      // Play turtle video from start
+      if (videoRef.current) {
+        videoRef.current.currentTime = 0
+        videoRef.current.play().catch(() => {
+          // Ignore autoplay errors
+        })
+        setIsVideoPlaying(true)
+      }
+
       const config = isHovered ? PARTICLE_CONFIG.hovered : PARTICLE_CONFIG.normal
       const newParticles = Array.from({ length: config.count }, (_, i) =>
         createParticle(e.clientX, e.clientY, i, config)
@@ -120,7 +164,14 @@ export default function HomePage(): React.ReactElement {
   )
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center gap-4">
+    <div className="relative min-h-screen bg-primary overflow-hidden">
+      {/* SVG Pattern - fixed to viewport */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        <SVGPattern type="diagonal" opacity={0.04} />
+      </div>
+
+      {/* Content */}
+      <div className="relative z-10 flex min-h-screen flex-col items-center justify-center gap-4">
       <BaseTooltip.Provider delay={0} closeDelay={0}>
         <BaseTooltip.Root open={tooltipOpen}>
           <BaseTooltip.Trigger
@@ -134,17 +185,37 @@ export default function HomePage(): React.ReactElement {
               setIsHovered(false)
               setTooltipOpen(false)
             }}
-            className="cursor-pointer"
+            className="relative cursor-pointer rounded-3xl corner-squircle shadow-2xl transition-all duration-150 active:scale-90"
           >
-            <div className="rounded-3xl corner-squircle bg-primary p-1 shine-3 transition-all duration-150 scale-100 active:scale-90 hover:shine-3-intense">
+            {/* Blur circle - behind asset */}
+            <div
+              className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full transition-colors duration-300"
+              style={{
+                width: 200,
+                height: 200,
+                opacity: 0.15,
+                filter: 'blur(40px)',
+                backgroundColor: textColor || 'var(--color-bg-brand-solid)',
+              }}
+            />
+            <div className="relative rounded-3xl corner-squircle bg-primary p-1 shine-3 hover:shine-3-intense">
               <div className="overflow-hidden rounded-[20px] corner-squircle">
-                <Image
-                  src="/skwircle-kid.png"
-                  alt="i like skwircles"
+                <video
+                  ref={videoRef}
+                  src={TURTLE_VIDEO_SRC}
                   height={80}
                   width={142}
-                  draggable={false}
+                  playsInline
+                  preload="auto"
+                  muted={false}
+                  onEnded={() => {
+                    setIsVideoPlaying(false)
+                    if (videoRef.current) {
+                      videoRef.current.currentTime = 0
+                    }
+                  }}
                   className="pointer-events-none select-none"
+                  style={{ height: 80, width: 142, objectFit: 'cover' }}
                 />
               </div>
             </div>
@@ -233,6 +304,7 @@ export default function HomePage(): React.ReactElement {
           }
         }
       `}</style>
+      </div>
     </div>
   )
 }

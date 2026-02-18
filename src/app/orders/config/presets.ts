@@ -38,7 +38,7 @@ const DEFAULT_CHART_CONFIG: ChartConfig = {
   stackMode: 'none',
   chartHeight: 200,
   chartToTableGap: 24,
-  chartWidthMode: 'left-to-container',
+  chartWidthMode: 'viewport',
   chartCustomWidth: 1200,
   chartAlignment: 'center',
   lineStrokeWidth: 1.5,
@@ -80,9 +80,10 @@ const DEFAULT_AUTO_ROUTE_BADGE: AutoRouteBadgeConfig = {
 }
 
 const DEFAULT_STATUS_BADGE: StatusBadgeConfig = {
-  iconType: 'none',
-  iconPosition: 'none',
+  iconType: 'clawback',
+  iconPosition: 'trailing',
   iconStyle: 'stroke',
+  iconColor: 'secondary',
 }
 
 // =============================================================================

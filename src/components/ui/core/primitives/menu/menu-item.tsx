@@ -10,7 +10,7 @@
 
 'use client'
 
-import React, { useRef, useCallback } from 'react'
+import React, { useCallback } from 'react'
 import { Menu } from '@base-ui/react/menu'
 import ArrowRight01Icon from '@hugeicons-pro/core-stroke-rounded/ArrowRight01Icon'
 import Tick02Icon from '@hugeicons-pro/core-stroke-rounded/Tick02Icon'
@@ -24,7 +24,7 @@ import {
   INTERACTIVE_STATES,
   getSeparatorClasses,
 } from './config'
-import { useUnifiedHover } from './unified-hover'
+import { useUnifiedHover, HoverIndicator } from './unified-hover'
 
 // ============================================================================
 // Types
@@ -95,24 +95,18 @@ export const MenuItemComponent: React.FC<MenuItemComponentProps> = ({
   onSelect,
   unifiedHoverEnabled = false,
 }) => {
-  const ref = useRef<HTMLDivElement>(null)
-  const unifiedHover = useUnifiedHover()
+  const ctx = useUnifiedHover()
+  const isHovered = ctx?.enabled && ctx.hoveredId === item.id
 
   // Get the appropriate base styles based on unified hover state
   const baseItemStyles = getBaseItemStyles(unifiedHoverEnabled)
 
-  // Handle mouse enter to report item position for unified hover
+  // Handle mouse enter to set this item as hovered
   const handleMouseEnter = useCallback(() => {
-    if (unifiedHover?.enabled && ref.current) {
-      const rect = ref.current.getBoundingClientRect()
-      unifiedHover.setHoveredItem(item.id, {
-        top: rect.top,
-        left: rect.left,
-        width: rect.width,
-        height: rect.height,
-      })
+    if (ctx?.enabled) {
+      ctx.setHoveredId(item.id)
     }
-  }, [item.id, unifiedHover])
+  }, [item.id, ctx])
 
   // Separator - spans full width, 50% opacity
   // Note: Uses 'list' context (no my-1) because parent container has gap-1 which provides spacing
@@ -142,7 +136,6 @@ export const MenuItemComponent: React.FC<MenuItemComponentProps> = ({
     const checkboxItem = item as MenuItemCheckboxType
     return (
       <Menu.CheckboxItem
-        ref={ref as React.RefObject<HTMLDivElement>}
         checked={checkboxItem.checked}
         onCheckedChange={checkboxItem.onCheckedChange}
         disabled={checkboxItem.disabled}
@@ -154,7 +147,9 @@ export const MenuItemComponent: React.FC<MenuItemComponentProps> = ({
         )}
         style={itemRadiusStyle}
         onMouseEnter={handleMouseEnter}
+        data-menu-item-id={item.id}
       >
+        {isHovered && <HoverIndicator />}
         <div className={cn('flex min-w-0 flex-1 items-center', MENU_ITEM_STYLES.iconGap)}>
           <CheckboxBase checked={checkboxItem.checked} size="sm" />
           <span className="truncate">{checkboxItem.label}</span>
@@ -167,7 +162,6 @@ export const MenuItemComponent: React.FC<MenuItemComponentProps> = ({
   if (item.type === 'submenu') {
     return (
       <div
-        ref={ref}
         onClick={(e) => {
           e.preventDefault()
           e.stopPropagation()
@@ -184,6 +178,7 @@ export const MenuItemComponent: React.FC<MenuItemComponentProps> = ({
         aria-expanded={false}
         tabIndex={-1}
         onMouseEnter={handleMouseEnter}
+        data-menu-item-id={item.id}
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowRight') {
             e.preventDefault()
@@ -191,6 +186,7 @@ export const MenuItemComponent: React.FC<MenuItemComponentProps> = ({
           }
         }}
       >
+        {isHovered && <HoverIndicator />}
         <div className={cn('flex min-w-0 flex-1 items-center w-full', MENU_ITEM_STYLES.iconGap)}>
           {item.icon != null && (
             <HugeIcon
@@ -227,7 +223,6 @@ export const MenuItemComponent: React.FC<MenuItemComponentProps> = ({
   // Action item
   return (
     <Menu.Item
-      ref={ref as React.RefObject<HTMLDivElement>}
       disabled={item.disabled}
       closeOnClick
       onClick={() => {
@@ -241,7 +236,9 @@ export const MenuItemComponent: React.FC<MenuItemComponentProps> = ({
       )}
       style={itemRadiusStyle}
       onMouseEnter={handleMouseEnter}
+      data-menu-item-id={item.id}
     >
+      {isHovered && <HoverIndicator />}
       <div className={cn('flex min-w-0 flex-1 items-center', MENU_ITEM_STYLES.iconGap)}>
         {item.icon && (
           <HugeIcon

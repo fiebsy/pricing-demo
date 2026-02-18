@@ -1,208 +1,339 @@
 # Menu Component
 
-Base dropdown menu component with reveal animation, panel navigation, and configurable appearance. Built on [Base UI's Menu primitive](https://base-ui.com/react/components/menu).
+A spring-animated dropdown menu with submenu navigation and unified hover effects. Built on Base UI primitives with configurable appearance, animations, and behavior.
+
+## Overview
+
+The Menu component provides:
+- **Spring-based animations** for panel transitions (motion/react)
+- **Submenu navigation** with sliding panel transitions
+- **Unified hover indicator** - single animated background that glides between items using `layoutId`
+- **Reveal animation** on open/close with scale + slide + fade
+- **Height animation** between panels of different sizes
+- **Configurable appearance** (shine, shadow, squircle, gradient)
+
+### When to Use
+
+| Use Case | Component |
+|----------|-----------|
+| Simple action menus | Menu with flat items |
+| Nested category navigation | Menu with submenus |
+| Polished hover effects | Menu with unified hover enabled |
+| Filter/settings menus | FilterMenu (extends Menu) |
+
+---
 
 ## Architecture
 
+### File Structure
+
 ```
 menu/
-├── menu.tsx              # Main component with panel navigation
-├── menu-item.tsx         # Individual item renderer
+├── menu.tsx              # Main component
+├── unified-hover.tsx     # Hover indicator system (~80 lines)
+├── menu-item.tsx         # Item rendering (action, checkbox, submenu, separator)
 ├── menu-back-button.tsx  # Submenu navigation
-├── menu-transitions.css  # CSS-driven panel animations
-├── config.ts             # Appearance & animation defaults
-├── types.ts              # TypeScript definitions
-└── index.ts              # Public exports
+├── types.ts              # Type definitions
+├── config/               # Defaults and utilities
+│   ├── defaults.ts
+│   ├── spring.ts
+│   ├── reveal.ts
+│   ├── styles.ts
+│   └── index.ts
+├── hooks/
+│   └── use-menu-animation.ts
+├── index.ts              # Public exports
+└── README.md             # This file
 ```
 
-## Quick Start
+### Component Hierarchy
+
+```
+<BaseMenu.Root>
+  <BaseMenu.Trigger>
+    {trigger}
+  </BaseMenu.Trigger>
+
+  <AnimatePresence>
+    <BaseMenu.Portal>
+      <BaseMenu.Positioner>
+        <BaseMenu.Popup>                    ← Reveal animation (scale + slide + fade)
+          <motion.div>                      ← Height wrapper (spring-animated)
+            <motion.div>                    ← Sliding strip (spring-animated translateX)
+              <motion.div>                  ← Root panel (opacity)
+                <UnifiedHoverProvider panelId="root">
+                  <UnifiedHoverContainer>
+                    {items.map(MenuItem)}   ← Each renders HoverIndicator when hovered
+                  </UnifiedHoverContainer>
+                </UnifiedHoverProvider>
+              </motion.div>
+
+              <motion.div>                  ← Submenu panel (opacity)
+                <MenuBackButton />
+                <UnifiedHoverProvider panelId="submenu">
+                  <UnifiedHoverContainer>
+                    {submenu.items.map(MenuItem)}
+                  </UnifiedHoverContainer>
+                </UnifiedHoverProvider>
+              </motion.div>
+            </motion.div>
+          </motion.div>
+        </BaseMenu.Popup>
+      </BaseMenu.Positioner>
+    </BaseMenu.Portal>
+  </AnimatePresence>
+</BaseMenu.Root>
+```
+
+---
+
+## Animation System (3 Layers)
+
+The menu uses three distinct animation layers:
+
+### Layer 1: Reveal Animation
+
+**What**: Scale + slide + fade on menu open/close
+**Where**: `BaseMenu.Popup` via motion.div `render` prop
+**Library**: motion/react `variants` + `AnimatePresence`
 
 ```tsx
-import { Menu } from '@/modules/design-system/v2/components/ui/prod/base/menu'
-import Edit01Icon from '@hugeicons-pro/core-stroke-rounded/Edit01Icon'
-import Delete01Icon from '@hugeicons-pro/core-stroke-rounded/Delete01Icon'
-
-<Menu
-  items={[
-    { id: 'edit', label: 'Edit', icon: Edit01Icon },
-    { id: 'delete', label: 'Delete', icon: Delete01Icon },
-  ]}
-  trigger={<button>Actions</button>}
-  onSelect={(item) => handleAction(item.id)}
-/>
+const revealVariants = createRevealVariants({
+  side: 'bottom',
+  sideOffset: 6,
+  scale: 0.4,
+  slideRatio: 0.5,
+  animateOnClose: true,
+})
 ```
 
-## Features
+### Layer 2: Panel Sliding
 
-### Reveal Animation
-Menu opens with a combined scale + slide + fade animation originating from the trigger. Configurable via `USE_LEGACY_ANIMATION` flag in `config.ts`:
-
-- **Legacy mode** (default): Custom CSS keyframe injection with 40% scale start
-- **Tailwind mode**: Standard animate classes with 95% scale start
-
-### Panel Navigation
-Submenus slide in horizontally using a "sliding strip" technique:
-- 200% width container with both panels side-by-side
-- `translateX(-50%)` moves to submenu panel
-- Height animates smoothly between panels
-
-### Item Types
-
-| Type | Description | Key Props |
-|------|-------------|-----------|
-| `action` | Clickable item | `onClick`, `shortcut`, `selected` |
-| `checkbox` | Toggle with persistent state | `checked`, `onCheckedChange` |
-| `submenu` | Nested panel | `items`, `description`, `activeCount` |
-| `separator` | Visual divider | — |
-| `label` | Section header | — |
+**What**: Horizontal spring-animated transition between root and submenu
+**Library**: motion/react `useMotionValue` + `animate()`
 
 ```tsx
-const items: MenuItem[] = [
-  { id: 'save', label: 'Save', icon: Save01Icon, shortcut: '⌘S' },
-  { id: 'notify', type: 'checkbox', label: 'Notifications', checked: true, onCheckedChange: setNotify },
-  { type: 'separator', id: 'sep-1' },
-  {
-    id: 'more',
-    type: 'submenu',
-    label: 'More Options',
-    items: [
-      { id: 'archive', label: 'Archive' },
-      { id: 'export', label: 'Export' },
-    ],
-  },
-]
+const slideX = useMotionValue(0)
+animate(slideX, inSubmenu ? -50 : 0, { type: 'spring', ...springConfig })
 ```
 
-## Props
+### Layer 3: Height Animation
+
+**What**: Smooth container resizing between panels of different heights
+**Library**: motion/react `useMotionValue` + `animate()`
+
+```tsx
+const containerHeight = useMotionValue(rootHeight)
+animate(containerHeight, targetHeight, { type: 'spring', ...springConfig })
+```
+
+---
+
+## Unified Hover System
+
+### The `layoutId` Approach
+
+The unified hover uses Motion's `layoutId` for automatic position animation. Each menu item conditionally renders the indicator when hovered, and Motion animates between positions automatically.
+
+```tsx
+// In menu-item.tsx
+const isHovered = ctx?.hoveredId === item.id
+
+return (
+  <Menu.Item onMouseEnter={() => ctx?.setHoveredId(item.id)}>
+    {isHovered && <HoverIndicator />}
+    {/* content */}
+  </Menu.Item>
+)
+
+// In unified-hover.tsx
+export function HoverIndicator() {
+  const ctx = useUnifiedHover()
+
+  return (
+    <motion.div
+      layoutId={ctx.layoutIdPrefix}
+      className="absolute inset-0 bg-tertiary -z-10"
+      transition={{ type: 'spring', ...ctx.springConfig }}
+    />
+  )
+}
+```
+
+### Benefits
+
+- **Simple**: ~80 lines vs 400+ lines with manual springs
+- **No coordination**: Each panel has independent hover state via unique `panelId`
+- **No race conditions**: No hover suppression or remeasurement needed
+- **Automatic animation**: Motion handles position interpolation
+
+### Panel Isolation
+
+Each panel has its own `UnifiedHoverProvider` with a unique `panelId`:
+
+```tsx
+<UnifiedHoverProvider panelId="root">...</UnifiedHoverProvider>
+<UnifiedHoverProvider panelId="submenu">...</UnifiedHoverProvider>
+```
+
+This creates separate `layoutId` values (`"hover-root"`, `"hover-submenu"`) preventing cross-panel animation.
+
+---
+
+## Configuration Reference
 
 ### MenuProps
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `items` | `MenuItem[]` | required | Menu items to display |
-| `trigger` | `ReactNode` | required | Element that opens the menu |
-| `header` | `ReactNode` | — | Content above menu items |
-| `width` | `number` | `240` | Menu width in pixels |
-| `side` | `'top' \| 'bottom' \| 'left' \| 'right'` | `'bottom'` | Position relative to trigger |
-| `align` | `'start' \| 'center' \| 'end'` | `'start'` | Alignment on the side axis |
-| `sideOffset` | `number` | `6` | Gap from trigger (px) |
-| `alignOffset` | `number` | `0` | Offset along alignment axis |
-| `appearance` | `MenuAppearance` | see below | Visual styling |
-| `animation` | `AnimationConfig` | see below | Transition timing |
-| `onOpenChange` | `(open: boolean) => void` | — | Called on open/close |
-| `onSelect` | `(item: MenuItemAction) => void` | — | Called when action selected |
-
-### MenuAppearance
-
 ```tsx
-const DEFAULT_APPEARANCE = {
-  borderRadius: '2xl',      // none | sm | md | lg | xl | 2xl
-  shadow: '2xl',            // none | sm | md | lg | xl | 2xl
-  shine: 'shine-2-subtle',  // shine class or 'none'
-  background: 'primary',    // primary | secondary | tertiary | quaternary
-  gradient: 'subtle-depth-md', // none | subtle-depth-sm/md/lg/xl
-  gradientColor: 'tertiary',
-  squircle: true,           // Smooth corners
+interface MenuProps {
+  items: MenuItem[]
+  trigger: ReactNode | ((state: TriggerState) => ReactNode)
+  header?: ReactNode
+  width?: number                     // default: 240
+  side?: 'top' | 'right' | 'bottom' | 'left'
+  align?: 'start' | 'center' | 'end'
+  sideOffset?: number                // default: 6
+  alignOffset?: number               // default: 0
+  open?: boolean                     // Controlled mode
+  onOpenChange?: (open: boolean) => void
+  onSelect?: (item: MenuItemAction) => void
+  appearance?: MenuAppearance
+  animation?: AnimationConfig
+  features?: MenuFeatures
+  unifiedHover?: UnifiedHoverConfig
+  className?: string
 }
 ```
 
 ### AnimationConfig
 
 ```tsx
-const DEFAULT_ANIMATION = {
-  duration: 280,            // Panel slide duration (ms)
-  easing: EASING_EXPO_OUT,  // cubic-bezier(0.16, 1, 0.3, 1)
-  animateHeight: true,      // Animate height between panels
-  opacityMode: 'crossfade', // Panel transition mode
-  opacityDuration: 220,     // Fade duration (ms)
-  quickOutDuration: 80,     // Outgoing fade speed
+interface AnimationConfig {
+  // Spring settings
+  springPreset?: 'default' | 'snappy' | 'smooth' | 'bouncy' | 'custom'
+  springStiffness?: number    // default: 650 (custom only)
+  springDamping?: number      // default: 38 (custom only)
+  springMass?: number         // default: 0.9 (custom only)
+
+  // Options
+  animateHeight?: boolean     // default: true
+
+  // Reveal animation
+  revealDuration?: number     // default: 200 (ms)
+  revealScale?: number        // default: 0.4 (40%)
+  revealSlideRatio?: number   // default: 0.5
+  animateOnClose?: boolean    // default: true
 }
 ```
 
-## Opacity Modes
+### UnifiedHoverConfig
 
-Panel transitions support multiple animation strategies:
-
-| Mode | Description |
-|------|-------------|
-| `crossfade` | Both panels fade simultaneously (default) |
-| `quick-out-fade-in` | Outgoing fades fast, incoming fades with delay |
-| `instant-out-fade-in` | Outgoing instant, incoming fades |
-| `sequential` | Outgoing completes before incoming starts |
-| `instant` | No fade animation |
-| `none` | Both panels visible (debug) |
-
-## CSS Architecture
-
-Animations are CSS-driven via data attributes for optimal performance:
-
-```css
-/* Height animation */
-.menu-height-wrapper {
-  height: var(--menu-target-height);
-  transition: var(--menu-height-transition);
-}
-
-/* Panel sliding */
-.menu-sliding-strip {
-  transform: translateX(0);
-  transition: transform var(--menu-slide-duration) var(--menu-slide-easing);
-}
-
-[data-menu-view="submenu"] .menu-sliding-strip {
-  transform: translateX(-50%);
+```tsx
+interface UnifiedHoverConfig {
+  enabled: boolean            // default: false
+  stiffness: number           // default: 550
+  damping: number             // default: 34
+  mass: number                // default: 0.8
+  background: string          // default: 'tertiary'
+  borderRadius: number        // default: 12 (px)
 }
 ```
 
-### Data Attributes
+### MenuFeatures
 
-| Attribute | Values | Purpose |
-|-----------|--------|---------|
-| `data-menu-view` | `root` \| `submenu` | Current panel |
-| `data-menu-direction` | `forward` \| `back` | Navigation direction |
-| `data-menu-mode` | opacity mode value | Animation strategy |
-| `data-state` | `open` \| `closed` | Menu open state |
-| `data-side` | position value | Popup placement |
+```tsx
+interface MenuFeatures {
+  submenu?: boolean           // default: true
+  animateHeight?: boolean     // default: true
+  revealAnimation?: boolean   // default: true
+  unifiedHover?: boolean      // default: false (shorthand toggle)
+}
+```
+
+### Spring Presets
+
+| Preset | Stiffness | Damping | Mass | Character |
+|--------|-----------|---------|------|-----------|
+| `default` | 650 | 38 | 0.9 | Balanced, minimal overshoot |
+| `snappy` | 700 | 28 | 0.8 | Quick response, subtle bounce |
+| `smooth` | 400 | 30 | 1.0 | Gentle, relaxed |
+| `bouncy` | 600 | 20 | 1.0 | Playful, visible overshoot |
+
+---
+
+## Usage Examples
+
+### Basic Menu
+
+```tsx
+import { Menu } from '@/components/ui/core/primitives/menu'
+
+const items = [
+  { id: 'edit', label: 'Edit', icon: Edit01Icon },
+  { id: 'duplicate', label: 'Duplicate', icon: Copy01Icon },
+  { type: 'separator', id: 'sep-1' },
+  { id: 'delete', label: 'Delete', icon: Delete01Icon },
+]
+
+<Menu
+  items={items}
+  trigger={<Button>Actions</Button>}
+  onSelect={(item) => console.log('Selected:', item.id)}
+/>
+```
+
+### Enabling Unified Hover
+
+```tsx
+// Method 1: Via features shorthand
+<Menu
+  items={items}
+  trigger={<Button>Menu</Button>}
+  features={{ unifiedHover: true }}
+/>
+
+// Method 2: With custom spring config
+<Menu
+  items={items}
+  trigger={<Button>Menu</Button>}
+  unifiedHover={{
+    enabled: true,
+    stiffness: 600,
+    damping: 30,
+    mass: 0.7,
+  }}
+/>
+```
+
+### Custom Spring Configuration
+
+```tsx
+<Menu
+  items={items}
+  trigger={<Button>Bouncy</Button>}
+  animation={{ springPreset: 'bouncy' }}
+/>
+```
+
+---
 
 ## Accessibility
 
-- Full keyboard navigation (↑↓ arrows, Enter, Escape)
-- `aria-haspopup="menu"` on trigger
-- Focus management between panels
-- `motion-reduce:transition-none` respects user preferences
+- Uses Base UI Menu primitives (proper ARIA roles)
+- Respects `prefers-reduced-motion`:
+  - Springs use instant transitions
+  - Unified hover indicator hidden
+- Keyboard navigation supported
+- Focus visible styles included
 
-## Extending
+---
 
-The Menu component is designed as a foundation. See `FilterMenu` for a derivative example that adds:
-- Default "Add a filter" trigger
-- Active filter tracking (checkmarks, badges)
-- Filter-specific callbacks
+## Base UI Foundation
 
-```tsx
-// Create a derivative
-export const CustomMenu: React.FC<CustomMenuProps> = (props) => {
-  const transformedItems = useMemo(
-    () => transformItems(props.items),
-    [props.items]
-  )
+Built on Base UI Menu primitives:
+- `Menu.Root`, `Menu.Trigger`, `Menu.Portal`, `Menu.Positioner`
+- `Menu.Popup`, `Menu.Item`, `Menu.CheckboxItem`
 
-  return (
-    <Menu
-      items={transformedItems}
-      trigger={props.trigger ?? <CustomTrigger />}
-      appearance={{ ...DEFAULT_APPEARANCE, ...props.appearance }}
-    />
-  )
-}
-```
+Data attributes: `data-highlighted`, `data-popup-open`, `data-checked`
 
-## Files Reference
-
-| File | Purpose |
-|------|---------|
-| `menu.tsx` | Main component, state management, panel navigation |
-| `menu-item.tsx` | Renders action/checkbox/submenu/separator/label items |
-| `menu-back-button.tsx` | Back navigation with title and separator |
-| `menu-transitions.css` | All CSS transitions for panels |
-| `config.ts` | Defaults, class maps, utility functions |
-| `types.ts` | TypeScript interfaces and type unions |
+CSS variables: `--anchor-width`, `--transform-origin`, etc.

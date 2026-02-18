@@ -25,6 +25,7 @@ import Cancel01IconBulk from '@hugeicons-pro/core-bulk-rounded/Cancel01Icon'
 import TaskDone01IconStroke from '@hugeicons-pro/core-stroke-rounded/TaskDone01Icon'
 import TaskDone01IconSolid from '@hugeicons-pro/core-solid-rounded/TaskDone01Icon'
 import TaskDone01IconBulk from '@hugeicons-pro/core-bulk-rounded/TaskDone01Icon'
+import { ClawbackIcon, ClawbackSolidIcon } from '@/components/ui/core/primitives/custom-icons'
 
 // Map icon style to HugeIcon variant
 const ICON_STYLE_TO_VARIANT: Record<AutoRouteBadgeIconStyle, 'stroke' | 'solid' | 'bulk'> = {
@@ -138,6 +139,11 @@ const STATUS_ICONS: Record<Exclude<StatusBadgeIconType, 'none'>, Record<StatusBa
     solid: TaskDone01IconSolid,
     bulk: TaskDone01IconBulk,
   },
+  clawback: {
+    stroke: ClawbackSolidIcon,
+    solid: ClawbackSolidIcon,
+    bulk: ClawbackSolidIcon,
+  },
 }
 
 // =============================================================================
@@ -242,21 +248,41 @@ export function createRenderCell(config: RenderCellConfig): CellRenderer {
       }
 
       case 'status': {
-        const StatusIcon = statusBadge.iconType !== 'none'
+        // Only show icons for clawback statuses
+        const CLAWBACK_STATUSES = ['Default', 'Chargeback', 'Canceled']
+        const isClawback = CLAWBACK_STATUSES.includes(record.displayStatus)
+
+        const StatusIcon = statusBadge.iconType !== 'none' && isClawback
           ? STATUS_ICONS[statusBadge.iconType][statusBadge.iconStyle]
           : null
 
         // Default to 'leading' when icon is selected but position is 'none'
-        const effectivePosition = statusBadge.iconType !== 'none' && statusBadge.iconPosition === 'none'
+        const effectivePosition = StatusIcon && statusBadge.iconPosition === 'none'
           ? 'leading'
           : statusBadge.iconPosition
 
+        // Map color option to Tailwind class
+        const iconColorClass = {
+          inherit: '',
+          primary: 'text-primary',
+          secondary: 'text-secondary',
+          tertiary: 'text-tertiary',
+          error: 'text-error-500',
+          warning: 'text-warning-500',
+          success: 'text-success-500',
+        }[statusBadge.iconColor] ?? ''
+
         const icon = StatusIcon && effectivePosition !== 'none' ? (
-          <HugeIcon
-            icon={StatusIcon}
-            size={12}
-            variant={statusBadge.iconStyle}
-          />
+          statusBadge.iconType === 'clawback' ? (
+            <ClawbackSolidIcon size={12} className={cn('shrink-0', iconColorClass)} />
+          ) : (
+            <HugeIcon
+              icon={StatusIcon}
+              size={12}
+              variant={statusBadge.iconStyle}
+              className={iconColorClass}
+            />
+          )
         ) : null
 
         return (

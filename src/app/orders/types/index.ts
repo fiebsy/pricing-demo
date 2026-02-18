@@ -46,14 +46,16 @@ export type BadgeStyle = 'default' | 'modern'
 // STATUS BADGE TYPES
 // =============================================================================
 
-export type StatusBadgeIconType = 'none' | 'checkmark' | 'alert' | 'cancel' | 'task-done'
+export type StatusBadgeIconType = 'none' | 'checkmark' | 'alert' | 'cancel' | 'task-done' | 'clawback'
 export type StatusBadgeIconPosition = 'none' | 'leading' | 'trailing'
 export type StatusBadgeIconStyle = 'stroke' | 'solid' | 'bulk'
+export type StatusBadgeIconColor = 'inherit' | 'primary' | 'secondary' | 'tertiary' | 'error' | 'warning' | 'success'
 
 export interface StatusBadgeConfig {
   iconType: StatusBadgeIconType
   iconPosition: StatusBadgeIconPosition
   iconStyle: StatusBadgeIconStyle
+  iconColor: StatusBadgeIconColor
 }
 
 // =============================================================================

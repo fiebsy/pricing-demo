@@ -125,6 +125,7 @@ export type SpringPreset = 'default' | 'snappy' | 'smooth' | 'bouncy' | 'custom'
 
 /**
  * Animation configuration for spring-based panel transitions.
+ * Simplified to use presets with custom escape hatch.
  */
 export interface AnimationConfig {
   /**
@@ -155,50 +156,10 @@ export interface AnimationConfig {
   springMass?: number
 
   /**
-   * Duration of incoming panel opacity fade (ms).
-   * @default 220
-   */
-  opacityDuration?: number
-
-  /**
-   * Duration of outgoing panel quick fade (ms).
-   * @default 80
-   */
-  quickOutDuration?: number
-
-  /**
    * Enable height animation between panels.
    * @default true
    */
   animateHeight?: boolean
-
-  /**
-   * Sync opacity transitions to spring timing.
-   * When true, opacity uses spring physics instead of fixed duration.
-   * @default false
-   */
-  syncOpacityToSpring?: boolean
-
-  /**
-   * Enable slow motion debug mode.
-   * When true, spring animations run at 10% speed for debugging.
-   * @default false
-   */
-  slowMoEnabled?: boolean
-
-  /**
-   * Enable blur effect during crossfade transitions.
-   * Panels blur when fading out for a depth-of-field effect.
-   * @default false
-   */
-  blurOnFade?: boolean
-
-  /**
-   * Blur radius in pixels when fading out.
-   * Only used when blurOnFade is true.
-   * @default 4
-   */
-  blurAmount?: number
 
   // ---- Reveal Animation Settings ----
 

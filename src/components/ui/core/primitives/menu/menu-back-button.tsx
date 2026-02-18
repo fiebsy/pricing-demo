@@ -36,7 +36,7 @@ export const MenuBackButton: React.FC<MenuBackButtonProps> = ({
   return (
     <>
       <button
-        onClick={onBack}
+        onClick={() => onBack()}
         className={cn(
           'flex w-full items-center',
           MENU_ITEM_STYLES.paddingX,

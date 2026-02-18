@@ -323,58 +323,6 @@ function buildAnimationSection(config: FilterMenuConfig): Section {
           },
         ],
       }] : []),
-      // Opacity Settings
-      {
-        title: 'Crossfade',
-        controls: [
-          {
-            id: 'animation.syncOpacityToSpring',
-            type: 'toggle',
-            label: 'Sync to Spring',
-            value: config.animation.syncOpacityToSpring ?? false,
-          },
-          ...(!(config.animation.syncOpacityToSpring ?? false) ? [
-            {
-              id: 'animation.opacityDuration',
-              type: 'slider' as const,
-              label: 'Fade In Duration',
-              value: config.animation.opacityDuration ?? 220,
-              min: 100,
-              max: 400,
-              step: 10,
-              formatLabel: (v: number) => `${v}ms`,
-            },
-            {
-              id: 'animation.quickOutDuration',
-              type: 'slider' as const,
-              label: 'Fade Out Duration',
-              value: config.animation.quickOutDuration ?? 80,
-              min: 0,
-              max: 150,
-              step: 10,
-              formatLabel: (v: number) => `${v}ms`,
-            },
-          ] : []),
-          {
-            id: 'animation.blurOnFade',
-            type: 'toggle',
-            label: 'Blur on Fade',
-            value: config.animation.blurOnFade ?? false,
-          },
-          ...((config.animation.blurOnFade ?? false) ? [
-            {
-              id: 'animation.blurAmount',
-              type: 'slider' as const,
-              label: 'Blur Amount',
-              value: config.animation.blurAmount ?? 4,
-              min: 1,
-              max: 8,
-              step: 1,
-              formatLabel: (v: number) => `${v}px`,
-            },
-          ] : []),
-        ],
-      },
       // Reveal Animation
       {
         title: 'Reveal Animation',
