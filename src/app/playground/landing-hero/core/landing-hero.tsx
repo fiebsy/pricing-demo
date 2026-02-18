@@ -84,6 +84,7 @@ export function LandingHero({ config, onClick, onMouseEnter, onMouseLeave }: Lan
     background.glowColor,
     background.glowSize,
     background.glowOpacity,
+    background.glowSpread,
     background.glowShape
   )
 

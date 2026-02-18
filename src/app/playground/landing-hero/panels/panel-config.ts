@@ -147,6 +147,16 @@ function buildBackgroundSection(config: LandingHeroConfig): Section {
                   step: 0.05,
                   formatLabel: (v: number) => `${(v * 100).toFixed(0)}%`,
                 },
+                {
+                  id: 'background.glowSpread',
+                  type: 'slider' as const,
+                  label: 'Spread',
+                  value: config.background.glowSpread,
+                  min: 30,
+                  max: 100,
+                  step: 5,
+                  formatLabel: (v: number) => `${v}%`,
+                },
               ]
             : []),
         ],

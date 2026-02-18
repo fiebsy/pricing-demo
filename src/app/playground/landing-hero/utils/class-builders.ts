@@ -108,13 +108,14 @@ export function getGlowStyle(
   color: GlowColor,
   size: number,
   opacity: number,
+  spread: number,
   shape: GlowShape
 ): React.CSSProperties {
   const colorVar = getGlowColorVar(color)
   return {
     width: size,
     height: size,
-    background: `radial-gradient(circle, ${colorVar} 0%, transparent 70%)`,
+    background: `radial-gradient(circle, ${colorVar} 0%, transparent ${spread}%)`,
     opacity,
     borderRadius: getGlowShapeBorderRadius(shape),
   }

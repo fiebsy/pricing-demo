@@ -38,6 +38,8 @@ export interface BackgroundConfig {
   glowSize: number
   /** Glow opacity (0-0.5) */
   glowOpacity: number
+  /** Glow spread - where gradient fades to transparent (30-100%) */
+  glowSpread: number
   /** Glow shape */
   glowShape: GlowShape
   /** Glow position: center of page or behind asset */
