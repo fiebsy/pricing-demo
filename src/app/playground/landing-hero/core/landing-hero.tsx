@@ -79,6 +79,8 @@ function SVGPattern({ type, opacity }: SVGPatternProps) {
 interface LandingHeroProps {
   config: LandingHeroConfig
   onClick?: (e: React.MouseEvent) => void
+  /** Called on pointer down - use for immediate press feedback */
+  onPointerDown?: (e: React.PointerEvent) => void
   onMouseEnter?: () => void
   onMouseLeave?: () => void
   /** Optional ref for external video control */
@@ -94,6 +96,7 @@ interface LandingHeroProps {
 export function LandingHero({
   config,
   onClick,
+  onPointerDown: onPointerDownProp,
   onMouseEnter,
   onMouseLeave,
   videoRef,
@@ -113,9 +116,11 @@ export function LandingHero({
   // Imperative animation for responsive press feedback
   const [scope, animate] = useAnimate()
 
-  const handlePointerDown = () => {
+  const handlePointerDown = (e: React.PointerEvent) => {
     // Stop any running animation and immediately scale down
     animate(scope.current, { scale: config.interaction.scaleOnClick }, { duration: 0.06 })
+    // Notify parent for immediate press actions (e.g., video start)
+    onPointerDownProp?.(e)
   }
 
   const handlePointerUp = () => {
@@ -176,7 +181,7 @@ export function LandingHero({
       )}
 
       {/* Content */}
-      <div className="relative z-10 flex min-h-screen flex-col items-center justify-center gap-4">
+      <div className="relative z-10 flex min-h-screen flex-col items-center justify-center gap-3">
         {/* Interactive wrapper with shadow - transparent, handles all interaction */}
         {/* Entry animation hides clip path calculation delay */}
         <motion.button
@@ -186,7 +191,7 @@ export function LandingHero({
           animate={{ opacity: isMediaReady ? 1 : 0 }}
           transition={{ duration: 0.3 }}
           onClick={onClick}
-          onPointerDown={handlePointerDown}
+          onPointerDown={(e) => handlePointerDown(e)}
           onPointerUp={handlePointerUp}
           onPointerLeave={handlePointerUp}
           onMouseEnter={onMouseEnter}

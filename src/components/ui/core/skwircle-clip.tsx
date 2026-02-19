@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import { useRef, useState, useEffect, useId } from 'react'
+import { useRef, useState, useEffect, useId, useMemo } from 'react'
 
 type ShineType =
   | 'none'
@@ -196,10 +196,11 @@ export function SkwircleClip({
     return () => observer.disconnect()
   }, [])
 
-  const path =
-    dimensions.width > 0 && dimensions.height > 0
-      ? generateClipPath(dimensions.width, dimensions.height, radius, smoothing)
-      : ''
+  // Memoize path calculation - generates 128 points (32 per corner)
+  const path = useMemo(() => {
+    if (dimensions.width <= 0 || dimensions.height <= 0) return ''
+    return generateClipPath(dimensions.width, dimensions.height, radius, smoothing)
+  }, [dimensions.width, dimensions.height, radius, smoothing])
 
   const shineConfig = getShineConfig(shine, shineIntensity)
   const shadowConfig = getShadowConfig(shadow)

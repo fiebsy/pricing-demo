@@ -100,16 +100,19 @@ export default function HomePage(): React.ReactElement {
     }
   }, [])
 
+  // Video starts immediately on pointer down (press) for responsiveness
+  const handlePointerDown = useCallback(() => {
+    if (videoRef.current) {
+      videoRef.current.currentTime = 0
+      videoRef.current.play().catch(() => {
+        // Ignore autoplay errors
+      })
+    }
+  }, [])
+
+  // Confetti spawns on click (release) - separate from video
   const handleClick = useCallback(
     (e: React.MouseEvent) => {
-      // Play turtle video from start
-      if (videoRef.current) {
-        videoRef.current.currentTime = 0
-        videoRef.current.play().catch(() => {
-          // Ignore autoplay errors
-        })
-      }
-
       const config = isHovered ? PARTICLE_CONFIG.hovered : PARTICLE_CONFIG.normal
       const newParticles = Array.from({ length: config.count }, (_, i) =>
         createParticle(e.clientX, e.clientY, i, config)
@@ -130,6 +133,10 @@ export default function HomePage(): React.ReactElement {
 
   const handleMouseEnter = useCallback(() => {
     setIsHovered(true)
+    // Eagerly ensure video is fully loaded for faster playback on click
+    if (videoRef.current && videoRef.current.readyState < 4) {
+      videoRef.current.load()
+    }
   }, [])
 
   const handleMouseLeave = useCallback(() => {
@@ -147,6 +154,7 @@ export default function HomePage(): React.ReactElement {
       <LandingHero
         config={DEFAULT_LANDING_HERO_CONFIG}
         onClick={handleClick}
+        onPointerDown={handlePointerDown}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
         videoRef={videoRef}
