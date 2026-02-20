@@ -104,6 +104,7 @@ export type {
   GradientPattern,
   GradientColor,
   UnifiedHoverConfig,
+  HoverImplementation,
 } from './types'
 
 // ============================================================================

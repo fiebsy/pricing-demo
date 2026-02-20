@@ -136,16 +136,9 @@ export const SPRING_PRESET_OPTIONS = [
 // Unified Hover Options
 // ============================================================================
 
-export const HOVER_TRANSITION_TYPE_OPTIONS = [
-  { label: 'Spring Physics', value: 'spring' },
-  { label: 'Tween', value: 'tween' },
-] as const
-
-export const HOVER_EASE_OPTIONS = [
-  { label: 'Ease Out', value: 'easeOut' },
-  { label: 'Ease In Out', value: 'easeInOut' },
-  { label: 'Ease In', value: 'easeIn' },
-  { label: 'Linear', value: 'linear' },
+export const HOVER_IMPLEMENTATION_OPTIONS = [
+  { label: 'Spring (Exit Fade)', value: 'spring' },
+  { label: 'Flip (LayoutId)', value: 'flip' },
 ] as const
 
 export const HOVER_BACKGROUND_OPTIONS = [

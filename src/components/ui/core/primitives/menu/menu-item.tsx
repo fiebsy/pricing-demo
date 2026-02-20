@@ -10,7 +10,7 @@
 
 'use client'
 
-import React, { useCallback } from 'react'
+import React, { useCallback, useRef } from 'react'
 import { Menu } from '@base-ui/react/menu'
 import ArrowRight01Icon from '@hugeicons-pro/core-stroke-rounded/ArrowRight01Icon'
 import Tick02Icon from '@hugeicons-pro/core-stroke-rounded/Tick02Icon'
@@ -24,7 +24,7 @@ import {
   INTERACTIVE_STATES,
   getSeparatorClasses,
 } from './config'
-import { useUnifiedHover, HoverIndicator } from './unified-hover'
+import { useUnifiedHover, FlipHoverIndicator } from './unified-hover'
 
 // ============================================================================
 // Types
@@ -96,17 +96,33 @@ export const MenuItemComponent: React.FC<MenuItemComponentProps> = ({
   unifiedHoverEnabled = false,
 }) => {
   const ctx = useUnifiedHover()
-  const isHovered = ctx?.enabled && ctx.hoveredId === item.id
+  const itemRef = useRef<HTMLDivElement>(null)
 
   // Get the appropriate base styles based on unified hover state
   const baseItemStyles = getBaseItemStyles(unifiedHoverEnabled)
 
-  // Handle mouse enter to set this item as hovered
+  // Determine implementation mode
+  const isFlipMode = ctx?.implementation === 'flip'
+  const isHovered = ctx?.enabled && ctx.hoveredId === item.id
+
+  // Handle mouse enter based on implementation mode
   const handleMouseEnter = useCallback(() => {
-    if (ctx?.enabled) {
+    if (!ctx?.enabled) return
+
+    if (isFlipMode) {
+      // Flip mode: just set the ID
       ctx.setHoveredId(item.id)
+    } else if (itemRef.current) {
+      // Spring mode: set ID and bounding rect
+      const rect = itemRef.current.getBoundingClientRect()
+      ctx.setHoveredItem(item.id, {
+        top: rect.top,
+        left: rect.left,
+        width: rect.width,
+        height: rect.height,
+      })
     }
-  }, [item.id, ctx])
+  }, [item.id, ctx, isFlipMode])
 
   // Separator - spans full width, 50% opacity
   // Note: Uses 'list' context (no my-1) because parent container has gap-1 which provides spacing
@@ -136,6 +152,7 @@ export const MenuItemComponent: React.FC<MenuItemComponentProps> = ({
     const checkboxItem = item as MenuItemCheckboxType
     return (
       <Menu.CheckboxItem
+        ref={itemRef as React.RefObject<HTMLDivElement>}
         checked={checkboxItem.checked}
         onCheckedChange={checkboxItem.onCheckedChange}
         disabled={checkboxItem.disabled}
@@ -149,7 +166,7 @@ export const MenuItemComponent: React.FC<MenuItemComponentProps> = ({
         onMouseEnter={handleMouseEnter}
         data-menu-item-id={item.id}
       >
-        {isHovered && <HoverIndicator />}
+        {isFlipMode && isHovered && <FlipHoverIndicator />}
         <div className={cn('flex min-w-0 flex-1 items-center', MENU_ITEM_STYLES.iconGap)}>
           <CheckboxBase checked={checkboxItem.checked} size="sm" />
           <span className="truncate">{checkboxItem.label}</span>
@@ -162,6 +179,7 @@ export const MenuItemComponent: React.FC<MenuItemComponentProps> = ({
   if (item.type === 'submenu') {
     return (
       <div
+        ref={itemRef}
         onClick={(e) => {
           e.preventDefault()
           e.stopPropagation()
@@ -186,7 +204,7 @@ export const MenuItemComponent: React.FC<MenuItemComponentProps> = ({
           }
         }}
       >
-        {isHovered && <HoverIndicator />}
+        {isFlipMode && isHovered && <FlipHoverIndicator />}
         <div className={cn('flex min-w-0 flex-1 items-center w-full', MENU_ITEM_STYLES.iconGap)}>
           {item.icon != null && (
             <HugeIcon
@@ -223,6 +241,7 @@ export const MenuItemComponent: React.FC<MenuItemComponentProps> = ({
   // Action item
   return (
     <Menu.Item
+      ref={itemRef as React.RefObject<HTMLDivElement>}
       disabled={item.disabled}
       closeOnClick
       onClick={() => {
@@ -238,7 +257,7 @@ export const MenuItemComponent: React.FC<MenuItemComponentProps> = ({
       onMouseEnter={handleMouseEnter}
       data-menu-item-id={item.id}
     >
-      {isHovered && <HoverIndicator />}
+      {isFlipMode && isHovered && <FlipHoverIndicator />}
       <div className={cn('flex min-w-0 flex-1 items-center', MENU_ITEM_STYLES.iconGap)}>
         {item.icon && (
           <HugeIcon

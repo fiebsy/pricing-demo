@@ -22,8 +22,7 @@ import {
   BACKGROUND_OPTIONS,
   GRADIENT_OPTIONS,
   SPRING_PRESET_OPTIONS,
-  HOVER_TRANSITION_TYPE_OPTIONS,
-  HOVER_EASE_OPTIONS,
+  HOVER_IMPLEMENTATION_OPTIONS,
   HOVER_BACKGROUND_OPTIONS,
 } from '../config/options'
 
@@ -489,9 +488,7 @@ function buildAnimationSection(config: FilterMenuConfig): Section {
 
 function buildUnifiedHoverSection(config: FilterMenuConfig): Section {
   const isEnabled = config.unifiedHover?.enabled ?? false
-  const transitionType = config.unifiedHover?.transitionType ?? 'spring'
-  const isSpring = transitionType === 'spring'
-  const isTween = transitionType === 'tween'
+  const implementation = config.unifiedHover?.implementation ?? 'spring'
 
   return {
     id: 'unifiedHover',
@@ -509,23 +506,24 @@ function buildUnifiedHoverSection(config: FilterMenuConfig): Section {
           },
         ],
       },
-      // Only show controls when enabled
+      // Implementation selector (shown when enabled)
       ...(isEnabled ? [
-        // Transition type selector
         {
-          title: 'Transition',
+          title: 'Implementation',
           controls: [
             {
-              id: 'unifiedHover.transitionType',
+              id: 'unifiedHover.implementation',
               type: 'select' as const,
               label: 'Type',
-              value: transitionType,
-              options: [...HOVER_TRANSITION_TYPE_OPTIONS],
+              value: implementation,
+              options: [...HOVER_IMPLEMENTATION_OPTIONS],
             },
           ],
         },
-        // Spring Physics group (only when transitionType === 'spring')
-        ...(isSpring ? [{
+      ] : []),
+      // Only show spring and style controls when enabled
+      ...(isEnabled ? [
+        {
           title: 'Spring Physics',
           controls: [
             {
@@ -559,31 +557,7 @@ function buildUnifiedHoverSection(config: FilterMenuConfig): Section {
               formatLabel: (v: number) => `${v.toFixed(1)}`,
             },
           ],
-        }] : []),
-        // Tween group (only when transitionType === 'tween')
-        ...(isTween ? [{
-          title: 'Tween',
-          controls: [
-            {
-              id: 'unifiedHover.duration',
-              type: 'slider' as const,
-              label: 'Duration',
-              value: config.unifiedHover?.duration ?? 0.2,
-              min: 0.1,
-              max: 0.5,
-              step: 0.05,
-              formatLabel: (v: number) => `${v.toFixed(2)}s`,
-            },
-            {
-              id: 'unifiedHover.ease',
-              type: 'select' as const,
-              label: 'Easing',
-              value: config.unifiedHover?.ease ?? 'easeOut',
-              options: [...HOVER_EASE_OPTIONS],
-            },
-          ],
-        }] : []),
-        // Style group (always shown when enabled)
+        },
         {
           title: 'Style',
           controls: [
