@@ -45,7 +45,7 @@ export interface UnifiedHoverContextValue {
   implementation: HoverImplementation
   /** For spring: the currently hovered item ID */
   hoveredItemId: string | null
-  /** For spring: the hovered item's bounding rect */
+  /** For spring: the hovered item's bounding rect (using offset-based positioning) */
   hoveredItemRect: HoveredItemRect | null
   /** For spring: set hovered item with position */
   setHoveredItem: (id: string | null, rect: HoveredItemRect | null) => void
@@ -57,6 +57,8 @@ export interface UnifiedHoverContextValue {
   layoutIdPrefix: string
   config: UnifiedHoverConfig
   isActive: boolean
+  /** Whether hover events should be ignored during panel transitions */
+  isTransitionLocked: boolean
 }
 
 // Re-export config type for external consumers
@@ -116,14 +118,29 @@ export function UnifiedHoverProvider({
 }: UnifiedHoverProviderProps) {
   const [hoveredItemId, setHoveredItemId] = useState<string | null>(null)
   const [hoveredItemRect, setHoveredItemRect] = useState<HoveredItemRect | null>(null)
+  const [isTransitionLocked, setIsTransitionLocked] = useState(false)
+  const transitionTimeoutRef = useRef<NodeJS.Timeout>(null)
 
   const implementation = config.implementation ?? 'spring'
 
-  // Clear hover state when panel becomes inactive
+  // Manage transition lock when panel becomes active/inactive
+  // Lock immediately when inactive, unlock after transition settles when active
   useEffect(() => {
     if (!isActive) {
+      // Lock immediately when becoming inactive
+      setIsTransitionLocked(true)
       setHoveredItemId(null)
       setHoveredItemRect(null)
+    } else {
+      // Unlock after transition settles (50ms is sufficient for state to stabilize)
+      transitionTimeoutRef.current = setTimeout(() => {
+        setIsTransitionLocked(false)
+      }, 50)
+    }
+    return () => {
+      if (transitionTimeoutRef.current) {
+        clearTimeout(transitionTimeoutRef.current)
+      }
     }
   }, [isActive])
 
@@ -152,6 +169,7 @@ export function UnifiedHoverProvider({
     layoutIdPrefix: `hover-${panelId}`,
     config,
     isActive,
+    isTransitionLocked,
   }
 
   return (
@@ -215,6 +233,7 @@ export function UnifiedHoverIndicator({ containerRef }: UnifiedHoverIndicatorPro
   const ctx = useUnifiedHover()
   const shouldReduceMotion = useReducedMotion()
   const hasHadInitialHover = useRef(false)
+  const resetTimeoutRef = useRef<NodeJS.Timeout>(null)
 
   // Spring-animated position and size
   const x = useMotionValue(0)
@@ -239,32 +258,28 @@ export function UnifiedHoverIndicator({ containerRef }: UnifiedHoverIndicatorPro
   const springOpacity = useSpring(opacity, { stiffness: 300, damping: 30 })
 
   // Update position when hovered item changes
+  // Uses offset-based positioning (offsetTop/offsetLeft) instead of getBoundingClientRect
+  // to avoid coordinate shifts during simultaneous height + slide animations
   useEffect(() => {
-    if (!ctx || !containerRef.current) return
+    if (!ctx) return
 
     if (ctx.hoveredItemRect) {
-      const containerRect = containerRef.current.getBoundingClientRect()
-      const containerStyles = getComputedStyle(containerRef.current)
-      // Absolute positioning with left:0 is at the padding edge (after border)
-      // getBoundingClientRect returns border-box, so we need to subtract border
-      const borderLeft = parseFloat(containerStyles.borderLeftWidth) || 0
-      const borderTop = parseFloat(containerStyles.borderTopWidth) || 0
-
-      // Calculate position relative to container's padding edge
-      const relativeTop = ctx.hoveredItemRect.top - containerRect.top - borderTop
-      const relativeLeft = ctx.hoveredItemRect.left - containerRect.left - borderLeft
+      // hoveredItemRect now contains offset-based coordinates (relative to offsetParent)
+      // No need to calculate relative position - offsets are already container-relative
+      const targetX = ctx.hoveredItemRect.left
+      const targetY = ctx.hoveredItemRect.top
 
       // On first hover, jump to position instantly (no animation from 0,0)
       if (!hasHadInitialHover.current) {
         hasHadInitialHover.current = true
         // Jump the motion values directly to avoid animating from origin
-        springX.jump(relativeLeft)
-        springY.jump(relativeTop)
+        springX.jump(targetX)
+        springY.jump(targetY)
         springWidth.jump(ctx.hoveredItemRect.width)
         springHeight.jump(ctx.hoveredItemRect.height)
       } else {
-        x.set(relativeLeft)
-        y.set(relativeTop)
+        x.set(targetX)
+        y.set(targetY)
         width.set(ctx.hoveredItemRect.width)
         height.set(ctx.hoveredItemRect.height)
       }
@@ -274,7 +289,7 @@ export function UnifiedHoverIndicator({ containerRef }: UnifiedHoverIndicatorPro
       // Mouse left the menu - fade out
       opacity.set(0)
     }
-  }, [ctx, containerRef, x, y, width, height, opacity, springX, springY, springWidth, springHeight])
+  }, [ctx, x, y, width, height, opacity, springX, springY, springWidth, springHeight])
 
   // Reset initial hover flag when menu closes (context becomes null or disabled)
   useEffect(() => {
@@ -285,14 +300,31 @@ export function UnifiedHoverIndicator({ containerRef }: UnifiedHoverIndicatorPro
 
   // Reset motion values instantly when panel becomes inactive
   // Uses jump() to bypass spring animation - prevents stale indicator during panel transitions
+  // Delays hasHadInitialHover reset to avoid jump on return (waits for spring to settle)
   useEffect(() => {
     if (!ctx?.isActive) {
+      // Jump values immediately for clean slate
       springX.jump(0)
       springY.jump(0)
       springWidth.jump(0)
       springHeight.jump(0)
       springOpacity.jump(0)
-      hasHadInitialHover.current = false
+
+      // Delay hasHadInitialHover reset to match spring settling time
+      // This ensures smooth animation when user returns to this panel
+      resetTimeoutRef.current = setTimeout(() => {
+        hasHadInitialHover.current = false
+      }, 400)
+    } else {
+      // Clear timeout if panel becomes active again before reset
+      if (resetTimeoutRef.current) {
+        clearTimeout(resetTimeoutRef.current)
+      }
+    }
+    return () => {
+      if (resetTimeoutRef.current) {
+        clearTimeout(resetTimeoutRef.current)
+      }
     }
   }, [ctx?.isActive, springX, springY, springWidth, springHeight, springOpacity])
 
@@ -303,7 +335,7 @@ export function UnifiedHoverIndicator({ containerRef }: UnifiedHoverIndicatorPro
 
   return (
     <motion.div
-      className="absolute pointer-events-none z-0"
+      className="absolute pointer-events-none -z-10"
       style={{
         top: 0,
         left: 0,

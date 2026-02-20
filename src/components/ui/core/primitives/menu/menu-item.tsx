@@ -106,20 +106,22 @@ export const MenuItemComponent: React.FC<MenuItemComponentProps> = ({
   const isHovered = ctx?.enabled && ctx.hoveredId === item.id
 
   // Handle mouse enter based on implementation mode
+  // Ignores events during transition lock to prevent spurious indicator updates
   const handleMouseEnter = useCallback(() => {
-    if (!ctx?.enabled) return
+    if (!ctx?.enabled || !ctx?.isActive || ctx?.isTransitionLocked) return
 
     if (isFlipMode) {
       // Flip mode: just set the ID
       ctx.setHoveredId(item.id)
     } else if (itemRef.current) {
-      // Spring mode: set ID and bounding rect
-      const rect = itemRef.current.getBoundingClientRect()
+      // Spring mode: use offset-based positioning (relative to offsetParent)
+      // This avoids coordinate shifts during simultaneous height + slide animations
+      // since offsets are not affected by CSS transforms
       ctx.setHoveredItem(item.id, {
-        top: rect.top,
-        left: rect.left,
-        width: rect.width,
-        height: rect.height,
+        top: itemRef.current.offsetTop,
+        left: itemRef.current.offsetLeft,
+        width: itemRef.current.offsetWidth,
+        height: itemRef.current.offsetHeight,
       })
     }
   }, [item.id, ctx, isFlipMode])
