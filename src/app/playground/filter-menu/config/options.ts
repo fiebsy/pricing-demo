@@ -5,6 +5,20 @@
  */
 
 // ============================================================================
+// Variant Options
+// ============================================================================
+
+export const VARIANT_OPTIONS = [
+  { label: 'Table Filter', value: 'table-filter' },
+  { label: 'Date Picker', value: 'date-picker' },
+] as const
+
+export const SELECTION_INDICATOR_OPTIONS = [
+  { label: 'Checkmark', value: 'checkmark' },
+  { label: 'Blue Dot', value: 'dot' },
+] as const
+
+// ============================================================================
 // Trigger Options
 // ============================================================================
 
@@ -121,6 +135,18 @@ export const SPRING_PRESET_OPTIONS = [
 // ============================================================================
 // Unified Hover Options
 // ============================================================================
+
+export const HOVER_TRANSITION_TYPE_OPTIONS = [
+  { label: 'Spring Physics', value: 'spring' },
+  { label: 'Tween', value: 'tween' },
+] as const
+
+export const HOVER_EASE_OPTIONS = [
+  { label: 'Ease Out', value: 'easeOut' },
+  { label: 'Ease In Out', value: 'easeInOut' },
+  { label: 'Ease In', value: 'easeIn' },
+  { label: 'Linear', value: 'linear' },
+] as const
 
 export const HOVER_BACKGROUND_OPTIONS = [
   { label: 'Primary', value: 'primary' },

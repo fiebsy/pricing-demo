@@ -312,6 +312,11 @@ export interface ChartConfig {
   chartCustomWidth: number
   chartAlignment: ChartAlignment
 
+  // Future Projection
+  showFutureProjection: boolean
+  futureDays: number
+  showCurrentDotPulse: boolean
+
   // Line Options
   lineStrokeWidth: number
   lineShowFill: boolean

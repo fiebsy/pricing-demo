@@ -11,15 +11,22 @@
 
 export type PatternType = 'dots' | 'grid' | 'diagonal' | 'none'
 export type MediaType = 'image' | 'video'
+export type HeroSize = 'current' | 'M' | 'L'
 export type ShineType = 'none' | 'shine-0' | 'shine-1' | 'shine-2' | 'shine-3' | 'shine-brand'
-export type ShineIntensity = '' | '-subtle' | '-intense'
+export type ShineIntensity = '' | '-extra-subtle' | '-subtle' | '-intense'
+
+export interface ShineLayer {
+  type: ShineType
+  intensity: ShineIntensity
+}
 export type ShadowSize = 'none' | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl'
 export type CornerStyle = 'round' | 'squircle'
 export type BackdropBlur = 'none' | 'sm' | 'md' | 'lg'
 export type GlowColor = 'brand-solid' | 'brand' | 'success' | 'warning' | 'error' | 'info' | 'gray'
 export type GlowPosition = 'center' | 'asset'
 export type GlowShape = 'circle' | 'blob' | 'blob-2' | 'blob-3'
-export type SquircleLevel = 'none' | 'subtle' | 'moderate' | 'rounded' | 'pill'
+export type SquircleLevel = 'none' | 'subtle' | 'moderate' | 'rounded' | 'pill' | 'pill-xl' | 'ios'
+export type TextSize = 'xs' | 'sm' | 'base' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl'
 
 // ============================================================================
 // Background Configuration
@@ -73,10 +80,10 @@ export interface BackgroundConfig {
 export interface ImageConfig {
   /** Media type: image or video */
   mediaType: MediaType
-  /** Shine effect type */
-  shine: ShineType
-  /** Shine intensity modifier */
-  shineIntensity: ShineIntensity
+  /** Size variant (scales asset, text, glow, spacing) */
+  size: HeroSize
+  /** Shine layers (multiple can be stacked) */
+  shines: ShineLayer[]
   /** Shadow size */
   shadow: ShadowSize
   /** Corner style */
@@ -105,6 +112,23 @@ export interface InteractionConfig {
 }
 
 // ============================================================================
+// Text Configuration
+// ============================================================================
+
+export interface TextConfig {
+  /** Custom text size (overrides size preset) */
+  size: TextSize
+  /** Enable press animation on text */
+  animateOnPress: boolean
+  /** Horizontal scale on press (0.8-1.2, <1 = squish, >1 = stretch) */
+  pressScaleX: number
+  /** Vertical scale on press (0.8-1.2, <1 = squish, >1 = stretch) */
+  pressScaleY: number
+  /** Y offset on press (pull toward asset, 0-10px) */
+  pressOffsetY: number
+}
+
+// ============================================================================
 // Full Configuration
 // ============================================================================
 
@@ -112,6 +136,7 @@ export interface LandingHeroConfig {
   background: BackgroundConfig
   image: ImageConfig
   interaction: InteractionConfig
+  text: TextConfig
 }
 
 // ============================================================================

@@ -76,9 +76,10 @@ function getChartMargins(config: ChartConfig) {
 interface OrdersChartProps {
   data: OrderRecord[]
   config: ChartConfig
+  yDomain?: [number, number]
 }
 
-export function OrdersChart({ data, config }: OrdersChartProps) {
+export function OrdersChart({ data, config, yDomain }: OrdersChartProps) {
   const gradientId = useId()
 
   // Generate chart data
@@ -145,7 +146,9 @@ export function OrdersChart({ data, config }: OrdersChartProps) {
 
             {config.showGridLines && <CartesianGrid {...gridProps} />}
             {config.showXAxis && <XAxis {...xAxisProps} />}
-            {config.showYAxis && <YAxis {...yAxisProps} />}
+            {config.showYAxis && <YAxis {...yAxisProps} domain={yDomain} />}
+            {/* Hidden Y-axis to enforce shared domain when axes are hidden */}
+            {!config.showYAxis && yDomain && <YAxis domain={yDomain} hide />}
             {config.showTooltip && (
               <Tooltip
                 content={<CustomTooltip color={primaryColor} />}
@@ -180,7 +183,9 @@ export function OrdersChart({ data, config }: OrdersChartProps) {
           <BarChart data={chartData} margin={margins} barGap={config.barGap}>
             {config.showGridLines && <CartesianGrid {...gridProps} />}
             {config.showXAxis && <XAxis {...xAxisProps} />}
-            {config.showYAxis && <YAxis {...yAxisProps} />}
+            {config.showYAxis && <YAxis {...yAxisProps} domain={yDomain} />}
+            {/* Hidden Y-axis to enforce shared domain when axes are hidden */}
+            {!config.showYAxis && yDomain && <YAxis domain={yDomain} hide />}
             {config.showTooltip && (
               <Tooltip
                 content={<CustomTooltip color={primaryColor} />}

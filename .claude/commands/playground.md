@@ -579,6 +579,8 @@ $1.displayName = '$1'
 
 ### `page.tsx` - App Router Page
 
+**IMPORTANT: Always use `PlaygroundLayout`** - it handles centering correctly with the control panel.
+
 ```typescript
 'use client'
 
@@ -592,6 +594,7 @@ $1.displayName = '$1'
 import { useCallback, useMemo, useState } from 'react'
 import {
   UnifiedControlPanel,
+  PlaygroundLayout,
   type ControlChangeEvent,
 } from '@/components/ui/patterns/control-panel'
 
@@ -642,28 +645,27 @@ export default function $1Playground() {
   )
 
   return (
-    <div className="relative h-screen overflow-hidden">
-      {/* Control Panel */}
-      <UnifiedControlPanel
-        config={panelConfig}
-        onChange={handleChange}
-        onPresetChange={handlePresetChange}
-        onReset={handleReset}
-        getConfigForCopy={() => config}
-      />
-
-      {/* Preview Area */}
-      <div className="flex h-full items-center justify-center bg-primary">
-        <$1 config={config}>
-          <h3 className="text-display-sm font-display text-primary">
-            $1 Preview
-          </h3>
-          <p className="text-secondary mt-2">
-            Configure using the control panel
-          </p>
-        </$1>
-      </div>
-    </div>
+    <PlaygroundLayout
+      className="bg-primary"
+      controlPanel={
+        <UnifiedControlPanel
+          config={panelConfig}
+          onChange={handleChange}
+          onPresetChange={handlePresetChange}
+          onReset={handleReset}
+          getConfigForCopy={() => config}
+        />
+      }
+    >
+      <$1 config={config}>
+        <h3 className="text-display-sm font-display text-primary">
+          $1 Preview
+        </h3>
+        <p className="text-secondary mt-2">
+          Configure using the control panel
+        </p>
+      </$1>
+    </PlaygroundLayout>
   )
 }
 ```
@@ -732,37 +734,59 @@ export default function $1Playground() {
 
 ## Layout Gotchas
 
-The UnifiedControlPanel uses `position: fixed`, so your preview area does **NOT** need padding to reserve space for it.
+### Always Use PlaygroundLayout
+
+**PlaygroundLayout handles centering correctly.** The control panel creates asymmetric padding (32px left vs 352px right), and PlaygroundLayout compensates for this so content appears visually centered.
 
 ### Correct Pattern
 
 ```tsx
-// Page layout - no padding needed for the panel
-<div className="relative h-screen overflow-hidden">
-  {/* Control panel overlays the preview */}
-  <UnifiedControlPanel config={panelConfig} onChange={handleChange} ... />
+import { PlaygroundLayout, UnifiedControlPanel } from '@/components/ui/patterns/control-panel'
 
-  {/* Preview area takes full space */}
-  <div className="flex h-full items-center justify-center bg-primary">
-    <YourComponent />
+<PlaygroundLayout
+  className="bg-primary"
+  controlPanel={<UnifiedControlPanel ... />}
+>
+  {/* Content is automatically centered in visible area */}
+  <YourComponent />
+</PlaygroundLayout>
+```
+
+### Fixed-Positioned Elements
+
+For elements using `position: fixed` (like a footer bar), use the CSS variables provided by PlaygroundLayout:
+
+```tsx
+{/* These CSS variables match the visible content area */}
+<div className="fixed bottom-8 left-[var(--playground-left)] right-[var(--playground-right)] flex justify-center">
+  {/* Content centers correctly within visible area */}
+</div>
+```
+
+**Available CSS Variables:**
+- `--playground-left` - Left edge of content area (32px)
+- `--playground-right` - Right edge accounting for panel (360px)
+
+### Common Mistakes
+
+**Don't create manual layouts:**
+```tsx
+// WRONG - centering will be off due to asymmetric padding
+<div className="relative h-screen">
+  <UnifiedControlPanel ... />
+  <div className="flex h-full items-center justify-center">
+    <YourComponent /> {/* Will appear left of center! */}
   </div>
 </div>
 ```
 
-### Common Mistakes
-
-**Don't do this:**
+**Don't use full viewport for fixed elements:**
 ```tsx
-// WRONG - hardcoded padding causes layout shift when panel minimizes
-<div className="pr-[352px]">
-  <YourComponent />
+// WRONG - centers across full viewport, ignoring panel
+<div className="fixed bottom-8 left-0 right-0 flex justify-center">
+  ...
 </div>
 ```
-
-**Why `overflow-hidden`?**
-- Prevents double scrollbars (page + panel)
-- Contains the preview area within viewport bounds
-- Panel has its own internal ScrollArea for overflow
 
 ---
 
@@ -775,4 +799,5 @@ The UnifiedControlPanel uses `position: fixed`, so your preview area does **NOT*
 5. **Sliders for Values** - Use sliders for numeric controls (radius, padding)
 6. **Migration Path** - Document how presets become production variants
 7. **Demo Repo Paths** - Use `@/components/ui/patterns/control-panel` not frontend paths
-8. **No Panel Padding** - Panel is fixed position, don't add padding for it
+8. **Use PlaygroundLayout** - Never create manual layouts, always use PlaygroundLayout
+9. **CSS Variables for Fixed Elements** - Use `--playground-left` and `--playground-right`

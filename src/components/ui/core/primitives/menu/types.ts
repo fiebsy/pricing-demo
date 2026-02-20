@@ -231,9 +231,16 @@ export interface MenuFeatures {
 // Unified Hover Configuration
 // ============================================================================
 
+/** Transition type for unified hover animation */
+export type TransitionType = 'spring' | 'tween'
+
+/** Easing function for tween transitions */
+export type EaseType = 'easeOut' | 'easeInOut' | 'easeIn' | 'linear'
+
 /**
  * Configuration for the unified hover indicator.
- * A single spring-animated background that glides between menu items.
+ * A single animated background that glides between menu items.
+ * Supports both spring physics and tween (duration-based) transitions.
  */
 export interface UnifiedHoverConfig {
   /**
@@ -241,6 +248,14 @@ export interface UnifiedHoverConfig {
    * @default false
    */
   enabled: boolean
+
+  /**
+   * Transition type: spring physics or tween (duration-based).
+   * @default 'spring'
+   */
+  transitionType?: TransitionType
+
+  // ---- Spring Settings (when transitionType === 'spring') ----
 
   /**
    * Spring stiffness - higher = faster, snappier.
@@ -259,6 +274,22 @@ export interface UnifiedHoverConfig {
    * @default 0.8
    */
   mass: number
+
+  // ---- Tween Settings (when transitionType === 'tween') ----
+
+  /**
+   * Duration of tween animation in seconds.
+   * @default 0.2
+   */
+  duration?: number
+
+  /**
+   * Easing function for tween animation.
+   * @default 'easeOut'
+   */
+  ease?: EaseType
+
+  // ---- Style ----
 
   /**
    * Background color token (semantic).

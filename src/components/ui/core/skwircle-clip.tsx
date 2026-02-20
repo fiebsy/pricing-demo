@@ -10,8 +10,13 @@ type ShineType =
   | 'shine-2'
   | 'shine-3'
   | 'shine-brand'
-type ShineIntensity = '' | '-subtle' | '-intense'
+type ShineIntensity = '' | '-extra-subtle' | '-subtle' | '-intense'
 type ShadowSize = 'none' | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl'
+
+interface ShineLayer {
+  type: ShineType
+  intensity: ShineIntensity
+}
 
 interface SkwircleClipProps {
   children: React.ReactNode
@@ -19,10 +24,12 @@ interface SkwircleClipProps {
   radius?: number
   /** Smoothing factor - higher = more square (default: 3) */
   smoothing?: number
-  /** Shine effect type */
+  /** Shine effect type (single shine, for backward compatibility) */
   shine?: ShineType
-  /** Shine intensity modifier */
+  /** Shine intensity modifier (for single shine) */
   shineIntensity?: ShineIntensity
+  /** Multiple shine layers (stacked on top of each other) */
+  shines?: ShineLayer[]
   /** Shadow size */
   shadow?: ShadowSize
   /** Additional className for the container */
@@ -122,7 +129,7 @@ function getShineConfig(
   if (shine === 'none') return null
 
   const mult =
-    intensity === '-subtle' ? 0.6 : intensity === '-intense' ? 1.5 : 1
+    intensity === '-extra-subtle' ? 0.3 : intensity === '-subtle' ? 0.6 : intensity === '-intense' ? 1.5 : 1
 
   const configs: Record<Exclude<ShineType, 'none'>, ShineConfig> = {
     'shine-0': {
@@ -175,6 +182,7 @@ export function SkwircleClip({
   smoothing = 3,
   shine = 'none',
   shineIntensity = '',
+  shines,
   shadow = 'none',
   className = '',
   style,
@@ -183,8 +191,9 @@ export function SkwircleClip({
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 })
   const clipId = useId()
   const shadowFilterId = `${clipId}-shadow`
-  const topBlurId = `${clipId}-top-blur`
-  const bottomBlurId = `${clipId}-bottom-blur`
+
+  // Build shine layers array - use shines prop if provided, otherwise fall back to single shine
+  const shineLayers: ShineLayer[] = shines ?? (shine !== 'none' ? [{ type: shine, intensity: shineIntensity }] : [])
 
   useEffect(() => {
     if (!containerRef.current) return
@@ -202,7 +211,15 @@ export function SkwircleClip({
     return generateClipPath(dimensions.width, dimensions.height, radius, smoothing)
   }, [dimensions.width, dimensions.height, radius, smoothing])
 
-  const shineConfig = getShineConfig(shine, shineIntensity)
+  // Get configs for all shine layers
+  const shineConfigs = shineLayers
+    .filter(layer => layer.type !== 'none')
+    .map((layer, index) => ({
+      index,
+      config: getShineConfig(layer.type, layer.intensity),
+    }))
+    .filter((item): item is { index: number; config: NonNullable<ReturnType<typeof getShineConfig>> } => item.config !== null)
+
   const shadowConfig = getShadowConfig(shadow)
 
   // Calculate padding needed to show shadow
@@ -284,70 +301,77 @@ export function SkwircleClip({
         {children}
       </div>
 
-      {/* Shine overlay - rendered ON TOP of content */}
-      {path && shineConfig && (
-        <svg
-          className="pointer-events-none absolute inset-0 z-10 h-full w-full"
-          aria-hidden
-        >
-          <defs>
-            <filter id={topBlurId} x="-50%" y="-50%" width="200%" height="200%">
-              <feGaussianBlur
-                in="SourceGraphic"
-                stdDeviation={shineConfig.topHighlight.blur}
-              />
-            </filter>
-            <filter
-              id={bottomBlurId}
-              x="-50%"
-              y="-50%"
-              width="200%"
-              height="200%"
-            >
-              <feGaussianBlur
-                in="SourceGraphic"
-                stdDeviation={shineConfig.bottomShadow.blur}
-              />
-            </filter>
-          </defs>
+      {/* Shine overlays - rendered ON TOP of content, one per layer */}
+      {path && shineConfigs.map(({ index, config: shineConfig }) => {
+        const topBlurId = `${clipId}-top-blur-${index}`
+        const bottomBlurId = `${clipId}-bottom-blur-${index}`
 
-          <g style={{ clipPath: `url(#${clipId})` }}>
+        return (
+          <svg
+            key={index}
+            className="pointer-events-none absolute inset-0 h-full w-full"
+            style={{ zIndex: 10 + index }}
+            aria-hidden
+          >
+            <defs>
+              <filter id={topBlurId} x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur
+                  in="SourceGraphic"
+                  stdDeviation={shineConfig.topHighlight.blur}
+                />
+              </filter>
+              <filter
+                id={bottomBlurId}
+                x="-50%"
+                y="-50%"
+                width="200%"
+                height="200%"
+              >
+                <feGaussianBlur
+                  in="SourceGraphic"
+                  stdDeviation={shineConfig.bottomShadow.blur}
+                />
+              </filter>
+            </defs>
+
+            <g style={{ clipPath: `url(#${clipId})` }}>
+              <path
+                d={path}
+                fill="none"
+                stroke="white"
+                strokeWidth={shineConfig.topHighlight.offset * 4}
+                opacity={shineConfig.topHighlight.opacity}
+                filter={
+                  shineConfig.topHighlight.blur > 0
+                    ? `url(#${topBlurId})`
+                    : undefined
+                }
+                transform={`translate(0, ${shineConfig.topHighlight.offset})`}
+              />
+              <path
+                d={path}
+                fill="none"
+                stroke="black"
+                strokeWidth={shineConfig.bottomShadow.offset * 4}
+                opacity={shineConfig.bottomShadow.opacity}
+                filter={
+                  shineConfig.bottomShadow.blur > 0
+                    ? `url(#${bottomBlurId})`
+                    : undefined
+                }
+                transform={`translate(0, ${-shineConfig.bottomShadow.offset})`}
+              />
+            </g>
+
             <path
               d={path}
               fill="none"
-              stroke="white"
-              strokeWidth={shineConfig.topHighlight.offset * 4}
-              opacity={shineConfig.topHighlight.opacity}
-              filter={
-                shineConfig.topHighlight.blur > 0
-                  ? `url(#${topBlurId})`
-                  : undefined
-              }
-              transform={`translate(0, ${shineConfig.topHighlight.offset})`}
+              stroke={`rgba(100, 100, 110, ${shineConfig.border.opacity})`}
+              strokeWidth={shineConfig.border.width}
             />
-            <path
-              d={path}
-              fill="none"
-              stroke="black"
-              strokeWidth={shineConfig.bottomShadow.offset * 4}
-              opacity={shineConfig.bottomShadow.opacity}
-              filter={
-                shineConfig.bottomShadow.blur > 0
-                  ? `url(#${bottomBlurId})`
-                  : undefined
-              }
-              transform={`translate(0, ${-shineConfig.bottomShadow.offset})`}
-            />
-          </g>
-
-          <path
-            d={path}
-            fill="none"
-            stroke={`rgba(100, 100, 110, ${shineConfig.border.opacity})`}
-            strokeWidth={shineConfig.border.width}
-          />
-        </svg>
-      )}
+          </svg>
+        )
+      })}
     </div>
   )
 }

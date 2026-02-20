@@ -5,4 +5,5 @@
  */
 
 export { OrdersChart } from './OrdersChart'
+export { UnifiedOrdersChart } from './UnifiedOrdersChart'
 export { createChartSection } from './panel-config'

@@ -18,7 +18,13 @@ import {
 } from '@hugeicons-pro/core-stroke-rounded'
 import type { ComponentType } from 'react'
 
-import type { FilterMenuConfig, FilterMenuPresetMeta, FilterMenuItem } from './types'
+import type {
+  FilterMenuConfig,
+  FilterMenuPresetMeta,
+  FilterMenuItem,
+  DatePickerPeriod,
+  DatePickerConfig,
+} from './types'
 import type { UnifiedHoverConfig } from '@/components/ui/core/primitives/menu'
 
 // ============================================================================
@@ -93,10 +99,33 @@ export const DEFAULT_UNIFIED_HOVER: UnifiedHoverConfig = {
 }
 
 // ============================================================================
+// Date Picker Periods
+// ============================================================================
+
+export const DEFAULT_DATE_PICKER_PERIODS: DatePickerPeriod[] = [
+  { id: 'today', label: 'Today', group: 'recent' },
+  { id: 'yesterday', label: 'Yesterday', group: 'recent' },
+  { id: 'this-week', label: 'This week', group: 'recent' },
+  { id: 'this-month', label: 'This month', group: 'recent' },
+  { id: 'this-year', label: 'This year', group: 'recent' },
+  { id: '30-days', label: '30 days', group: 'range' },
+  { id: '6-months', label: '6 months', group: 'range' },
+  { id: '12-months', label: '12 months', group: 'range' },
+  { id: 'all-time', label: 'All time', group: 'all' },
+]
+
+export const DEFAULT_DATE_PICKER_CONFIG: DatePickerConfig = {
+  selectedPeriod: 'today',
+  periods: DEFAULT_DATE_PICKER_PERIODS,
+  selectionIndicator: 'dot',
+}
+
+// ============================================================================
 // Default Configuration
 // ============================================================================
 
 export const DEFAULT_FILTER_MENU_CONFIG: FilterMenuConfig = {
+  variant: 'table-filter',
   trigger: {
     mode: 'icon-only',
     label: 'Filter',
@@ -131,6 +160,45 @@ export const DEFAULT_FILTER_MENU_CONFIG: FilterMenuConfig = {
 }
 
 // ============================================================================
+// Date Picker Default Configuration
+// ============================================================================
+
+export const DEFAULT_DATE_PICKER_MENU_CONFIG: FilterMenuConfig = {
+  variant: 'date-picker',
+  trigger: {
+    mode: 'icon-text',
+    label: 'Today',
+    variant: 'ghost',
+    size: 'sm',
+    rounded: 'full',
+    icon: 'add-01', // Not displayed for date-picker, uses chevron instead
+  },
+  menu: {
+    width: 200,
+    side: 'bottom',
+    align: 'start',
+    sideOffset: 8,
+    alignOffset: 0,
+    showHeader: true,
+    appearance: {
+      borderRadius: 'xl',
+      shadow: 'lg',
+      shine: 'shine-1-subtle',
+      background: 'secondary',
+      gradient: 'none',
+      squircle: false,
+    },
+  },
+  datePicker: DEFAULT_DATE_PICKER_CONFIG,
+  animation: {
+    springPreset: 'snappy',
+    animateHeight: false,
+    animateOnClose: false,
+  },
+  unifiedHover: DEFAULT_UNIFIED_HOVER,
+}
+
+// ============================================================================
 // Presets
 // ============================================================================
 
@@ -141,6 +209,13 @@ export const FILTER_MENU_PRESETS: FilterMenuPresetMeta[] = [
     category: 'default',
     description: 'Standard filter button with shine variant',
     data: DEFAULT_FILTER_MENU_CONFIG,
+  },
+  {
+    id: 'date-picker',
+    name: 'Date Picker',
+    category: 'default',
+    description: 'Single-select time period picker with flat structure',
+    data: DEFAULT_DATE_PICKER_MENU_CONFIG,
   },
   {
     id: 'icon-only',

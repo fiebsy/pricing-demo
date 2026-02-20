@@ -24,20 +24,26 @@ import {
 } from 'react'
 import { motion, useReducedMotion } from 'motion/react'
 
-import type { UnifiedHoverConfig } from './types'
+import type { UnifiedHoverConfig, TransitionType, EaseType } from './types'
 
 // ============================================================================
 // Types
 // ============================================================================
 
 /**
- * Simplified context value for the unified hover system.
+ * Context value for the unified hover system.
+ * Supports both spring and tween transition types.
  */
 export interface UnifiedHoverContextValue {
   enabled: boolean
   hoveredId: string | null
   setHoveredId: (id: string | null) => void
+  /** Current transition type */
+  transitionType: TransitionType
+  /** Spring physics config (used when transitionType === 'spring') */
   springConfig: { stiffness: number; damping: number; mass: number }
+  /** Tween config (used when transitionType === 'tween') */
+  tweenConfig: { duration: number; ease: EaseType }
   /** Unique layoutId prefix to prevent cross-panel animation */
   layoutIdPrefix: string
 }
@@ -51,9 +57,15 @@ export type { UnifiedHoverConfig }
 
 export const DEFAULT_UNIFIED_HOVER_CONFIG: UnifiedHoverConfig = {
   enabled: false,
+  transitionType: 'spring',
+  // Spring
   stiffness: 550,
   damping: 34,
   mass: 0.8,
+  // Tween
+  duration: 0.2,
+  ease: 'easeOut',
+  // Style
   background: 'tertiary',
   borderRadius: 12,
 }
@@ -85,7 +97,8 @@ interface UnifiedHoverProviderProps {
 }
 
 /**
- * Provider that tracks which item is hovered and provides spring config.
+ * Provider that tracks which item is hovered and provides transition config.
+ * Supports both spring physics and tween transitions.
  * Each panel should have its own provider with a unique panelId.
  */
 export function UnifiedHoverProvider({
@@ -100,10 +113,15 @@ export function UnifiedHoverProvider({
     enabled,
     hoveredId,
     setHoveredId,
+    transitionType: config.transitionType ?? 'spring',
     springConfig: {
       stiffness: config.stiffness,
       damping: config.damping,
       mass: config.mass,
+    },
+    tweenConfig: {
+      duration: config.duration ?? 0.2,
+      ease: config.ease ?? 'easeOut',
     },
     layoutIdPrefix: `hover-${panelId}`,
   }
@@ -177,6 +195,21 @@ export function HoverIndicator() {
     return null
   }
 
+  // Build transition based on type
+  const transition =
+    ctx.transitionType === 'spring'
+      ? {
+          type: 'spring' as const,
+          stiffness: ctx.springConfig.stiffness,
+          damping: ctx.springConfig.damping,
+          mass: ctx.springConfig.mass,
+        }
+      : {
+          type: 'tween' as const,
+          duration: ctx.tweenConfig.duration,
+          ease: ctx.tweenConfig.ease,
+        }
+
   return (
     <motion.div
       layoutId={ctx.layoutIdPrefix}
@@ -184,12 +217,7 @@ export function HoverIndicator() {
       style={{
         borderRadius: 'var(--menu-item-radius, 12px)',
       }}
-      transition={{
-        type: 'spring',
-        stiffness: ctx.springConfig.stiffness,
-        damping: ctx.springConfig.damping,
-        mass: ctx.springConfig.mass,
-      }}
+      transition={transition}
     />
   )
 }

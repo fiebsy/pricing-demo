@@ -8,6 +8,7 @@ import type { PanelConfig, Section } from '@/components/ui/patterns/control-pane
 import type { LandingHeroConfig, LandingHeroPresetMeta } from '../config/types'
 import {
   MEDIA_TYPE_OPTIONS,
+  HERO_SIZE_OPTIONS,
   PATTERN_TYPE_OPTIONS,
   GLOW_COLOR_OPTIONS,
   GLOW_POSITION_OPTIONS,
@@ -18,6 +19,7 @@ import {
   CORNER_STYLE_OPTIONS,
   BACKDROP_BLUR_OPTIONS,
   SQUIRCLE_LEVEL_OPTIONS,
+  TEXT_SIZE_OPTIONS,
 } from '../config/options'
 
 // ============================================================================
@@ -34,6 +36,7 @@ export function buildLandingHeroPanelConfig(
       buildBackgroundSection(config),
       buildImageSection(config),
       buildInteractionSection(config),
+      buildTextSection(config),
     ],
     presetConfig: {
       presets: presets.map((p) => ({
@@ -277,26 +280,76 @@ function buildImageSection(config: LandingHeroConfig): Section {
             value: config.image.mediaType,
             options: [...MEDIA_TYPE_OPTIONS],
           },
+          {
+            id: 'image.size',
+            type: 'select',
+            label: 'Size',
+            value: config.image.size,
+            options: [...HERO_SIZE_OPTIONS],
+          },
         ],
       },
-      // Shine Group
+      // Shine Layers Group
       {
-        title: 'Shine Effect',
+        title: 'Shine Layers',
         controls: [
+          // Layer 1
           {
-            id: 'image.shine',
+            id: 'image.shines.0.type',
             type: 'select',
-            label: 'Shine Type',
-            value: config.image.shine,
+            label: 'Layer 1 Type',
+            value: config.image.shines[0]?.type ?? 'none',
             options: [...SHINE_TYPE_OPTIONS],
           },
+          ...(config.image.shines[0]?.type && config.image.shines[0].type !== 'none'
+            ? [
+                {
+                  id: 'image.shines.0.intensity',
+                  type: 'select' as const,
+                  label: 'Layer 1 Intensity',
+                  value: config.image.shines[0]?.intensity ?? '',
+                  options: [...SHINE_INTENSITY_OPTIONS],
+                },
+              ]
+            : []),
+          // Layer 2
           {
-            id: 'image.shineIntensity',
+            id: 'image.shines.1.type',
             type: 'select',
-            label: 'Intensity',
-            value: config.image.shineIntensity,
-            options: [...SHINE_INTENSITY_OPTIONS],
+            label: 'Layer 2 Type',
+            value: config.image.shines[1]?.type ?? 'none',
+            options: [...SHINE_TYPE_OPTIONS],
           },
+          ...(config.image.shines[1]?.type && config.image.shines[1].type !== 'none'
+            ? [
+                {
+                  id: 'image.shines.1.intensity',
+                  type: 'select' as const,
+                  label: 'Layer 2 Intensity',
+                  value: config.image.shines[1]?.intensity ?? '',
+                  options: [...SHINE_INTENSITY_OPTIONS],
+                },
+              ]
+            : []),
+          // Layer 3
+          {
+            id: 'image.shines.2.type',
+            type: 'select',
+            label: 'Layer 3 Type',
+            value: config.image.shines[2]?.type ?? 'none',
+            options: [...SHINE_TYPE_OPTIONS],
+          },
+          ...(config.image.shines[2]?.type && config.image.shines[2].type !== 'none'
+            ? [
+                {
+                  id: 'image.shines.2.intensity',
+                  type: 'select' as const,
+                  label: 'Layer 3 Intensity',
+                  value: config.image.shines[2]?.intensity ?? '',
+                  options: [...SHINE_INTENSITY_OPTIONS],
+                },
+              ]
+            : []),
         ],
       },
       // Shadow Group
@@ -329,7 +382,7 @@ function buildImageSection(config: LandingHeroConfig): Section {
             label: 'Outer Radius',
             value: config.image.outerBorderRadius,
             min: 0,
-            max: 48,
+            max: 200,
             step: 4,
             formatLabel: (v: number) => `${v}px`,
           },
@@ -339,7 +392,7 @@ function buildImageSection(config: LandingHeroConfig): Section {
             label: 'Inner Radius',
             value: config.image.innerBorderRadius,
             min: 0,
-            max: 32,
+            max: 200,
             step: 4,
             formatLabel: (v: number) => `${v}px`,
           },
@@ -411,6 +464,78 @@ function buildInteractionSection(config: LandingHeroConfig): Section {
             label: 'Intense Shine on Hover',
             value: config.interaction.hoverShineIntense,
           },
+        ],
+      },
+    ],
+  }
+}
+
+function buildTextSection(config: LandingHeroConfig): Section {
+  const showPressControls = config.text.animateOnPress
+
+  return {
+    id: 'text',
+    label: 'Text',
+    title: 'Text Styling',
+    groups: [
+      // Text Style Group
+      {
+        title: 'Text Style',
+        controls: [
+          {
+            id: 'text.size',
+            type: 'select',
+            label: 'Size',
+            value: config.text.size,
+            options: [...TEXT_SIZE_OPTIONS],
+          },
+        ],
+      },
+      // Press Animation Group
+      {
+        title: 'Press Animation',
+        controls: [
+          {
+            id: 'text.animateOnPress',
+            type: 'toggle',
+            label: 'Animate on Press',
+            value: config.text.animateOnPress,
+          },
+          // Conditional animation controls
+          ...(showPressControls
+            ? [
+                {
+                  id: 'text.pressScaleX',
+                  type: 'slider' as const,
+                  label: 'Scale X',
+                  value: config.text.pressScaleX,
+                  min: 0.8,
+                  max: 1.2,
+                  step: 0.01,
+                  formatLabel: (v: number) => `${(v * 100).toFixed(0)}%`,
+                },
+                {
+                  id: 'text.pressScaleY',
+                  type: 'slider' as const,
+                  label: 'Scale Y',
+                  value: config.text.pressScaleY,
+                  min: 0.8,
+                  max: 1.2,
+                  step: 0.01,
+                  formatLabel: (v: number) => `${(v * 100).toFixed(0)}%`,
+                },
+                {
+                  id: 'text.pressOffsetY',
+                  type: 'slider' as const,
+                  label: 'Offset Y (Pull)',
+                  value: config.text.pressOffsetY,
+                  min: 0,
+                  max: 10,
+                  step: 1,
+                  formatLabel: (v: number) => `${v}px`,
+                },
+              ]
+            : []),
         ],
       },
     ],

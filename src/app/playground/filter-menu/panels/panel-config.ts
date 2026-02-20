@@ -7,6 +7,8 @@
 import type { PanelConfig, Section } from '@/components/ui/patterns/control-panel'
 import type { FilterMenuConfig, FilterMenuPresetMeta } from '../config/types'
 import {
+  VARIANT_OPTIONS,
+  SELECTION_INDICATOR_OPTIONS,
   TRIGGER_MODE_OPTIONS,
   TRIGGER_VARIANT_OPTIONS,
   TRIGGER_SIZE_OPTIONS,
@@ -20,6 +22,8 @@ import {
   BACKGROUND_OPTIONS,
   GRADIENT_OPTIONS,
   SPRING_PRESET_OPTIONS,
+  HOVER_TRANSITION_TYPE_OPTIONS,
+  HOVER_EASE_OPTIONS,
   HOVER_BACKGROUND_OPTIONS,
 } from '../config/options'
 
@@ -32,14 +36,36 @@ export function buildFilterMenuPanelConfig(
   presets: FilterMenuPresetMeta[],
   activePresetId: string | null
 ): PanelConfig {
-  return {
-    sections: [
+  const isDatePicker = config.variant === 'date-picker'
+
+  // Build sections based on variant
+  const sections: Section[] = [
+    buildVariantSection(config),
+  ]
+
+  if (isDatePicker) {
+    // Date picker shows: variant, date picker config, trigger (limited), menu, appearance, animation
+    sections.push(
+      buildDatePickerSection(config),
+      buildDatePickerTriggerSection(config),
+      buildMenuSection(config),
+      buildAppearanceSection(config),
+      buildAnimationSection(config),
+      buildUnifiedHoverSection(config),
+    )
+  } else {
+    // Table filter shows: variant, trigger (full), menu, appearance, animation
+    sections.push(
       buildTriggerSection(config),
       buildMenuSection(config),
       buildAppearanceSection(config),
       buildAnimationSection(config),
       buildUnifiedHoverSection(config),
-    ],
+    )
+  }
+
+  return {
+    sections,
     presetConfig: {
       presets: presets.map((p) => ({
         id: p.id,
@@ -56,6 +82,86 @@ export function buildFilterMenuPanelConfig(
 // ============================================================================
 // Section Builders
 // ============================================================================
+
+function buildVariantSection(config: FilterMenuConfig): Section {
+  return {
+    id: 'variant',
+    label: 'Variant',
+    title: 'Menu Variant',
+    groups: [
+      {
+        title: 'Type',
+        controls: [
+          {
+            id: 'variant',
+            type: 'select',
+            label: 'Variant',
+            value: config.variant,
+            options: [...VARIANT_OPTIONS],
+          },
+        ],
+      },
+    ],
+  }
+}
+
+function buildDatePickerSection(config: FilterMenuConfig): Section {
+  return {
+    id: 'datePicker',
+    label: 'Date Picker',
+    title: 'Date Picker Settings',
+    groups: [
+      {
+        title: 'Selection',
+        controls: [
+          {
+            id: 'datePicker.selectionIndicator',
+            type: 'select',
+            label: 'Selection Indicator',
+            value: config.datePicker?.selectionIndicator ?? 'dot',
+            options: [...SELECTION_INDICATOR_OPTIONS],
+          },
+        ],
+      },
+    ],
+  }
+}
+
+function buildDatePickerTriggerSection(config: FilterMenuConfig): Section {
+  return {
+    id: 'trigger',
+    label: 'Trigger',
+    title: 'Trigger Button',
+    groups: [
+      {
+        title: 'Appearance',
+        controls: [
+          {
+            id: 'trigger.variant',
+            type: 'select',
+            label: 'Variant',
+            value: config.trigger.variant,
+            options: [...TRIGGER_VARIANT_OPTIONS],
+          },
+          {
+            id: 'trigger.size',
+            type: 'select',
+            label: 'Size',
+            value: config.trigger.size,
+            options: [...TRIGGER_SIZE_OPTIONS],
+          },
+          {
+            id: 'trigger.rounded',
+            type: 'select',
+            label: 'Rounded',
+            value: config.trigger.rounded,
+            options: [...TRIGGER_ROUNDED_OPTIONS],
+          },
+        ],
+      },
+    ],
+  }
+}
 
 function buildTriggerSection(config: FilterMenuConfig): Section {
   return {
@@ -383,6 +489,9 @@ function buildAnimationSection(config: FilterMenuConfig): Section {
 
 function buildUnifiedHoverSection(config: FilterMenuConfig): Section {
   const isEnabled = config.unifiedHover?.enabled ?? false
+  const transitionType = config.unifiedHover?.transitionType ?? 'spring'
+  const isSpring = transitionType === 'spring'
+  const isTween = transitionType === 'tween'
 
   return {
     id: 'unifiedHover',
@@ -400,9 +509,23 @@ function buildUnifiedHoverSection(config: FilterMenuConfig): Section {
           },
         ],
       },
-      // Only show spring and style controls when enabled
+      // Only show controls when enabled
       ...(isEnabled ? [
+        // Transition type selector
         {
+          title: 'Transition',
+          controls: [
+            {
+              id: 'unifiedHover.transitionType',
+              type: 'select' as const,
+              label: 'Type',
+              value: transitionType,
+              options: [...HOVER_TRANSITION_TYPE_OPTIONS],
+            },
+          ],
+        },
+        // Spring Physics group (only when transitionType === 'spring')
+        ...(isSpring ? [{
           title: 'Spring Physics',
           controls: [
             {
@@ -436,7 +559,31 @@ function buildUnifiedHoverSection(config: FilterMenuConfig): Section {
               formatLabel: (v: number) => `${v.toFixed(1)}`,
             },
           ],
-        },
+        }] : []),
+        // Tween group (only when transitionType === 'tween')
+        ...(isTween ? [{
+          title: 'Tween',
+          controls: [
+            {
+              id: 'unifiedHover.duration',
+              type: 'slider' as const,
+              label: 'Duration',
+              value: config.unifiedHover?.duration ?? 0.2,
+              min: 0.1,
+              max: 0.5,
+              step: 0.05,
+              formatLabel: (v: number) => `${v.toFixed(2)}s`,
+            },
+            {
+              id: 'unifiedHover.ease',
+              type: 'select' as const,
+              label: 'Easing',
+              value: config.unifiedHover?.ease ?? 'easeOut',
+              options: [...HOVER_EASE_OPTIONS],
+            },
+          ],
+        }] : []),
+        // Style group (always shown when enabled)
         {
           title: 'Style',
           controls: [

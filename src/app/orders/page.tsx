@@ -32,6 +32,11 @@ import { OrdersSummaryCard } from './sections/header-metrics'
 import { StackingNavWrapper, SearchWrapper, filterData } from './sections/filter-toolbar'
 import { OrdersTable, ORDER_COLUMNS, COLUMN_LABELS, createRenderCell } from './sections/table'
 import { OrdersChart } from './sections/chart'
+import { UnifiedOrdersChart } from './sections/chart/UnifiedOrdersChart'
+import { generateChartData, generateFutureData, generateUnifiedChartData } from './sections/chart/data/chart-data'
+
+// Hooks
+import { useCalculatedFutureDays } from './hooks/use-calculated-future-days'
 
 // Data
 import { ORDER_DATA, calculateMetrics } from './data'
@@ -113,6 +118,39 @@ export default function OrdersPage() {
       subtext2: 'Completed',
     },
   ], [metrics])
+
+  // Calculate future days dynamically based on viewport
+  const calculatedFutureDays = useCalculatedFutureDays(30)
+
+  // Chart data for future projection mode
+  const chartData = useMemo(() => generateChartData(ORDER_DATA), [])
+
+  // Use calculated future days for auto mode, or config value if manually overridden
+  const effectiveFutureDays = config.chart.showFutureProjection
+    ? calculatedFutureDays
+    : config.chart.futureDays
+
+  const futureData = useMemo(
+    () => generateFutureData(chartData, effectiveFutureDays),
+    [chartData, effectiveFutureDays]
+  )
+
+  // Generate unified data for single-chart approach
+  const unifiedChartData = useMemo(
+    () => generateUnifiedChartData(chartData, futureData),
+    [chartData, futureData]
+  )
+
+  // Calculate shared Y-axis domain for unified chart
+  const sharedYDomain = useMemo((): [number, number] | undefined => {
+    if (!config.chart.showFutureProjection || futureData.length === 0) {
+      return undefined
+    }
+    const historicalMax = Math.max(...chartData.map(d => d.active))
+    const futureMax = Math.max(...futureData.map(d => d.projected))
+    const max = Math.max(historicalMax, futureMax)
+    return [0, Math.ceil(max * 1.1)] // 10% padding
+  }, [config.chart.showFutureProjection, chartData, futureData])
 
   // Cell renderer
   type CellRenderer = (columnKey: string, row: Record<string, unknown>, index: number) => ReactNode
@@ -426,17 +464,39 @@ export default function OrdersPage() {
             ))}
           </div>
 
-          {/* Orders Chart - Container Width */}
-          {config.chart.showChart && config.chart.chartWidthMode === 'container' && (
-            <div style={{ marginBottom: config.chart.chartToTableGap }}>
-              <OrdersChart data={ORDER_DATA} config={config.chart} />
-            </div>
+          {/* Orders Chart - Standard Mode (no future projection) */}
+          {config.chart.showChart && !config.chart.showFutureProjection && (
+            <>
+              {/* Container Width */}
+              {config.chart.chartWidthMode === 'container' && (
+                <div style={{ marginBottom: config.chart.chartToTableGap }}>
+                  <OrdersChart data={ORDER_DATA} config={config.chart} />
+                </div>
+              )}
+
+              {/* Breakout (Viewport or Custom Width) */}
+              {config.chart.chartWidthMode !== 'container' && (
+                <div style={{ marginBottom: config.chart.chartToTableGap, ...getChartBreakoutStyle() }}>
+                  <OrdersChart data={ORDER_DATA} config={config.chart} />
+                </div>
+              )}
+            </>
           )}
 
-          {/* Orders Chart - Breakout (Viewport or Custom Width) */}
-          {config.chart.showChart && config.chart.chartWidthMode !== 'container' && (
-            <div style={{ marginBottom: config.chart.chartToTableGap, ...getChartBreakoutStyle() }}>
-              <OrdersChart data={ORDER_DATA} config={config.chart} />
+          {/* Orders Chart - Future Projection Mode (Unified) */}
+          {config.chart.showChart && config.chart.showFutureProjection && (
+            <div
+              style={{
+                width: '100vw',
+                marginLeft: 'calc(-50vw + 50%)',
+                marginBottom: config.chart.chartToTableGap,
+              }}
+            >
+              <UnifiedOrdersChart
+                data={unifiedChartData}
+                config={config.chart}
+                yDomain={sharedYDomain}
+              />
             </div>
           )}
 

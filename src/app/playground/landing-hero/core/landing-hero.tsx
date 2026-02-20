@@ -14,15 +14,43 @@ import { useState } from 'react'
 import Image from 'next/image'
 import { motion, useAnimate } from 'motion/react'
 import { SkwircleClip } from '@/components/ui/core/skwircle-clip'
-import type { LandingHeroConfig, SquircleLevel } from '../config/types'
+import type { LandingHeroConfig, SquircleLevel, HeroSize, TextSize } from '../config/types'
 
-// Map squircle level to smoothing value (matches ROUNDNESS_CONFIGS)
+// Map squircle level to smoothing value (superellipse exponent)
+// Lower = more circular, ~4-5 = classic iOS squircle, Higher = more rectangular
 const SQUIRCLE_SMOOTHING: Record<SquircleLevel, number> = {
   none: 10.0,
   subtle: 7.0,
   moderate: 5.5,
   rounded: 4.0,
+  ios: 5.0, // Classic iOS icon squircle - bulbous corners
   pill: 3.0,
+  'pill-xl': 2.0,
+}
+
+// Size scale configuration
+// Everything scales proportionally: asset, text, glow, spacing
+const SIZE_SCALES: Record<HeroSize, {
+  multiplier: number
+  asset: { width: number; height: number }
+  text: string
+  gap: string
+}> = {
+  current: { multiplier: 1, asset: { width: 142, height: 80 }, text: 'text-xl', gap: 'gap-3' },
+  M: { multiplier: 1.5, asset: { width: 213, height: 120 }, text: 'text-2xl', gap: 'gap-4' },
+  L: { multiplier: 2, asset: { width: 284, height: 160 }, text: 'text-3xl', gap: 'gap-6' },
+}
+
+// Text size classes mapping
+const TEXT_SIZE_CLASSES: Record<TextSize, string> = {
+  xs: 'text-xs',
+  sm: 'text-sm',
+  base: 'text-base',
+  lg: 'text-lg',
+  xl: 'text-xl',
+  '2xl': 'text-2xl',
+  '3xl': 'text-3xl',
+  '4xl': 'text-4xl',
 }
 import {
   getOuterContainerClasses,
@@ -90,7 +118,7 @@ interface LandingHeroProps {
   /** Custom glow color (overrides config) */
   glowColorOverride?: string | null
   /** Custom content to render below the hero (replaces default text) */
-  children?: React.ReactNode
+  children?: React.ReactNode | ((context: { textClass: string; textRef: React.RefObject<HTMLDivElement | null> }) => React.ReactNode)
 }
 
 export function LandingHero({
@@ -104,8 +132,10 @@ export function LandingHero({
   glowColorOverride,
   children,
 }: LandingHeroProps) {
-  const { background, image } = config
+  const { background, image, text } = config
   const isVideo = image.mediaType === 'video'
+  const sizeScale = SIZE_SCALES[image.size]
+  const { multiplier } = sizeScale
 
   // Wait for media to load before showing
   const [isMediaReady, setIsMediaReady] = useState(false)
@@ -115,16 +145,32 @@ export function LandingHero({
 
   // Imperative animation for responsive press feedback
   const [scope, animate] = useAnimate()
+  const [textScope, animateText] = useAnimate()
+
+  // Use custom text size if set, otherwise use size scale default
+  const textClass = TEXT_SIZE_CLASSES[text.size]
 
   const handlePointerDown = (e: React.PointerEvent) => {
     // Stop any running animation and immediately scale down
     animate(scope.current, { scale: config.interaction.scaleOnClick }, { duration: 0.06 })
+    // Animate text with stretchy squish effect (GPU-accelerated transforms only)
+    if (text.animateOnPress && textScope.current) {
+      animateText(textScope.current, {
+        scaleY: text.pressScaleY,
+        scaleX: text.pressScaleX,
+        y: -text.pressOffsetY, // Negative Y to pull up toward asset
+      }, { duration: 0.06 })
+    }
     // Notify parent for immediate press actions (e.g., video start)
     onPointerDownProp?.(e)
   }
 
   const handlePointerUp = () => {
     animate(scope.current, { scale: 1 }, { duration: 0.12, type: 'spring', stiffness: 500, damping: 25 })
+    // Spring back text to normal
+    if (text.animateOnPress && textScope.current) {
+      animateText(textScope.current, { scaleY: 1, scaleX: 1, y: 0 }, { duration: 0.12, type: 'spring', stiffness: 500, damping: 25 })
+    }
   }
 
   const outerClasses = getOuterContainerClasses(config)
@@ -132,34 +178,44 @@ export function LandingHero({
   const innerClasses = getInnerContainerClasses(config)
   const innerStyles = getInnerContainerStyles(config)
 
+  // Scale glow sizes by size multiplier
+  const scaledGlowSize = background.glowSize * multiplier
+  const scaledGlowBlur = background.glowBlur * multiplier
+
   // Support custom glow color override (e.g., for confetti color flash)
   const glowStyle = glowColorOverride
     ? {
-        width: background.glowSize,
-        height: background.glowSize,
+        width: scaledGlowSize,
+        height: scaledGlowSize,
         background: `radial-gradient(circle, ${glowColorOverride} 0%, transparent ${background.glowSpread}%)`,
         opacity: background.glowOpacity,
         borderRadius: '50%',
-        filter: background.glowBlur > 0 ? `blur(${background.glowBlur}px)` : undefined,
+        filter: scaledGlowBlur > 0 ? `blur(${scaledGlowBlur}px)` : undefined,
       }
     : getGlowStyle(
         background.glowColor,
-        background.glowSize,
+        scaledGlowSize,
         background.glowOpacity,
         background.glowSpread,
         background.glowShape,
-        background.glowBlur
+        scaledGlowBlur
       )
+
+  // Scale secondary blob by size multiplier
+  const scaledSecondaryBlobSize = background.secondaryBlobSize * multiplier
+  const scaledSecondaryBlobOffsetX = background.secondaryBlobOffsetX * multiplier
+  const scaledSecondaryBlobOffsetY = background.secondaryBlobOffsetY * multiplier
+  const scaledSecondaryBlobBlur = background.secondaryBlobBlur * multiplier
 
   // Secondary blob style
   const secondaryBlobStyle: React.CSSProperties = {
-    width: background.secondaryBlobSize,
-    height: background.secondaryBlobSize,
+    width: scaledSecondaryBlobSize,
+    height: scaledSecondaryBlobSize,
     background: `radial-gradient(circle, ${getGlowColorVar(background.secondaryBlobColor)} 0%, transparent ${background.secondaryBlobSpread}%)`,
     opacity: background.secondaryBlobOpacity,
     borderRadius: '50%',
-    transform: `translate(${background.secondaryBlobOffsetX}px, ${background.secondaryBlobOffsetY}px)`,
-    filter: background.secondaryBlobBlur > 0 ? `blur(${background.secondaryBlobBlur}px)` : undefined,
+    transform: `translate(${scaledSecondaryBlobOffsetX}px, ${scaledSecondaryBlobOffsetY}px)`,
+    filter: scaledSecondaryBlobBlur > 0 ? `blur(${scaledSecondaryBlobBlur}px)` : undefined,
   }
 
   const isAssetPosition = background.glowPosition === 'asset'
@@ -181,7 +237,7 @@ export function LandingHero({
       )}
 
       {/* Content */}
-      <div className="relative z-10 flex min-h-screen flex-col items-center justify-center gap-3">
+      <div className={`relative z-10 flex min-h-screen flex-col items-center justify-center ${sizeScale.gap}`}>
         {/* Interactive wrapper with shadow - transparent, handles all interaction */}
         {/* Entry animation hides clip path calculation delay */}
         <motion.button
@@ -226,10 +282,9 @@ export function LandingHero({
                 <SkwircleClip
                   radius={image.innerBorderRadius}
                   smoothing={SQUIRCLE_SMOOTHING[image.squircleLevel]}
-                  shine={image.shine}
-                  shineIntensity={image.shineIntensity}
+                  shines={image.shines}
                   shadow={image.shadow}
-                  className="h-[80px] w-[142px]"
+                  style={{ width: sizeScale.asset.width, height: sizeScale.asset.height }}
                 >
                   <video
                     ref={videoRef}
@@ -248,8 +303,8 @@ export function LandingHero({
                 <Image
                   src="/skwircle-kid.png"
                   alt="i like skwircles"
-                  height={80}
-                  width={142}
+                  height={sizeScale.asset.height}
+                  width={sizeScale.asset.width}
                   draggable={false}
                   onLoad={() => setIsMediaReady(true)}
                   className="pointer-events-none select-none"
@@ -260,15 +315,18 @@ export function LandingHero({
         </motion.button>
 
         <motion.div
+          ref={textScope}
           initial={{ opacity: 0 }}
           animate={{ opacity: isMediaReady ? 1 : 0 }}
           transition={{ duration: 0.3, delay: 0.15 }}
         >
-          {children ?? (
-            <p className="text-xl font-medium text-primary opacity-50 transition-opacity duration-300 hover:opacity-100">
-              i like skwircles
-            </p>
-          )}
+          {typeof children === 'function'
+            ? children({ textClass, textRef: textScope })
+            : children ?? (
+                <p className={`${textClass} font-medium text-primary opacity-50 transition-opacity duration-300 hover:opacity-100`}>
+                  i like skwircles
+                </p>
+              )}
         </motion.div>
       </div>
     </div>

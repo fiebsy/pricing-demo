@@ -26,7 +26,7 @@ import { DEFAULT_LANDING_HERO_CONFIG, LANDING_HERO_PRESETS } from './config/pres
 import { buildLandingHeroPanelConfig } from './panels/panel-config'
 
 // ============================================================================
-// Utility: Deep set nested value
+// Utility: Deep set nested value (supports arrays)
 // ============================================================================
 
 function setNestedValue<T>(obj: T, path: string, value: unknown): T {
@@ -36,15 +36,34 @@ function setNestedValue<T>(obj: T, path: string, value: unknown): T {
 
   for (let i = 0; i < keys.length - 1; i++) {
     const key = keys[i]
+    const nextKey = keys[i + 1]
+    const isNextKeyNumeric = /^\d+$/.test(nextKey)
+
     if (typeof current[key] !== 'object' || current[key] === null) {
-      current[key] = {}
+      // Create array if next key is numeric, otherwise object
+      current[key] = isNextKeyNumeric ? [] : {}
+    } else if (Array.isArray(current[key])) {
+      // Clone array
+      current[key] = [...(current[key] as unknown[])]
     } else {
+      // Clone object
       current[key] = { ...(current[key] as Record<string, unknown>) }
     }
     current = current[key] as Record<string, unknown>
   }
 
-  current[keys[keys.length - 1]] = value
+  const finalKey = keys[keys.length - 1]
+  current[finalKey] = value
+
+  // Special handling for shines array: ensure each layer has both type and intensity
+  if (path.startsWith('image.shines.') && path.endsWith('.type')) {
+    const index = parseInt(keys[2], 10)
+    const shinesArray = (result as Record<string, Record<string, unknown[]>>).image.shines as unknown[]
+    if (!shinesArray[index] || typeof shinesArray[index] !== 'object') {
+      shinesArray[index] = { type: value, intensity: '' }
+    }
+  }
+
   return result as T
 }
 
@@ -124,7 +143,7 @@ export default function LandingHeroPlayground() {
             Glow: <span className="text-primary">{config.background.showGlow ? `${config.background.glowSize}px ${config.background.glowShape}` : 'off'}</span>
           </p>
           <p className="mt-1">
-            Shine: <span className="text-primary">{config.image.shine}{config.image.shineIntensity}</span>
+            Shines: <span className="text-primary">{config.image.shines.length > 0 ? config.image.shines.map(s => `${s.type}${s.intensity}`).join(' + ') : 'none'}</span>
             {' · '}
             Shadow: <span className="text-primary">{config.image.shadow}</span>
             {' · '}

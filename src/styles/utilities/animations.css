@@ -226,8 +226,35 @@
   }
 }
 
+/* ============================================================================
+   PULSATING DOT ANIMATION
+   Continuous pulse effect for chart "Today" indicator
+   ============================================================================ */
 
+@keyframes pulse-ring {
+  0% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.8);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
 
+.animate-pulse-ring {
+  animation: pulse-ring 2s ease-out infinite;
+}
 
+@media (prefers-reduced-motion: reduce) {
+  .animate-pulse-ring {
+    animation: none;
+    opacity: 0;
+  }
+}
 
 

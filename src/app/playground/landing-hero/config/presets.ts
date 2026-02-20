@@ -39,19 +39,30 @@ export const DEFAULT_LANDING_HERO_CONFIG: LandingHeroConfig = {
   },
   image: {
     mediaType: 'video',
-    shine: 'shine-2',
-    shineIntensity: '-intense',
+    size: 'M',
+    shines: [
+      { type: 'shine-3', intensity: '-intense' },
+      { type: 'shine-brand', intensity: '-extra-subtle' },
+      { type: 'shine-2', intensity: '-subtle' },
+    ],
     shadow: 'none',
     outerCorner: 'squircle',
     outerBorderRadius: 0,
-    innerBorderRadius: 32,
-    squircleLevel: 'pill',
+    innerBorderRadius: 200,
+    squircleLevel: 'ios',
     padding: 0,
     backdropBlur: 'none',
   },
   interaction: {
     scaleOnClick: 0.9,
     hoverShineIntense: true,
+  },
+  text: {
+    size: '3xl',
+    animateOnPress: true,
+    pressScaleX: 0.8,
+    pressScaleY: 0.85,
+    pressOffsetY: 9,
   },
 }
 
@@ -96,8 +107,8 @@ export const LANDING_HERO_PRESETS: LandingHeroPresetMeta[] = [
       },
       image: {
         mediaType: 'image',
-        shine: 'shine-3',
-        shineIntensity: '',
+        size: 'current',
+        shines: [{ type: 'shine-3', intensity: '' }],
         shadow: '2xl',
         outerCorner: 'squircle',
         outerBorderRadius: 24,
@@ -109,6 +120,13 @@ export const LANDING_HERO_PRESETS: LandingHeroPresetMeta[] = [
       interaction: {
         scaleOnClick: 0.9,
         hoverShineIntense: true,
+      },
+      text: {
+        size: 'xl',
+        animateOnPress: true,
+        pressScaleX: 0.92,
+        pressScaleY: 1.06,
+        pressOffsetY: 3,
       },
     },
   },
@@ -141,8 +159,8 @@ export const LANDING_HERO_PRESETS: LandingHeroPresetMeta[] = [
       },
       image: {
         mediaType: 'image',
-        shine: 'shine-1',
-        shineIntensity: '-subtle',
+        size: 'current',
+        shines: [{ type: 'shine-1', intensity: '-subtle' }],
         shadow: 'md',
         outerCorner: 'round',
         outerBorderRadius: 16,
@@ -154,6 +172,13 @@ export const LANDING_HERO_PRESETS: LandingHeroPresetMeta[] = [
       interaction: {
         scaleOnClick: 0.95,
         hoverShineIntense: false,
+      },
+      text: {
+        size: 'lg',
+        animateOnPress: false,
+        pressScaleX: 0.92,
+        pressScaleY: 1.06,
+        pressOffsetY: 3,
       },
     },
   },
@@ -186,8 +211,8 @@ export const LANDING_HERO_PRESETS: LandingHeroPresetMeta[] = [
       },
       image: {
         mediaType: 'image',
-        shine: 'shine-3',
-        shineIntensity: '-intense',
+        size: 'current',
+        shines: [{ type: 'shine-3', intensity: '-intense' }],
         shadow: '2xl',
         outerCorner: 'squircle',
         outerBorderRadius: 32,
@@ -199,6 +224,13 @@ export const LANDING_HERO_PRESETS: LandingHeroPresetMeta[] = [
       interaction: {
         scaleOnClick: 0.85,
         hoverShineIntense: true,
+      },
+      text: {
+        size: '2xl',
+        animateOnPress: true,
+        pressScaleX: 0.85,
+        pressScaleY: 1.1,
+        pressOffsetY: 5,
       },
     },
   },
@@ -231,8 +263,8 @@ export const LANDING_HERO_PRESETS: LandingHeroPresetMeta[] = [
       },
       image: {
         mediaType: 'image',
-        shine: 'shine-brand',
-        shineIntensity: '',
+        size: 'current',
+        shines: [{ type: 'shine-brand', intensity: '' }],
         shadow: 'xl',
         outerCorner: 'squircle',
         outerBorderRadius: 24,
@@ -244,6 +276,13 @@ export const LANDING_HERO_PRESETS: LandingHeroPresetMeta[] = [
       interaction: {
         scaleOnClick: 0.9,
         hoverShineIntense: true,
+      },
+      text: {
+        size: 'xl',
+        animateOnPress: true,
+        pressScaleX: 0.9,
+        pressScaleY: 1.08,
+        pressOffsetY: 4,
       },
     },
   },
@@ -276,8 +315,8 @@ export const LANDING_HERO_PRESETS: LandingHeroPresetMeta[] = [
       },
       image: {
         mediaType: 'image',
-        shine: 'none',
-        shineIntensity: '',
+        size: 'current',
+        shines: [],
         shadow: 'lg',
         outerCorner: 'round',
         outerBorderRadius: 20,
@@ -289,6 +328,13 @@ export const LANDING_HERO_PRESETS: LandingHeroPresetMeta[] = [
       interaction: {
         scaleOnClick: 0.95,
         hoverShineIntense: false,
+      },
+      text: {
+        size: 'lg',
+        animateOnPress: false,
+        pressScaleX: 0.92,
+        pressScaleY: 1.06,
+        pressOffsetY: 3,
       },
     },
   },

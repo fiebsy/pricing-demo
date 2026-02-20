@@ -209,6 +209,36 @@ export function createChartSection(config: OrdersPageConfig): Section {
           },
         ],
       },
+      // Future Projection
+      {
+        title: 'Future Projection',
+        controls: [
+          {
+            id: 'chart.showFutureProjection',
+            type: 'toggle' as const,
+            label: 'Show Future',
+            value: chartConfig.showFutureProjection,
+          },
+          ...(chartConfig.showFutureProjection ? [
+            {
+              id: 'chart.futureDays',
+              type: 'slider' as const,
+              label: 'Future Days',
+              value: chartConfig.futureDays,
+              min: 1,
+              max: 14,
+              step: 1,
+              formatLabel: (v: number) => `${v} days`,
+            },
+            {
+              id: 'chart.showCurrentDotPulse',
+              type: 'toggle' as const,
+              label: 'Pulsating "Today" Dot',
+              value: chartConfig.showCurrentDotPulse,
+            },
+          ] : []),
+        ],
+      },
       // Line Options (conditional)
       ...(isLineChart ? [{
         title: 'Line Options',

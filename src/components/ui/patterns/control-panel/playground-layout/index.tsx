@@ -91,9 +91,16 @@ export function PlaygroundLayout({
 }: PlaygroundLayoutProps) {
   // Calculate padding for preview area (panel width + gap)
   const previewPaddingRight = panelWidth + 12
+  const contentPadding = 32 // p-8
+
+  // CSS variables for fixed-positioned elements to use
+  const cssVariables = {
+    '--playground-left': `${contentPadding}px`,
+    '--playground-right': `${previewPaddingRight + contentPadding / 4}px`,
+  } as React.CSSProperties
 
   return (
-    <div className={cn('relative h-screen overflow-hidden', className)}>
+    <div className={cn('relative h-screen overflow-hidden', className)} style={cssVariables}>
       {/* Control Panel */}
       {controlPanel}
 
@@ -102,7 +109,10 @@ export function PlaygroundLayout({
         className="relative h-full overflow-y-auto p-8"
         style={{ paddingRight: previewPaddingRight }}
       >
-        <div className="flex min-h-full items-center justify-center">
+        <div
+          className="flex min-h-full items-center justify-center"
+          style={{ marginRight: -(panelWidth + 12 - 32) }}
+        >
           {children}
         </div>
 

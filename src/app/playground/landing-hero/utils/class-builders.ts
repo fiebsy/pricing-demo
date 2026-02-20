@@ -12,12 +12,12 @@ import type { LandingHeroConfig, ShineType, ShineIntensity, ShadowSize, Backdrop
 
 // Full class mappings to ensure Tailwind includes them in the bundle
 const SHINE_CLASS_MAP: Record<ShineType, Record<ShineIntensity, string>> = {
-  none: { '': '', '-subtle': '', '-intense': '' },
-  'shine-0': { '': 'shine-0', '-subtle': 'shine-0-subtle', '-intense': 'shine-0-intense' },
-  'shine-1': { '': 'shine-1', '-subtle': 'shine-1-subtle', '-intense': 'shine-1-intense' },
-  'shine-2': { '': 'shine-2', '-subtle': 'shine-2-subtle', '-intense': 'shine-2-intense' },
-  'shine-3': { '': 'shine-3', '-subtle': 'shine-3-subtle', '-intense': 'shine-3-intense' },
-  'shine-brand': { '': 'shine-brand', '-subtle': 'shine-brand-subtle', '-intense': 'shine-brand-intense' },
+  none: { '': '', '-extra-subtle': '', '-subtle': '', '-intense': '' },
+  'shine-0': { '': 'shine-0', '-extra-subtle': 'shine-0-subtle', '-subtle': 'shine-0-subtle', '-intense': 'shine-0-intense' },
+  'shine-1': { '': 'shine-1', '-extra-subtle': 'shine-1-subtle', '-subtle': 'shine-1-subtle', '-intense': 'shine-1-intense' },
+  'shine-2': { '': 'shine-2', '-extra-subtle': 'shine-2-subtle', '-subtle': 'shine-2-subtle', '-intense': 'shine-2-intense' },
+  'shine-3': { '': 'shine-3', '-extra-subtle': 'shine-3-subtle', '-subtle': 'shine-3-subtle', '-intense': 'shine-3-intense' },
+  'shine-brand': { '': 'shine-brand', '-extra-subtle': 'shine-brand-extra-subtle', '-subtle': 'shine-brand-subtle', '-intense': 'shine-brand-intense' },
 }
 
 const SHINE_HOVER_MAP: Record<ShineType, string> = {
@@ -137,17 +137,20 @@ export function getOuterContainerClasses(config: LandingHeroConfig): string {
     classes.push('corner-squircle')
   }
 
-  // Shine
-  const shineClass = getShineClass(config.image.shine, config.image.shineIntensity)
-  if (shineClass) {
-    classes.push(shineClass)
-  }
+  // Shine - use first layer for CSS-based shine (non-video mode)
+  const firstShine = config.image.shines[0]
+  if (firstShine && firstShine.type !== 'none') {
+    const shineClass = getShineClass(firstShine.type, firstShine.intensity)
+    if (shineClass) {
+      classes.push(shineClass)
+    }
 
-  // Hover shine
-  if (config.interaction.hoverShineIntense && config.image.shine !== 'none') {
-    const hoverClass = getShineHoverClass(config.image.shine)
-    if (hoverClass) {
-      classes.push(hoverClass)
+    // Hover shine
+    if (config.interaction.hoverShineIntense) {
+      const hoverClass = getShineHoverClass(firstShine.type)
+      if (hoverClass) {
+        classes.push(hoverClass)
+      }
     }
   }
 

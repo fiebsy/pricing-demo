@@ -13,6 +13,12 @@ export const MEDIA_TYPE_OPTIONS = [
   { label: 'Video', value: 'video' },
 ] as const
 
+export const HERO_SIZE_OPTIONS = [
+  { label: 'Current (S)', value: 'current' },
+  { label: 'Medium', value: 'M' },
+  { label: 'Large', value: 'L' },
+] as const
+
 // ============================================================================
 // Pattern Options
 // ============================================================================
@@ -65,6 +71,7 @@ export const SHINE_TYPE_OPTIONS = [
 
 export const SHINE_INTENSITY_OPTIONS = [
   { label: 'Normal', value: '' },
+  { label: 'Extra Subtle', value: '-extra-subtle' },
   { label: 'Subtle', value: '-subtle' },
   { label: 'Intense', value: '-intense' },
 ] as const
@@ -112,5 +119,22 @@ export const SQUIRCLE_LEVEL_OPTIONS = [
   { label: 'Subtle', value: 'subtle' },
   { label: 'Moderate', value: 'moderate' },
   { label: 'Rounded', value: 'rounded' },
+  { label: 'iOS', value: 'ios' },
   { label: 'Pill', value: 'pill' },
+  { label: 'Pill XL', value: 'pill-xl' },
+] as const
+
+// ============================================================================
+// Text Size Options
+// ============================================================================
+
+export const TEXT_SIZE_OPTIONS = [
+  { label: 'XS', value: 'xs' },
+  { label: 'SM', value: 'sm' },
+  { label: 'Base', value: 'base' },
+  { label: 'LG', value: 'lg' },
+  { label: 'XL', value: 'xl' },
+  { label: '2XL', value: '2xl' },
+  { label: '3XL', value: '3xl' },
+  { label: '4XL', value: '4xl' },
 ] as const

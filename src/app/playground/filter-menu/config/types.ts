@@ -9,6 +9,16 @@ import type { ComponentType } from 'react'
 import type { MenuAppearance, MenuSide, MenuAlign, AnimationConfig, UnifiedHoverConfig } from '@/components/ui/core/primitives/menu'
 
 // ============================================================================
+// Variant Types
+// ============================================================================
+
+/** Variant identifier for filter menu modes */
+export type FilterMenuVariant = 'table-filter' | 'date-picker'
+
+/** Selection indicator style */
+export type SelectionIndicator = 'checkmark' | 'dot'
+
+// ============================================================================
 // Menu Item Types
 // ============================================================================
 
@@ -22,6 +32,30 @@ export interface FilterMenuItem {
   label: string
   icon: ComponentType<{ className?: string }>
   options: FilterMenuItemOption[]
+}
+
+// ============================================================================
+// Date Picker Types
+// ============================================================================
+
+/** Group type for date picker periods */
+export type DatePickerGroup = 'recent' | 'range' | 'all'
+
+/** Date picker period item */
+export interface DatePickerPeriod {
+  id: string
+  label: string
+  group: DatePickerGroup
+}
+
+/** Date picker specific configuration */
+export interface DatePickerConfig {
+  /** Currently selected period ID */
+  selectedPeriod: string
+  /** Available period options */
+  periods: DatePickerPeriod[]
+  /** How to display selected state */
+  selectionIndicator: SelectionIndicator
 }
 
 // ============================================================================
@@ -75,9 +109,14 @@ export interface MenuConfig {
 // ============================================================================
 
 export interface FilterMenuConfig {
+  /** Variant mode: table-filter (multi-select with submenus) or date-picker (single-select flat) */
+  variant: FilterMenuVariant
   trigger: TriggerConfig
   menu: MenuConfig
-  items: FilterMenuItem[]
+  /** Filter items for table-filter variant */
+  items?: FilterMenuItem[]
+  /** Date picker configuration for date-picker variant */
+  datePicker?: DatePickerConfig
   animation: AnimationConfig
   /** Unified hover indicator configuration */
   unifiedHover?: UnifiedHoverConfig

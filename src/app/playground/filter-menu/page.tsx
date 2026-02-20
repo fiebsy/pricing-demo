@@ -23,8 +23,12 @@ import {
 } from '@/components/ui/patterns/control-panel'
 
 import { FilterMenuPreview } from './core/filter-menu-preview'
-import type { FilterMenuConfig } from './config/types'
-import { DEFAULT_FILTER_MENU_CONFIG, FILTER_MENU_PRESETS } from './config/presets'
+import type { FilterMenuConfig, FilterMenuVariant } from './config/types'
+import {
+  DEFAULT_FILTER_MENU_CONFIG,
+  DEFAULT_DATE_PICKER_MENU_CONFIG,
+  FILTER_MENU_PRESETS,
+} from './config/presets'
 import { buildFilterMenuPanelConfig } from './panels/panel-config'
 
 // ============================================================================
@@ -62,6 +66,37 @@ export default function FilterMenuPlayground() {
 
   // Handle control changes
   const handleChange = useCallback((event: ControlChangeEvent) => {
+    // Handle variant switch - reset to appropriate defaults
+    if (event.controlId === 'variant') {
+      const newVariant = event.value as FilterMenuVariant
+      const defaultConfig = newVariant === 'date-picker'
+        ? DEFAULT_DATE_PICKER_MENU_CONFIG
+        : DEFAULT_FILTER_MENU_CONFIG
+      setConfig(defaultConfig)
+      setActivePresetId(newVariant === 'date-picker' ? 'date-picker' : 'default')
+      return
+    }
+
+    // Handle date picker period selection (updates trigger label)
+    if (event.controlId === 'datePicker.selectedPeriod') {
+      setConfig((prev) => {
+        const period = prev.datePicker?.periods.find((p) => p.id === event.value)
+        return {
+          ...prev,
+          trigger: {
+            ...prev.trigger,
+            label: period?.label ?? prev.trigger.label,
+          },
+          datePicker: {
+            ...prev.datePicker!,
+            selectedPeriod: event.value as string,
+          },
+        }
+      })
+      setActivePresetId(null)
+      return
+    }
+
     setConfig((prev) => setNestedValue(prev, event.controlId, event.value))
     setActivePresetId(null)
   }, [])
@@ -77,8 +112,31 @@ export default function FilterMenuPlayground() {
 
   // Handle reset
   const handleReset = useCallback(() => {
-    setConfig(DEFAULT_FILTER_MENU_CONFIG)
-    setActivePresetId('default')
+    const defaultConfig = config.variant === 'date-picker'
+      ? DEFAULT_DATE_PICKER_MENU_CONFIG
+      : DEFAULT_FILTER_MENU_CONFIG
+    setConfig(defaultConfig)
+    setActivePresetId(config.variant === 'date-picker' ? 'date-picker' : 'default')
+  }, [config.variant])
+
+  // Handle period selection from preview
+  const handlePeriodSelect = useCallback((periodId: string) => {
+    setConfig((prev) => {
+      const period = prev.datePicker?.periods.find((p) => p.id === periodId)
+      if (!prev.datePicker || !period) return prev
+      return {
+        ...prev,
+        trigger: {
+          ...prev.trigger,
+          label: period.label,
+        },
+        datePicker: {
+          ...prev.datePicker,
+          selectedPeriod: periodId,
+        },
+      }
+    })
+    setActivePresetId(null)
   }, [])
 
   // Build panel configuration
@@ -143,15 +201,24 @@ export default function FilterMenuPlayground() {
         </div>
 
         {/* Filter Menu Preview */}
-        <FilterMenuPreview config={effectiveConfig} />
+        <FilterMenuPreview
+          config={effectiveConfig}
+          onPeriodSelect={handlePeriodSelect}
+        />
 
         {/* Current Config Display */}
         <div className="mt-8 rounded-lg bg-secondary/50 p-4 text-xs text-tertiary max-w-md">
           <p className="font-medium text-secondary mb-2">Current Config:</p>
           <p>
-            Mode: <span className="text-primary">{config.trigger.mode}</span>
+            Variant: <span className="text-primary">{config.variant}</span>
+            {config.variant === 'table-filter' && (
+              <>
+                {' · '}
+                Mode: <span className="text-primary">{config.trigger.mode}</span>
+              </>
+            )}
             {' · '}
-            Variant: <span className="text-primary">{config.trigger.variant}</span>
+            Style: <span className="text-primary">{config.trigger.variant}</span>
             {' · '}
             Size: <span className="text-primary">{config.trigger.size}</span>
           </p>
@@ -160,6 +227,13 @@ export default function FilterMenuPlayground() {
             {' · '}
             Position: <span className="text-primary">{config.menu.side}-{config.menu.align}</span>
           </p>
+          {config.variant === 'date-picker' && config.datePicker && (
+            <p className="mt-1">
+              Selected: <span className="text-primary">{config.datePicker.selectedPeriod}</span>
+              {' · '}
+              Indicator: <span className="text-primary">{config.datePicker.selectionIndicator}</span>
+            </p>
+          )}
           <p className="mt-1">
             Spring: <span className="text-primary">{config.animation.springPreset ?? 'default'}</span>
           </p>

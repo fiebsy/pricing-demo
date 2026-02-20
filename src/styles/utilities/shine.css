@@ -129,6 +129,13 @@
     inset 0px 1px 0px 0 rgba(0, 0, 0, 0.075),
     inset 0 0 0 1px rgba(255, 255, 255, 0.10);
 
+  --shine-brand-extra-subtle:
+    inset 0px 1px 0px 0 rgba(255, 255, 255, 0.12),
+    inset 0px -1px 0px 0 rgba(0, 0, 0, 0.15),
+    inset 0px -1px 0px 0 rgba(255, 255, 255, 0.036),
+    inset 0px 1px 0px 0 rgba(0, 0, 0, 0.022),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+
   --shine-brand-subtle:
     inset 0px 1px 0px 0 rgba(255, 255, 255, 0.24),
     inset 0px -1px 0px 0 rgba(0, 0, 0, 0.30),
@@ -220,6 +227,10 @@
 @utility shine-brand {
   border: none;
   box-shadow: var(--shine-brand);
+}
+@utility shine-brand-extra-subtle {
+  border: none;
+  box-shadow: var(--shine-brand-extra-subtle);
 }
 @utility shine-brand-subtle {
   border: none;

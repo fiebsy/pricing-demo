@@ -161,15 +161,17 @@ export default function HomePage(): React.ReactElement {
         onVideoEnded={handleVideoEnded}
         glowColorOverride={textColor}
       >
-        <p
-          className="text-xl font-medium text-primary transition-colors duration-300"
-          style={{
-            opacity: isHovered ? 1 : 0.5,
-            color: textColor || undefined,
-          }}
-        >
-          i like skwircles
-        </p>
+        {({ textClass }) => (
+          <p
+            className={`${textClass} font-medium text-primary transition-colors duration-300`}
+            style={{
+              opacity: isHovered ? 1 : 0.5,
+              color: textColor || undefined,
+            }}
+          >
+            i like skwircles
+          </p>
+        )}
       </LandingHero>
 
       {/* Confetti particles */}

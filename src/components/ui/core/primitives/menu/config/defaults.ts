@@ -65,7 +65,7 @@ export const DEFAULT_ANIMATION: Required<AnimationConfig> = {
   revealDuration: 200,
   revealScale: 0.4,
   revealSlideRatio: 0.5,
-  animateOnClose: true,
+  animateOnClose: false,
 }
 
 /**
