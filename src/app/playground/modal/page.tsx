@@ -14,7 +14,7 @@
 
 'use client'
 
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useState, useMemo } from 'react'
 import {
   UnifiedControlPanel,
   PlaygroundLayout,
@@ -24,9 +24,8 @@ import { Button } from '@/components/ui/core/primitives/button'
 import { cn } from '@/lib/utils'
 
 import { PlaygroundModal } from './core/modal'
-import type { ModalPlaygroundConfig, StageContentConfig } from './config/types'
+import type { ModalPlaygroundConfig, StageId } from './config/types'
 import { DEFAULT_MODAL_CONFIG, MODAL_PRESETS } from './config/presets'
-import { MODAL_STAGES, getStageById } from './config/stages'
 import { buildModalPanelConfig } from './panels/panel-config'
 import { StageControls } from './components/stage-controls'
 
@@ -61,12 +60,11 @@ interface DemoContentProps {
   config: ModalPlaygroundConfig
   isOpen: boolean
   onOpenChange: (open: boolean) => void
-  activeStage: 1 | 2 | 3 | 4
-  stageContent: StageContentConfig
-  onStageChange: (stageId: 1 | 2 | 3 | 4) => void
+  activeStage: StageId
+  onStageChange: (stageId: StageId) => void
 }
 
-function DemoContent({ config, isOpen, onOpenChange, activeStage, stageContent, onStageChange }: DemoContentProps) {
+function DemoContent({ config, isOpen, onOpenChange, activeStage, onStageChange }: DemoContentProps) {
   // Page background class
   const bgClass =
     config.demo.pageBackground === 'primary'
@@ -94,13 +92,11 @@ function DemoContent({ config, isOpen, onOpenChange, activeStage, stageContent, 
         open={isOpen}
         onOpenChange={onOpenChange}
         activeStage={activeStage}
-        stageContent={stageContent}
       />
 
       {/* Stage Controls - pinned to bottom */}
       {isOpen && (
         <StageControls
-          stages={MODAL_STAGES}
           activeStage={activeStage}
           onStageChange={onStageChange}
         />
@@ -117,10 +113,7 @@ export default function ModalPlayground() {
   const [config, setConfig] = useState<ModalPlaygroundConfig>(DEFAULT_MODAL_CONFIG)
   const [activePresetId, setActivePresetId] = useState<string | null>('default')
   const [isOpen, setIsOpen] = useState(false)
-  const [activeStage, setActiveStage] = useState<1 | 2 | 3 | 4>(1)
-
-  // Get current stage content
-  const stageContent = useMemo(() => getStageById(activeStage).content, [activeStage])
+  const [activeStage, setActiveStage] = useState<StageId>(1)
 
   // Auto-open: open when enabled, close when disabled
   useEffect(() => {
@@ -185,7 +178,7 @@ export default function ModalPlayground() {
   }, [])
 
   // Handle stage change
-  const handleStageChange = useCallback((stageId: 1 | 2 | 3 | 4) => {
+  const handleStageChange = useCallback((stageId: StageId) => {
     setActiveStage(stageId)
   }, [])
 
@@ -213,7 +206,6 @@ export default function ModalPlayground() {
         isOpen={isOpen}
         onOpenChange={handleOpenChange}
         activeStage={activeStage}
-        stageContent={stageContent}
         onStageChange={handleStageChange}
       />
     </PlaygroundLayout>

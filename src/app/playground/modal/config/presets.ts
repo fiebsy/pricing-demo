@@ -5,7 +5,7 @@
  * - default: Standard starting point
  */
 
-import type { ModalPlaygroundConfig, ModalPresetMeta } from './types'
+import type { ModalPlaygroundConfig, ModalPresetMeta, StagesConfig } from './types'
 
 // ============================================================================
 // Default Configuration
@@ -121,6 +121,32 @@ export const DEFAULT_MODAL_CONFIG: ModalPlaygroundConfig = {
     slowMo: false,
     autoOpen: true,
     showContainerOutlines: false,
+  },
+  stages: {
+    1: {
+      headerTitle: 'Modal Title 1',
+      contentA: { type: 'wireframe', height: 48, lineCount: 3 },
+      contentB: { type: 'wireframe', height: 32, lineCount: 2 },
+      buttons: { primary: 'Confirm', secondary: 'Cancel' },
+    },
+    2: {
+      headerTitle: 'Modal Title 2',
+      contentA: { type: 'wireframe', height: 80, lineCount: 5 },
+      contentB: { type: 'wireframe', height: 48, lineCount: 3 },
+      buttons: { primary: 'Continue', secondary: 'Back' },
+    },
+    3: {
+      headerTitle: 'Modal Title 3',
+      contentA: { type: 'wireframe', height: 32, lineCount: 2 },
+      contentB: { type: 'wireframe', height: 64, lineCount: 4 },
+      buttons: { primary: 'Submit', secondary: 'Cancel' },
+    },
+    4: {
+      headerTitle: 'Modal Title 4',
+      contentA: { type: 'wireframe', height: 64, lineCount: 4 },
+      contentB: { type: 'wireframe', height: 16, lineCount: 1 },
+      buttons: { primary: 'Done', secondary: 'Close' },
+    },
   },
 }
 

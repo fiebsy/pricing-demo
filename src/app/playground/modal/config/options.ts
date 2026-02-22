@@ -289,3 +289,12 @@ export const TEXT_EASING_OPTIONS = [
   { label: 'Expo Out', value: 'expo-out', description: 'Exponential ease out' },
   { label: 'Ease Out', value: 'ease-out', description: 'Standard ease out' },
 ] as const
+
+// ============================================================================
+// Content Type Options (for per-stage content slots)
+// ============================================================================
+
+export const CONTENT_TYPE_OPTIONS = [
+  { label: 'Wireframe', value: 'wireframe' },
+  { label: 'Text', value: 'text' },
+] as const

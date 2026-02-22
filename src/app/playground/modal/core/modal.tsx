@@ -18,9 +18,9 @@ import { FluidButtonGroup } from '@/components/ui/core/primitives/fluid-button-g
 import { HugeIcon } from '@/components/ui/core/primitives/icon'
 import Cancel01Icon from '@hugeicons-pro/core-stroke-rounded/Cancel01Icon'
 
-import type { ModalPlaygroundConfig, StageContentConfig } from '../config/types'
+import type { ModalPlaygroundConfig, StageContentConfig, StageId } from '../config/types'
 import { CrossfadeText } from './crossfade-text'
-import { AnimatedWireframeLines } from './animated-wireframe-lines'
+import { ContentSlot } from './content-slot'
 import {
   buildContainerClasses,
   buildContainerStyles,
@@ -41,8 +41,7 @@ interface PlaygroundModalProps {
   config: ModalPlaygroundConfig
   open: boolean
   onOpenChange: (open: boolean) => void
-  activeStage?: 1 | 2 | 3 | 4
-  stageContent?: StageContentConfig
+  activeStage?: StageId
 }
 
 // ============================================================================
@@ -127,15 +126,16 @@ function DebugWrapper({
 // Modal Component
 // ============================================================================
 
-export function PlaygroundModal({ config, open, onOpenChange, activeStage = 1, stageContent }: PlaygroundModalProps) {
-  const { backdrop, animation, textTransition, closeButton, header, contentTop, contentBottom, buttons, demo } =
+export function PlaygroundModal({ config, open, onOpenChange, activeStage = 1 }: PlaygroundModalProps) {
+  const { backdrop, animation, textTransition, closeButton, header, contentTop, contentBottom, buttons, demo, stages } =
     config
 
-  // Stage content overrides (if provided)
-  const effectiveTitle = stageContent?.headerTitle ?? header.titleContent
-  const effectiveContentA = stageContent?.contentA ?? { lineCount: contentTop.lineCount, height: contentTop.height }
-  const effectiveContentB = stageContent?.contentB ?? { lineCount: contentBottom.lineCount, height: contentBottom.height }
-  const effectiveButtons = stageContent?.buttons ?? { primary: buttons.primary.label, secondary: buttons.secondary.label }
+  // Get stage content from config
+  const stageContent = stages[activeStage]
+  const effectiveTitle = stageContent.headerTitle
+  const effectiveContentA = stageContent.contentA
+  const effectiveContentB = stageContent.contentB
+  const effectiveButtons = stageContent.buttons
 
   // In autoOpen mode, override backdrop to be transparent and non-dismissable
   const effectiveBackdrop = demo.autoOpen
@@ -285,36 +285,40 @@ export function PlaygroundModal({ config, open, onOpenChange, activeStage = 1, s
                           </motion.div>
                         </DebugWrapper>
 
-                        {/* Content Top Section - height morphs, lines animate */}
+                        {/* Content Top Section - height morphs, content animates */}
                         {contentTop.show && (
                           <DebugWrapper
                             label="Content A"
                             color="border-green-500"
                             show={demo.showContainerOutlines}
                           >
-                            <AnimatedWireframeLines
-                              lineCount={effectiveContentA.lineCount}
+                            <ContentSlot
+                              config={effectiveContentA}
                               lineGap={contentTop.lineGap}
-                              height={effectiveContentA.height}
                               duration={contentDuration}
                               bounce={contentBounce}
+                              textMode={textMode}
+                              textEasing={textEasing}
+                              textYOffset={textYOffset}
                             />
                           </DebugWrapper>
                         )}
 
-                        {/* Content Bottom Section - height morphs, lines animate */}
+                        {/* Content Bottom Section - height morphs, content animates */}
                         {contentBottom.show && (
                           <DebugWrapper
                             label="Content B"
                             color="border-yellow-500"
                             show={demo.showContainerOutlines}
                           >
-                            <AnimatedWireframeLines
-                              lineCount={effectiveContentB.lineCount}
+                            <ContentSlot
+                              config={effectiveContentB}
                               lineGap={contentBottom.lineGap}
-                              height={effectiveContentB.height}
                               duration={contentDuration}
                               bounce={contentBounce}
+                              textMode={textMode}
+                              textEasing={textEasing}
+                              textYOffset={textYOffset}
                             />
                           </DebugWrapper>
                         )}

@@ -258,6 +258,8 @@ export interface ModalPlaygroundConfig {
   animation: AnimationConfig
   textTransition: TextTransitionConfig
   demo: DemoConfig
+  /** Per-stage content configuration (title, content slots, button labels) */
+  stages: StagesConfig
 }
 
 // ============================================================================
@@ -276,15 +278,31 @@ export interface ModalPresetMeta {
 // Stage Configuration (for multi-stage transitions)
 // ============================================================================
 
+/** Content slot type: wireframe placeholder bars or editable text */
+export type ContentSlotType = 'wireframe' | 'text'
+
+/** Content slot configuration with type-specific options */
+export interface ContentSlotConfig {
+  /** Content type: wireframe bars or text paragraph */
+  type: ContentSlotType
+  /** Height of the content slot in pixels */
+  height: number
+  /** Number of wireframe lines (only for wireframe type) */
+  lineCount?: number
+  /** Text content (only for text type) */
+  text?: string
+}
+
+/** Per-stage content configuration */
 export interface StageContentConfig {
   headerTitle: string
-  contentA: { lineCount: number; height: number }
-  contentB: { lineCount: number; height: number }
+  contentA: ContentSlotConfig
+  contentB: ContentSlotConfig
   buttons: { primary: string; secondary?: string }
 }
 
-export interface StageConfig {
-  id: 1 | 2 | 3 | 4
-  name: string
-  content: StageContentConfig
-}
+/** Stage ID type (1-4) */
+export type StageId = 1 | 2 | 3 | 4
+
+/** Stages configuration record */
+export type StagesConfig = Record<StageId, StageContentConfig>

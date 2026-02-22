@@ -4,8 +4,9 @@
  * Builds the panel config for UnifiedControlPanel
  */
 
-import type { PanelConfig, Section } from '@/components/ui/patterns/control-panel'
-import type { ModalPlaygroundConfig, ModalPresetMeta } from '../config/types'
+import type { PanelConfig, Section, ControlGroup } from '@/components/ui/patterns/control-panel'
+import type { ModalPlaygroundConfig, ModalPresetMeta, StageId } from '../config/types'
+import { STAGE_IDS, STAGE_LABELS } from '../config/stages'
 import {
   CORNER_SHAPE_OPTIONS,
   BACKGROUND_OPTIONS,
@@ -33,6 +34,7 @@ import {
   PAGE_BACKGROUND_OPTIONS,
   TEXT_TRANSITION_MODE_OPTIONS,
   TEXT_EASING_OPTIONS,
+  CONTENT_TYPE_OPTIONS,
 } from '../config/options'
 
 // ============================================================================
@@ -55,6 +57,7 @@ export function buildModalPanelConfig(
       buildBackdropSection(config),
       buildAnimationSection(config),
       buildTextTransitionSection(config),
+      buildStagesSection(config),
       buildDemoSection(config),
     ],
     presetConfig: {
@@ -917,6 +920,153 @@ function buildTextTransitionSection(config: ModalPlaygroundConfig): Section {
         ],
       },
     ],
+  }
+}
+
+function buildStagesSection(config: ModalPlaygroundConfig): Section {
+  // Build groups for each stage (1-4)
+  const stageGroups: ControlGroup[] = STAGE_IDS.flatMap((stageId) => {
+    const stage = config.stages[stageId]
+    const prefix = `stages.${stageId}`
+
+    const groups: ControlGroup[] = [
+      // Stage header group with title
+      {
+        title: STAGE_LABELS[stageId],
+        defaultCollapsed: stageId !== 1,
+        controls: [
+          {
+            id: `${prefix}.headerTitle`,
+            type: 'text',
+            label: 'Title',
+            value: stage.headerTitle,
+            placeholder: 'Modal title...',
+          },
+        ],
+      },
+      // Content A group
+      {
+        title: 'Content A',
+        defaultCollapsed: true,
+        controls: [
+          {
+            id: `${prefix}.contentA.type`,
+            type: 'select',
+            label: 'Type',
+            value: stage.contentA.type,
+            options: [...CONTENT_TYPE_OPTIONS],
+          },
+          {
+            id: `${prefix}.contentA.height`,
+            type: 'slider',
+            label: 'Height',
+            value: stage.contentA.height,
+            min: 16,
+            max: 120,
+            step: 8,
+            formatLabel: (v: number) => `${v}px`,
+          },
+          ...(stage.contentA.type === 'wireframe'
+            ? [
+                {
+                  id: `${prefix}.contentA.lineCount`,
+                  type: 'slider' as const,
+                  label: 'Lines',
+                  value: stage.contentA.lineCount ?? 3,
+                  min: 1,
+                  max: 6,
+                  step: 1,
+                  formatLabel: (v: number) => `${v}`,
+                },
+              ]
+            : [
+                {
+                  id: `${prefix}.contentA.text`,
+                  type: 'text' as const,
+                  label: 'Text',
+                  value: stage.contentA.text ?? '',
+                  placeholder: 'Enter content text...',
+                },
+              ]),
+        ],
+      },
+      // Content B group
+      {
+        title: 'Content B',
+        defaultCollapsed: true,
+        controls: [
+          {
+            id: `${prefix}.contentB.type`,
+            type: 'select',
+            label: 'Type',
+            value: stage.contentB.type,
+            options: [...CONTENT_TYPE_OPTIONS],
+          },
+          {
+            id: `${prefix}.contentB.height`,
+            type: 'slider',
+            label: 'Height',
+            value: stage.contentB.height,
+            min: 16,
+            max: 120,
+            step: 8,
+            formatLabel: (v: number) => `${v}px`,
+          },
+          ...(stage.contentB.type === 'wireframe'
+            ? [
+                {
+                  id: `${prefix}.contentB.lineCount`,
+                  type: 'slider' as const,
+                  label: 'Lines',
+                  value: stage.contentB.lineCount ?? 2,
+                  min: 1,
+                  max: 6,
+                  step: 1,
+                  formatLabel: (v: number) => `${v}`,
+                },
+              ]
+            : [
+                {
+                  id: `${prefix}.contentB.text`,
+                  type: 'text' as const,
+                  label: 'Text',
+                  value: stage.contentB.text ?? '',
+                  placeholder: 'Enter content text...',
+                },
+              ]),
+        ],
+      },
+      // Buttons group
+      {
+        title: 'Buttons',
+        defaultCollapsed: true,
+        controls: [
+          {
+            id: `${prefix}.buttons.primary`,
+            type: 'text',
+            label: 'Primary',
+            value: stage.buttons.primary,
+            placeholder: 'Primary button...',
+          },
+          {
+            id: `${prefix}.buttons.secondary`,
+            type: 'text',
+            label: 'Secondary',
+            value: stage.buttons.secondary ?? '',
+            placeholder: 'Secondary button...',
+          },
+        ],
+      },
+    ]
+
+    return groups
+  })
+
+  return {
+    id: 'stages',
+    label: 'Stages',
+    title: 'Per-Stage Content',
+    groups: stageGroups,
   }
 }
 
