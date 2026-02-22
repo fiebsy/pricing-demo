@@ -20,11 +20,17 @@ export const LINE_CAP_OPTIONS = [
 
 export const DASH_PATTERN_OPTIONS = [
   { label: 'Solid', value: '' },
+  { label: 'Tight (1 1)', value: '1 1' },
   { label: 'Small (2 2)', value: '2 2' },
   { label: 'Medium (4 2)', value: '4 2' },
+  { label: 'Wide (4 4)', value: '4 4' },
   { label: 'Large (6 3)', value: '6 3' },
-  { label: 'Dotted (1 3)', value: '1 3' },
   { label: 'Long (8 4)', value: '8 4' },
+  { label: 'Extra Long (12 4)', value: '12 4' },
+  { label: 'Dotted (1 3)', value: '1 3' },
+  { label: 'Sparse (2 6)', value: '2 6' },
+  { label: 'Morse (8 2 2 2)', value: '8 2 2 2' },
+  { label: 'Custom', value: 'custom' },
 ] as const
 
 // ============================================================================
@@ -36,6 +42,16 @@ export const FILL_TYPE_OPTIONS = [
   { label: 'Solid', value: 'solid', description: 'Fill inside stroke' },
   { label: 'Full', value: 'full', description: 'Solid circle, no stroke' },
   { label: 'Pie', value: 'pie', description: 'Progress fill' },
+] as const
+
+// ============================================================================
+// Icon Variant Options
+// ============================================================================
+
+export const ICON_VARIANT_OPTIONS = [
+  { label: 'Stroke', value: 'stroke', description: 'Line icons with stroke' },
+  { label: 'Bulk', value: 'bulk', description: 'Filled icons (no stroke)' },
+  { label: 'Solid', value: 'solid', description: 'Solid filled icons' },
 ] as const
 
 // ============================================================================

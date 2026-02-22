@@ -50,3 +50,12 @@ export { sliderConfig, inlineSliderStyles, tickSliderStyles } from './slider'
 // Animated Count
 export { AnimatedCount, countEasings } from './animated-count'
 export type { AnimatedCountProps } from './animated-count'
+
+// Fluid Button Group
+export { FluidButtonGroup, TIMING_PRESETS, DEFAULT_GAP, DEFAULT_BLUR_CONFIG } from './fluid-button-group'
+export type {
+  FluidButtonGroupProps,
+  FluidTiming,
+  FluidTimingPreset,
+  FluidBlurConfig,
+} from './fluid-button-group'

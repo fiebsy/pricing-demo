@@ -201,3 +201,81 @@ export const SAMPLE_PROFILE_OPTIONS: ProfileOption[] = [
     icon: Settings01Icon,
   },
 ]
+
+// ============================================================================
+// PRICING TIER DATA
+// ============================================================================
+
+export interface PricingTier {
+  id: string
+  credits: number
+  price: number
+  label: string           // Legacy: full label for compatibility
+  priceLabel: string      // Legacy: price label for compatibility
+  multiplier: number      // 1, 2, 3, 4, 5, 6
+  planName: string        // "Pro", "Pro 2X", etc.
+  creditsLabel: string    // "200 credits / month"
+}
+
+export const PRICING_TIERS: PricingTier[] = [
+  {
+    id: 'tier-100',
+    credits: 100,
+    price: 19,
+    multiplier: 1,
+    planName: 'Pro',
+    creditsLabel: '100 credits / month',
+    label: '100 credits / month',
+    priceLabel: '$19/mo',
+  },
+  {
+    id: 'tier-200',
+    credits: 200,
+    price: 39,
+    multiplier: 2,
+    planName: 'Pro 2x',
+    creditsLabel: '200 credits / month',
+    label: '200 credits / month',
+    priceLabel: '$39/mo',
+  },
+  {
+    id: 'tier-300',
+    credits: 300,
+    price: 59,
+    multiplier: 3,
+    planName: 'Pro 3x',
+    creditsLabel: '300 credits / month',
+    label: '300 credits / month',
+    priceLabel: '$59/mo',
+  },
+  {
+    id: 'tier-400',
+    credits: 400,
+    price: 79,
+    multiplier: 4,
+    planName: 'Pro 4x',
+    creditsLabel: '400 credits / month',
+    label: '400 credits / month',
+    priceLabel: '$79/mo',
+  },
+  {
+    id: 'tier-500',
+    credits: 500,
+    price: 99,
+    multiplier: 5,
+    planName: 'Pro 5x',
+    creditsLabel: '500 credits / month',
+    label: '500 credits / month',
+    priceLabel: '$99/mo',
+  },
+  {
+    id: 'tier-600',
+    credits: 600,
+    price: 119,
+    multiplier: 6,
+    planName: 'Pro 6x',
+    creditsLabel: '600 credits / month',
+    label: '600 credits / month',
+    priceLabel: '$119/mo',
+  },
+]

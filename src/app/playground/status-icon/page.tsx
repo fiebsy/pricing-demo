@@ -108,56 +108,97 @@ function DemoContent({ config }: DemoContentProps) {
       <StatusIcon config={config} />
 
       {/* Presets - pinned to bottom, uses CSS vars from PlaygroundLayout */}
-      <div className="fixed bottom-8 left-[var(--playground-left)] right-[var(--playground-right)] flex items-center justify-center gap-6">
-        {/* Healthy */}
-        {['healthy'].map((id) => {
-          const preset = STATUS_ICON_PRESETS.find((p) => p.id === id)
-          if (!preset) return null
-          return (
-            <div key={preset.id} className="flex flex-col items-center gap-1.5">
-              <StatusIcon
-                config={{ ...preset.data, text: { ...preset.data.text, show: false } }}
-              />
-              <span className="text-[10px] text-quaternary">{preset.name}</span>
-            </div>
-          )
-        })}
+      <div className="fixed bottom-8 left-[var(--playground-left)] right-[var(--playground-right)] flex flex-col items-start gap-10 pl-[112px]">
+        {/* Active statuses section */}
+        <div className="flex flex-col items-start gap-4">
+          <span className="text-[10px] text-tertiary/50">Active</span>
+          <div className="flex items-center gap-6">
+            {/* Healthy */}
+            {['healthy'].map((id) => {
+              const preset = STATUS_ICON_PRESETS.find((p) => p.id === id)
+              if (!preset) return null
+              return (
+                <div key={preset.id} className="flex w-[70px] flex-col items-center gap-1.5">
+                  <StatusIcon
+                    config={{ ...preset.data, text: { ...preset.data.text, show: false } }}
+                  />
+                  <span className="text-[10px] text-quaternary">{preset.name}</span>
+                </div>
+              )
+            })}
 
-        {/* Separator */}
-        <div className="h-8 w-px bg-quaternary" />
+            {/* Separator */}
+            <div className="h-8 w-px bg-quaternary" />
 
-        {/* At-risk section */}
-        {['at-risk-low', 'at-risk-high', 'last-chance'].map((id) => {
-          const preset = STATUS_ICON_PRESETS.find((p) => p.id === id)
-          if (!preset) return null
-          return (
-            <div key={preset.id} className="flex flex-col items-center gap-1.5">
-              <StatusIcon
-                config={{ ...preset.data, text: { ...preset.data.text, show: false } }}
-              />
-              <span className="text-[10px] text-quaternary">{preset.name}</span>
-            </div>
-          )
-        })}
+            {/* At-risk section */}
+            {['at-risk-low', 'at-risk-high', 'last-chance'].map((id) => {
+              const preset = STATUS_ICON_PRESETS.find((p) => p.id === id)
+              if (!preset) return null
+              return (
+                <div key={preset.id} className="flex w-[70px] flex-col items-center gap-1.5">
+                  <StatusIcon
+                    config={{ ...preset.data, text: { ...preset.data.text, show: false } }}
+                  />
+                  <span className="text-[10px] text-quaternary">{preset.name}</span>
+                </div>
+              )
+            })}
+          </div>
+        </div>
 
-        {/* Separator */}
-        <div className="h-8 w-px bg-quaternary" />
+        {/* Closed statuses section */}
+        <div className="flex flex-col items-start gap-4">
+          <span className="text-[10px] text-tertiary/50">Closed</span>
+          <div className="flex items-center gap-6">
+            {/* Completed */}
+            {['completed'].map((id) => {
+              const preset = STATUS_ICON_PRESETS.find((p) => p.id === id)
+              if (!preset) return null
+              return (
+                <div key={preset.id} className="flex w-[70px] flex-col items-center gap-1.5">
+                  <StatusIcon
+                    config={{ ...preset.data, text: { ...preset.data.text, show: false } }}
+                  />
+                  <span className="text-[10px] text-quaternary">{preset.name}</span>
+                </div>
+              )
+            })}
 
-        {/* Closed states */}
-        {['completed', 'clawback', 'canceled', 'defaulted', 'chargeback', 'refunded', 'declined'].map(
-          (id) => {
-            const preset = STATUS_ICON_PRESETS.find((p) => p.id === id)
-            if (!preset) return null
-            return (
-              <div key={preset.id} className="flex flex-col items-center gap-1.5">
-                <StatusIcon
-                  config={{ ...preset.data, text: { ...preset.data.text, show: false } }}
-                />
-                <span className="text-[10px] text-quaternary">{preset.name}</span>
-              </div>
-            )
-          }
-        )}
+            {/* Separator */}
+            <div className="h-8 w-px bg-quaternary" />
+
+            {/* Other closed states */}
+            {['clawback', 'canceled', 'defaulted', 'chargeback', 'refunded'].map((id) => {
+              const preset = STATUS_ICON_PRESETS.find((p) => p.id === id)
+              if (!preset) return null
+              return (
+                <div key={preset.id} className="flex w-[70px] flex-col items-center gap-1.5">
+                  <StatusIcon
+                    config={{ ...preset.data, text: { ...preset.data.text, show: false } }}
+                  />
+                  <span className="text-[10px] text-quaternary">{preset.name}</span>
+                </div>
+              )
+            })}
+
+            {/* Separator */}
+            <div className="h-8 w-px bg-quaternary" />
+
+            {/* Declined */}
+            {['declined'].map((id) => {
+              const preset = STATUS_ICON_PRESETS.find((p) => p.id === id)
+              if (!preset) return null
+              return (
+                <div key={preset.id} className="flex w-[70px] flex-col items-center gap-1.5">
+                  <StatusIcon
+                    config={{ ...preset.data, text: { ...preset.data.text, show: false } }}
+                  />
+                  <span className="text-[10px] text-quaternary">{preset.name}</span>
+                </div>
+              )
+            })}
+          </div>
+        </div>
       </div>
     </>
   )

@@ -14,8 +14,15 @@ import {
   type ControlChangeEvent,
 } from '@/components/ui/patterns/control-panel'
 
+import { cn } from '@/lib/utils'
 import { DemoSwitcher } from './core/demo-variants'
-import type { BiaxialExpandPlaygroundConfig } from './config/types'
+import type {
+  BiaxialExpandPlaygroundConfig,
+  FontSizeOption,
+  FontWeightOption,
+  TextColorOption,
+  OpacityOption,
+} from './config/types'
 import {
   DEFAULT_BIAXIAL_EXPAND_PLAYGROUND_CONFIG,
   BIAXIAL_EXPAND_PRESETS,
@@ -58,6 +65,55 @@ function getPageBackgroundClass(bg: string): string {
 }
 
 // ============================================================================
+// CONTAINER HEADER STYLE HELPERS
+// ============================================================================
+
+function getTextColorClass(color: TextColorOption): string {
+  const map: Record<TextColorOption, string> = {
+    primary: 'text-primary',
+    secondary: 'text-secondary',
+    tertiary: 'text-tertiary',
+    brand: 'text-brand',
+  }
+  return map[color] ?? 'text-primary'
+}
+
+function getFontSizeClass(size: FontSizeOption): string {
+  const map: Record<FontSizeOption, string> = {
+    xs: 'text-xs',
+    sm: 'text-sm',
+    base: 'text-base',
+    lg: 'text-lg',
+    xl: 'text-xl',
+    '2xl': 'text-2xl',
+    '3xl': 'text-3xl',
+  }
+  return map[size] ?? 'text-sm'
+}
+
+function getFontWeightClass(weight: FontWeightOption): string {
+  const map: Record<FontWeightOption, string> = {
+    light: 'font-light',
+    normal: 'font-normal',
+    medium: 'font-medium',
+    semibold: 'font-semibold',
+    bold: 'font-bold',
+    extrabold: 'font-extrabold',
+  }
+  return map[weight] ?? 'font-normal'
+}
+
+function getOpacityClass(opacity: OpacityOption): string {
+  const map: Record<OpacityOption, string> = {
+    '100': 'opacity-100',
+    '80': 'opacity-80',
+    '60': 'opacity-60',
+    '40': 'opacity-40',
+  }
+  return map[opacity] ?? 'opacity-100'
+}
+
+// ============================================================================
 // PLAYGROUND PAGE
 // ============================================================================
 
@@ -77,6 +133,7 @@ export default function BiaxialExpandPlayground() {
         'command-menu': 'command-menu',
         'dashboard-metric': 'dashboard-metric',
         'custom': 'minimal',
+        'pricing-select': 'pricing-select',
       }
       const presetId = variantPresetMap[event.value as string]
       if (presetId) {
@@ -88,6 +145,41 @@ export default function BiaxialExpandPlayground() {
           return
         }
       }
+    }
+
+    // Handle tier toggle changes (special format: selectMenu.availableTiers.tier-XXX)
+    if (event.controlId.startsWith('selectMenu.availableTiers.tier-')) {
+      const tierId = event.controlId.replace('selectMenu.availableTiers.', '')
+      const isEnabled = event.value as boolean
+      setConfig((prev) => {
+        const currentTiers = prev.selectMenu.availableTiers
+        let newTiers: string[]
+        if (isEnabled) {
+          // Add tier if not already present
+          newTiers = currentTiers.includes(tierId) ? currentTiers : [...currentTiers, tierId]
+        } else {
+          // Remove tier (but ensure at least one tier remains)
+          newTiers = currentTiers.filter((t) => t !== tierId)
+          if (newTiers.length === 0) {
+            newTiers = [tierId] // Keep at least one tier
+          }
+        }
+        // Sort tiers to maintain order
+        newTiers.sort((a, b) => {
+          const numA = parseInt(a.replace('tier-', ''), 10)
+          const numB = parseInt(b.replace('tier-', ''), 10)
+          return numA - numB
+        })
+        return {
+          ...prev,
+          selectMenu: {
+            ...prev.selectMenu,
+            availableTiers: newTiers,
+          },
+        }
+      })
+      setActivePresetId(null)
+      return
     }
 
     // Standard nested value update
@@ -130,6 +222,32 @@ export default function BiaxialExpandPlayground() {
     setAutoOpen(enabled)
   }, [])
 
+  // Calculate effective widths based on debug container and sync settings
+  const effectiveConfig = useMemo(() => {
+    let panelWidth = config.layout.panelWidth
+    let triggerWidth = config.layout.triggerWidth
+
+    // If debug container is enabled, panel fills container inner width
+    if (config.demo.debugContainer.enabled) {
+      panelWidth =
+        config.demo.debugContainer.width - 2 * config.demo.debugContainer.padding
+    }
+
+    // Sync trigger width to panel width if enabled
+    if (config.layout.syncTriggerWidth) {
+      triggerWidth = panelWidth
+    }
+
+    return {
+      ...config,
+      layout: {
+        ...config.layout,
+        panelWidth,
+        triggerWidth,
+      },
+    }
+  }, [config])
+
   const panelConfig = useMemo(
     () => buildBiaxialExpandPanelConfig(config, BIAXIAL_EXPAND_PRESETS, activePresetId),
     [config, activePresetId]
@@ -156,23 +274,68 @@ export default function BiaxialExpandPlayground() {
       }}
       className={getPageBackgroundClass(config.demo.pageBackground)}
     >
-      <div key={resetKey} className="flex items-center gap-4">
-        {/* Left test block - gets pushed when LeftSlot expands */}
-        {config.leftSlot.enabled && (
-          <div className="w-12 h-12 bg-tertiary rounded-xl border border-primary flex items-center justify-center shrink-0">
-            <span className="text-xs text-tertiary">L</span>
-          </div>
-        )}
+      {config.demo.debugContainer.enabled ? (
+        <div
+          className={cn(
+            'rounded-2xl',
+            config.demo.debugContainer.showLines && 'border-2 border-red-500'
+          )}
+          style={{
+            width: config.demo.debugContainer.width,
+            padding: config.demo.debugContainer.padding,
+          }}
+        >
+          {/* Container Header */}
+          {config.demo.debugContainer.header.show && (
+            <div
+              className={cn(
+                getTextColorClass(config.demo.debugContainer.header.textColor),
+                getFontSizeClass(config.demo.debugContainer.header.fontSize),
+                getFontWeightClass(config.demo.debugContainer.header.fontWeight),
+                getOpacityClass(config.demo.debugContainer.header.opacity)
+              )}
+              style={{ marginBottom: config.demo.debugContainer.header.marginBottom }}
+            >
+              {config.demo.debugContainer.header.text}
+            </div>
+          )}
+          <div key={resetKey} className="flex items-center gap-4">
+            {/* Left test block - gets pushed when LeftSlot expands */}
+            {config.leftSlot.enabled && (
+              <div className="w-12 h-12 bg-tertiary rounded-xl border border-primary flex items-center justify-center shrink-0">
+                <span className="text-xs text-tertiary">L</span>
+              </div>
+            )}
 
-        <DemoSwitcher config={config} autoOpen={autoOpen} />
+            <DemoSwitcher config={effectiveConfig} autoOpen={autoOpen} />
 
-        {/* Right test block - gets pushed when RightSlot expands */}
-        {config.rightSlot.enabled && (
-          <div className="w-12 h-12 bg-tertiary rounded-xl border border-primary flex items-center justify-center shrink-0">
-            <span className="text-xs text-tertiary">R</span>
+            {/* Right test block - gets pushed when RightSlot expands */}
+            {config.rightSlot.enabled && (
+              <div className="w-12 h-12 bg-tertiary rounded-xl border border-primary flex items-center justify-center shrink-0">
+                <span className="text-xs text-tertiary">R</span>
+              </div>
+            )}
           </div>
-        )}
-      </div>
+        </div>
+      ) : (
+        <div key={resetKey} className="flex items-center gap-4">
+          {/* Left test block - gets pushed when LeftSlot expands */}
+          {config.leftSlot.enabled && (
+            <div className="w-12 h-12 bg-tertiary rounded-xl border border-primary flex items-center justify-center shrink-0">
+              <span className="text-xs text-tertiary">L</span>
+            </div>
+          )}
+
+          <DemoSwitcher config={effectiveConfig} autoOpen={autoOpen} />
+
+          {/* Right test block - gets pushed when RightSlot expands */}
+          {config.rightSlot.enabled && (
+            <div className="w-12 h-12 bg-tertiary rounded-xl border border-primary flex items-center justify-center shrink-0">
+              <span className="text-xs text-tertiary">R</span>
+            </div>
+          )}
+        </div>
+      )}
     </PlaygroundLayout>
   )
 }

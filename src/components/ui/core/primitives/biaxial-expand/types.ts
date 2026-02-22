@@ -50,6 +50,13 @@ export interface SlotConfig {
    * @default 200
    */
   drivingHeight?: number
+  /**
+   * Enable ScrollArea wrapper when height is constrained (fixed/dynamic modes).
+   * When true, content will be scrollable if it exceeds the slot height.
+   * Has no effect in 'auto' mode since content drives height.
+   * @default false
+   */
+  scrollable?: boolean
   /** Background option */
   background?: BackgroundOption
   /** Shine effect class (e.g., 'shine-2-subtle', 'none') */

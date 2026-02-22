@@ -16,6 +16,7 @@ import type { StatusIconConfig, StatusIconPresetMeta } from './types'
 const DEFAULT_ICON_CONFIG = {
   show: false,
   iconName: 'Tick01',
+  variant: 'stroke' as const,
   color: 'fg-primary',
   size: 10,
   strokeWidth: 2,
@@ -30,11 +31,13 @@ export const DEFAULT_STATUS_ICON_CONFIG: StatusIconConfig = {
     diameter: 14,
   },
   stroke: {
-    width: 2,
-    color: 'fg-quaternary',
-    dashed: false,
-    dashArray: '',
+    width: 1.5,
+    color: 'fg-tertiary',
+    dashed: true,
+    dashArray: 'custom',
     lineCap: 'round',
+    customDash: 2.5,
+    customGap: 3,
   },
   fill: {
     type: 'pie',
@@ -72,7 +75,7 @@ export const STATUS_ICON_PRESETS: StatusIconPresetMeta[] = [
     id: 'healthy',
     name: 'Healthy',
     category: 'active',
-    description: 'Green solid stroke, 100% pie fill',
+    description: 'Green dashed stroke, 100% pie fill',
     data: {
       ...DEFAULT_STATUS_ICON_CONFIG,
       stroke: {
@@ -95,18 +98,16 @@ export const STATUS_ICON_PRESETS: StatusIconPresetMeta[] = [
     id: 'at-risk-low',
     name: 'At-Risk Low',
     category: 'active',
-    description: 'Amber dashed stroke, 25% pie fill',
+    description: 'Amber dashed stroke, 50% pie fill',
     data: {
       ...DEFAULT_STATUS_ICON_CONFIG,
       stroke: {
         ...DEFAULT_STATUS_ICON_CONFIG.stroke,
         color: 'fg-warning-primary',
-        dashed: true,
-        dashArray: '4 2',
       },
       fill: {
         type: 'pie',
-        percentage: 25,
+        percentage: 50,
         color: 'bg-warning-solid',
       },
       text: {
@@ -120,18 +121,16 @@ export const STATUS_ICON_PRESETS: StatusIconPresetMeta[] = [
     id: 'at-risk-medium',
     name: 'At-Risk Medium',
     category: 'active',
-    description: 'Amber dashed stroke, 50% pie fill',
+    description: 'Amber dashed stroke, 75% pie fill',
     data: {
       ...DEFAULT_STATUS_ICON_CONFIG,
       stroke: {
         ...DEFAULT_STATUS_ICON_CONFIG.stroke,
         color: 'fg-warning-primary',
-        dashed: true,
-        dashArray: '4 2',
       },
       fill: {
         type: 'pie',
-        percentage: 50,
+        percentage: 75,
         color: 'bg-warning-solid',
       },
       text: {
@@ -145,12 +144,36 @@ export const STATUS_ICON_PRESETS: StatusIconPresetMeta[] = [
     id: 'at-risk-high',
     name: 'At-Risk High',
     category: 'active',
-    description: 'Red filled circle, alert icon',
+    description: 'Red dashed stroke, 90% pie fill',
     data: {
       ...DEFAULT_STATUS_ICON_CONFIG,
       stroke: {
         ...DEFAULT_STATUS_ICON_CONFIG.stroke,
-        color: 'fg-quaternary',
+        color: 'fg-error-primary',
+      },
+      fill: {
+        type: 'pie',
+        percentage: 90,
+        color: 'bg-error-solid',
+      },
+      text: {
+        ...DEFAULT_STATUS_ICON_CONFIG.text,
+        content: 'High Risk',
+        color: 'text-error-primary',
+      },
+    },
+  },
+  {
+    id: 'last-chance',
+    name: 'Last Chance',
+    category: 'active',
+    description: 'Red filled circle, bulk alert icon',
+    data: {
+      ...DEFAULT_STATUS_ICON_CONFIG,
+      stroke: {
+        ...DEFAULT_STATUS_ICON_CONFIG.stroke,
+        color: 'fg-error-primary',
+        dashed: false,
       },
       fill: {
         type: 'full',
@@ -160,33 +183,10 @@ export const STATUS_ICON_PRESETS: StatusIconPresetMeta[] = [
         ...DEFAULT_ICON_CONFIG,
         show: true,
         iconName: 'Alert02',
+        variant: 'bulk',
         color: 'fg-error-secondary',
         size: 10,
-      },
-      text: {
-        ...DEFAULT_STATUS_ICON_CONFIG.text,
-        content: 'High Risk',
-        color: 'text-primary',
-      },
-    },
-  },
-  {
-    id: 'last-chance',
-    name: 'Last Chance',
-    category: 'active',
-    description: 'Red dashed stroke, critical warning',
-    data: {
-      ...DEFAULT_STATUS_ICON_CONFIG,
-      stroke: {
-        ...DEFAULT_STATUS_ICON_CONFIG.stroke,
-        color: 'fg-error-primary',
-        dashed: true,
-        dashArray: '2 2',
-      },
-      fill: {
-        type: 'pie',
-        percentage: 90,
-        color: 'bg-error-solid',
+        strokeWidth: 0,
       },
       text: {
         ...DEFAULT_STATUS_ICON_CONFIG.text,

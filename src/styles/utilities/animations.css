@@ -257,4 +257,26 @@
   }
 }
 
+/* ============================================================================
+   SHIMMER ANIMATION
+   Stripe-style button shine effect
+   ============================================================================ */
 
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-shimmer {
+    animation: none;
+  }
+}

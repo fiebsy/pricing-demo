@@ -11,6 +11,7 @@
 
 import * as React from 'react'
 import { useEffect, useRef } from 'react'
+import { ScrollArea } from '@base-ui/react/scroll-area'
 import { cn } from '@/lib/utils'
 import { useBiaxialExpand } from '../context'
 import { getBackgroundClass, getBorderColorVar } from '../utils'
@@ -36,6 +37,9 @@ export const BottomSlot: React.FC<SlotProps> = ({
   // Get heightMode from slot config (defaults to 'dynamic' for backward compatibility)
   const heightMode = slotConfig.heightMode ?? 'dynamic'
   const isAutoHeight = heightMode === 'auto'
+
+  // Scrollable only applies when height is constrained (not auto)
+  const shouldScroll = slotConfig.scrollable && !isAutoHeight
 
   // Determine effective height based on mode:
   // - 'fixed': Use bottomSlot.height, fallback to layout.maxBottomHeight
@@ -127,9 +131,23 @@ export const BottomSlot: React.FC<SlotProps> = ({
         }),
       }}
     >
-      <div ref={contentRef}>
-        {children}
-      </div>
+      {shouldScroll ? (
+        <ScrollArea.Root className="h-full w-full">
+          <ScrollArea.Viewport className="h-full w-full">
+            <ScrollArea.Content>
+              <div ref={contentRef}>{children}</div>
+            </ScrollArea.Content>
+          </ScrollArea.Viewport>
+          <ScrollArea.Scrollbar
+            orientation="vertical"
+            className="absolute top-1 right-1 bottom-1 flex w-1.5 touch-none select-none p-0.5 opacity-0 transition-opacity duration-150 data-[hovering]:opacity-100 data-[scrolling]:opacity-100"
+          >
+            <ScrollArea.Thumb className="bg-fg-quaternary hover:bg-fg-quaternary_hover relative flex-1 rounded-full" />
+          </ScrollArea.Scrollbar>
+        </ScrollArea.Root>
+      ) : (
+        <div ref={contentRef}>{children}</div>
+      )}
       {/* Debug overlay: shows slot boundaries and height info */}
       {showDebug && (
         <>

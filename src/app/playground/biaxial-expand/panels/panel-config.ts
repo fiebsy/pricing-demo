@@ -23,6 +23,16 @@ import {
   HEIGHT_MODE_OPTIONS,
   SLOT_SHINE_OPTIONS,
   VERTICAL_ALIGN_OPTIONS,
+  TEXT_COLOR_OPTIONS,
+  FONT_WEIGHT_OPTIONS,
+  FONT_SIZE_OPTIONS,
+  OPACITY_OPTIONS,
+  PRICE_ROW_ALIGN_OPTIONS,
+  DISPLAY_MODE_OPTIONS,
+  BADGE_COLOR_OPTIONS,
+  LABEL_LAYOUT_OPTIONS,
+  SEPARATOR_OPTIONS,
+  TIER_OPTIONS,
 } from '../config/options'
 
 // ============================================================================
@@ -34,9 +44,13 @@ export function buildBiaxialExpandPanelConfig(
   presets: BiaxialExpandPresetMeta[],
   activePresetId: string | null
 ): PanelConfig {
+  // Build conditional sections
+  const selectMenuSection = buildSelectMenuSection(config)
+
   return {
     sections: [
       buildDemoSection(config),
+      ...(selectMenuSection ? [selectMenuSection] : []),
       buildLayoutSection(config),
       buildTriggerSection(config),
       buildAnimationSection(config),
@@ -86,6 +100,793 @@ function buildDemoSection(config: BiaxialExpandPlaygroundConfig): Section {
             label: 'Page Background',
             value: config.demo.pageBackground,
             options: [...PAGE_BACKGROUND_OPTIONS],
+          },
+        ],
+      },
+    ],
+  }
+}
+
+/**
+ * Select Menu section - only shown for pricing-select variant
+ */
+function buildSelectMenuSection(config: BiaxialExpandPlaygroundConfig): Section | null {
+  // Only show for pricing-select variant
+  if (config.demo.variant !== 'pricing-select') return null
+
+  return {
+    id: 'selectMenu',
+    label: 'Menu Items',
+    title: 'Select Menu Styling',
+    groups: [
+      {
+        title: 'Trigger',
+        controls: [
+          {
+            id: 'selectMenu.showDropdownIcon',
+            type: 'toggle',
+            label: 'Dropdown Icon',
+            value: config.selectMenu.showDropdownIcon,
+          },
+          ...(config.selectMenu.showDropdownIcon
+            ? [
+                {
+                  id: 'selectMenu.dropdownIconRotates',
+                  type: 'toggle' as const,
+                  label: 'Rotate on Expand',
+                  value: config.selectMenu.dropdownIconRotates,
+                },
+              ]
+            : []),
+        ],
+      },
+      {
+        title: 'Available Tiers',
+        controls: TIER_OPTIONS.map((tier) => ({
+          id: `selectMenu.availableTiers.${tier.value}`,
+          type: 'toggle' as const,
+          label: tier.label,
+          value: config.selectMenu.availableTiers.includes(tier.value),
+        })),
+      },
+      {
+        title: 'Synced Subtext',
+        controls: [
+          {
+            id: 'selectMenu.syncedSubtext.syncWithSelection',
+            type: 'toggle',
+            label: 'Sync with Selection',
+            value: config.selectMenu.syncedSubtext.syncWithSelection,
+          },
+          ...(config.selectMenu.syncedSubtext.syncWithSelection
+            ? [
+                {
+                  id: 'selectMenu.syncedSubtext.separator',
+                  type: 'select' as const,
+                  label: 'Separator',
+                  value: config.selectMenu.syncedSubtext.separator,
+                  options: [...SEPARATOR_OPTIONS],
+                },
+                {
+                  id: 'selectMenu.syncedSubtext.gap',
+                  type: 'slider' as const,
+                  label: 'Gap',
+                  value: config.selectMenu.syncedSubtext.gap,
+                  min: 0,
+                  max: 16,
+                  step: 1,
+                  formatLabel: (v: number) => `${v}px`,
+                },
+              ]
+            : []),
+        ],
+      },
+      // Subtext Plan Name styling - only show when synced
+      ...(config.selectMenu.syncedSubtext.syncWithSelection
+        ? [
+            {
+              title: 'Subtext: Plan Name',
+              controls: [
+                {
+                  id: 'selectMenu.syncedSubtext.planName.show',
+                  type: 'toggle' as const,
+                  label: 'Show',
+                  value: config.selectMenu.syncedSubtext.planName.show,
+                },
+                ...(config.selectMenu.syncedSubtext.planName.show
+                  ? [
+                      {
+                        id: 'selectMenu.syncedSubtext.planName.displayMode',
+                        type: 'select' as const,
+                        label: 'Display',
+                        value: config.selectMenu.syncedSubtext.planName.displayMode,
+                        options: [...DISPLAY_MODE_OPTIONS],
+                      },
+                      {
+                        id: 'selectMenu.syncedSubtext.planName.fontSize',
+                        type: 'select' as const,
+                        label: 'Size',
+                        value: config.selectMenu.syncedSubtext.planName.fontSize,
+                        options: [...FONT_SIZE_OPTIONS],
+                      },
+                      {
+                        id: 'selectMenu.syncedSubtext.planName.fontWeight',
+                        type: 'select' as const,
+                        label: 'Weight',
+                        value: config.selectMenu.syncedSubtext.planName.fontWeight,
+                        options: [...FONT_WEIGHT_OPTIONS],
+                      },
+                      {
+                        id: 'selectMenu.syncedSubtext.planName.textColor',
+                        type: 'select' as const,
+                        label: 'Color',
+                        value: config.selectMenu.syncedSubtext.planName.textColor,
+                        options: [...TEXT_COLOR_OPTIONS],
+                      },
+                      {
+                        id: 'selectMenu.syncedSubtext.planName.opacity',
+                        type: 'select' as const,
+                        label: 'Opacity',
+                        value: config.selectMenu.syncedSubtext.planName.opacity,
+                        options: [...OPACITY_OPTIONS],
+                      },
+                      ...(config.selectMenu.syncedSubtext.planName.displayMode === 'badge'
+                        ? [
+                            {
+                              id: 'selectMenu.syncedSubtext.planName.badgeColor',
+                              type: 'select' as const,
+                              label: 'Badge Color',
+                              value: config.selectMenu.syncedSubtext.planName.badgeColor,
+                              options: [...BADGE_COLOR_OPTIONS],
+                            },
+                          ]
+                        : []),
+                    ]
+                  : []),
+              ],
+            },
+            {
+              title: 'Subtext: Credits',
+              controls: [
+                {
+                  id: 'selectMenu.syncedSubtext.credits.show',
+                  type: 'toggle' as const,
+                  label: 'Show',
+                  value: config.selectMenu.syncedSubtext.credits.show,
+                },
+                ...(config.selectMenu.syncedSubtext.credits.show
+                  ? [
+                      {
+                        id: 'selectMenu.syncedSubtext.credits.displayMode',
+                        type: 'select' as const,
+                        label: 'Display',
+                        value: config.selectMenu.syncedSubtext.credits.displayMode,
+                        options: [...DISPLAY_MODE_OPTIONS],
+                      },
+                      {
+                        id: 'selectMenu.syncedSubtext.credits.fontSize',
+                        type: 'select' as const,
+                        label: 'Size',
+                        value: config.selectMenu.syncedSubtext.credits.fontSize,
+                        options: [...FONT_SIZE_OPTIONS],
+                      },
+                      {
+                        id: 'selectMenu.syncedSubtext.credits.fontWeight',
+                        type: 'select' as const,
+                        label: 'Weight',
+                        value: config.selectMenu.syncedSubtext.credits.fontWeight,
+                        options: [...FONT_WEIGHT_OPTIONS],
+                      },
+                      {
+                        id: 'selectMenu.syncedSubtext.credits.textColor',
+                        type: 'select' as const,
+                        label: 'Color',
+                        value: config.selectMenu.syncedSubtext.credits.textColor,
+                        options: [...TEXT_COLOR_OPTIONS],
+                      },
+                      {
+                        id: 'selectMenu.syncedSubtext.credits.opacity',
+                        type: 'select' as const,
+                        label: 'Opacity',
+                        value: config.selectMenu.syncedSubtext.credits.opacity,
+                        options: [...OPACITY_OPTIONS],
+                      },
+                      ...(config.selectMenu.syncedSubtext.credits.displayMode === 'badge'
+                        ? [
+                            {
+                              id: 'selectMenu.syncedSubtext.credits.badgeColor',
+                              type: 'select' as const,
+                              label: 'Badge Color',
+                              value: config.selectMenu.syncedSubtext.credits.badgeColor,
+                              options: [...BADGE_COLOR_OPTIONS],
+                            },
+                          ]
+                        : []),
+                    ]
+                  : []),
+              ],
+            },
+          ]
+        : []),
+      {
+        title: 'Header',
+        controls: [
+          {
+            id: 'selectMenu.showHeader',
+            type: 'toggle',
+            label: 'Show Header',
+            value: config.selectMenu.showHeader,
+          },
+          // Only show header styling controls when header is enabled
+          ...(config.selectMenu.showHeader
+            ? [
+                {
+                  id: 'selectMenu.headerLabel',
+                  type: 'text' as const,
+                  label: 'Text',
+                  value: config.selectMenu.headerLabel,
+                  placeholder: 'Header text...',
+                },
+                {
+                  id: 'selectMenu.headerTextColor',
+                  type: 'select' as const,
+                  label: 'Color',
+                  value: config.selectMenu.headerTextColor,
+                  options: [...TEXT_COLOR_OPTIONS],
+                },
+                {
+                  id: 'selectMenu.headerFontWeight',
+                  type: 'select' as const,
+                  label: 'Weight',
+                  value: config.selectMenu.headerFontWeight,
+                  options: [...FONT_WEIGHT_OPTIONS],
+                },
+                {
+                  id: 'selectMenu.headerFontSize',
+                  type: 'select' as const,
+                  label: 'Size',
+                  value: config.selectMenu.headerFontSize,
+                  options: [...FONT_SIZE_OPTIONS],
+                },
+                {
+                  id: 'selectMenu.headerOpacity',
+                  type: 'select' as const,
+                  label: 'Opacity',
+                  value: config.selectMenu.headerOpacity,
+                  options: [...OPACITY_OPTIONS],
+                },
+                {
+                  id: 'selectMenu.headerUppercase',
+                  type: 'toggle' as const,
+                  label: 'Uppercase',
+                  value: config.selectMenu.headerUppercase,
+                },
+                {
+                  id: 'selectMenu.headerPaddingBottom',
+                  type: 'slider' as const,
+                  label: 'Bottom Padding',
+                  value: config.selectMenu.headerPaddingBottom,
+                  min: 0,
+                  max: 24,
+                  step: 2,
+                  formatLabel: (v: number) => `${v}px`,
+                },
+              ]
+            : []),
+        ],
+      },
+      {
+        title: 'Container',
+        controls: [
+          {
+            id: 'selectMenu.containerPadding',
+            type: 'slider',
+            label: 'Padding',
+            value: config.selectMenu.containerPadding,
+            min: 0,
+            max: 16,
+            step: 2,
+            formatLabel: (v: number) => `${v}px`,
+          },
+        ],
+      },
+      {
+        title: 'Items',
+        controls: [
+          {
+            id: 'selectMenu.itemPaddingX',
+            type: 'slider',
+            label: 'Padding X',
+            value: config.selectMenu.itemPaddingX,
+            min: 4,
+            max: 24,
+            step: 2,
+            formatLabel: (v: number) => `${v}px`,
+          },
+          {
+            id: 'selectMenu.itemPaddingY',
+            type: 'slider',
+            label: 'Padding Y',
+            value: config.selectMenu.itemPaddingY,
+            min: 4,
+            max: 20,
+            step: 2,
+            formatLabel: (v: number) => `${v}px`,
+          },
+          {
+            id: 'selectMenu.itemBorderRadius',
+            type: 'slider',
+            label: 'Border Radius',
+            value: config.selectMenu.itemBorderRadius,
+            min: 0,
+            max: 16,
+            step: 2,
+            formatLabel: (v: number) => `${v}px`,
+          },
+          {
+            id: 'selectMenu.itemGap',
+            type: 'slider',
+            label: 'Gap',
+            value: config.selectMenu.itemGap,
+            min: 0,
+            max: 8,
+            step: 1,
+            formatLabel: (v: number) => `${v}px`,
+          },
+        ],
+      },
+      {
+        title: 'Background',
+        controls: [
+          {
+            id: 'selectMenu.itemHoverBackground',
+            type: 'select',
+            label: 'Hover',
+            value: config.selectMenu.itemHoverBackground,
+            options: [...BACKGROUND_OPTIONS],
+          },
+        ],
+      },
+      {
+        title: 'Selection',
+        controls: [
+          {
+            id: 'selectMenu.showSelectedIndicator',
+            type: 'toggle',
+            label: 'Show Checkmark',
+            value: config.selectMenu.showSelectedIndicator,
+          },
+        ],
+      },
+      {
+        title: 'Trigger Label',
+        controls: [
+          {
+            id: 'selectMenu.triggerTypography.label.show',
+            type: 'toggle',
+            label: 'Show',
+            value: config.selectMenu.triggerTypography.label.show,
+          },
+          ...(config.selectMenu.triggerTypography.label.show
+            ? [
+                {
+                  id: 'selectMenu.triggerTypography.label.text',
+                  type: 'text' as const,
+                  label: 'Text',
+                  value: config.selectMenu.triggerTypography.label.text,
+                  placeholder: 'Upgrade',
+                },
+                {
+                  id: 'selectMenu.triggerTypography.label.fontSize',
+                  type: 'select' as const,
+                  label: 'Size',
+                  value: config.selectMenu.triggerTypography.label.fontSize,
+                  options: [...FONT_SIZE_OPTIONS],
+                },
+                {
+                  id: 'selectMenu.triggerTypography.label.fontWeight',
+                  type: 'select' as const,
+                  label: 'Weight',
+                  value: config.selectMenu.triggerTypography.label.fontWeight,
+                  options: [...FONT_WEIGHT_OPTIONS],
+                },
+                {
+                  id: 'selectMenu.triggerTypography.label.textColor',
+                  type: 'select' as const,
+                  label: 'Color',
+                  value: config.selectMenu.triggerTypography.label.textColor,
+                  options: [...TEXT_COLOR_OPTIONS],
+                },
+              ]
+            : []),
+        ],
+      },
+      {
+        title: 'Trigger Price',
+        controls: [
+          {
+            id: 'selectMenu.triggerTypography.price.show',
+            type: 'toggle',
+            label: 'Show',
+            value: config.selectMenu.triggerTypography.price.show,
+          },
+          ...(config.selectMenu.triggerTypography.price.show
+            ? [
+                {
+                  id: 'selectMenu.triggerTypography.price.prefix',
+                  type: 'text' as const,
+                  label: 'Prefix',
+                  value: config.selectMenu.triggerTypography.price.prefix,
+                  placeholder: '$',
+                },
+                {
+                  id: 'selectMenu.triggerTypography.price.fontSize',
+                  type: 'select' as const,
+                  label: 'Size',
+                  value: config.selectMenu.triggerTypography.price.fontSize,
+                  options: [...FONT_SIZE_OPTIONS],
+                },
+                {
+                  id: 'selectMenu.triggerTypography.price.fontWeight',
+                  type: 'select' as const,
+                  label: 'Weight',
+                  value: config.selectMenu.triggerTypography.price.fontWeight,
+                  options: [...FONT_WEIGHT_OPTIONS],
+                },
+                {
+                  id: 'selectMenu.triggerTypography.price.textColor',
+                  type: 'select' as const,
+                  label: 'Color',
+                  value: config.selectMenu.triggerTypography.price.textColor,
+                  options: [...TEXT_COLOR_OPTIONS],
+                },
+              ]
+            : []),
+        ],
+      },
+      {
+        title: 'Price Suffix',
+        controls: [
+          {
+            id: 'selectMenu.triggerTypography.priceSuffix.show',
+            type: 'toggle',
+            label: 'Show',
+            value: config.selectMenu.triggerTypography.priceSuffix.show,
+          },
+          ...(config.selectMenu.triggerTypography.priceSuffix.show
+            ? [
+                {
+                  id: 'selectMenu.triggerTypography.priceSuffix.text',
+                  type: 'text' as const,
+                  label: 'Text',
+                  value: config.selectMenu.triggerTypography.priceSuffix.text,
+                  placeholder: 'per month',
+                },
+                {
+                  id: 'selectMenu.triggerTypography.priceSuffix.fontSize',
+                  type: 'select' as const,
+                  label: 'Size',
+                  value: config.selectMenu.triggerTypography.priceSuffix.fontSize,
+                  options: [...FONT_SIZE_OPTIONS],
+                },
+                {
+                  id: 'selectMenu.triggerTypography.priceSuffix.fontWeight',
+                  type: 'select' as const,
+                  label: 'Weight',
+                  value: config.selectMenu.triggerTypography.priceSuffix.fontWeight,
+                  options: [...FONT_WEIGHT_OPTIONS],
+                },
+                {
+                  id: 'selectMenu.triggerTypography.priceSuffix.textColor',
+                  type: 'select' as const,
+                  label: 'Color',
+                  value: config.selectMenu.triggerTypography.priceSuffix.textColor,
+                  options: [...TEXT_COLOR_OPTIONS],
+                },
+                {
+                  id: 'selectMenu.triggerTypography.priceSuffix.opacity',
+                  type: 'select' as const,
+                  label: 'Opacity',
+                  value: config.selectMenu.triggerTypography.priceSuffix.opacity,
+                  options: [...OPACITY_OPTIONS],
+                },
+              ]
+            : []),
+        ],
+      },
+      {
+        title: 'Price Row Layout',
+        controls: [
+          {
+            id: 'selectMenu.triggerTypography.priceRowAlign',
+            type: 'select',
+            label: 'Alignment',
+            value: config.selectMenu.triggerTypography.priceRowAlign,
+            options: [...PRICE_ROW_ALIGN_OPTIONS],
+          },
+          {
+            id: 'selectMenu.triggerTypography.priceRowGap',
+            type: 'slider',
+            label: 'Gap',
+            value: config.selectMenu.triggerTypography.priceRowGap,
+            min: 0,
+            max: 16,
+            step: 1,
+            formatLabel: (v: number) => `${v}px`,
+          },
+          {
+            id: 'selectMenu.triggerTypography.rowGap',
+            type: 'slider',
+            label: 'Row Gap',
+            value: config.selectMenu.triggerTypography.rowGap,
+            min: 0,
+            max: 16,
+            step: 1,
+            formatLabel: (v: number) => `${v}px`,
+          },
+        ],
+      },
+      {
+        title: 'Trigger Subtext',
+        controls: [
+          {
+            id: 'selectMenu.triggerTypography.subtext.show',
+            type: 'toggle',
+            label: 'Show',
+            value: config.selectMenu.triggerTypography.subtext.show,
+          },
+          ...(config.selectMenu.triggerTypography.subtext.show
+            ? [
+                {
+                  id: 'selectMenu.triggerTypography.subtext.text',
+                  type: 'text' as const,
+                  label: 'Text',
+                  value: config.selectMenu.triggerTypography.subtext.text,
+                  placeholder: 'Cancel anytime',
+                },
+                {
+                  id: 'selectMenu.triggerTypography.subtext.fontSize',
+                  type: 'select' as const,
+                  label: 'Size',
+                  value: config.selectMenu.triggerTypography.subtext.fontSize,
+                  options: [...FONT_SIZE_OPTIONS],
+                },
+                {
+                  id: 'selectMenu.triggerTypography.subtext.fontWeight',
+                  type: 'select' as const,
+                  label: 'Weight',
+                  value: config.selectMenu.triggerTypography.subtext.fontWeight,
+                  options: [...FONT_WEIGHT_OPTIONS],
+                },
+                {
+                  id: 'selectMenu.triggerTypography.subtext.textColor',
+                  type: 'select' as const,
+                  label: 'Color',
+                  value: config.selectMenu.triggerTypography.subtext.textColor,
+                  options: [...TEXT_COLOR_OPTIONS],
+                },
+                {
+                  id: 'selectMenu.triggerTypography.subtext.opacity',
+                  type: 'select' as const,
+                  label: 'Opacity',
+                  value: config.selectMenu.triggerTypography.subtext.opacity,
+                  options: [...OPACITY_OPTIONS],
+                },
+              ]
+            : []),
+        ],
+      },
+      {
+        title: 'Item Label Layout',
+        controls: [
+          {
+            id: 'selectMenu.menuItemLabel.layout',
+            type: 'select',
+            label: 'Layout',
+            value: config.selectMenu.menuItemLabel.layout,
+            options: [...LABEL_LAYOUT_OPTIONS],
+          },
+          ...(config.selectMenu.menuItemLabel.layout === 'inline'
+            ? [
+                {
+                  id: 'selectMenu.menuItemLabel.separator',
+                  type: 'select' as const,
+                  label: 'Separator',
+                  value: config.selectMenu.menuItemLabel.separator,
+                  options: [...SEPARATOR_OPTIONS],
+                },
+              ]
+            : []),
+          {
+            id: 'selectMenu.menuItemLabel.gap',
+            type: 'slider',
+            label: 'Gap',
+            value: config.selectMenu.menuItemLabel.gap,
+            min: 0,
+            max: 16,
+            step: 1,
+            formatLabel: (v: number) => `${v}px`,
+          },
+        ],
+      },
+      {
+        title: 'Item: Plan Name',
+        controls: [
+          {
+            id: 'selectMenu.menuItemLabel.planName.show',
+            type: 'toggle',
+            label: 'Show',
+            value: config.selectMenu.menuItemLabel.planName.show,
+          },
+          ...(config.selectMenu.menuItemLabel.planName.show
+            ? [
+                {
+                  id: 'selectMenu.menuItemLabel.planName.displayMode',
+                  type: 'select' as const,
+                  label: 'Display',
+                  value: config.selectMenu.menuItemLabel.planName.displayMode,
+                  options: [...DISPLAY_MODE_OPTIONS],
+                },
+                {
+                  id: 'selectMenu.menuItemLabel.planName.fontSize',
+                  type: 'select' as const,
+                  label: 'Size',
+                  value: config.selectMenu.menuItemLabel.planName.fontSize,
+                  options: [...FONT_SIZE_OPTIONS],
+                },
+                {
+                  id: 'selectMenu.menuItemLabel.planName.fontWeight',
+                  type: 'select' as const,
+                  label: 'Weight',
+                  value: config.selectMenu.menuItemLabel.planName.fontWeight,
+                  options: [...FONT_WEIGHT_OPTIONS],
+                },
+                {
+                  id: 'selectMenu.menuItemLabel.planName.textColor',
+                  type: 'select' as const,
+                  label: 'Color',
+                  value: config.selectMenu.menuItemLabel.planName.textColor,
+                  options: [...TEXT_COLOR_OPTIONS],
+                },
+                {
+                  id: 'selectMenu.menuItemLabel.planName.opacity',
+                  type: 'select' as const,
+                  label: 'Opacity',
+                  value: config.selectMenu.menuItemLabel.planName.opacity,
+                  options: [...OPACITY_OPTIONS],
+                },
+                ...(config.selectMenu.menuItemLabel.planName.displayMode === 'badge'
+                  ? [
+                      {
+                        id: 'selectMenu.menuItemLabel.planName.badgeColor',
+                        type: 'select' as const,
+                        label: 'Badge Color',
+                        value: config.selectMenu.menuItemLabel.planName.badgeColor,
+                        options: [...BADGE_COLOR_OPTIONS],
+                      },
+                    ]
+                  : []),
+              ]
+            : []),
+        ],
+      },
+      {
+        title: 'Item: Credits',
+        controls: [
+          {
+            id: 'selectMenu.menuItemLabel.credits.show',
+            type: 'toggle',
+            label: 'Show',
+            value: config.selectMenu.menuItemLabel.credits.show,
+          },
+          ...(config.selectMenu.menuItemLabel.credits.show
+            ? [
+                {
+                  id: 'selectMenu.menuItemLabel.credits.displayMode',
+                  type: 'select' as const,
+                  label: 'Display',
+                  value: config.selectMenu.menuItemLabel.credits.displayMode,
+                  options: [...DISPLAY_MODE_OPTIONS],
+                },
+                {
+                  id: 'selectMenu.menuItemLabel.credits.fontSize',
+                  type: 'select' as const,
+                  label: 'Size',
+                  value: config.selectMenu.menuItemLabel.credits.fontSize,
+                  options: [...FONT_SIZE_OPTIONS],
+                },
+                {
+                  id: 'selectMenu.menuItemLabel.credits.fontWeight',
+                  type: 'select' as const,
+                  label: 'Weight',
+                  value: config.selectMenu.menuItemLabel.credits.fontWeight,
+                  options: [...FONT_WEIGHT_OPTIONS],
+                },
+                {
+                  id: 'selectMenu.menuItemLabel.credits.textColor',
+                  type: 'select' as const,
+                  label: 'Color',
+                  value: config.selectMenu.menuItemLabel.credits.textColor,
+                  options: [...TEXT_COLOR_OPTIONS],
+                },
+                {
+                  id: 'selectMenu.menuItemLabel.credits.opacity',
+                  type: 'select' as const,
+                  label: 'Opacity',
+                  value: config.selectMenu.menuItemLabel.credits.opacity,
+                  options: [...OPACITY_OPTIONS],
+                },
+                ...(config.selectMenu.menuItemLabel.credits.displayMode === 'badge'
+                  ? [
+                      {
+                        id: 'selectMenu.menuItemLabel.credits.badgeColor',
+                        type: 'select' as const,
+                        label: 'Badge Color',
+                        value: config.selectMenu.menuItemLabel.credits.badgeColor,
+                        options: [...BADGE_COLOR_OPTIONS],
+                      },
+                    ]
+                  : []),
+              ]
+            : []),
+        ],
+      },
+      {
+        title: 'Item Label (Legacy)',
+        controls: [
+          {
+            id: 'selectMenu.itemTypography.label.fontSize',
+            type: 'select',
+            label: 'Size',
+            value: config.selectMenu.itemTypography.label.fontSize,
+            options: [...FONT_SIZE_OPTIONS],
+          },
+          {
+            id: 'selectMenu.itemTypography.label.fontWeight',
+            type: 'select',
+            label: 'Weight',
+            value: config.selectMenu.itemTypography.label.fontWeight,
+            options: [...FONT_WEIGHT_OPTIONS],
+          },
+          {
+            id: 'selectMenu.itemTypography.label.textColor',
+            type: 'select',
+            label: 'Color',
+            value: config.selectMenu.itemTypography.label.textColor,
+            options: [...TEXT_COLOR_OPTIONS],
+          },
+        ],
+      },
+      {
+        title: 'Item Price',
+        controls: [
+          {
+            id: 'selectMenu.itemTypography.price.fontSize',
+            type: 'select',
+            label: 'Size',
+            value: config.selectMenu.itemTypography.price.fontSize,
+            options: [...FONT_SIZE_OPTIONS],
+          },
+          {
+            id: 'selectMenu.itemTypography.price.fontWeight',
+            type: 'select',
+            label: 'Weight',
+            value: config.selectMenu.itemTypography.price.fontWeight,
+            options: [...FONT_WEIGHT_OPTIONS],
+          },
+          {
+            id: 'selectMenu.itemTypography.price.textColor',
+            type: 'select',
+            label: 'Color',
+            value: config.selectMenu.itemTypography.price.textColor,
+            options: [...TEXT_COLOR_OPTIONS],
+          },
+          {
+            id: 'selectMenu.itemTypography.price.opacity',
+            type: 'select',
+            label: 'Opacity',
+            value: config.selectMenu.itemTypography.price.opacity,
+            options: [...OPACITY_OPTIONS],
           },
         ],
       },
@@ -262,15 +1063,26 @@ function buildTriggerSection(config: BiaxialExpandPlaygroundConfig): Section {
         title: 'Size',
         controls: [
           {
-            id: 'layout.triggerWidth',
-            type: 'slider',
-            label: 'Width',
-            value: config.layout.triggerWidth,
-            min: 120,
-            max: 600,
-            step: 10,
-            formatLabel: (v: number) => `${v}px`,
+            id: 'layout.syncTriggerWidth',
+            type: 'toggle',
+            label: 'Sync to Panel Width',
+            value: config.layout.syncTriggerWidth,
           },
+          // Only show trigger width slider when not synced
+          ...(!config.layout.syncTriggerWidth
+            ? [
+                {
+                  id: 'layout.triggerWidth',
+                  type: 'slider' as const,
+                  label: 'Width',
+                  value: config.layout.triggerWidth,
+                  min: 120,
+                  max: 600,
+                  step: 10,
+                  formatLabel: (v: number) => `${v}px`,
+                },
+              ]
+            : []),
           {
             id: 'layout.triggerHeight',
             type: 'slider',
@@ -761,6 +1573,17 @@ function buildBottomSlotSection(config: BiaxialExpandPlaygroundConfig): Section 
             step: 10,
             formatLabel: (v: number) => `${v}px`,
           },
+          // Only show scrollable toggle when height is constrained (not auto mode)
+          ...(config.bottomSlot.heightMode !== 'auto'
+            ? [
+                {
+                  id: 'bottomSlot.scrollable',
+                  type: 'toggle' as const,
+                  label: 'Scrollable',
+                  value: config.bottomSlot.scrollable ?? false,
+                },
+              ]
+            : []),
         ],
       },
       {
@@ -1154,6 +1977,114 @@ function buildDebugSection(config: BiaxialExpandPlaygroundConfig): Section {
           },
         ],
       },
+      {
+        title: 'Debug Container',
+        controls: [
+          {
+            id: 'demo.debugContainer.enabled',
+            type: 'toggle',
+            label: 'Show Container',
+            value: config.demo.debugContainer.enabled,
+          },
+          // Show width/padding/showLines only when enabled
+          ...(config.demo.debugContainer.enabled
+            ? [
+                {
+                  id: 'demo.debugContainer.showLines',
+                  type: 'toggle' as const,
+                  label: 'Show Lines',
+                  value: config.demo.debugContainer.showLines,
+                },
+                {
+                  id: 'demo.debugContainer.width',
+                  type: 'slider' as const,
+                  label: 'Width',
+                  value: config.demo.debugContainer.width,
+                  min: 300,
+                  max: 800,
+                  step: 20,
+                  formatLabel: (v: number) => `${v}px`,
+                },
+                {
+                  id: 'demo.debugContainer.padding',
+                  type: 'slider' as const,
+                  label: 'Padding',
+                  value: config.demo.debugContainer.padding,
+                  min: 0,
+                  max: 40,
+                  step: 4,
+                  formatLabel: (v: number) => `${v}px`,
+                },
+              ]
+            : []),
+        ],
+      },
+      // Container Header - only shown when debug container is enabled
+      ...(config.demo.debugContainer.enabled
+        ? [
+            {
+              title: 'Container Header',
+              controls: [
+                {
+                  id: 'demo.debugContainer.header.show',
+                  type: 'toggle' as const,
+                  label: 'Show Header',
+                  value: config.demo.debugContainer.header.show,
+                },
+                // Show header styling controls only when header is enabled
+                ...(config.demo.debugContainer.header.show
+                  ? [
+                      {
+                        id: 'demo.debugContainer.header.text',
+                        type: 'text' as const,
+                        label: 'Text',
+                        value: config.demo.debugContainer.header.text,
+                        placeholder: 'Select a plan',
+                      },
+                      {
+                        id: 'demo.debugContainer.header.fontSize',
+                        type: 'select' as const,
+                        label: 'Font Size',
+                        value: config.demo.debugContainer.header.fontSize,
+                        options: [...FONT_SIZE_OPTIONS],
+                      },
+                      {
+                        id: 'demo.debugContainer.header.fontWeight',
+                        type: 'select' as const,
+                        label: 'Font Weight',
+                        value: config.demo.debugContainer.header.fontWeight,
+                        options: [...FONT_WEIGHT_OPTIONS],
+                      },
+                      {
+                        id: 'demo.debugContainer.header.textColor',
+                        type: 'select' as const,
+                        label: 'Text Color',
+                        value: config.demo.debugContainer.header.textColor,
+                        options: [...TEXT_COLOR_OPTIONS],
+                      },
+                      {
+                        id: 'demo.debugContainer.header.opacity',
+                        type: 'select' as const,
+                        label: 'Opacity',
+                        value: config.demo.debugContainer.header.opacity,
+                        options: [...OPACITY_OPTIONS],
+                      },
+                      {
+                        id: 'demo.debugContainer.header.marginBottom',
+                        type: 'slider' as const,
+                        label: 'Bottom Margin',
+                        value: config.demo.debugContainer.header.marginBottom,
+                        min: 0,
+                        max: 32,
+                        step: 2,
+                        formatLabel: (v: number) => `${v}px`,
+                      },
+                    ]
+                  : []),
+              ],
+            },
+          ]
+        : []),
     ],
   }
 }

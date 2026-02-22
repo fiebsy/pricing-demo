@@ -289,6 +289,7 @@ export const Menu: React.FC<MenuProps> = ({
                           enabled={mergedUnifiedHover.enabled}
                           config={mergedUnifiedHover}
                           panelId="root"
+                          isActive={!inSubmenu}
                         >
                           <UnifiedHoverContainer className="relative flex flex-col gap-1">
                             {filteredItems.map((item) => (
@@ -322,6 +323,7 @@ export const Menu: React.FC<MenuProps> = ({
                                 enabled={mergedUnifiedHover.enabled}
                                 config={mergedUnifiedHover}
                                 panelId="submenu"
+                                isActive={inSubmenu}
                               >
                                 <UnifiedHoverContainer className="relative flex flex-col gap-1">
                                   {submenu.items.map((item) => (

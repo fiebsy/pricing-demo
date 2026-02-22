@@ -12,6 +12,7 @@ export const DEMO_VARIANT_OPTIONS = [
   { label: 'Command Menu', value: 'command-menu' },
   { label: 'Dashboard Metric', value: 'dashboard-metric' },
   { label: 'Custom', value: 'custom' },
+  { label: 'Pricing Select', value: 'pricing-select' },
 ] as const
 
 export const PAGE_BACKGROUND_OPTIONS = [
@@ -151,4 +152,89 @@ export const VERTICAL_ALIGN_OPTIONS = [
   { label: 'Center', value: 'center' },
   { label: 'Bottom', value: 'bottom' },
   { label: 'Full', value: 'full' },
+] as const
+
+// ============================================================================
+// HEADER OPTIONS
+// ============================================================================
+
+export const TEXT_COLOR_OPTIONS = [
+  { label: 'Primary', value: 'primary' },
+  { label: 'Secondary', value: 'secondary' },
+  { label: 'Tertiary', value: 'tertiary' },
+  { label: 'Brand', value: 'brand' },
+] as const
+
+export const FONT_WEIGHT_OPTIONS = [
+  { label: 'Light', value: 'light' },
+  { label: 'Normal', value: 'normal' },
+  { label: 'Medium', value: 'medium' },
+  { label: 'Semibold', value: 'semibold' },
+  { label: 'Bold', value: 'bold' },
+  { label: 'Extrabold', value: 'extrabold' },
+] as const
+
+export const PRICE_ROW_ALIGN_OPTIONS = [
+  { label: 'Baseline', value: 'baseline' },
+  { label: 'Center', value: 'center' },
+  { label: 'Bottom', value: 'bottom' },
+] as const
+
+export const FONT_SIZE_OPTIONS = [
+  { label: 'XS', value: 'xs' },
+  { label: 'SM', value: 'sm' },
+  { label: 'Base', value: 'base' },
+  { label: 'LG', value: 'lg' },
+  { label: 'XL', value: 'xl' },
+  { label: '2XL', value: '2xl' },
+  { label: '3XL', value: '3xl' },
+] as const
+
+export const OPACITY_OPTIONS = [
+  { label: '100%', value: '100' },
+  { label: '80%', value: '80' },
+  { label: '60%', value: '60' },
+  { label: '40%', value: '40' },
+] as const
+
+// ============================================================================
+// DISPLAY MODE OPTIONS
+// ============================================================================
+
+export const DISPLAY_MODE_OPTIONS = [
+  { label: 'Text', value: 'text' },
+  { label: 'Badge', value: 'badge' },
+] as const
+
+export const BADGE_COLOR_OPTIONS = [
+  { label: 'Gray', value: 'gray' },
+  { label: 'Brand', value: 'brand' },
+  { label: 'Success', value: 'success' },
+  { label: 'Warning', value: 'warning' },
+  { label: 'Error', value: 'error' },
+] as const
+
+export const LABEL_LAYOUT_OPTIONS = [
+  { label: 'Inline', value: 'inline' },
+  { label: 'Stacked', value: 'stacked' },
+] as const
+
+export const SEPARATOR_OPTIONS = [
+  { label: 'Dash', value: ' - ' },
+  { label: 'Pipe', value: ' | ' },
+  { label: 'Bullet', value: ' • ' },
+  { label: 'None', value: '' },
+] as const
+
+// ============================================================================
+// TIER OPTIONS
+// ============================================================================
+
+export const TIER_OPTIONS = [
+  { label: 'Pro (100)', value: 'tier-100' },
+  { label: 'Pro 2X (200)', value: 'tier-200' },
+  { label: 'Pro 3X (300)', value: 'tier-300' },
+  { label: 'Pro 4X (400)', value: 'tier-400' },
+  { label: 'Pro 5X (500)', value: 'tier-500' },
+  { label: 'Pro 6X (600)', value: 'tier-600' },
 ] as const

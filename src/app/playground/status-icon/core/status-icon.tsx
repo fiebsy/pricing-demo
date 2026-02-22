@@ -14,7 +14,7 @@ import { cn } from '@/lib/utils'
 import { HugeIcon } from '@/components/ui/core/primitives/icon'
 import type { StatusIconConfig } from '../config/types'
 
-// Icon imports - static for reliability
+// Stroke icon imports
 import Tick01Icon from '@hugeicons-pro/core-stroke-rounded/Tick01Icon'
 import Cancel01Icon from '@hugeicons-pro/core-stroke-rounded/Cancel01Icon'
 import Alert02Icon from '@hugeicons-pro/core-stroke-rounded/Alert02Icon'
@@ -24,14 +24,34 @@ import InformationCircleIcon from '@hugeicons-pro/core-stroke-rounded/Informatio
 import Clock01Icon from '@hugeicons-pro/core-stroke-rounded/Clock01Icon'
 import DollarCircleIcon from '@hugeicons-pro/core-stroke-rounded/DollarCircleIcon'
 
+// Bulk icon imports
+import Tick01BulkIcon from '@hugeicons-pro/core-bulk-rounded/Tick01Icon'
+import Cancel01BulkIcon from '@hugeicons-pro/core-bulk-rounded/Cancel01Icon'
+import Alert02BulkIcon from '@hugeicons-pro/core-bulk-rounded/Alert02Icon'
+import Remove01BulkIcon from '@hugeicons-pro/core-bulk-rounded/Remove01Icon'
+import AlertDiamondBulkIcon from '@hugeicons-pro/core-bulk-rounded/AlertDiamondIcon'
+import InformationCircleBulkIcon from '@hugeicons-pro/core-bulk-rounded/InformationCircleIcon'
+import Clock01BulkIcon from '@hugeicons-pro/core-bulk-rounded/Clock01Icon'
+import DollarCircleBulkIcon from '@hugeicons-pro/core-bulk-rounded/DollarCircleIcon'
+
+// Solid icon imports
+import Tick01SolidIcon from '@hugeicons-pro/core-solid-rounded/Tick01Icon'
+import Cancel01SolidIcon from '@hugeicons-pro/core-solid-rounded/Cancel01Icon'
+import Alert02SolidIcon from '@hugeicons-pro/core-solid-rounded/Alert02Icon'
+import Remove01SolidIcon from '@hugeicons-pro/core-solid-rounded/Remove01Icon'
+import AlertDiamondSolidIcon from '@hugeicons-pro/core-solid-rounded/AlertDiamondIcon'
+import InformationCircleSolidIcon from '@hugeicons-pro/core-solid-rounded/InformationCircleIcon'
+import Clock01SolidIcon from '@hugeicons-pro/core-solid-rounded/Clock01Icon'
+import DollarCircleSolidIcon from '@hugeicons-pro/core-solid-rounded/DollarCircleIcon'
+
 // Custom icons
 import { ClawbackIcon, ClawbackSolidIcon } from '@/components/ui/core/primitives/custom-icons'
 
 // ============================================================================
-// Icon Map
+// Icon Maps by Variant
 // ============================================================================
 
-const ICON_MAP: Record<string, unknown> = {
+const STROKE_ICON_MAP: Record<string, unknown> = {
   Tick01: Tick01Icon,
   Cancel01: Cancel01Icon,
   Alert02: Alert02Icon,
@@ -40,13 +60,55 @@ const ICON_MAP: Record<string, unknown> = {
   InformationCircle: InformationCircleIcon,
   Clock01: Clock01Icon,
   DollarCircle: DollarCircleIcon,
-  // Custom icons
+}
+
+const BULK_ICON_MAP: Record<string, unknown> = {
+  Tick01: Tick01BulkIcon,
+  Cancel01: Cancel01BulkIcon,
+  Alert02: Alert02BulkIcon,
+  Remove01: Remove01BulkIcon,
+  AlertDiamond: AlertDiamondBulkIcon,
+  InformationCircle: InformationCircleBulkIcon,
+  Clock01: Clock01BulkIcon,
+  DollarCircle: DollarCircleBulkIcon,
+}
+
+const SOLID_ICON_MAP: Record<string, unknown> = {
+  Tick01: Tick01SolidIcon,
+  Cancel01: Cancel01SolidIcon,
+  Alert02: Alert02SolidIcon,
+  Remove01: Remove01SolidIcon,
+  AlertDiamond: AlertDiamondSolidIcon,
+  InformationCircle: InformationCircleSolidIcon,
+  Clock01: Clock01SolidIcon,
+  DollarCircle: DollarCircleSolidIcon,
+}
+
+// Custom icons (always solid style)
+const CUSTOM_ICON_MAP: Record<string, unknown> = {
   ClawbackSolid: ClawbackSolidIcon,
   Clawback: ClawbackIcon,
 }
 
 // Custom icons that render directly (not via HugeIcon wrapper)
 const CUSTOM_ICONS = new Set(['ClawbackSolid', 'Clawback'])
+
+function getIconForVariant(iconName: string, variant: 'stroke' | 'bulk' | 'solid'): unknown {
+  // Custom icons don't have variants
+  if (CUSTOM_ICONS.has(iconName)) {
+    return CUSTOM_ICON_MAP[iconName]
+  }
+
+  switch (variant) {
+    case 'bulk':
+      return BULK_ICON_MAP[iconName]
+    case 'solid':
+      return SOLID_ICON_MAP[iconName]
+    case 'stroke':
+    default:
+      return STROKE_ICON_MAP[iconName]
+  }
+}
 
 // ============================================================================
 // Color Token Resolution
@@ -179,24 +241,27 @@ function PieFill({ percentage, color, center, strokeWidth }: PieFillProps) {
 
 interface IconOverlayProps {
   iconName: string
+  variant: 'stroke' | 'bulk' | 'solid'
   color: string
   size: number
   strokeWidth: number
   diameter: number
 }
 
-function IconOverlay({ iconName, color, size, strokeWidth, diameter }: IconOverlayProps) {
-  const IconComponent = ICON_MAP[iconName]
+function IconOverlay({ iconName, variant, color, size, strokeWidth, diameter }: IconOverlayProps) {
+  const IconComponent = getIconForVariant(iconName, variant)
 
   if (!IconComponent) {
     return null
   }
 
-  // Handle strokeWidth as string (from select) or number
-  const iconStrokeWidth = typeof strokeWidth === 'string' ? parseFloat(strokeWidth) : strokeWidth
-
   const isCustomIcon = CUSTOM_ICONS.has(iconName)
   const CustomIcon = IconComponent as React.ComponentType<{ size?: number; style?: React.CSSProperties; className?: string }>
+
+  // For bulk/solid variants, strokeWidth should be 0 (they don't use strokes)
+  const effectiveStrokeWidth = variant === 'stroke' ? strokeWidth : 0
+  // Handle strokeWidth as string (from select) or number
+  const iconStrokeWidth = typeof effectiveStrokeWidth === 'string' ? parseFloat(effectiveStrokeWidth) : effectiveStrokeWidth
 
   return (
     <div
@@ -239,6 +304,11 @@ export function StatusIcon({ config, className }: StatusIconProps) {
   const strokeColor = resolveColor(stroke.color)
   const textColor = resolveColor(text.color)
 
+  // Resolve dash array (handle custom pattern)
+  const dashArray = stroke.dashArray === 'custom'
+    ? `${stroke.customDash ?? 4} ${stroke.customGap ?? 2}`
+    : stroke.dashArray
+
   // Text size class
   const textSizeClass = TEXT_SIZE_CLASSES[text.size] || 'text-sm'
 
@@ -260,7 +330,7 @@ export function StatusIcon({ config, className }: StatusIconProps) {
           fill="none"
           strokeWidth={strokeWidth}
           strokeLinecap={stroke.lineCap}
-          strokeDasharray={stroke.dashed ? stroke.dashArray : undefined}
+          strokeDasharray={stroke.dashed ? dashArray : undefined}
           style={{
             stroke: strokeColor,
           }}
@@ -301,6 +371,7 @@ export function StatusIcon({ config, className }: StatusIconProps) {
       {icon.show && (
         <IconOverlay
           iconName={icon.iconName}
+          variant={icon.variant}
           color={icon.color}
           size={icon.size}
           strokeWidth={icon.strokeWidth}

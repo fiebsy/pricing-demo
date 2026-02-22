@@ -11,6 +11,7 @@ import {
   DASH_PATTERN_OPTIONS,
   FILL_TYPE_OPTIONS,
   ICON_NAME_OPTIONS,
+  ICON_VARIANT_OPTIONS,
   ICON_STROKE_WIDTH_OPTIONS,
   STROKE_COLOR_OPTIONS,
   FILL_COLOR_OPTIONS,
@@ -140,6 +141,35 @@ function buildStrokeSection(config: StatusIconConfig): Section {
                 },
               ],
             },
+            ...(config.stroke.dashArray === 'custom'
+              ? [
+                  {
+                    title: 'Custom Pattern',
+                    controls: [
+                      {
+                        id: 'stroke.customDash',
+                        type: 'slider' as const,
+                        label: 'Dash Length',
+                        value: config.stroke.customDash ?? 4,
+                        min: 0.5,
+                        max: 20,
+                        step: 0.5,
+                        formatLabel: (v: number) => `${v}px`,
+                      },
+                      {
+                        id: 'stroke.customGap',
+                        type: 'slider' as const,
+                        label: 'Gap Length',
+                        value: config.stroke.customGap ?? 2,
+                        min: 0.5,
+                        max: 20,
+                        step: 0.5,
+                        formatLabel: (v: number) => `${v}px`,
+                      },
+                    ],
+                  },
+                ]
+              : []),
           ]
         : []),
     ],
@@ -243,6 +273,35 @@ function buildFillSection(config: StatusIconConfig): Section {
 function buildIconSection(config: StatusIconConfig): Section {
   const { icon } = config
 
+  // Build size & weight controls based on variant
+  const sizeAndWeightControls = [
+    {
+      id: 'icon.size',
+      type: 'slider' as const,
+      label: 'Size',
+      value: icon.size,
+      min: 6,
+      max: 24,
+      step: 1,
+      formatLabel: (v: number) => `${v}px`,
+    },
+    // Only show strokeWidth for stroke variant
+    ...(icon.variant === 'stroke'
+      ? [
+          {
+            id: 'icon.strokeWidth',
+            type: 'select' as const,
+            label: 'Thickness',
+            value: String(icon.strokeWidth),
+            options: ICON_STROKE_WIDTH_OPTIONS.map((opt) => ({
+              label: opt.label,
+              value: String(opt.value),
+            })),
+          },
+        ]
+      : []),
+  ]
+
   const iconOptionsGroup = icon.show
     ? [
         {
@@ -256,6 +315,13 @@ function buildIconSection(config: StatusIconConfig): Section {
               options: [...ICON_NAME_OPTIONS],
             },
             {
+              id: 'icon.variant',
+              type: 'select' as const,
+              label: 'Variant',
+              value: icon.variant,
+              options: [...ICON_VARIANT_OPTIONS],
+            },
+            {
               id: 'icon.color',
               type: 'color-select' as const,
               label: 'Color',
@@ -266,28 +332,7 @@ function buildIconSection(config: StatusIconConfig): Section {
         },
         {
           title: 'Icon Size & Weight',
-          controls: [
-            {
-              id: 'icon.size',
-              type: 'slider' as const,
-              label: 'Size',
-              value: icon.size,
-              min: 6,
-              max: 24,
-              step: 1,
-              formatLabel: (v: number) => `${v}px`,
-            },
-            {
-              id: 'icon.strokeWidth',
-              type: 'select' as const,
-              label: 'Thickness',
-              value: String(icon.strokeWidth),
-              options: ICON_STROKE_WIDTH_OPTIONS.map((opt) => ({
-                label: opt.label,
-                value: String(opt.value),
-              })),
-            },
-          ],
+          controls: sizeAndWeightControls,
         },
       ]
     : []

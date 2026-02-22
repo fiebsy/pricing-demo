@@ -44,11 +44,13 @@ export interface IconConfig {
   show: boolean
   /** Icon name from Hugeicons */
   iconName: string
+  /** Icon variant (stroke, bulk, solid) */
+  variant: 'stroke' | 'bulk' | 'solid'
   /** Icon color (semantic token) */
   color: string
   /** Icon size in pixels */
   size: number
-  /** Icon stroke width */
+  /** Icon stroke width (only applies to stroke variant) */
   strokeWidth: number
 }
 
@@ -63,10 +65,14 @@ export interface StrokeConfig {
   color: string
   /** Whether stroke is dashed */
   dashed: boolean
-  /** SVG dash array pattern (e.g., '4 2') */
+  /** SVG dash array pattern (e.g., '4 2') or 'custom' for custom values */
   dashArray: string
   /** Line cap style */
   lineCap: 'round' | 'square' | 'butt'
+  /** Custom dash length (when dashArray is 'custom') */
+  customDash?: number
+  /** Custom gap length (when dashArray is 'custom') */
+  customGap?: number
 }
 
 // ============================================================================
