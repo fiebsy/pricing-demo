@@ -8,14 +8,15 @@
 import type { StageId } from './types'
 
 /** All available stage IDs */
-export const STAGE_IDS: StageId[] = [1, 2, 3, 4]
+export const STAGE_IDS: StageId[] = [1, 2, 3, 4, 5]
 
 /** Stage display names for UI */
 export const STAGE_LABELS: Record<StageId, string> = {
-  1: 'Stage 1',
-  2: 'Stage 2',
-  3: 'Stage 3',
-  4: 'Stage 4',
+  1: 'Upgrade',
+  2: 'Review',
+  3: 'Processing',
+  4: 'Success',
+  5: 'Complete',
 }
 
 /** Get stage label by ID */

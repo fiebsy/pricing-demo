@@ -153,6 +153,8 @@ export interface ControlGroup {
   controls: Control[]
   columns?: 1 | 2
   defaultCollapsed?: boolean
+  /** Nested groups that appear as sub-accordions within this group */
+  nestedGroups?: ControlGroup[]
 }
 
 /** A section containing groups of controls */

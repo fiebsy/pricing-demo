@@ -20,8 +20,8 @@ interface VariantControlsProps {
 
 export function VariantControls({ activeVariant, onVariantChange }: VariantControlsProps) {
   return (
-    <div className="fixed bottom-8 left-[var(--playground-left)] right-[var(--playground-right)] flex justify-center pointer-events-none">
-      <div className="flex items-center gap-1 rounded-full bg-secondary/80 p-1 backdrop-blur-sm pointer-events-auto">
+    <div className="fixed bottom-20 left-[var(--playground-left)] pointer-events-none">
+      <div className="flex items-center gap-1 rounded-full bg-secondary/80 p-1 backdrop-blur-sm pointer-events-auto shadow-sm">
         {VARIANT_IDS.map((variantId) => (
           <button
             key={variantId}

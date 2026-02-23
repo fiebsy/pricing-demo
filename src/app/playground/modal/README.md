@@ -13,18 +13,24 @@ This playground incubates a customizable modal component using:
 
 ```
 modal/
-├── page.tsx              # Playground page with state management
+├── page.tsx                  # Playground page with state management
 ├── core/
-│   └── modal.tsx         # PlaygroundModal component
+│   ├── modal.tsx             # PlaygroundModal component
+│   ├── crossfade-text.tsx    # Text transition animations
+│   ├── content-slot.tsx      # Content renderer (wireframe/text)
+│   └── animated-wireframe-lines.tsx
+├── components/
+│   └── stage-controls.tsx    # Stage switching UI
 ├── config/
-│   ├── types.ts          # TypeScript interfaces
-│   ├── options.ts        # Control panel options
-│   └── presets.ts        # Default config + presets
+│   ├── types.ts              # TypeScript interfaces
+│   ├── options.ts            # Control panel options
+│   ├── presets.ts            # Default config + presets
+│   └── stages.ts             # Stage definitions
 ├── panels/
-│   └── panel-config.ts   # 9-section panel builder
+│   └── panel-config.ts       # 11-section panel builder
 ├── utils/
-│   └── class-builders.ts # Style utilities
-└── README.md             # This file
+│   └── class-builders.ts     # Style utilities + animation builders
+└── README.md                 # This file
 ```
 
 ## Features
@@ -33,24 +39,113 @@ modal/
 
 1. **Container** - Width, height, padding, corners, shine, depth, shadow, border
 2. **Header** - Asset placeholder, title with typography controls
-3. **Content A** - Configurable wireframe lines
+3. **Content A** - Configurable wireframe lines or text
 4. **Content B** - Additional content section
 5. **Buttons** - 1 or 2 buttons with variant/size controls
-6. **Close Button** - Position, offset, size
+6. **Close Button** - Position, offset, size, background styling
 7. **Backdrop** - Blur, opacity, dismissable toggle
 8. **Animation** - Presets (scale-fade, slide-up, flip-3d, etc.) + timing
-9. **Debug** - Page background, debug overlay, slow-mo
+9. **Text Transitions** - Crossfade/flip modes with easing presets
+10. **Stages** - Multi-stage content configuration
+11. **Debug** - Page background, debug overlay, slow-mo, container outlines
+
+---
+
+## Animation Architecture
+
+The modal animation system operates at three levels:
+
+### 1. Container Animation (Entry/Exit)
+
+**Location**: `utils/class-builders.ts` → `buildAnimationVariants()`, `buildSpringTransition()`
+**Applied in**: `core/modal.tsx` (lines 214-231)
+
+Controls the modal's entry and exit transitions.
+
+| Control | Config Path | Range | Default |
+|---------|-------------|-------|---------|
+| Preset | `animation.preset` | 6 presets + custom | scale-fade |
+| Duration | `animation.duration` | 100-800ms | 300ms |
+| Bounce | `animation.bounce` | 0-0.5 | 0.15 |
+| Delay | `animation.delay` | 0-300ms | 0ms |
+
+### 2. Text Transitions (Content Crossfade)
+
+**Location**: `core/crossfade-text.tsx`
+**Panel Config**: `panels/panel-config.ts` (lines 868-924)
+
+Animates text changes within titles and buttons when switching stages.
+
+| Control | Config Path | Options/Range | Default |
+|---------|-------------|---------------|---------|
+| Mode | `textTransition.mode` | crossfade, flip | crossfade |
+| Easing | `textTransition.easing` | spring, elastic, expo-out, ease-out | spring |
+| Y Offset | `textTransition.yOffset` | 4-20px | 8px |
+| Duration | `textTransition.duration` | 100-400ms (non-spring only) | 200ms |
+
+### 3. Layout Morphing (Height Transitions)
+
+**Location**: `core/modal.tsx` (lines 226-237)
+**Panel Config**: Animation section → "Layout Morphing" group
+
+Animates height changes when switching between stages.
+
+| Control | Config Path | Options/Range | Default |
+|---------|-------------|---------------|---------|
+| Style | `animation.layout.style` | spring, tween | spring |
+| Duration | `animation.layout.duration` | 0.1-1.0s | 0.4s |
+| Bounce | `animation.layout.bounce` | 0-0.5 (spring only) | 0.1 |
+| Easing | `animation.layout.easing` | easeOut, easeInOut, linear (tween only) | easeOut |
+
+---
 
 ### Animation Presets
 
-| Preset | Effect |
-|--------|--------|
-| `scale-fade` | Classic scale + opacity |
-| `slide-up` | Mobile-style bottom entrance |
-| `slide-down` | Top entrance |
-| `flip-3d` | Dramatic 3D rotation |
-| `bounce` | Playful spring effect |
-| `custom` | User-defined scale/translateY |
+| Preset | Initial State | Animation |
+|--------|--------------|-----------|
+| `scale-fade` | opacity:0, scale:0.95 | Fade in + scale up |
+| `slide-up` | opacity:0, y:100 | Slide from bottom |
+| `slide-down` | opacity:0, y:-100 | Slide from top |
+| `flip-3d` | opacity:0, rotateX:-15, scale:0.9 | 3D rotation effect |
+| `bounce` | opacity:0, scale:0.3, y:-50 | Elastic bounce |
+| `custom` | User-defined | Uses scale.initial + translateY.initial |
+
+### Custom Preset Controls
+
+Shown only when `animation.preset === 'custom'`:
+
+| Control | Config Path | Range |
+|---------|-------------|-------|
+| Scale Initial | `animation.scale.initial` | 0.5-1.2 |
+| Scale Animate | `animation.scale.animate` | 0.8-1.2 |
+| TranslateY Initial | `animation.translateY.initial` | -200 to 200px |
+| TranslateY Animate | `animation.translateY.animate` | -100 to 100px |
+
+### Debug Controls
+
+| Control | Config Path | Effect |
+|---------|-------------|--------|
+| Slow Motion | `demo.slowMo` | 4x duration multiplier |
+| Show Debug | `demo.showDebug` | Displays preset/duration info |
+| Auto Open | `demo.autoOpen` | Keeps modal open for testing |
+| Show Outlines | `demo.showContainerOutlines` | Colored borders around sections |
+
+---
+
+## Data Flow
+
+```
+Control Panel → setConfig() → ModalPlaygroundConfig
+                                    ↓
+                      buildAnimationVariants(animation)
+                      buildSpringTransition(animation, slowMo)
+                                    ↓
+                      <motion.div variants={} transition={}>
+                                    ↓
+                      Motion.js renders spring animation
+```
+
+---
 
 ### Non-Modal Mode
 
@@ -136,6 +231,17 @@ function Example() {
   ...
 </Modal>
 ```
+
+## Key Files for Animation
+
+| File | Purpose |
+|------|---------|
+| `config/types.ts` | Type definitions for all animation config |
+| `utils/class-builders.ts` | Builds Motion variants and transitions |
+| `core/modal.tsx` | Applies animations to modal container |
+| `core/crossfade-text.tsx` | Text transition animations |
+| `panels/panel-config.ts` | Control panel configuration |
+| `config/presets.ts` | Preset definitions |
 
 ## Dependencies
 

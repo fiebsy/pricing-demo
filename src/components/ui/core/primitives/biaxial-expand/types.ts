@@ -71,6 +71,14 @@ export interface SlotConfig {
   borderColor?: BorderColorOption
   /** Appearance config (for nested inset) */
   appearance?: { inset?: number }
+  /**
+   * When true, the bottom slot is always visible and positioned in-flow.
+   * The Backdrop wraps both trigger AND bottom slot as a unified container.
+   * Content below the component is pushed down rather than overlaid.
+   * Click-outside does not collapse the menu, and no expand animation occurs.
+   * @default false
+   */
+  integrated?: boolean
 }
 
 // ============================================================================

@@ -154,6 +154,18 @@ export default function ModalPlayground() {
       return
     }
 
+    // Convert coin stack stateId from string to number (1 | 2)
+    if (
+      event.controlId.includes('coinStackStateId') ||
+      event.controlId === 'header.asset.coinStack.stateId'
+    ) {
+      setConfig((prev) =>
+        setNestedValue(prev, event.controlId, parseInt(event.value as string, 10) as 1 | 2)
+      )
+      setActivePresetId(null)
+      return
+    }
+
     setConfig((prev) => setNestedValue(prev, event.controlId, event.value))
     setActivePresetId(null)
   }, [])

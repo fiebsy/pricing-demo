@@ -11,8 +11,10 @@
 'use client'
 
 import { useId } from 'react'
+import { motion } from 'motion/react'
 import { cn } from '@/lib/utils'
-import type { CoinStackConfig, TierConfig } from '../config/types'
+import type { CoinStackConfig, TierConfig, StageTransitionConfig } from '../config/types'
+import { DEFAULT_TRANSITION } from '../config/stages'
 import { resolveColor } from '../config/options'
 import {
   GradientDef,
@@ -59,27 +61,47 @@ interface TierProps {
   gradientId: string
   innerGlowId: string | null
   useInnerGlow: boolean
+  transition: StageTransitionConfig
 }
 
-function Tier({ tier, bodyPath, facePath, gradientId, innerGlowId, useInnerGlow }: TierProps) {
+function Tier({
+  tier,
+  bodyPath,
+  facePath,
+  gradientId,
+  innerGlowId,
+  useInnerGlow,
+  transition,
+}: TierProps) {
   const fillValue = tier.useGradient ? `url(#${gradientId})` : resolveColor(tier.faceColor)
+  const springTransition = {
+    type: 'spring' as const,
+    duration: transition.duration,
+    bounce: transition.bounce,
+  }
 
   return (
     <g>
       {/* Body of coin (stacked edge effect) */}
-      <path
+      <motion.path
         d={bodyPath}
         fillRule="evenodd"
         clipRule="evenodd"
-        fill={resolveColor(tier.shadowColor)}
-        fillOpacity={tier.shadowOpacity / 100}
+        animate={{
+          fill: resolveColor(tier.shadowColor),
+          fillOpacity: tier.shadowOpacity / 100,
+        }}
+        transition={springTransition}
       />
       {/* Face of coin (stroked ellipse) */}
-      <path
+      <motion.path
         d={facePath}
-        fill={fillValue}
-        stroke={resolveColor(tier.strokeColor)}
-        strokeWidth={tier.strokeWidth}
+        animate={{
+          fill: fillValue,
+          stroke: resolveColor(tier.strokeColor),
+          strokeWidth: tier.strokeWidth,
+        }}
+        transition={springTransition}
         filter={useInnerGlow && innerGlowId ? `url(#${innerGlowId})` : undefined}
       />
     </g>
@@ -93,6 +115,7 @@ function Tier({ tier, bodyPath, facePath, gradientId, innerGlowId, useInnerGlow 
 interface ShineProps {
   intensity: 'subtle' | 'medium' | 'strong'
   gradientId: string
+  transition: StageTransitionConfig
 }
 
 const SHINE_OPACITIES = {
@@ -101,18 +124,26 @@ const SHINE_OPACITIES = {
   strong: 0.4,
 }
 
-function Shine({ intensity, gradientId }: ShineProps) {
+function Shine({ intensity, gradientId, transition }: ShineProps) {
   const opacity = SHINE_OPACITIES[intensity]
+  const springTransition = {
+    type: 'spring' as const,
+    duration: transition.duration,
+    bounce: transition.bounce,
+  }
 
   // Simplified shine overlay on top face
   return (
-    <ellipse
+    <motion.ellipse
       cx={100}
       cy={80.6734}
       rx={38}
       ry={20}
       fill={`url(#${gradientId})`}
-      fillOpacity={opacity}
+      animate={{
+        fillOpacity: opacity,
+      }}
+      transition={springTransition}
       style={{ pointerEvents: 'none' }}
     />
   )
@@ -125,13 +156,15 @@ function Shine({ intensity, gradientId }: ShineProps) {
 interface CoinStackProps {
   config: CoinStackConfig
   className?: string
+  /** Optional transition configuration for stage animations */
+  transition?: StageTransitionConfig
 }
 
 // ============================================================================
 // Main Component
 // ============================================================================
 
-export function CoinStack({ config, className }: CoinStackProps) {
+export function CoinStack({ config, className, transition = DEFAULT_TRANSITION }: CoinStackProps) {
   const instanceId = useId()
 
   const { size, bottomTier, topTier, effects, demo } = config
@@ -209,6 +242,7 @@ export function CoinStack({ config, className }: CoinStackProps) {
             gradientId={bottomGradientId}
             innerGlowId={bottomInnerGlowId}
             useInnerGlow={hasInnerGlow}
+            transition={transition}
           />
 
           {/* Top tier */}
@@ -219,6 +253,7 @@ export function CoinStack({ config, className }: CoinStackProps) {
             gradientId={topGradientId}
             innerGlowId={topInnerGlowId}
             useInnerGlow={hasInnerGlow}
+            transition={transition}
           />
 
           {/* Shine overlay on top face */}
@@ -226,6 +261,7 @@ export function CoinStack({ config, className }: CoinStackProps) {
             <Shine
               intensity={effects.shineOverlay as 'subtle' | 'medium' | 'strong'}
               gradientId={shineGradientId}
+              transition={transition}
             />
           )}
         </g>

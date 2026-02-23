@@ -42,6 +42,9 @@ export const ContentLayer: React.FC<ContentLayerProps> = ({
   const { layout } = config
   const duration = timing.duration
 
+  // Check if integrated mode is enabled
+  const isIntegrated = config.bottomSlot.integrated === true
+
   // Get slot insets for calculations
   const leftInset = config.leftSlot.appearance?.inset ?? config.leftSlot.inset ?? 4
   const rightInset = config.rightSlot.appearance?.inset ?? config.rightSlot.inset ?? 4
@@ -161,6 +164,113 @@ export const ContentLayer: React.FC<ContentLayerProps> = ({
   // Adjust horizontal position to account for left contribution
   // This keeps the trigger visually anchored at its original position
   const adjustedMarginLeft = (horizontalPos.marginLeft ?? 0) - leftContribution
+
+  // Determine position mode
+  const positionMode = config.layout.positionMode ?? 'overlay'
+  const isPushMode = positionMode === 'push'
+
+  // PUSH MODE: Use relative positioning for document flow
+  // Content expands in-place and pushes content below
+  if (isPushMode && !isIntegrated) {
+    // For push mode, only offset by left contribution (not the overlay centering offset)
+    // The parent container handles centering for relative elements
+    // We only need to shift left when a left slot adds width to maintain trigger alignment
+    const pushModeMarginLeft = -leftContribution
+
+    return (
+      <div
+        className={cn('relative motion-reduce:transition-none', className)}
+        style={{
+          zIndex: 11,
+          width: totalWidth,
+          // Push mode: only offset for left slot contribution, not overlay centering
+          marginLeft: pushModeMarginLeft,
+          // Let height be driven by expand state
+          height: expanded ? extendedPanelHeight : layout.triggerHeight,
+          overflow: expanded ? 'visible' : 'hidden',
+          transition: `height ${duration}ms ${EASING_EXPO_OUT}, overflow 0ms ${expanded ? '0ms' : `${duration}ms`}`,
+          pointerEvents: expanded ? 'auto' : 'none',
+        }}
+      >
+        {children}
+        {/* Debug overlay: shows panel bottom boundary */}
+        {config.debug && (
+          <div
+            style={{
+              position: 'absolute',
+              left: 0,
+              right: 0,
+              bottom: 0,
+              height: 2,
+              background: 'lime',
+              pointerEvents: 'none',
+              zIndex: 100,
+            }}
+          >
+            <span
+              style={{
+                position: 'absolute',
+                bottom: 4,
+                left: 4,
+                fontSize: 10,
+                color: 'lime',
+                fontFamily: 'monospace',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              PANEL (push): {expanded ? extendedPanelHeight : layout.triggerHeight}px | marginLeft: {pushModeMarginLeft}px
+            </span>
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  // In integrated mode: relative positioning, no clip-path, auto height
+  if (isIntegrated) {
+    return (
+      <div
+        className={cn('relative', className)}
+        style={{
+          zIndex: 11,
+          width: totalWidth,
+          height: 'auto',
+          pointerEvents: 'auto',
+        }}
+      >
+        {children}
+        {/* Debug overlay: shows panel bottom boundary */}
+        {config.debug && (
+          <div
+            style={{
+              position: 'absolute',
+              left: 0,
+              right: 0,
+              bottom: 0,
+              height: 2,
+              background: 'cyan',
+              pointerEvents: 'none',
+              zIndex: 100,
+            }}
+          >
+            <span
+              style={{
+                position: 'absolute',
+                bottom: 4,
+                left: 4,
+                fontSize: 10,
+                color: 'cyan',
+                fontFamily: 'monospace',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              PANEL (integrated): auto height
+            </span>
+          </div>
+        )}
+      </div>
+    )
+  }
 
   return (
     <div

@@ -45,11 +45,15 @@ export const BiaxialExpandRoot: React.FC<BiaxialExpandRootProps> = ({
     [userConfig]
   )
 
+  // Check if integrated mode is enabled (bottom slot is always visible)
+  const isIntegrated = config.bottomSlot.integrated === true
+
   // State
   const [internalExpanded, setInternalExpanded] = useState(false)
   const [hovered, setHovered] = useState(false)
   const [internalLocked, setInternalLocked] = useState(false)
-  const expanded = controlledExpanded ?? internalExpanded
+  // In integrated mode, always expanded
+  const expanded = isIntegrated ? true : (controlledExpanded ?? internalExpanded)
   const isLocked = controlledLocked ?? internalLocked
 
   // Lock state handler (supports controlled mode)
@@ -113,13 +117,15 @@ export const BiaxialExpandRoot: React.FC<BiaxialExpandRootProps> = ({
   const leftRef = useRef<HTMLDivElement>(null)
   const rightRef = useRef<HTMLDivElement>(null)
 
-  // Expanded state handler
+  // Expanded state handler - no-op in integrated mode
   const setExpanded = useCallback(
     (newExpanded: boolean) => {
+      // In integrated mode, ignore expand/collapse requests
+      if (isIntegrated) return
       setInternalExpanded(newExpanded)
       onExpandedChange?.(newExpanded)
     },
-    [onExpandedChange]
+    [onExpandedChange, isIntegrated]
   )
 
   // Slot height setter
@@ -158,8 +164,10 @@ export const BiaxialExpandRoot: React.FC<BiaxialExpandRootProps> = ({
     []
   )
 
-  // Click outside handler - respects lock state
+  // Click outside handler - respects lock state and integrated mode
   useEffect(() => {
+    // Skip click-outside handling in integrated mode
+    if (isIntegrated) return
     if (!expanded) return
 
     const handleClickOutside = (e: MouseEvent) => {
@@ -183,7 +191,7 @@ export const BiaxialExpandRoot: React.FC<BiaxialExpandRootProps> = ({
       clearTimeout(timeoutId)
       document.removeEventListener('mousedown', handleClickOutside)
     }
-  }, [expanded, setExpanded, isLocked])
+  }, [expanded, setExpanded, isLocked, isIntegrated])
 
   // Keyboard shortcut for lock toggle (Cmd+Shift+L)
   useEffect(() => {
@@ -323,18 +331,26 @@ export const BiaxialExpandRoot: React.FC<BiaxialExpandRootProps> = ({
     ? totalExpandedHeight
     : config.layout.triggerHeight
 
+  // In integrated mode, use flex layout with auto height so container grows with content
+  const useIntegratedLayout = isIntegrated
+
   return (
     <BiaxialExpandProvider value={contextValue}>
       <div
         ref={containerRef}
-        className={cn('relative inline-block overflow-visible', className)}
+        className={cn(
+          useIntegratedLayout
+            ? 'relative flex flex-col' // Integrated: flex column for natural flow
+            : 'relative inline-block overflow-visible', // Overlay/Push: original
+          className
+        )}
         style={{
           width: config.layout.triggerWidth,
-          height: containerHeight,
+          height: useIntegratedLayout ? 'auto' : containerHeight, // Auto for integrated
           // Elevate z-index when expanded so this menu appears above siblings
           zIndex: expanded ? 50 : 'auto',
-          // Animate height in push mode
-          transition: isPushMode
+          // Animate height in push mode (not in integrated mode)
+          transition: !useIntegratedLayout && isPushMode
             ? `height ${timing.duration}ms ${EASING_EXPO_OUT}`
             : undefined,
         }}

@@ -33,6 +33,9 @@ import {
   LABEL_LAYOUT_OPTIONS,
   SEPARATOR_OPTIONS,
   TIER_OPTIONS,
+  RIGHT_SOURCE_OPTIONS,
+  HEADER_MODE_OPTIONS,
+  VARIANT_TRANSITION_TYPE_OPTIONS,
 } from '../config/options'
 
 // ============================================================================
@@ -46,11 +49,13 @@ export function buildBiaxialExpandPanelConfig(
 ): PanelConfig {
   // Build conditional sections
   const selectMenuSection = buildSelectMenuSection(config)
+  const variantBSection = buildVariantBSection(config)
 
   return {
     sections: [
       buildDemoSection(config),
       ...(selectMenuSection ? [selectMenuSection] : []),
+      ...(variantBSection ? [variantBSection] : []),
       buildLayoutSection(config),
       buildTriggerSection(config),
       buildAnimationSection(config),
@@ -141,6 +146,41 @@ function buildSelectMenuSection(config: BiaxialExpandPlaygroundConfig): Section 
         ],
       },
       {
+        title: 'Trigger Padding (A)',
+        controls: [
+          {
+            id: 'selectMenu.triggerPaddingX',
+            type: 'slider',
+            label: 'Padding X',
+            value: config.selectMenu.triggerPaddingX,
+            min: 0,
+            max: 32,
+            step: 4,
+            formatLabel: (v: number) => `${v}px`,
+          },
+          {
+            id: 'selectMenu.triggerPaddingTop',
+            type: 'slider',
+            label: 'Padding Top',
+            value: config.selectMenu.triggerPaddingTop,
+            min: 0,
+            max: 32,
+            step: 4,
+            formatLabel: (v: number) => `${v}px`,
+          },
+          {
+            id: 'selectMenu.triggerPaddingBottom',
+            type: 'slider',
+            label: 'Padding Bottom',
+            value: config.selectMenu.triggerPaddingBottom,
+            min: 0,
+            max: 32,
+            step: 4,
+            formatLabel: (v: number) => `${v}px`,
+          },
+        ],
+      },
+      {
         title: 'Available Tiers',
         controls: TIER_OPTIONS.map((tier) => ({
           id: `selectMenu.availableTiers.${tier.value}`,
@@ -148,6 +188,17 @@ function buildSelectMenuSection(config: BiaxialExpandPlaygroundConfig): Section 
           label: tier.label,
           value: config.selectMenu.availableTiers.includes(tier.value),
         })),
+      },
+      {
+        title: 'Upgrade Mode',
+        controls: [
+          {
+            id: 'selectMenu.upgradeMode',
+            type: 'toggle',
+            label: 'Upgrade Mode',
+            value: config.selectMenu.upgradeMode,
+          },
+        ],
       },
       {
         title: 'Synced Subtext',
@@ -894,6 +945,408 @@ function buildSelectMenuSection(config: BiaxialExpandPlaygroundConfig): Section 
   }
 }
 
+/**
+ * Variant B section - only shown for pricing-select variant
+ * Organized by slot: Trigger (plan row) and Bottom Slot (due row + subtext)
+ */
+function buildVariantBSection(config: BiaxialExpandPlaygroundConfig): Section | null {
+  // Only show for pricing-select variant
+  if (config.demo.variant !== 'pricing-select') return null
+
+  const { variantB } = config
+
+  return {
+    id: 'variantB',
+    label: 'Variant B',
+    title: 'Pricing Select B Layout',
+    groups: [
+      // TRIGGER SECTION - Plan Row (Row 1)
+      {
+        title: 'Trigger: Plan Row',
+        controls: [
+          {
+            id: 'variantB.trigger.planRow.show',
+            type: 'toggle',
+            label: 'Show',
+            value: variantB.trigger.planRow.show,
+          },
+          ...(variantB.trigger.planRow.show
+            ? [
+                // Left side (plan name)
+                {
+                  id: 'variantB.trigger.planRow.leftFontSize',
+                  type: 'select' as const,
+                  label: 'Left Size',
+                  value: variantB.trigger.planRow.leftFontSize,
+                  options: [...FONT_SIZE_OPTIONS],
+                },
+                {
+                  id: 'variantB.trigger.planRow.leftFontWeight',
+                  type: 'select' as const,
+                  label: 'Left Weight',
+                  value: variantB.trigger.planRow.leftFontWeight,
+                  options: [...FONT_WEIGHT_OPTIONS],
+                },
+                {
+                  id: 'variantB.trigger.planRow.leftTextColor',
+                  type: 'select' as const,
+                  label: 'Left Color',
+                  value: variantB.trigger.planRow.leftTextColor,
+                  options: [...TEXT_COLOR_OPTIONS],
+                },
+                {
+                  id: 'variantB.trigger.planRow.leftOpacity',
+                  type: 'select' as const,
+                  label: 'Left Opacity',
+                  value: variantB.trigger.planRow.leftOpacity,
+                  options: [...OPACITY_OPTIONS],
+                },
+                // Right side (events)
+                {
+                  id: 'variantB.trigger.planRow.rightSource',
+                  type: 'select' as const,
+                  label: 'Right Content',
+                  value: variantB.trigger.planRow.rightSource,
+                  options: [...RIGHT_SOURCE_OPTIONS],
+                },
+                {
+                  id: 'variantB.trigger.planRow.rightFontSize',
+                  type: 'select' as const,
+                  label: 'Right Size',
+                  value: variantB.trigger.planRow.rightFontSize,
+                  options: [...FONT_SIZE_OPTIONS],
+                },
+                {
+                  id: 'variantB.trigger.planRow.rightFontWeight',
+                  type: 'select' as const,
+                  label: 'Right Weight',
+                  value: variantB.trigger.planRow.rightFontWeight,
+                  options: [...FONT_WEIGHT_OPTIONS],
+                },
+                {
+                  id: 'variantB.trigger.planRow.rightTextColor',
+                  type: 'select' as const,
+                  label: 'Right Color',
+                  value: variantB.trigger.planRow.rightTextColor,
+                  options: [...TEXT_COLOR_OPTIONS],
+                },
+                {
+                  id: 'variantB.trigger.planRow.rightOpacity',
+                  type: 'select' as const,
+                  label: 'Right Opacity',
+                  value: variantB.trigger.planRow.rightOpacity,
+                  options: [...OPACITY_OPTIONS],
+                },
+              ]
+            : []),
+        ],
+      },
+      // Trigger Spacing
+      {
+        title: 'Trigger: Spacing (B)',
+        controls: [
+          {
+            id: 'variantB.trigger.paddingX',
+            type: 'slider',
+            label: 'Padding X',
+            value: variantB.trigger.paddingX,
+            min: 0,
+            max: 32,
+            step: 4,
+            formatLabel: (v: number) => `${v}px`,
+          },
+          {
+            id: 'variantB.trigger.paddingTop',
+            type: 'slider',
+            label: 'Padding Top',
+            value: variantB.trigger.paddingTop,
+            min: 0,
+            max: 32,
+            step: 4,
+            formatLabel: (v: number) => `${v}px`,
+          },
+          {
+            id: 'variantB.trigger.paddingBottom',
+            type: 'slider',
+            label: 'Padding Bottom',
+            value: variantB.trigger.paddingBottom,
+            min: 0,
+            max: 32,
+            step: 4,
+            formatLabel: (v: number) => `${v}px`,
+          },
+        ],
+      },
+      // BOTTOM SLOT SECTION - Due Row (Row 2)
+      {
+        title: 'Bottom: Due Row',
+        controls: [
+          {
+            id: 'variantB.bottomSlot.dueRow.show',
+            type: 'toggle',
+            label: 'Show',
+            value: variantB.bottomSlot.dueRow.show,
+          },
+          ...(variantB.bottomSlot.dueRow.show
+            ? [
+                {
+                  id: 'variantB.bottomSlot.dueRow.leftText',
+                  type: 'text' as const,
+                  label: 'Left Text',
+                  value: variantB.bottomSlot.dueRow.leftText,
+                  placeholder: 'Due today',
+                },
+                {
+                  id: 'variantB.bottomSlot.dueRow.leftFontSize',
+                  type: 'select' as const,
+                  label: 'Left Size',
+                  value: variantB.bottomSlot.dueRow.leftFontSize,
+                  options: [...FONT_SIZE_OPTIONS],
+                },
+                {
+                  id: 'variantB.bottomSlot.dueRow.leftFontWeight',
+                  type: 'select' as const,
+                  label: 'Left Weight',
+                  value: variantB.bottomSlot.dueRow.leftFontWeight,
+                  options: [...FONT_WEIGHT_OPTIONS],
+                },
+                {
+                  id: 'variantB.bottomSlot.dueRow.leftTextColor',
+                  type: 'select' as const,
+                  label: 'Left Color',
+                  value: variantB.bottomSlot.dueRow.leftTextColor,
+                  options: [...TEXT_COLOR_OPTIONS],
+                },
+                {
+                  id: 'variantB.bottomSlot.dueRow.leftOpacity',
+                  type: 'select' as const,
+                  label: 'Left Opacity',
+                  value: variantB.bottomSlot.dueRow.leftOpacity,
+                  options: [...OPACITY_OPTIONS],
+                },
+                {
+                  id: 'variantB.bottomSlot.dueRow.rightSource',
+                  type: 'select' as const,
+                  label: 'Right Content',
+                  value: variantB.bottomSlot.dueRow.rightSource,
+                  options: [...RIGHT_SOURCE_OPTIONS],
+                },
+                {
+                  id: 'variantB.bottomSlot.dueRow.rightFontSize',
+                  type: 'select' as const,
+                  label: 'Right Size',
+                  value: variantB.bottomSlot.dueRow.rightFontSize,
+                  options: [...FONT_SIZE_OPTIONS],
+                },
+                {
+                  id: 'variantB.bottomSlot.dueRow.rightFontWeight',
+                  type: 'select' as const,
+                  label: 'Right Weight',
+                  value: variantB.bottomSlot.dueRow.rightFontWeight,
+                  options: [...FONT_WEIGHT_OPTIONS],
+                },
+                {
+                  id: 'variantB.bottomSlot.dueRow.rightTextColor',
+                  type: 'select' as const,
+                  label: 'Right Color',
+                  value: variantB.bottomSlot.dueRow.rightTextColor,
+                  options: [...TEXT_COLOR_OPTIONS],
+                },
+                {
+                  id: 'variantB.bottomSlot.dueRow.rightOpacity',
+                  type: 'select' as const,
+                  label: 'Right Opacity',
+                  value: variantB.bottomSlot.dueRow.rightOpacity,
+                  options: [...OPACITY_OPTIONS],
+                },
+              ]
+            : []),
+        ],
+      },
+      // Bottom Slot - Subtext (Row 3)
+      {
+        title: 'Bottom: Subtext',
+        controls: [
+          {
+            id: 'variantB.bottomSlot.subtext.show',
+            type: 'toggle',
+            label: 'Show',
+            value: variantB.bottomSlot.subtext.show,
+          },
+          ...(variantB.bottomSlot.subtext.show
+            ? [
+                {
+                  id: 'variantB.bottomSlot.subtext.template',
+                  type: 'text' as const,
+                  label: 'Template',
+                  value: variantB.bottomSlot.subtext.template,
+                  placeholder: 'Then {price}/mo. Cancel anytime.',
+                },
+                {
+                  id: 'variantB.bottomSlot.subtext.fontSize',
+                  type: 'select' as const,
+                  label: 'Size',
+                  value: variantB.bottomSlot.subtext.fontSize,
+                  options: [...FONT_SIZE_OPTIONS],
+                },
+                {
+                  id: 'variantB.bottomSlot.subtext.fontWeight',
+                  type: 'select' as const,
+                  label: 'Weight',
+                  value: variantB.bottomSlot.subtext.fontWeight,
+                  options: [...FONT_WEIGHT_OPTIONS],
+                },
+                {
+                  id: 'variantB.bottomSlot.subtext.textColor',
+                  type: 'select' as const,
+                  label: 'Color',
+                  value: variantB.bottomSlot.subtext.textColor,
+                  options: [...TEXT_COLOR_OPTIONS],
+                },
+                {
+                  id: 'variantB.bottomSlot.subtext.opacity',
+                  type: 'select' as const,
+                  label: 'Opacity',
+                  value: variantB.bottomSlot.subtext.opacity,
+                  options: [...OPACITY_OPTIONS],
+                },
+              ]
+            : []),
+        ],
+      },
+      // Bottom Slot - Spacing
+      {
+        title: 'Bottom: Spacing (B)',
+        controls: [
+          {
+            id: 'variantB.bottomSlot.rowGap',
+            type: 'slider',
+            label: 'Row Gap',
+            value: variantB.bottomSlot.rowGap,
+            min: 0,
+            max: 16,
+            step: 2,
+            formatLabel: (v: number) => `${v}px`,
+          },
+          {
+            id: 'variantB.bottomSlot.paddingX',
+            type: 'slider',
+            label: 'Padding X',
+            value: variantB.bottomSlot.paddingX,
+            min: 0,
+            max: 32,
+            step: 4,
+            formatLabel: (v: number) => `${v}px`,
+          },
+          {
+            id: 'variantB.bottomSlot.paddingTop',
+            type: 'slider',
+            label: 'Padding Top',
+            value: variantB.bottomSlot.paddingTop,
+            min: 0,
+            max: 32,
+            step: 4,
+            formatLabel: (v: number) => `${v}px`,
+          },
+          {
+            id: 'variantB.bottomSlot.paddingBottom',
+            type: 'slider',
+            label: 'Padding Bottom',
+            value: variantB.bottomSlot.paddingBottom,
+            min: 0,
+            max: 32,
+            step: 4,
+            formatLabel: (v: number) => `${v}px`,
+          },
+        ],
+      },
+      // Transition Animation (A ↔ B switch)
+      {
+        title: 'Transition',
+        controls: [
+          {
+            id: 'variantB.transition.enabled',
+            type: 'toggle',
+            label: 'Enable Animation',
+            value: variantB.transition.enabled,
+          },
+          // Only show animation controls when enabled
+          ...(variantB.transition.enabled
+            ? [
+                {
+                  id: 'variantB.transition.type',
+                  type: 'select' as const,
+                  label: 'Type',
+                  value: variantB.transition.type,
+                  options: [...VARIANT_TRANSITION_TYPE_OPTIONS],
+                },
+                {
+                  id: 'variantB.transition.duration',
+                  type: 'slider' as const,
+                  label: 'Duration',
+                  value: variantB.transition.duration,
+                  min: 0.1,
+                  max: 1.0,
+                  step: 0.05,
+                  formatLabel: (v: number) => `${v}s`,
+                },
+                // Only show bounce for spring type
+                ...(variantB.transition.type === 'spring'
+                  ? [
+                      {
+                        id: 'variantB.transition.bounce',
+                        type: 'slider' as const,
+                        label: 'Bounce',
+                        value: variantB.transition.bounce,
+                        min: 0,
+                        max: 0.5,
+                        step: 0.05,
+                        formatLabel: (v: number) => `${v}`,
+                      },
+                    ]
+                  : []),
+                {
+                  id: 'variantB.transition.yOffset',
+                  type: 'slider' as const,
+                  label: 'Y Offset',
+                  value: variantB.transition.yOffset,
+                  min: 0,
+                  max: 20,
+                  step: 1,
+                  formatLabel: (v: number) => `${v}px`,
+                },
+              ]
+            : []),
+        ],
+      },
+      // Header
+      {
+        title: 'Header',
+        controls: [
+          {
+            id: 'variantB.headerMode',
+            type: 'select',
+            label: 'Mode',
+            value: variantB.headerMode,
+            options: [...HEADER_MODE_OPTIONS],
+          },
+          ...(variantB.headerMode === 'separate'
+            ? [
+                {
+                  id: 'variantB.headerText',
+                  type: 'text' as const,
+                  label: 'Text',
+                  value: variantB.headerText,
+                  placeholder: 'Upgrade fee',
+                },
+              ]
+            : []),
+        ],
+      },
+    ],
+  }
+}
+
 function buildLayoutSection(config: BiaxialExpandPlaygroundConfig): Section {
   return {
     id: 'layout',
@@ -954,19 +1407,34 @@ function buildLayoutSection(config: BiaxialExpandPlaygroundConfig): Section {
             value: config.layout.maxTopHeight,
             min: 0,
             max: 400,
-            step: 20,
+            step: 1,
             formatLabel: (v: number) => v === 0 ? 'None' : `${v}px`,
           },
           {
             id: 'layout.maxBottomHeight',
             type: 'slider',
-            label: 'Max Bottom',
+            label: config.demo.variant === 'pricing-select' ? 'Max Bottom (A)' : 'Max Bottom',
             value: config.layout.maxBottomHeight,
             min: 0,
             max: 600,
-            step: 20,
+            step: 1,
             formatLabel: (v: number) => v === 0 ? 'None' : `${v}px`,
           },
+          // Show Max Bottom B slider only for pricing-select variant
+          ...(config.demo.variant === 'pricing-select'
+            ? [
+                {
+                  id: 'layout.maxBottomHeightB',
+                  type: 'slider' as const,
+                  label: 'Max Bottom (B)',
+                  value: config.layout.maxBottomHeightB,
+                  min: 0,
+                  max: 600,
+                  step: 1,
+                  formatLabel: (v: number) => v === 0 ? 'None' : `${v}px`,
+                },
+              ]
+            : []),
         ],
       },
       {
@@ -1086,13 +1554,28 @@ function buildTriggerSection(config: BiaxialExpandPlaygroundConfig): Section {
           {
             id: 'layout.triggerHeight',
             type: 'slider',
-            label: 'Height',
+            label: config.demo.variant === 'pricing-select' ? 'Height (A)' : 'Height',
             value: config.layout.triggerHeight,
             min: 32,
             max: 100,
             step: 4,
             formatLabel: (v: number) => `${v}px`,
           },
+          // Show Height B slider only for pricing-select variant
+          ...(config.demo.variant === 'pricing-select'
+            ? [
+                {
+                  id: 'layout.triggerHeightB',
+                  type: 'slider' as const,
+                  label: 'Height (B)',
+                  value: config.layout.triggerHeightB,
+                  min: 32,
+                  max: 100,
+                  step: 4,
+                  formatLabel: (v: number) => `${v}px`,
+                },
+              ]
+            : []),
         ],
       },
       {
@@ -2015,6 +2498,26 @@ function buildDebugSection(config: BiaxialExpandPlaygroundConfig): Section {
                   step: 4,
                   formatLabel: (v: number) => `${v}px`,
                 },
+                {
+                  id: 'demo.debugContainer.fixedHeight',
+                  type: 'toggle' as const,
+                  label: 'Fixed Height',
+                  value: config.demo.debugContainer.fixedHeight,
+                },
+                ...(config.demo.debugContainer.fixedHeight
+                  ? [
+                      {
+                        id: 'demo.debugContainer.height',
+                        type: 'slider' as const,
+                        label: 'Height',
+                        value: config.demo.debugContainer.height,
+                        min: 100,
+                        max: 600,
+                        step: 20,
+                        formatLabel: (v: number) => `${v}px`,
+                      },
+                    ]
+                  : []),
               ]
             : []),
         ],

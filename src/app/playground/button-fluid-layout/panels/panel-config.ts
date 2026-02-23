@@ -343,10 +343,17 @@ function buildLayoutSection(config: ButtonFluidLayoutConfig): Section {
         title: 'Buttons',
         controls: [
           {
-            id: 'layout.buttonVariant',
+            id: 'layout.leftButtonVariant',
             type: 'select',
-            label: 'Variant',
-            value: config.layout.buttonVariant,
+            label: 'Left Variant',
+            value: config.layout.leftButtonVariant,
+            options: [...BUTTON_VARIANT_OPTIONS],
+          },
+          {
+            id: 'layout.rightButtonVariant',
+            type: 'select',
+            label: 'Right Variant',
+            value: config.layout.rightButtonVariant,
             options: [...BUTTON_VARIANT_OPTIONS],
           },
         ],

@@ -72,6 +72,8 @@ interface CollapsibleGroupProps {
   description?: string
   defaultOpen?: boolean
   children: React.ReactNode
+  /** Nesting depth for visual indentation */
+  depth?: number
 }
 
 function CollapsibleGroup({
@@ -79,6 +81,7 @@ function CollapsibleGroup({
   description,
   defaultOpen = true,
   children,
+  depth = 0,
 }: CollapsibleGroupProps) {
   const [isOpen, setIsOpen] = useState(defaultOpen)
   const contentId = useId()
@@ -88,10 +91,12 @@ function CollapsibleGroup({
     return <>{children}</>
   }
 
+  const isNested = depth > 0
+
   return (
-    <div>
+    <div className={cx(isNested && 'ml-3 border-l-2 border-secondary')}>
       {/* Title header with secondary background */}
-      <div className="bg-secondary px-3 py-2">
+      <div className={cx('bg-secondary px-3 py-2', isNested && 'bg-tertiary')}>
         <button
           type="button"
           onClick={() => setIsOpen(!isOpen)}
@@ -100,12 +105,19 @@ function CollapsibleGroup({
           aria-controls={contentId}
         >
           <div>
-            <h5 className="text-tertiary text-xs font-medium">{title}</h5>
+            <h5
+              className={cx(
+                'text-xs font-medium',
+                isNested ? 'text-quaternary' : 'text-tertiary'
+              )}
+            >
+              {title}
+            </h5>
             {description && (
               <p className="text-tertiary mt-0.5 text-[10px]">{description}</p>
             )}
           </div>
-          <AnimatedPlusMinus isOpen={isOpen} />
+          <AnimatedPlusMinus isOpen={isOpen} size={isNested ? 10 : 12} />
         </button>
       </div>
 
@@ -134,15 +146,23 @@ interface ControlGroupRendererProps {
   group: ControlGroup
   sectionId: string
   onChange: (controlId: string, value: unknown) => void
+  /** Nesting depth for visual indentation */
+  depth?: number
 }
 
-function ControlGroupRenderer({ group, sectionId, onChange }: ControlGroupRendererProps) {
+function ControlGroupRenderer({
+  group,
+  sectionId,
+  onChange,
+  depth = 0,
+}: ControlGroupRendererProps) {
   const {
     title,
     description,
     controls,
     columns = 1,
     defaultCollapsed = false,
+    nestedGroups,
   } = group
 
   return (
@@ -150,17 +170,36 @@ function ControlGroupRenderer({ group, sectionId, onChange }: ControlGroupRender
       title={title}
       description={description}
       defaultOpen={!defaultCollapsed}
+      depth={depth}
     >
-      <ControlGrid columns={columns}>
-        {controls.map((control) => (
-          <ControlRenderer
-            key={control.id}
-            control={control}
-            sectionId={sectionId}
-            onChange={onChange}
-          />
-        ))}
-      </ControlGrid>
+      {/* Inline controls (e.g., Title field) */}
+      {controls.length > 0 && (
+        <ControlGrid columns={columns}>
+          {controls.map((control) => (
+            <ControlRenderer
+              key={control.id}
+              control={control}
+              sectionId={sectionId}
+              onChange={onChange}
+            />
+          ))}
+        </ControlGrid>
+      )}
+
+      {/* Nested groups */}
+      {nestedGroups && nestedGroups.length > 0 && (
+        <div className="space-y-1">
+          {nestedGroups.map((nestedGroup, index) => (
+            <ControlGroupRenderer
+              key={`${sectionId}-nested-${index}`}
+              group={nestedGroup}
+              sectionId={sectionId}
+              onChange={onChange}
+              depth={depth + 1}
+            />
+          ))}
+        </div>
+      )}
     </CollapsibleGroup>
   )
 }

@@ -162,5 +162,15 @@ export {
   EASING_EXPO_OUT,
 } from './constants'
 
+// Export utils
+export {
+  getBackgroundClass,
+  getBorderColorVar,
+  deepMerge,
+  filterGroups,
+  countItems,
+  calculatePanelHeight,
+} from './utils'
+
 // Export variant types
 export type { ActionButtonProps, FilterBarProps, FilterOption } from './variants'

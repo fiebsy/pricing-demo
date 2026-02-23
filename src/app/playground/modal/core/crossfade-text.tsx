@@ -38,6 +38,8 @@ interface CrossfadeTextProps {
   mode?: TextTransitionMode
   /** Easing preset for non-spring transitions */
   easing?: TextTransitionEasing
+  /** Whether animation is enabled (false = instant text change) */
+  enabled?: boolean
 }
 
 export function CrossfadeText({
@@ -49,7 +51,13 @@ export function CrossfadeText({
   useSpring = true,
   mode = 'crossfade',
   easing = 'spring',
+  enabled = true,
 }: CrossfadeTextProps) {
+  // When disabled, render static text without animation
+  if (!enabled) {
+    return <span className={className}>{text}</span>
+  }
+
   // Build transition based on easing type
   const getTransition = (): Transition => {
     if (easing === 'spring' || useSpring) {
@@ -68,7 +76,7 @@ export function CrossfadeText({
   const animatePresenceMode = mode === 'flip' ? 'wait' : 'popLayout'
 
   return (
-    <span className="relative inline-flex overflow-hidden">
+    <span className="relative inline-block">
       <AnimatePresence mode={animatePresenceMode} initial={false}>
         <motion.span
           key={text}

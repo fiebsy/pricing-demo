@@ -21,9 +21,11 @@ import {
 } from '@/components/ui/patterns/control-panel'
 
 import { CoinStack } from './core/coin-stack'
-import type { CoinStackConfig } from './config/types'
+import type { CoinStackConfig, StageId } from './config/types'
 import { DEFAULT_CONFIG, PRESETS } from './config/presets'
+import { DEFAULT_STAGES, DEFAULT_TRANSITION } from './config/stages'
 import { buildCoinStackPanelConfig } from './panels/panel-config'
+import { StageControls } from './components/stage-controls'
 
 // ============================================================================
 // Utility: Deep set nested value
@@ -64,12 +66,17 @@ const BACKGROUND_CLASSES: Record<string, string> = {
 
 interface DemoContentProps {
   config: CoinStackConfig
+  activeStage: StageId
+  onStageChange: (stageId: StageId) => void
 }
 
-function DemoContent({ config }: DemoContentProps) {
+function DemoContent({ config, activeStage, onStageChange }: DemoContentProps) {
   return (
     <div className="flex flex-col items-center gap-8">
-      <CoinStack config={config} />
+      <CoinStack config={config} transition={DEFAULT_TRANSITION} />
+
+      {/* Stage controls */}
+      <StageControls activeStage={activeStage} onStageChange={onStageChange} />
 
       {/* Presets showcase */}
       <div className="fixed bottom-8 left-[var(--playground-left)] right-[var(--playground-right)] flex items-center justify-center gap-8">
@@ -97,6 +104,7 @@ function DemoContent({ config }: DemoContentProps) {
 export default function CoinStackPlayground() {
   const [config, setConfig] = useState<CoinStackConfig>(DEFAULT_CONFIG)
   const [activePresetId, setActivePresetId] = useState<string | null>('default')
+  const [activeStage, setActiveStage] = useState<StageId>(1)
 
   // Handle control changes
   const handleChange = useCallback((event: ControlChangeEvent) => {
@@ -150,6 +158,21 @@ export default function CoinStackPlayground() {
   const handleReset = useCallback(() => {
     setConfig(DEFAULT_CONFIG)
     setActivePresetId('default')
+    setActiveStage(1)
+  }, [])
+
+  // Handle stage change - only updates stylistic properties, preserves size
+  const handleStageChange = useCallback((stageId: StageId) => {
+    setActiveStage(stageId)
+    const preset = PRESETS.find((p) => p.id === DEFAULT_STAGES[stageId].presetId)
+    if (preset) {
+      setConfig((prev) => ({
+        ...preset.config,
+        size: prev.size, // Preserve current size
+        demo: prev.demo, // Preserve demo settings
+      }))
+      setActivePresetId(preset.id)
+    }
   }, [])
 
   // Build panel configuration
@@ -174,7 +197,7 @@ export default function CoinStackPlayground() {
         />
       }
     >
-      <DemoContent config={config} />
+      <DemoContent config={config} activeStage={activeStage} onStageChange={handleStageChange} />
     </PlaygroundLayout>
   )
 }

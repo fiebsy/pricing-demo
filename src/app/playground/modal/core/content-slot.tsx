@@ -11,8 +11,10 @@
 'use client'
 
 import { motion, AnimatePresence } from 'motion/react'
-import type { ContentSlotConfig, TextTransitionEasing, TextTransitionMode } from '../config/types'
+import type { ContentSlotConfig, ProCardConfig, ChecklistConfig, TextTransitionEasing, TextTransitionMode } from '../config/types'
 import { AnimatedWireframeLines } from './animated-wireframe-lines'
+import { ProCard } from './pro-card'
+import { Checklist } from './checklist'
 
 // Easing curves for text animations
 const EASING_CURVES = {
@@ -23,28 +25,40 @@ const EASING_CURVES = {
 
 interface ContentSlotProps {
   config: ContentSlotConfig
+  /** Global Pro Card configuration (used when type is 'pro-card') */
+  proCardConfig?: ProCardConfig
+  /** Global Checklist configuration (used when type is 'checklist') */
+  checklistConfig?: ChecklistConfig
   /** Gap between wireframe lines in pixels */
   lineGap: number
   /** Duration of layout/content animations in seconds */
   duration?: number
   /** Spring bounce (0-1) */
   bounce?: number
+  /** Line stagger delay in seconds */
+  stagger?: number
   /** Text transition mode */
   textMode?: TextTransitionMode
   /** Text easing preset */
   textEasing?: TextTransitionEasing
   /** Vertical offset for text enter/exit animation */
   textYOffset?: number
+  /** Whether text animation is enabled */
+  textEnabled?: boolean
 }
 
 export function ContentSlot({
   config,
+  proCardConfig,
+  checklistConfig,
   lineGap,
   duration = 0.4,
   bounce = 0.1,
+  stagger = 0.03,
   textMode = 'crossfade',
   textEasing = 'spring',
   textYOffset = 8,
+  textEnabled = true,
 }: ContentSlotProps) {
   const { type, height, lineCount, text } = config
 
@@ -57,11 +71,44 @@ export function ContentSlot({
         height={height}
         duration={duration}
         bounce={bounce}
+        stagger={stagger}
       />
     )
   }
 
+  // Pro card content type (uses global proCardConfig including height)
+  if (type === 'pro-card' && proCardConfig) {
+    return <ProCard config={proCardConfig} height={proCardConfig.height} duration={duration} bounce={bounce} />
+  }
+
+  // Checklist content type (uses global checklistConfig)
+  if (type === 'checklist' && checklistConfig) {
+    return <Checklist config={checklistConfig} duration={duration} bounce={bounce} />
+  }
+
   // Text content type
+  // When animation disabled, render static text
+  if (!textEnabled) {
+    return (
+      <motion.div
+        layout
+        className="flex w-full flex-col justify-center overflow-hidden"
+        style={{ height }}
+        transition={{
+          layout: {
+            type: 'spring',
+            duration,
+            bounce,
+          },
+        }}
+      >
+        <p className="text-sm text-secondary leading-relaxed">
+          {text || 'Enter content text...'}
+        </p>
+      </motion.div>
+    )
+  }
+
   // Build transition based on easing type
   const getTransition = () => {
     if (textEasing === 'spring') {

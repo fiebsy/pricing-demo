@@ -181,7 +181,7 @@ function DemoContent({
           exitBlur={blurConfig}
           slowMo={demo.slowMo}
           secondaryButton={
-            <Button variant={layout.buttonVariant} className="w-full">
+            <Button variant={layout.leftButtonVariant} className="w-full">
               Back
             </Button>
           }
@@ -189,7 +189,7 @@ function DemoContent({
             <AnimatedRightButton
               state={currentState}
               transition={stateTransition}
-              variant={layout.buttonVariant}
+              variant={layout.rightButtonVariant}
               slowMo={demo.slowMo}
             />
           }

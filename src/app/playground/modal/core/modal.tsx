@@ -13,21 +13,21 @@
 import { Dialog } from '@base-ui/react/dialog'
 import { motion, AnimatePresence, LayoutGroup } from 'motion/react'
 import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/core/primitives/button'
-import { FluidButtonGroup } from '@/components/ui/core/primitives/fluid-button-group'
 import { HugeIcon } from '@/components/ui/core/primitives/icon'
 import Cancel01Icon from '@hugeicons-pro/core-stroke-rounded/Cancel01Icon'
 
-import type { ModalPlaygroundConfig, StageContentConfig, StageId } from '../config/types'
+import type { ModalPlaygroundConfig, StageId } from '../config/types'
 import { CrossfadeText } from './crossfade-text'
 import { ContentSlot } from './content-slot'
+import { ModalButtonSection } from './modal-button-section'
+import { AssetRenderer } from './asset-renderer'
 import {
   buildContainerClasses,
   buildContainerStyles,
   buildAnimationVariants,
   buildSpringTransition,
   buildTitleClasses,
-  buildButtonLayoutClasses,
+  buildSubheaderClasses,
   buildCloseButtonSizeClasses,
   buildCloseButtonIconSize,
   buildCloseButtonClasses,
@@ -47,17 +47,6 @@ interface PlaygroundModalProps {
 // ============================================================================
 // Wireframe Placeholders
 // ============================================================================
-
-function AssetPlaceholder({ height }: { height: number }) {
-  return (
-    <div
-      className="flex w-full items-center justify-center rounded-lg border border-dashed border-tertiary bg-tertiary/30"
-      style={{ height }}
-    >
-      <span className="text-xs text-quaternary">Asset</span>
-    </div>
-  )
-}
 
 function WireframeLines({
   lineCount,
@@ -127,15 +116,18 @@ function DebugWrapper({
 // ============================================================================
 
 export function PlaygroundModal({ config, open, onOpenChange, activeStage = 1 }: PlaygroundModalProps) {
-  const { backdrop, animation, textTransition, closeButton, header, contentTop, contentBottom, buttons, demo, stages } =
+  const { backdrop, animation, textTransition, closeButton, header, contentTop, contentBottom, buttons, demo, proCard, checklist, stages } =
     config
 
   // Get stage content from config
   const stageContent = stages[activeStage]
   const effectiveTitle = stageContent.headerTitle
+  const effectiveSubheader = stageContent.headerSubheader ?? header.subheaderContent
   const effectiveContentA = stageContent.contentA
   const effectiveContentB = stageContent.contentB
   const effectiveButtons = stageContent.buttons
+  // Per-stage override for pushButtonsToBottom (undefined = use global)
+  const effectivePushButtonsToBottom = stageContent.pushButtonsToBottom ?? config.container.pushButtonsToBottom
 
   // In autoOpen mode, override backdrop to be transparent and non-dismissable
   const effectiveBackdrop = demo.autoOpen
@@ -146,22 +138,41 @@ export function PlaygroundModal({ config, open, onOpenChange, activeStage = 1 }:
   const variants = buildAnimationVariants(animation)
   const transition = buildSpringTransition(animation, demo.slowMo)
 
-  // Content transition settings (derived from animation config)
+  // Determine if we're using synced timing
+  const isSynced = animation.syncMode === 'synced'
   const slowMoMultiplier = demo.slowMo ? 4 : 1
-  const contentDuration = (animation.duration / 1000) * slowMoMultiplier
-  const contentBounce = animation.bounce
+
+  // Effective timing - unified when synced, independent otherwise
+  const effectiveTiming = isSynced
+    ? {
+        layoutDuration: animation.master.duration * slowMoMultiplier,
+        layoutBounce: animation.master.bounce,
+        contentDuration: animation.master.duration * slowMoMultiplier,
+        contentBounce: animation.master.bounce,
+        stagger: animation.master.stagger,
+      }
+    : {
+        layoutDuration: animation.layout.duration * slowMoMultiplier,
+        layoutBounce: animation.layout.bounce,
+        contentDuration: (animation.duration / 1000) * slowMoMultiplier,
+        contentBounce: animation.bounce,
+        stagger: 0.03,
+      }
 
   // Text transition settings
-  const textDuration = (textTransition.duration / 1000) * slowMoMultiplier
+  const textEnabled = textTransition.enabled
+  const textDuration = isSynced
+    ? effectiveTiming.contentDuration
+    : (textTransition.duration / 1000) * slowMoMultiplier
   const textYOffset = textTransition.yOffset
   const textMode = textTransition.mode
-  const textEasing = textTransition.easing
+  const textEasing = isSynced ? 'spring' : textTransition.easing
 
   // Build classes
   const containerClasses = buildContainerClasses(config)
   const containerStyles = buildContainerStyles(config)
   const titleClasses = buildTitleClasses(config)
-  const buttonLayoutClasses = buildButtonLayoutClasses(config)
+  const subheaderClasses = buildSubheaderClasses(config)
 
   // Calculate button radius if sync mode
   const buttonRadiusStyle =
@@ -223,11 +234,23 @@ export function PlaygroundModal({ config, open, onOpenChange, activeStage = 1 }:
                     exit={variants.exit}
                     transition={{
                       ...transition,
-                      layout: {
-                        type: 'spring',
-                        duration: 0.4,
-                        bounce: 0.1,
-                      },
+                      layout: isSynced
+                        ? {
+                            type: 'spring',
+                            duration: effectiveTiming.layoutDuration,
+                            bounce: effectiveTiming.layoutBounce,
+                          }
+                        : animation.layout.style === 'spring'
+                          ? {
+                              type: 'spring',
+                              duration: effectiveTiming.layoutDuration,
+                              bounce: effectiveTiming.layoutBounce,
+                            }
+                          : {
+                              type: 'tween',
+                              duration: effectiveTiming.layoutDuration,
+                              ease: animation.layout.easing,
+                            },
                     }}
                   >
                     {/* Close Button */}
@@ -267,26 +290,50 @@ export function PlaygroundModal({ config, open, onOpenChange, activeStage = 1 }:
                           show={demo.showContainerOutlines}
                         >
                           <motion.div layout="position" className="flex flex-col" style={{ gap: config.container.gap / 2 }}>
-                            {/* Asset Placeholder */}
-                            {header.showAsset && <AssetPlaceholder height={header.assetHeight} />}
+                            {/* Asset - placeholder or coin-stack with per-stage transitions */}
+                            {header.showAsset && (
+                              <AssetRenderer
+                                config={header.asset ?? { type: 'placeholder', height: header.assetHeight, alignment: 'center', offsetX: 0 }}
+                                activeStateId={stageContent.asset?.coinStackStateId}
+                                duration={effectiveTiming.layoutDuration}
+                                bounce={effectiveTiming.layoutBounce}
+                              />
+                            )}
 
                             {/* Title - text crossfades within persistent element */}
                             <Dialog.Title className={titleClasses}>
                               <CrossfadeText
                                 text={effectiveTitle}
-                                duration={textEasing === 'spring' ? contentDuration : textDuration}
-                                bounce={contentBounce}
+                                enabled={textEnabled}
+                                duration={textEasing === 'spring' ? effectiveTiming.contentDuration : textDuration}
+                                bounce={effectiveTiming.contentBounce}
                                 yOffset={textYOffset}
                                 mode={textMode}
                                 easing={textEasing}
                                 useSpring={textEasing === 'spring'}
                               />
                             </Dialog.Title>
+
+                            {/* Subheader - text crossfades within persistent element */}
+                            {header.subheader.show && (
+                              <Dialog.Description className={subheaderClasses}>
+                                <CrossfadeText
+                                  text={effectiveSubheader}
+                                  enabled={textEnabled}
+                                  duration={textEasing === 'spring' ? effectiveTiming.contentDuration : textDuration}
+                                  bounce={effectiveTiming.contentBounce}
+                                  yOffset={textYOffset}
+                                  mode={textMode}
+                                  easing={textEasing}
+                                  useSpring={textEasing === 'spring'}
+                                />
+                              </Dialog.Description>
+                            )}
                           </motion.div>
                         </DebugWrapper>
 
                         {/* Content Top Section - height morphs, content animates */}
-                        {contentTop.show && (
+                        {contentTop.show && effectiveContentA.show !== false && (
                           <DebugWrapper
                             label="Content A"
                             color="border-green-500"
@@ -294,18 +341,22 @@ export function PlaygroundModal({ config, open, onOpenChange, activeStage = 1 }:
                           >
                             <ContentSlot
                               config={effectiveContentA}
+                              proCardConfig={proCard}
+                              checklistConfig={checklist}
                               lineGap={contentTop.lineGap}
-                              duration={contentDuration}
-                              bounce={contentBounce}
+                              duration={effectiveTiming.layoutDuration}
+                              bounce={effectiveTiming.layoutBounce}
+                              stagger={effectiveTiming.stagger}
                               textMode={textMode}
                               textEasing={textEasing}
                               textYOffset={textYOffset}
+                              textEnabled={textEnabled}
                             />
                           </DebugWrapper>
                         )}
 
                         {/* Content Bottom Section - height morphs, content animates */}
-                        {contentBottom.show && (
+                        {contentBottom.show && effectiveContentB.show !== false && (
                           <DebugWrapper
                             label="Content B"
                             color="border-yellow-500"
@@ -313,18 +364,22 @@ export function PlaygroundModal({ config, open, onOpenChange, activeStage = 1 }:
                           >
                             <ContentSlot
                               config={effectiveContentB}
+                              proCardConfig={proCard}
+                              checklistConfig={checklist}
                               lineGap={contentBottom.lineGap}
-                              duration={contentDuration}
-                              bounce={contentBounce}
+                              duration={effectiveTiming.layoutDuration}
+                              bounce={effectiveTiming.layoutBounce}
+                              stagger={effectiveTiming.stagger}
                               textMode={textMode}
                               textEasing={textEasing}
                               textYOffset={textYOffset}
+                              textEnabled={textEnabled}
                             />
                           </DebugWrapper>
                         )}
 
                         {/* Spacer to push buttons to bottom */}
-                        {config.container.pushButtonsToBottom && (
+                        {effectivePushButtonsToBottom && (
                           <DebugWrapper
                             label="Spacer (flex-1)"
                             color="border-red-500"
@@ -334,71 +389,43 @@ export function PlaygroundModal({ config, open, onOpenChange, activeStage = 1 }:
                           </DebugWrapper>
                         )}
 
-                        {/* Button Section - text crossfades, buttons stay in place */}
+                        {/* Line Separator */}
+                        {config.container.showSeparator && (
+                          <motion.div
+                            layout
+                            className="h-px w-full bg-tertiary"
+                            transition={{
+                              layout: {
+                                type: 'spring',
+                                duration: effectiveTiming.layoutDuration,
+                                bounce: effectiveTiming.layoutBounce,
+                              },
+                            }}
+                          />
+                        )}
+
+                        {/* Button Section - fluid layout with animated states */}
                         <DebugWrapper
                           label="Buttons"
                           color="border-purple-500"
                           show={demo.showContainerOutlines}
                         >
-                          <motion.div layout="position" className={buttonLayoutClasses} style={{ gap: buttons.gap }}>
-                            {buttons.buttonCount === 2 && buttons.layout !== 'horizontal-reverse' && (
-                              <Button
-                                variant={buttons.secondary.variant}
-                                size={buttons.secondary.size}
-                                onClick={handleSecondaryClick}
-                                className={cn('flex-1', !buttons.cornerSquircle && 'corner-round')}
-                                style={buttonRadiusStyle}
-                              >
-                                <CrossfadeText
-                                  text={effectiveButtons.secondary ?? ''}
-                                  duration={textEasing === 'spring' ? contentDuration : textDuration}
-                                  bounce={contentBounce}
-                                  yOffset={textYOffset}
-                                  mode={textMode}
-                                  easing={textEasing}
-                                  useSpring={textEasing === 'spring'}
-                                />
-                              </Button>
-                            )}
-
-                            <Button
-                              variant={buttons.primary.variant}
-                              size={buttons.primary.size}
-                              onClick={handlePrimaryClick}
-                              className={cn('flex-1', !buttons.cornerSquircle && 'corner-round')}
-                              style={buttonRadiusStyle}
-                            >
-                              <CrossfadeText
-                                text={effectiveButtons.primary}
-                                duration={textEasing === 'spring' ? contentDuration : textDuration}
-                                bounce={contentBounce}
-                                yOffset={textYOffset}
-                                mode={textMode}
-                                easing={textEasing}
-                                useSpring={textEasing === 'spring'}
-                              />
-                            </Button>
-
-                            {buttons.buttonCount === 2 && buttons.layout === 'horizontal-reverse' && (
-                              <Button
-                                variant={buttons.secondary.variant}
-                                size={buttons.secondary.size}
-                                onClick={handleSecondaryClick}
-                                className={cn('flex-1', !buttons.cornerSquircle && 'corner-round')}
-                                style={buttonRadiusStyle}
-                              >
-                                <CrossfadeText
-                                  text={effectiveButtons.secondary ?? ''}
-                                  duration={textEasing === 'spring' ? contentDuration : textDuration}
-                                  bounce={contentBounce}
-                                  yOffset={textYOffset}
-                                  mode={textMode}
-                                  easing={textEasing}
-                                  useSpring={textEasing === 'spring'}
-                                />
-                              </Button>
-                            )}
-                          </motion.div>
+                          <div>
+                            <ModalButtonSection
+                              config={buttons}
+                              stageButtons={effectiveButtons}
+                              slowMo={demo.slowMo}
+                              textDuration={textEasing === 'spring' ? effectiveTiming.contentDuration : textDuration}
+                              textBounce={effectiveTiming.contentBounce}
+                              textYOffset={textYOffset}
+                              textMode={textMode}
+                              textEasing={textEasing}
+                              buttonRadiusStyle={buttonRadiusStyle}
+                              masterDuration={isSynced ? effectiveTiming.layoutDuration : undefined}
+                              onPrimaryClick={handlePrimaryClick}
+                              onSecondaryClick={handleSecondaryClick}
+                            />
+                          </div>
                         </DebugWrapper>
                       </motion.div>
                     </LayoutGroup>

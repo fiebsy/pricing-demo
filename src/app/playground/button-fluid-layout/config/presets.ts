@@ -22,7 +22,7 @@ export const DEFAULT_BUTTON_STATES: ButtonStateMachineConfig = {
     state1: { id: 'upgrade', text: 'Upgrade', showSpinner: false, showCheckmark: false, showText: true, showLeftButton: true },
     state2: { id: 'upgrading', text: 'Upgrading', showSpinner: true, showCheckmark: false, showText: true, showLeftButton: true },
     state3: { id: 'completed', text: '', showSpinner: false, showCheckmark: true, showText: false, showLeftButton: false },
-    state4: { id: 'start-creating', text: 'Start creating', showSpinner: false, showCheckmark: false, showText: true, showLeftButton: false },
+    state4: { id: 'start-creating', text: "Let's create", showSpinner: false, showCheckmark: false, showText: true, showLeftButton: false },
   },
 }
 
@@ -52,7 +52,8 @@ export const DEFAULT_BUTTON_FLUID_LAYOUT_CONFIG: ButtonFluidLayoutConfig = {
   layout: {
     containerWidth: 400,
     gap: 8,
-    buttonVariant: 'secondary',
+    leftButtonVariant: 'secondary',
+    rightButtonVariant: 'primary',
   },
   demo: {
     slowMo: false,

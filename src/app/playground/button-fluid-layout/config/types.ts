@@ -83,8 +83,10 @@ export interface LayoutConfig {
   containerWidth: number
   /** Gap between buttons in pixels */
   gap: number
-  /** Button visual variant */
-  buttonVariant: 'primary' | 'secondary' | 'tertiary'
+  /** Left button visual variant */
+  leftButtonVariant: 'primary' | 'secondary' | 'tertiary'
+  /** Right button visual variant */
+  rightButtonVariant: 'primary' | 'secondary' | 'tertiary'
 }
 
 // ============================================================================

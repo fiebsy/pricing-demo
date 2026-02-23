@@ -197,6 +197,35 @@ export function buildTitleClasses(config: ModalPlaygroundConfig): string {
 }
 
 // ============================================================================
+// Subheader Typography Classes
+// ============================================================================
+
+export function buildSubheaderClasses(config: ModalPlaygroundConfig): string {
+  const { header } = config
+  const { subheader } = header
+
+  const sizeClass =
+    subheader.size === 'xs'
+      ? 'text-xs'
+      : subheader.size === 'sm'
+        ? 'text-sm'
+        : 'text-base'
+
+  const weightClass =
+    subheader.weight === '400'
+      ? 'font-normal'
+      : subheader.weight === '500'
+        ? 'font-medium'
+        : subheader.weight === '600'
+          ? 'font-semibold'
+          : 'font-bold'
+
+  const colorClass = subheader.color
+
+  return cn(sizeClass, weightClass, colorClass)
+}
+
+// ============================================================================
 // Content Text Classes
 // ============================================================================
 

@@ -53,6 +53,8 @@ export interface ContainerConfig {
   borderColor: string
   /** Push buttons to bottom of modal (adds flex-1 spacer) */
   pushButtonsToBottom: boolean
+  /** Show horizontal line separator above buttons */
+  showSeparator: boolean
 }
 
 // ============================================================================
@@ -68,15 +70,32 @@ export interface TitleConfig {
   weight: '400' | '500' | '600' | '700'
 }
 
+export interface SubheaderConfig {
+  /** Show subheader text */
+  show: boolean
+  /** Text color (semantic token) */
+  color: string
+  /** Font size */
+  size: 'xs' | 'sm' | 'md'
+  /** Font weight */
+  weight: '400' | '500' | '600' | '700'
+}
+
 export interface HeaderConfig {
   /** Show asset placeholder */
   showAsset: boolean
-  /** Asset placeholder height in pixels */
+  /** Asset placeholder height in pixels (legacy - use asset.height) */
   assetHeight: number
+  /** Asset configuration */
+  asset?: AssetConfig
   /** Title typography */
   title: TitleConfig
   /** Title text content */
   titleContent: string
+  /** Subheader typography (global styling) */
+  subheader: SubheaderConfig
+  /** Subheader text content (default for all stages) */
+  subheaderContent: string
 }
 
 // ============================================================================
@@ -134,6 +153,8 @@ export interface ButtonsConfig {
   buttonRadius: 'default' | 'sync'
   /** Enable corner-squircle on buttons */
   cornerSquircle: boolean
+  /** Fluid button animation config */
+  fluid: FluidButtonConfig
 }
 
 // ============================================================================
@@ -184,6 +205,33 @@ export interface BackdropConfig {
 // Animation Configuration
 // ============================================================================
 
+/** Layout morphing animation style */
+export type LayoutAnimationStyle = 'spring' | 'tween'
+
+/** Animation sync mode: independent timing or unified */
+export type AnimationSyncMode = 'independent' | 'synced'
+
+/** Master animation config (used when synced) */
+export interface MasterAnimationConfig {
+  /** Duration in seconds (0.15-0.8) */
+  duration: number
+  /** Spring bounce (0-0.4) */
+  bounce: number
+  /** Line stagger delay in seconds */
+  stagger: number
+}
+
+export interface LayoutAnimationConfig {
+  /** Animation style: spring physics or tween (duration-based) */
+  style: LayoutAnimationStyle
+  /** Duration in seconds (0.2-1.0) */
+  duration: number
+  /** Spring bounce (0-0.5), only applies to spring style */
+  bounce: number
+  /** Tween easing, only applies to tween style (Motion uses camelCase) */
+  easing: 'easeOut' | 'easeInOut' | 'linear'
+}
+
 export interface AnimationConfig {
   /** Animation preset */
   preset: 'scale-fade' | 'slide-up' | 'slide-down' | 'flip-3d' | 'bounce' | 'custom'
@@ -203,6 +251,12 @@ export interface AnimationConfig {
     initial: number
     animate: number
   }
+  /** Sync mode: independent timing or unified master timing */
+  syncMode: AnimationSyncMode
+  /** Master timing config (used when syncMode is 'synced') */
+  master: MasterAnimationConfig
+  /** Layout morphing animation (height transitions between stages) */
+  layout: LayoutAnimationConfig
 }
 
 // ============================================================================
@@ -216,6 +270,8 @@ export type TextTransitionEasing = 'spring' | 'elastic' | 'expo-out' | 'ease-out
 export type TextTransitionMode = 'crossfade' | 'flip'
 
 export interface TextTransitionConfig {
+  /** Whether text transition animation is enabled */
+  enabled: boolean
   /** Animation mode: crossfade (overlapping) or flip (sequential) */
   mode: TextTransitionMode
   /** Vertical offset for enter/exit animation in pixels */
@@ -258,6 +314,10 @@ export interface ModalPlaygroundConfig {
   animation: AnimationConfig
   textTransition: TextTransitionConfig
   demo: DemoConfig
+  /** Global Pro Card configuration (used when content type is 'pro-card') */
+  proCard: ProCardConfig
+  /** Global Checklist configuration (used when content type is 'checklist') */
+  checklist: ChecklistConfig
   /** Per-stage content configuration (title, content slots, button labels) */
   stages: StagesConfig
 }
@@ -278,14 +338,151 @@ export interface ModalPresetMeta {
 // Stage Configuration (for multi-stage transitions)
 // ============================================================================
 
-/** Content slot type: wireframe placeholder bars or editable text */
-export type ContentSlotType = 'wireframe' | 'text'
+/** Content slot type: wireframe placeholder bars, editable text, pro card, or checklist */
+export type ContentSlotType = 'wireframe' | 'text' | 'pro-card' | 'checklist'
+
+// ============================================================================
+// Asset Configuration (for header)
+// ============================================================================
+
+/** Asset type for modal header */
+export type AssetType = 'placeholder' | 'coin-stack'
+
+/** Coin stack state ID (1 = default/classic, 2 = arcade-blue) */
+export type CoinStackStateId = 1 | 2
+
+/** Coin stack asset configuration */
+export interface CoinStackAssetConfig {
+  /** Width of the coin stack in pixels (50-200) */
+  width: number
+  /** Default coin stack state/preset */
+  stateId: CoinStackStateId
+  /** Enable animated transitions between states */
+  transitionEnabled: boolean
+  /** Spring animation duration in seconds (0.1-1.0) */
+  transitionDuration: number
+  /** Spring animation bounce (0-0.5) */
+  transitionBounce: number
+}
+
+/** Asset alignment */
+export type AssetAlignment = 'left' | 'center'
+
+/** Asset configuration for modal header */
+export interface AssetConfig {
+  /** Type of asset to display */
+  type: AssetType
+  /** Height of the asset container in pixels */
+  height: number
+  /** Horizontal alignment of the asset */
+  alignment: AssetAlignment
+  /** Horizontal offset in pixels (positive = right, negative = left) */
+  offsetX: number
+  /** Coin stack specific configuration (when type = 'coin-stack') */
+  coinStack?: CoinStackAssetConfig
+}
+
+/** Per-stage asset state configuration */
+export interface StageAssetConfig {
+  /** Coin stack state ID for this stage */
+  coinStackStateId: CoinStackStateId
+}
+
+/** Pro card gradient presets (arcade blue palette) */
+export type ProCardGradient =
+  | 'arcade-blue' // sky-300 -> blue-500
+  | 'ocean-depth' // blue-400 -> blue-600
+  | 'frost' // white -> sky-400
+  | 'electric' // indigo-400 -> blue-500
+
+/** Semantic text color tokens */
+export type SemanticTextColor =
+  | 'text-primary'
+  | 'text-secondary'
+  | 'text-tertiary'
+
+/** Pro card text style: gradient or semantic token */
+export type ProCardTextStyle = ProCardGradient | SemanticTextColor
+
+/** Pro card text typography configuration */
+export interface ProCardTextConfig {
+  /** Font size in pixels ('auto' = calculate from height) */
+  fontSize: number | 'auto'
+  /** Font weight */
+  fontWeight: '400' | '500' | '600' | '700' | '800' | '900'
+  /** Letter spacing in em units (e.g., -0.02, 0, 0.02) */
+  letterSpacing: number
+  /** Text style for title (gradient or semantic token) */
+  titleGradient: ProCardTextStyle
+  /** Text style for multiplier (gradient or semantic token) */
+  multiplierGradient: ProCardTextStyle
+}
+
+/** Pro card configuration */
+export interface ProCardConfig {
+  /** Display title (e.g., "Pro") */
+  title: string
+  /** Multiplier value (e.g., 2 -> displays as "Pro 2x") */
+  multiplier: number
+  /** Height of the pro card in pixels (40-300) */
+  height: number
+  /** Gradient preset for text (legacy - use text.titleGradient/multiplierGradient) */
+  gradient: ProCardGradient
+  /** Text typography settings */
+  text: ProCardTextConfig
+  /** Container styling */
+  container: {
+    /** Background semantic color */
+    background: 'primary' | 'secondary' | 'tertiary' | 'transparent'
+    /** Shine effect preset */
+    shine: ContainerConfig['shine']
+    /** Border radius in pixels */
+    borderRadius: number
+    /** Internal padding in pixels */
+    padding: number
+  }
+  /** Glow effect settings */
+  glow: {
+    /** Enable glow effect */
+    enabled: boolean
+    /** Glow color (Tailwind color name) */
+    color: string
+    /** Blur amount in pixels */
+    blur: number
+    /** Opacity percentage (0-100) */
+    opacity: number
+    /** Hide glow effect on mobile devices */
+    hideOnMobile: boolean
+  }
+}
+
+/** Checklist content configuration */
+export interface ChecklistConfig {
+  /** Title text (e.g., "Next billing cycle (Mar 20th 2026)") */
+  title: string
+  /** Checklist items */
+  items: string[]
+  /** Title typography */
+  titleSize: 'xs' | 'sm' | 'md'
+  titleWeight: '400' | '500' | '600' | '700'
+  titleColor: SemanticTextColor
+  /** Item typography */
+  itemSize: 'xs' | 'sm' | 'md'
+  itemWeight: '400' | '500' | '600' | '700'
+  itemColor: SemanticTextColor
+  /** Checkmark color */
+  checkColor: SemanticTextColor
+  /** Gap between items in pixels */
+  gap: number
+}
 
 /** Content slot configuration with type-specific options */
 export interface ContentSlotConfig {
-  /** Content type: wireframe bars or text paragraph */
+  /** Show this content slot (defaults to true if omitted) */
+  show?: boolean
+  /** Content type: wireframe bars, text paragraph, or pro card */
   type: ContentSlotType
-  /** Height of the content slot in pixels */
+  /** Height of the content slot in pixels (for wireframe/text types) */
   height: number
   /** Number of wireframe lines (only for wireframe type) */
   lineCount?: number
@@ -293,16 +490,67 @@ export interface ContentSlotConfig {
   text?: string
 }
 
+// ============================================================================
+// Button State Types (for fluid button integration)
+// ============================================================================
+
+/** Checkmark entrance animation style */
+export type CheckmarkEntranceStyle = 'draw' | 'flip'
+
+/** Primary button visual state (maps to AnimatedRightButton) */
+export interface PrimaryButtonState {
+  /** Button label text */
+  text: string
+  /** Show loading spinner */
+  showSpinner: boolean
+  /** Show checkmark icon */
+  showCheckmark: boolean
+  /** Show text label */
+  showText: boolean
+}
+
+/** Per-stage button configuration with visual state */
+export interface StageButtonConfig {
+  /** Primary button state */
+  primary: PrimaryButtonState
+  /** Secondary button label (null = hide secondary) */
+  secondary: string | null
+}
+
+/** Fluid button animation config */
+export interface FluidButtonConfig {
+  /** Enable fluid layout animations */
+  enabled: boolean
+  /** Timing preset ('synced' derives values from modal master timing) */
+  timing: 'default' | 'snappy' | 'smooth' | 'synced'
+  /** Gap between buttons in pixels */
+  gap: number
+  /** Enable blur effect on exiting content */
+  exitBlur: boolean
+  /** Checkmark entrance animation style */
+  checkmarkStyle: CheckmarkEntranceStyle
+  /** Text slide duration in ms */
+  textSlideDuration: number
+  /** Checkmark draw duration in ms */
+  checkmarkDrawDuration: number
+}
+
 /** Per-stage content configuration */
 export interface StageContentConfig {
   headerTitle: string
+  /** Per-stage subheader text (undefined = use global header.subheaderContent) */
+  headerSubheader?: string
   contentA: ContentSlotConfig
   contentB: ContentSlotConfig
-  buttons: { primary: string; secondary?: string }
+  buttons: StageButtonConfig
+  /** Override global pushButtonsToBottom for this stage (undefined = use global) */
+  pushButtonsToBottom?: boolean
+  /** Per-stage asset configuration (overrides header.asset.coinStack.stateId) */
+  asset?: StageAssetConfig
 }
 
-/** Stage ID type (1-4) */
-export type StageId = 1 | 2 | 3 | 4
+/** Stage ID type (1-5) */
+export type StageId = 1 | 2 | 3 | 4 | 5
 
 /** Stages configuration record */
 export type StagesConfig = Record<StageId, StageContentConfig>

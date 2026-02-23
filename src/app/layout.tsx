@@ -33,6 +33,8 @@ export default function RootLayout({
             `,
           }}
         />
+        {/* Figma capture script - temporary */}
+        <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
       </head>
       <body className="font-body bg-secondary_alt noise-overlay noise-fixed noise-opacity-90">
         <ThemeProvider>

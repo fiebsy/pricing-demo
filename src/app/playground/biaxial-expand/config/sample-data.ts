@@ -215,6 +215,19 @@ export interface PricingTier {
   multiplier: number      // 1, 2, 3, 4, 5, 6
   planName: string        // "Pro", "Pro 2X", etc.
   creditsLabel: string    // "200 credits / month"
+  // Variant B fields
+  eventsPerMonth: number              // e.g., 1000000
+  eventsLabel: string                 // "1,000,000 events/mo"
+  planNameShort: string               // "1m plan", "10m plan"
+  priceFormatted: string              // "$19.00"
+  monthlyPrice: number                // Same as price for monthly plans
+  recurringText: string               // "Then $19.00/mo. Cancel anytime."
+  // Upgrade flow fields (relative to Pro base: 100 credits, $19/mo)
+  additionalCredits: number           // credits - 100 (Pro base)
+  additionalCreditsLabel: string      // "+100 additional credits" or "" for Pro
+  upgradeFee: number                  // price - 19 (Pro base price)
+  upgradeFeeFormatted: string         // "$20.00" or "$0.00" for Pro
+  upgradeFeeLabel: string             // "$20" short form for menu display
 }
 
 export const PRICING_TIERS: PricingTier[] = [
@@ -227,6 +240,19 @@ export const PRICING_TIERS: PricingTier[] = [
     creditsLabel: '100 credits / month',
     label: '100 credits / month',
     priceLabel: '$19/mo',
+    // Variant B fields
+    eventsPerMonth: 1000000,
+    eventsLabel: '1,000,000 events/mo',
+    planNameShort: '1m plan',
+    priceFormatted: '$19.00',
+    monthlyPrice: 19,
+    recurringText: 'Then $19.00/mo. Cancel anytime.',
+    // Upgrade flow fields (base tier - no additional credits or upgrade fee)
+    additionalCredits: 0,
+    additionalCreditsLabel: '',
+    upgradeFee: 0,
+    upgradeFeeFormatted: '$0.00',
+    upgradeFeeLabel: '$0',
   },
   {
     id: 'tier-200',
@@ -237,6 +263,19 @@ export const PRICING_TIERS: PricingTier[] = [
     creditsLabel: '200 credits / month',
     label: '200 credits / month',
     priceLabel: '$39/mo',
+    // Variant B fields
+    eventsPerMonth: 2000000,
+    eventsLabel: '2,000,000 events/mo',
+    planNameShort: '2m plan',
+    priceFormatted: '$39.00',
+    monthlyPrice: 39,
+    recurringText: 'Then $39.00/mo. Cancel anytime.',
+    // Upgrade flow fields
+    additionalCredits: 100,
+    additionalCreditsLabel: '+100 additional credits',
+    upgradeFee: 20,
+    upgradeFeeFormatted: '$20.00',
+    upgradeFeeLabel: '$20',
   },
   {
     id: 'tier-300',
@@ -247,6 +286,19 @@ export const PRICING_TIERS: PricingTier[] = [
     creditsLabel: '300 credits / month',
     label: '300 credits / month',
     priceLabel: '$59/mo',
+    // Variant B fields
+    eventsPerMonth: 5000000,
+    eventsLabel: '5,000,000 events/mo',
+    planNameShort: '5m plan',
+    priceFormatted: '$59.00',
+    monthlyPrice: 59,
+    recurringText: 'Then $59.00/mo. Cancel anytime.',
+    // Upgrade flow fields
+    additionalCredits: 200,
+    additionalCreditsLabel: '+200 additional credits',
+    upgradeFee: 40,
+    upgradeFeeFormatted: '$40.00',
+    upgradeFeeLabel: '$40',
   },
   {
     id: 'tier-400',
@@ -257,6 +309,19 @@ export const PRICING_TIERS: PricingTier[] = [
     creditsLabel: '400 credits / month',
     label: '400 credits / month',
     priceLabel: '$79/mo',
+    // Variant B fields
+    eventsPerMonth: 10000000,
+    eventsLabel: '10,000,000 events/mo',
+    planNameShort: '10m plan',
+    priceFormatted: '$79.00',
+    monthlyPrice: 79,
+    recurringText: 'Then $79.00/mo. Cancel anytime.',
+    // Upgrade flow fields
+    additionalCredits: 300,
+    additionalCreditsLabel: '+300 additional credits',
+    upgradeFee: 60,
+    upgradeFeeFormatted: '$60.00',
+    upgradeFeeLabel: '$60',
   },
   {
     id: 'tier-500',
@@ -267,6 +332,19 @@ export const PRICING_TIERS: PricingTier[] = [
     creditsLabel: '500 credits / month',
     label: '500 credits / month',
     priceLabel: '$99/mo',
+    // Variant B fields
+    eventsPerMonth: 25000000,
+    eventsLabel: '25,000,000 events/mo',
+    planNameShort: '25m plan',
+    priceFormatted: '$99.00',
+    monthlyPrice: 99,
+    recurringText: 'Then $99.00/mo. Cancel anytime.',
+    // Upgrade flow fields
+    additionalCredits: 400,
+    additionalCreditsLabel: '+400 additional credits',
+    upgradeFee: 80,
+    upgradeFeeFormatted: '$80.00',
+    upgradeFeeLabel: '$80',
   },
   {
     id: 'tier-600',
@@ -277,5 +355,18 @@ export const PRICING_TIERS: PricingTier[] = [
     creditsLabel: '600 credits / month',
     label: '600 credits / month',
     priceLabel: '$119/mo',
+    // Variant B fields
+    eventsPerMonth: 50000000,
+    eventsLabel: '50,000,000 events/mo',
+    planNameShort: '50m plan',
+    priceFormatted: '$119.00',
+    monthlyPrice: 119,
+    recurringText: 'Then $119.00/mo. Cancel anytime.',
+    // Upgrade flow fields
+    additionalCredits: 500,
+    additionalCreditsLabel: '+500 additional credits',
+    upgradeFee: 100,
+    upgradeFeeFormatted: '$100.00',
+    upgradeFeeLabel: '$100',
   },
 ]

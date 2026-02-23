@@ -257,6 +257,27 @@ export default function BiaxialExpandPlayground() {
     }
   }, [config])
 
+  // Adaptive container height: only applies fixed height for Variant B (static card mode)
+  // Variant A uses overlay mode where content expands outside the container
+  const computedContainerHeight = useMemo(() => {
+    // Only apply calculated height for Variant B
+    if (pricingVariant !== 'B') return undefined
+
+    // Content height for Variant B: trigger + gap + maxBottomHeightB
+    const contentHeight =
+      config.layout.triggerHeight +
+      config.layout.bottomGap +
+      config.layout.maxBottomHeightB
+
+    // Header height (if shown): ~20px for text-sm + marginBottom
+    const headerHeight = config.demo.debugContainer.header.show
+      ? config.demo.debugContainer.header.marginBottom + 20
+      : 0
+
+    // Total = content + header + top/bottom padding
+    return contentHeight + headerHeight + config.demo.debugContainer.padding * 2
+  }, [config, pricingVariant])
+
   const panelConfig = useMemo(
     () => buildBiaxialExpandPanelConfig(config, BIAXIAL_EXPAND_PRESETS, activePresetId),
     [config, activePresetId]
@@ -292,6 +313,10 @@ export default function BiaxialExpandPlayground() {
           style={{
             width: config.demo.debugContainer.width,
             padding: config.demo.debugContainer.padding,
+            ...(computedContainerHeight && {
+              height: computedContainerHeight,
+              overflow: 'hidden',
+            }),
           }}
         >
           {/* Container Header */}
@@ -308,7 +333,7 @@ export default function BiaxialExpandPlayground() {
               {config.demo.debugContainer.header.text}
             </div>
           )}
-          <div key={resetKey} className="flex items-center gap-4">
+          <div key={resetKey} className="flex items-start gap-4">
             {/* Left test block - gets pushed when LeftSlot expands */}
             {config.leftSlot.enabled && (
               <div className="w-12 h-12 bg-tertiary rounded-xl border border-primary flex items-center justify-center shrink-0">
@@ -327,7 +352,7 @@ export default function BiaxialExpandPlayground() {
           </div>
         </div>
       ) : (
-        <div key={resetKey} className="flex items-center gap-4">
+        <div key={resetKey} className="flex items-start gap-4">
           {/* Left test block - gets pushed when LeftSlot expands */}
           {config.leftSlot.enabled && (
             <div className="w-12 h-12 bg-tertiary rounded-xl border border-primary flex items-center justify-center shrink-0">

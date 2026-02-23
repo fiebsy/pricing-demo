@@ -297,4 +297,132 @@ export const TEXT_EASING_OPTIONS = [
 export const CONTENT_TYPE_OPTIONS = [
   { label: 'Wireframe', value: 'wireframe' },
   { label: 'Text', value: 'text' },
+  { label: 'Pro Card', value: 'pro-card' },
+  { label: 'Checklist', value: 'checklist' },
+] as const
+
+// ============================================================================
+// Pro Card Options
+// ============================================================================
+
+export const PRO_CARD_GRADIENT_OPTIONS = [
+  { label: 'Arcade Blue', value: 'arcade-blue' },
+  { label: 'Ocean Depth', value: 'ocean-depth' },
+  { label: 'Frost', value: 'frost' },
+  { label: 'Electric', value: 'electric' },
+] as const
+
+/** Combined text style options: gradients + semantic tokens */
+export const PRO_CARD_TEXT_STYLE_OPTIONS = [
+  // Gradients
+  { label: 'Arcade Blue', value: 'arcade-blue' },
+  { label: 'Ocean Depth', value: 'ocean-depth' },
+  { label: 'Frost', value: 'frost' },
+  { label: 'Electric', value: 'electric' },
+  // Semantic Tokens
+  { label: 'Primary', value: 'text-primary' },
+  { label: 'Secondary', value: 'text-secondary' },
+  { label: 'Tertiary', value: 'text-tertiary' },
+] as const
+
+export const PRO_CARD_BACKGROUND_OPTIONS = [
+  { label: 'Primary', value: 'primary', color: 'var(--color-bg-primary)' },
+  { label: 'Secondary', value: 'secondary', color: 'var(--color-bg-secondary)' },
+  { label: 'Tertiary', value: 'tertiary', color: 'var(--color-bg-tertiary)' },
+  { label: 'Transparent', value: 'transparent', color: 'transparent' },
+] as const
+
+export const GLOW_COLOR_OPTIONS = [
+  { label: 'Sky 300', value: 'sky-300', color: '#7dd3fc' },
+  { label: 'Sky 400', value: 'sky-400', color: '#38bdf8' },
+  { label: 'Blue 400', value: 'blue-400', color: '#60a5fa' },
+  { label: 'Blue 500', value: 'blue-500', color: '#3b82f6' },
+  { label: 'White', value: 'white', color: '#ffffff' },
+] as const
+
+// ============================================================================
+// Pro Card Text Options
+// ============================================================================
+
+export const PRO_CARD_FONT_WEIGHT_OPTIONS = [
+  { label: 'Medium', value: '500' },
+  { label: 'Semibold', value: '600' },
+  { label: 'Bold', value: '700' },
+  { label: 'Extrabold', value: '800' },
+  { label: 'Black', value: '900' },
+] as const
+
+export const PRO_CARD_LETTER_SPACING_OPTIONS = [
+  { label: 'Tighter', value: '-0.05' },
+  { label: 'Tight', value: '-0.025' },
+  { label: 'Normal', value: '0' },
+  { label: 'Wide', value: '0.025' },
+  { label: 'Wider', value: '0.05' },
+] as const
+
+// ============================================================================
+// Layout Animation Options
+// ============================================================================
+
+export const LAYOUT_ANIMATION_STYLE_OPTIONS = [
+  { label: 'Spring', value: 'spring', description: 'Physics-based spring' },
+  { label: 'Tween', value: 'tween', description: 'Duration-based easing' },
+] as const
+
+export const LAYOUT_EASING_OPTIONS = [
+  { label: 'Ease Out', value: 'easeOut' },
+  { label: 'Ease In Out', value: 'easeInOut' },
+  { label: 'Linear', value: 'linear' },
+] as const
+
+// ============================================================================
+// Animation Sync Mode Options
+// ============================================================================
+
+export const ANIMATION_SYNC_MODE_OPTIONS = [
+  { label: 'Independent', value: 'independent', description: 'Separate timing for each system' },
+  { label: 'Synced', value: 'synced', description: 'Unified timing for all animations' },
+] as const
+
+// ============================================================================
+// Fluid Button Options
+// ============================================================================
+
+export const FLUID_TIMING_OPTIONS = [
+  { label: 'Default', value: 'default', description: 'Balanced timing (250ms collapse, 525ms expand)' },
+  { label: 'Snappy', value: 'snappy', description: 'Quick, responsive feel (150ms collapse, 300ms expand)' },
+  { label: 'Smooth', value: 'smooth', description: 'Slower, more deliberate (400ms collapse, 700ms expand)' },
+  { label: 'Synced', value: 'synced', description: 'Derives timing from modal master config' },
+] as const
+
+export const CHECKMARK_STYLE_OPTIONS = [
+  { label: 'Draw', value: 'draw', description: 'Animated SVG path draw' },
+  { label: 'Flip', value: 'flip', description: 'Slide in with container' },
+] as const
+
+// ============================================================================
+// Asset Type Options
+// ============================================================================
+
+export const ASSET_TYPE_OPTIONS = [
+  { label: 'Placeholder', value: 'placeholder' },
+  { label: 'Coin Stack', value: 'coin-stack' },
+] as const
+
+// ============================================================================
+// Coin Stack State Options
+// ============================================================================
+
+export const COIN_STACK_STATE_OPTIONS = [
+  { label: 'Classic (Black/White)', value: '1' },
+  { label: 'Arcade Blue Solid', value: '2' },
+] as const
+
+// ============================================================================
+// Asset Alignment Options
+// ============================================================================
+
+export const ASSET_ALIGNMENT_OPTIONS = [
+  { label: 'Left', value: 'left' },
+  { label: 'Center', value: 'center' },
 ] as const

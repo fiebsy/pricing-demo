@@ -18,6 +18,8 @@ import Tick01Icon from '@hugeicons-pro/core-stroke-rounded/Tick01Icon'
 import {
   BiaxialExpand,
   useBiaxialExpand,
+  getBackgroundClass,
+  getBorderColorVar,
   type BiaxialExpandConfig,
   type CommandItemAction,
   type BackgroundOption,
@@ -38,6 +40,11 @@ import type {
   BadgeColor,
   LabelLayout,
   PricingVariantId,
+  TriggerStateStyle,
+  VariantBTriggerConfig,
+  VariantBBottomSlotConfig,
+  VariantBRightSource,
+  VariantTransitionConfig,
 } from '../config/types'
 import {
   SAMPLE_COMMANDS,
@@ -126,6 +133,7 @@ export function playgroundConfigToBiaxialConfig(
       inset: playgroundConfig.bottomSlot.inset,
       borderWidth: playgroundConfig.bottomSlot.borderWidth,
       borderColor: playgroundConfig.bottomSlot.borderColor,
+      integrated: playgroundConfig.bottomSlot.integrated,
     },
     leftSlot: {
       enabled: playgroundConfig.leftSlot.enabled,
@@ -471,6 +479,17 @@ interface PricingSelectTriggerProps {
   dropdownIconRotates?: boolean
   triggerTypography: TriggerTypographyConfig
   syncedSubtext: SyncedSubtextConfig
+  /** Trigger padding values */
+  triggerPaddingX?: number
+  triggerPaddingTop?: number
+  triggerPaddingBottom?: number
+  /** Trigger styling for collapsed/expanded states */
+  triggerStyle?: {
+    collapsed: TriggerStateStyle
+    expanded: TriggerStateStyle
+  }
+  /** When true, shows upgrade fee instead of full price, additional credits instead of total */
+  upgradeMode?: boolean
 }
 
 function PricingSelectTrigger({
@@ -479,6 +498,11 @@ function PricingSelectTrigger({
   dropdownIconRotates = true,
   triggerTypography,
   syncedSubtext,
+  triggerPaddingX = 16,
+  triggerPaddingTop = 0,
+  triggerPaddingBottom = 0,
+  triggerStyle,
+  upgradeMode = false,
 }: PricingSelectTriggerProps) {
   const { expanded, setExpanded } = useBiaxialExpand()
 
@@ -492,11 +516,39 @@ function PricingSelectTrigger({
   const showSyncedSubtext = syncedSubtext.syncWithSelection
   const showStaticSubtext = !showSyncedSubtext && subtext.show && subtext.text
 
+  // Get current trigger style based on expanded state
+  const currentStyle = triggerStyle ? (expanded ? triggerStyle.expanded : triggerStyle.collapsed) : null
+
+  // Build trigger style classes and inline styles
+  const triggerClasses = currentStyle ? cn(
+    getBackgroundClass(currentStyle.background),
+    currentStyle.shine && currentStyle.shine !== 'none' && currentStyle.shine,
+  ) : ''
+
+  const triggerInlineStyles: React.CSSProperties = currentStyle ? {
+    borderRadius: currentStyle.borderRadius,
+    ...(currentStyle.borderWidth > 0 && {
+      borderWidth: currentStyle.borderWidth,
+      borderStyle: 'solid',
+      borderColor: getBorderColorVar(currentStyle.borderColor),
+    }),
+  } : {}
+
   return (
     <button
       type="button"
       onClick={() => setExpanded(!expanded)}
-      className="flex items-center justify-between w-full h-full px-4 text-left"
+      className={cn(
+        'flex items-center justify-between w-full h-full text-left transition-all duration-200',
+        triggerClasses
+      )}
+      style={{
+        ...triggerInlineStyles,
+        paddingLeft: triggerPaddingX,
+        paddingRight: triggerPaddingX,
+        paddingTop: triggerPaddingTop,
+        paddingBottom: triggerPaddingBottom,
+      }}
     >
       <div className="flex flex-col items-start" style={{ gap: rowGap }}>
         {/* Label row */}
@@ -527,7 +579,7 @@ function PricingSelectTrigger({
                 )}
               >
                 {price.prefix}
-                {selectedTier.price}
+                {upgradeMode ? selectedTier.upgradeFee : selectedTier.price}
               </span>
             )}
             {priceSuffix.show && (
@@ -552,7 +604,10 @@ function PricingSelectTrigger({
             {syncedSubtext.planName.show && syncedSubtext.credits.show && syncedSubtext.separator && (
               <span className="text-tertiary opacity-40">{syncedSubtext.separator}</span>
             )}
-            <TextSegment text={selectedTier.creditsLabel} config={syncedSubtext.credits} />
+            <TextSegment
+              text={upgradeMode ? selectedTier.additionalCreditsLabel : selectedTier.creditsLabel}
+              config={syncedSubtext.credits}
+            />
           </span>
         )}
 
@@ -614,6 +669,8 @@ interface PricingSelectOptionsProps {
   showSelectedIndicator?: boolean
   itemTypography: ItemTypographyConfig
   menuItemLabel: MenuItemLabelConfig
+  /** When true, shows additional credits + upgrade fee instead of total credits + monthly price */
+  upgradeMode?: boolean
 }
 
 // Map text color option to Tailwind class
@@ -712,42 +769,211 @@ function TextSegment({ text, config }: TextSegmentProps) {
 }
 
 // ============================================================================
-// PRICING SELECT B - PLACEHOLDER COMPONENTS
+// PRICING SELECT B - CONFIGURABLE TRIGGER COMPONENT
 // ============================================================================
 
+interface PricingSelectBTriggerProps {
+  selectedTier: PricingTier
+  variantBConfig: VariantBTriggerConfig
+  /** Trigger styling for collapsed/expanded states */
+  triggerStyle?: {
+    collapsed: TriggerStateStyle
+    expanded: TriggerStateStyle
+  }
+}
+
 /**
- * Placeholder trigger for Pricing Select B variant.
- * Displays a static card header with wireframe-style content
- * instead of the interactive pricing select trigger.
+ * Configurable trigger for Pricing Select B variant.
+ * Displays ONLY the plan row in the trigger area.
+ * Syncs with the tier selected in Variant A.
+ *
+ * Layout (Trigger only):
+ * - Row 1: Plan name (left) + events/price info (right)
+ *
+ * Due row and subtext are now in PricingSelectBBottomContent.
  */
-function PricingSelectBTrigger() {
+function PricingSelectBTrigger({
+  selectedTier,
+  variantBConfig,
+  triggerStyle,
+}: PricingSelectBTriggerProps) {
+  const { expanded } = useBiaxialExpand()
+  const { planRow, paddingX, paddingTop, paddingBottom } = variantBConfig
+
+  // Get right text based on source
+  const getRightText = (source: VariantBRightSource): string => {
+    switch (source) {
+      case 'planName':
+        return selectedTier.planName
+      case 'events':
+        return selectedTier.eventsLabel
+      case 'price':
+        return selectedTier.priceFormatted
+      case 'recurringPrice':
+        return `$${selectedTier.monthlyPrice}/mo`
+      case 'additionalCredits':
+        return selectedTier.additionalCreditsLabel
+      case 'upgradeFee':
+        return selectedTier.upgradeFeeFormatted
+      default:
+        return ''
+    }
+  }
+
+  // Get current trigger style based on expanded state
+  const currentStyle = triggerStyle
+    ? expanded
+      ? triggerStyle.expanded
+      : triggerStyle.collapsed
+    : null
+
+  // Build trigger style classes and inline styles (same pattern as PricingSelectTrigger)
+  const triggerClasses = currentStyle
+    ? cn(
+        getBackgroundClass(currentStyle.background),
+        currentStyle.shine && currentStyle.shine !== 'none' && currentStyle.shine
+      )
+    : ''
+
+  const triggerInlineStyles: React.CSSProperties = currentStyle
+    ? {
+        borderRadius: currentStyle.borderRadius,
+        ...(currentStyle.borderWidth > 0 && {
+          borderWidth: currentStyle.borderWidth,
+          borderStyle: 'solid',
+          borderColor: getBorderColorVar(currentStyle.borderColor),
+        }),
+      }
+    : {}
+
   return (
-    <div className="flex flex-col items-start justify-center w-full h-full px-4 gap-2">
-      <div className="h-2.5 w-20 rounded-full bg-quaternary/60" />
-      <div className="h-4 w-28 rounded-full bg-quaternary/40" />
-      <div className="h-2 w-16 rounded-full bg-quaternary/30" />
+    <div
+      className={cn('flex flex-col w-full h-full', triggerClasses)}
+      style={{
+        paddingLeft: paddingX,
+        paddingRight: paddingX,
+        paddingTop,
+        paddingBottom,
+        ...triggerInlineStyles,
+      }}
+    >
+      <div className="flex flex-col justify-center h-full">
+        {/* Plan Row (Row 1) - ONLY row in trigger */}
+        {planRow.show && (
+          <div className="flex items-center justify-between">
+            <span
+              className={cn(
+                FONT_SIZE_CLASSES[planRow.leftFontSize],
+                FONT_WEIGHT_CLASSES[planRow.leftFontWeight],
+                TEXT_COLOR_CLASSES[planRow.leftTextColor]
+              )}
+              style={{ opacity: OPACITY_VALUES[planRow.leftOpacity] }}
+            >
+              {planRow.leftText || selectedTier.planName}
+            </span>
+            <span
+              className={cn(
+                FONT_SIZE_CLASSES[planRow.rightFontSize],
+                FONT_WEIGHT_CLASSES[planRow.rightFontWeight],
+                TEXT_COLOR_CLASSES[planRow.rightTextColor]
+              )}
+              style={{ opacity: OPACITY_VALUES[planRow.rightOpacity] }}
+            >
+              {getRightText(planRow.rightSource)}
+            </span>
+          </div>
+        )}
+      </div>
     </div>
   )
 }
 
 /**
- * Placeholder bottom slot content for Pricing Select B variant.
- * Displays static card content with wireframe bars instead of
- * the interactive tier selection list.
+ * Bottom slot content for Pricing Select B variant.
+ * Displays the due row and subtext that were moved from the trigger.
+ *
+ * Layout (Bottom Slot):
+ * - Row 2: "Due today" label (left) + price (right)
+ * - Row 3: Recurring text subtext
  */
-function PricingSelectBContent({ containerPadding = 4 }: { containerPadding?: number }) {
+interface PricingSelectBBottomContentProps {
+  selectedTier: PricingTier
+  bottomSlotConfig: VariantBBottomSlotConfig
+}
+
+function PricingSelectBBottomContent({
+  selectedTier,
+  bottomSlotConfig,
+}: PricingSelectBBottomContentProps) {
+  const { dueRow, subtext, rowGap, paddingX, paddingTop, paddingBottom } = bottomSlotConfig
+
+  // Get right text based on source
+  const getRightText = (source: VariantBRightSource): string => {
+    switch (source) {
+      case 'planName':
+        return selectedTier.planName
+      case 'events':
+        return selectedTier.eventsLabel
+      case 'price':
+        return selectedTier.priceFormatted
+      case 'recurringPrice':
+        return `$${selectedTier.monthlyPrice}/mo`
+      case 'additionalCredits':
+        return selectedTier.additionalCreditsLabel
+      case 'upgradeFee':
+        return selectedTier.upgradeFeeFormatted
+      default:
+        return ''
+    }
+  }
+
+  // Process subtext template
+  const processedSubtext = subtext.template
+    .replace('{price}', `$${selectedTier.monthlyPrice}`)
+    .replace('{planName}', selectedTier.planName)
+
   return (
-    <div className="flex flex-col gap-3" style={{ padding: containerPadding }}>
-      <div className="flex flex-col gap-2 px-3 pt-2">
-        <div className="h-2 w-12 rounded-full bg-quaternary/30" />
-        <div className="h-2.5 w-full rounded-full bg-quaternary/40" />
-        <div className="h-2.5 w-full rounded-full bg-quaternary/40" />
-        <div className="h-2.5 w-3/4 rounded-full bg-quaternary/40" />
-      </div>
-      <div className="flex flex-col gap-2 px-3 pb-2">
-        <div className="h-2 w-16 rounded-full bg-quaternary/30" />
-        <div className="h-2.5 w-full rounded-full bg-quaternary/40" />
-        <div className="h-2.5 w-2/3 rounded-full bg-quaternary/40" />
+    <div style={{ paddingLeft: paddingX, paddingRight: paddingX, paddingTop, paddingBottom }}>
+      <div className="flex flex-col" style={{ gap: rowGap }}>
+        {/* Due Row (Row 2) */}
+        {dueRow.show && (
+          <div className="flex items-center justify-between">
+            <span
+              className={cn(
+                FONT_SIZE_CLASSES[dueRow.leftFontSize],
+                FONT_WEIGHT_CLASSES[dueRow.leftFontWeight],
+                TEXT_COLOR_CLASSES[dueRow.leftTextColor]
+              )}
+              style={{ opacity: OPACITY_VALUES[dueRow.leftOpacity] }}
+            >
+              {dueRow.leftText}
+            </span>
+            <span
+              className={cn(
+                FONT_SIZE_CLASSES[dueRow.rightFontSize],
+                FONT_WEIGHT_CLASSES[dueRow.rightFontWeight],
+                TEXT_COLOR_CLASSES[dueRow.rightTextColor]
+              )}
+              style={{ opacity: OPACITY_VALUES[dueRow.rightOpacity] }}
+            >
+              {getRightText(dueRow.rightSource)}
+            </span>
+          </div>
+        )}
+
+        {/* Subtext Row (Row 3) */}
+        {subtext.show && (
+          <span
+            className={cn(
+              FONT_SIZE_CLASSES[subtext.fontSize],
+              FONT_WEIGHT_CLASSES[subtext.fontWeight],
+              TEXT_COLOR_CLASSES[subtext.textColor]
+            )}
+            style={{ opacity: OPACITY_VALUES[subtext.opacity] }}
+          >
+            {processedSubtext}
+          </span>
+        )}
       </div>
     </div>
   )
@@ -757,26 +983,45 @@ function PricingSelectBContent({ containerPadding = 4 }: { containerPadding?: nu
  * Animated slot wrapper that crossfades between A and B content.
  * Uses AnimatePresence with popLayout mode for smooth overlapping transitions.
  * The container uses layout animation for smooth height morphing.
+ * Can be disabled via transition.enabled to skip animation entirely.
  */
 function AnimatedSlotContent({
   variantKey,
   children,
+  transition,
 }: {
   variantKey: string
   children: React.ReactNode
+  transition?: VariantTransitionConfig
 }) {
+  // Default transition values if not provided
+  const {
+    enabled = true,
+    type = 'spring',
+    duration = 0.35,
+    bounce = 0.1,
+    yOffset = 6,
+  } = transition || {}
+
+  // If animation is disabled, render children directly without wrapper
+  if (!enabled) {
+    return <div className="w-full">{children}</div>
+  }
+
+  // Build motion transition config
+  const motionTransition =
+    type === 'spring'
+      ? { type: 'spring' as const, duration, bounce }
+      : { type: 'tween' as const, duration, ease: 'easeInOut' as const }
+
   return (
     <AnimatePresence mode="popLayout" initial={false}>
       <motion.div
         key={variantKey}
-        initial={{ opacity: 0, y: 6 }}
+        initial={{ opacity: 0, y: yOffset }}
         animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -6 }}
-        transition={{
-          type: 'spring',
-          duration: 0.35,
-          bounce: 0.1,
-        }}
+        exit={{ opacity: 0, y: -yOffset }}
+        transition={motionTransition}
         className="w-full"
       >
         {children}
@@ -806,6 +1051,7 @@ function PricingSelectOptions({
   showSelectedIndicator = false,
   itemTypography,
   menuItemLabel,
+  upgradeMode = false,
 }: PricingSelectOptionsProps) {
   const { setExpanded } = useBiaxialExpand()
 
@@ -866,7 +1112,10 @@ function PricingSelectOptions({
                 {!isStacked && menuItemLabel.planName.show && menuItemLabel.credits.show && menuItemLabel.separator && (
                   <span className="text-tertiary opacity-40">{menuItemLabel.separator}</span>
                 )}
-                <TextSegment text={tier.creditsLabel} config={menuItemLabel.credits} />
+                <TextSegment
+                  text={upgradeMode ? tier.additionalCreditsLabel : tier.creditsLabel}
+                  config={menuItemLabel.credits}
+                />
               </span>
               <div className="flex items-center gap-2">
                 <span
@@ -877,7 +1126,7 @@ function PricingSelectOptions({
                   )}
                   style={{ opacity: OPACITY_VALUES[itemTypography.price.opacity] }}
                 >
-                  {tier.priceLabel}
+                  {upgradeMode ? tier.upgradeFeeLabel : tier.priceLabel}
                 </span>
                 {showSelectedIndicator && isSelected && (
                   <HugeIcon icon={Tick01Icon} size={16} className="text-brand-primary" />
@@ -892,11 +1141,17 @@ function PricingSelectOptions({
 }
 
 export function PricingSelectDemo({ config, autoOpen, pricingVariant = 'A' }: PricingSelectDemoProps) {
-  // Filter tiers by availableTiers config
+  // Filter tiers by availableTiers config and upgradeMode
   const availableTiers = React.useMemo(() => {
     const tierIds = config.selectMenu.availableTiers
-    return PRICING_TIERS.filter((tier) => tierIds.includes(tier.id))
-  }, [config.selectMenu.availableTiers])
+    const upgradeMode = config.selectMenu.upgradeMode
+    return PRICING_TIERS.filter((tier) => {
+      if (!tierIds.includes(tier.id)) return false
+      // In upgrade mode, hide Pro base tier (tier-100)
+      if (upgradeMode && tier.id === 'tier-100') return false
+      return true
+    })
+  }, [config.selectMenu.availableTiers, config.selectMenu.upgradeMode])
 
   // Initialize with first available tier
   const [selectedTier, setSelectedTier] = useState(() => availableTiers[0] || PRICING_TIERS[0])
@@ -908,12 +1163,38 @@ export function PricingSelectDemo({ config, autoOpen, pricingVariant = 'A' }: Pr
     }
   }, [availableTiers, selectedTier.id])
 
-  const biaxialConfig = playgroundConfigToBiaxialConfig(config)
-
   const isVariantA = pricingVariant === 'A'
 
+  // Transform playground config to biaxial config
+  const baseConfig = playgroundConfigToBiaxialConfig(config)
+
+  // Both variants use overlay mode with dynamic height - layout values differ per variant
+  // Variant B uses layout.triggerHeightB and layout.maxBottomHeightB
+  // This eliminates positioning complexity and clipping issues
+  const effectiveConfig = React.useMemo((): Partial<BiaxialExpandConfig> => {
+    if (!isVariantA && baseConfig.layout) {
+      // Variant B: use triggerHeightB and maxBottomHeightB
+      return {
+        ...baseConfig,
+        layout: {
+          ...baseConfig.layout,
+          triggerHeight: config.layout.triggerHeightB,
+          maxBottomHeight: config.layout.maxBottomHeightB,
+        },
+      } as Partial<BiaxialExpandConfig>
+    }
+    // Variant A: use config as-is
+    return baseConfig
+  }, [baseConfig, isVariantA, config.layout.triggerHeightB, config.layout.maxBottomHeightB])
+
+  // Compute effective expanded state:
+  // - Variant B: always expanded (like a static card)
+  // - Variant A: normal expand/collapse behavior
+  // - autoOpen: playground debug setting to keep expanded
+  const effectiveExpanded = !isVariantA ? true : autoOpen ? true : undefined
+
   return (
-    <BiaxialExpand.Root config={biaxialConfig} expanded={autoOpen || undefined}>
+    <BiaxialExpand.Root config={effectiveConfig} expanded={effectiveExpanded}>
       <BiaxialExpand.Backdrop />
 
       <BiaxialExpand.Content>
@@ -931,7 +1212,10 @@ export function PricingSelectDemo({ config, autoOpen, pricingVariant = 'A' }: Pr
         )}
 
         <BiaxialExpand.Trigger>
-          <AnimatedSlotContent variantKey={pricingVariant === 'A' ? 'trigger-a' : 'trigger-b'}>
+          <AnimatedSlotContent
+            variantKey={pricingVariant === 'A' ? 'trigger-a' : 'trigger-b'}
+            transition={config.variantB.transition}
+          >
             {isVariantA ? (
               <PricingSelectTrigger
                 selectedTier={selectedTier}
@@ -939,9 +1223,18 @@ export function PricingSelectDemo({ config, autoOpen, pricingVariant = 'A' }: Pr
                 dropdownIconRotates={config.selectMenu.dropdownIconRotates}
                 triggerTypography={config.selectMenu.triggerTypography}
                 syncedSubtext={config.selectMenu.syncedSubtext}
+                triggerPaddingX={config.selectMenu.triggerPaddingX}
+                triggerPaddingTop={config.selectMenu.triggerPaddingTop}
+                triggerPaddingBottom={config.selectMenu.triggerPaddingBottom}
+                triggerStyle={config.trigger}
+                upgradeMode={config.selectMenu.upgradeMode}
               />
             ) : (
-              <PricingSelectBTrigger />
+              <PricingSelectBTrigger
+                selectedTier={selectedTier}
+                variantBConfig={config.variantB.trigger}
+                triggerStyle={config.trigger}
+              />
             )}
           </AnimatedSlotContent>
         </BiaxialExpand.Trigger>
@@ -949,7 +1242,10 @@ export function PricingSelectDemo({ config, autoOpen, pricingVariant = 'A' }: Pr
         {config.bottomSlot.enabled && (
           <BiaxialExpand.ContentWrapper>
             <BiaxialExpand.BottomSlot>
-              <AnimatedSlotContent variantKey={pricingVariant === 'A' ? 'bottom-a' : 'bottom-b'}>
+              <AnimatedSlotContent
+                variantKey={pricingVariant === 'A' ? 'bottom-a' : 'bottom-b'}
+                transition={config.variantB.transition}
+              >
                 {isVariantA ? (
                   <PricingSelectOptions
                     tiers={availableTiers}
@@ -972,9 +1268,13 @@ export function PricingSelectDemo({ config, autoOpen, pricingVariant = 'A' }: Pr
                     showSelectedIndicator={config.selectMenu.showSelectedIndicator}
                     itemTypography={config.selectMenu.itemTypography}
                     menuItemLabel={config.selectMenu.menuItemLabel}
+                    upgradeMode={config.selectMenu.upgradeMode}
                   />
                 ) : (
-                  <PricingSelectBContent containerPadding={config.selectMenu.containerPadding} />
+                  <PricingSelectBBottomContent
+                    selectedTier={selectedTier}
+                    bottomSlotConfig={config.variantB.bottomSlot}
+                  />
                 )}
               </AnimatedSlotContent>
             </BiaxialExpand.BottomSlot>

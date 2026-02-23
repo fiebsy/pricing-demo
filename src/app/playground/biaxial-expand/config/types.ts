@@ -78,6 +78,26 @@ export interface SlotPlaygroundConfig {
    * @default false
    */
   scrollable?: boolean
+  /**
+   * When true, the bottom slot is always visible and positioned in-flow.
+   * The Backdrop wraps both trigger AND bottom slot as a unified container.
+   * Content below the component is pushed down rather than overlaid.
+   * @default false
+   */
+  integrated?: boolean
+  /**
+   * Height mode override for integrated mode (Variant B).
+   * When set, this takes precedence over `heightMode` in integrated mode.
+   * @default undefined (uses heightMode)
+   */
+  integratedHeightMode?: HeightMode
+  /**
+   * Height override for integrated mode (Variant B).
+   * When set, this takes precedence over `height` in integrated mode.
+   * Use `null` to indicate auto-sizing (no fixed height).
+   * @default undefined (uses height)
+   */
+  integratedHeight?: number | null
   background: BackgroundOption
   shine: string
   borderRadius: number
@@ -266,6 +286,9 @@ export interface SelectMenuConfig {
   // Trigger
   showDropdownIcon: boolean           // Chevron on trigger
   dropdownIconRotates: boolean        // Rotate 180° on expand
+  triggerPaddingX: number             // Horizontal trigger padding (px)
+  triggerPaddingTop: number           // Top trigger padding (px)
+  triggerPaddingBottom: number        // Bottom trigger padding (px)
 
   // Synced Subtext (trigger third line that syncs with selection)
   syncedSubtext: SyncedSubtextConfig
@@ -296,12 +319,95 @@ export interface SelectMenuConfig {
   // Available Tiers
   availableTiers: string[]            // e.g., ['tier-100', 'tier-200', ...]
 
+  // Upgrade Mode
+  upgradeMode: boolean                // When true, shows additional credits + upgrade fee; hides Pro tier
+
   // Selection
   showSelectedIndicator: boolean      // Show checkmark on selected
 
   // Typography
   triggerTypography: TriggerTypographyConfig
   itemTypography: ItemTypographyConfig
+}
+
+// ============================================================================
+// VARIANT B CONFIGURATION (Pricing Select B Layout)
+// ============================================================================
+
+/** Right text source options for Variant B rows */
+export type VariantBRightSource =
+  | 'planName'
+  | 'events'
+  | 'price'
+  | 'recurringPrice'
+  | 'additionalCredits'  // "+100 credits" for upgrade flow
+  | 'upgradeFee'         // "$20.00" for upgrade flow
+
+/** Configuration for a row in Variant B trigger (plan row, due row) */
+export interface VariantBRowConfig {
+  show: boolean
+  leftText: string                    // Static text or empty (uses tier data)
+  rightSource: VariantBRightSource
+  leftFontSize: FontSizeOption
+  leftFontWeight: FontWeightOption
+  leftTextColor: TextColorOption
+  leftOpacity: OpacityOption
+  rightFontSize: FontSizeOption
+  rightFontWeight: FontWeightOption
+  rightTextColor: TextColorOption
+  rightOpacity: OpacityOption
+}
+
+/** Configuration for subtext row in Variant B */
+export interface VariantBSubtextConfig {
+  show: boolean
+  template: string                    // "Then {price}/mo. Cancel anytime."
+  fontSize: FontSizeOption
+  fontWeight: FontWeightOption
+  textColor: TextColorOption
+  opacity: OpacityOption
+}
+
+/** Variant B trigger configuration - ONLY plan row */
+export interface VariantBTriggerConfig {
+  planRow: VariantBRowConfig          // Row 1: Plan name + events (in trigger)
+  paddingX: number                    // Horizontal padding (px)
+  paddingTop: number                  // Top padding (px)
+  paddingBottom: number               // Bottom padding (px)
+}
+
+/** Variant B bottom slot configuration - due row + subtext */
+export interface VariantBBottomSlotConfig {
+  dueRow: VariantBRowConfig           // Row 2: Due today + price
+  subtext: VariantBSubtextConfig      // Row 3: Recurring text
+  rowGap: number                      // Gap between rows (px)
+  paddingX: number                    // Horizontal padding (px)
+  paddingTop: number                  // Top padding (px)
+  paddingBottom: number               // Bottom padding (px)
+}
+
+/** Variant B header mode */
+export type HeaderMode = 'shared' | 'separate'
+
+/** Animation type for variant transitions */
+export type VariantTransitionType = 'spring' | 'tween'
+
+/** Configuration for A/B variant transition animation */
+export interface VariantTransitionConfig {
+  enabled: boolean                      // Enable/disable crossfade animation
+  type: VariantTransitionType           // 'spring' or 'tween'
+  duration: number                      // Duration in seconds (0.1-1.0)
+  bounce: number                        // Spring bounce (0-0.5), only used when type='spring'
+  yOffset: number                       // Slide distance in px (0-20)
+}
+
+/** Complete Variant B configuration */
+export interface VariantBConfig {
+  trigger: VariantBTriggerConfig
+  bottomSlot: VariantBBottomSlotConfig  // NEW: separate bottom slot config
+  transition: VariantTransitionConfig   // A/B switch animation
+  headerMode: HeaderMode
+  headerText: string                    // Used when headerMode === 'separate'
 }
 
 // ============================================================================
@@ -330,10 +436,12 @@ export interface BiaxialExpandPlaygroundConfig {
   // Layout
   layout: {
     triggerWidth: number          // 120-600
-    triggerHeight: number         // 32-64
+    triggerHeight: number         // 32-100 (Variant A height for pricing-select)
+    triggerHeightB: number        // 32-100 (Variant B height for pricing-select)
     panelWidth: number            // 200-800
     maxTopHeight: number          // 0-400
     maxBottomHeight: number       // 100-600
+    maxBottomHeightB: number      // Variant B max bottom height (pricing-select)
     maxLeftWidth: number          // 0-400
     maxRightWidth: number         // 0-400
     borderRadius: number          // 0-40
@@ -396,12 +504,17 @@ export interface BiaxialExpandPlaygroundConfig {
       showLines: boolean           // Show/hide the red debug border lines
       width: number                // Container width in px (e.g., 500)
       padding: number              // Container padding in px (e.g., 10)
+      fixedHeight: boolean         // Toggle between auto and fixed height
+      height: number               // Height value when fixedHeight is true
       header: ContainerHeaderConfig // Optional header above content
     }
   }
 
   // Select menu styling (for pricing-select variant)
   selectMenu: SelectMenuConfig
+
+  // Variant B configuration (for pricing-select)
+  variantB: VariantBConfig
 }
 
 // ============================================================================

@@ -56,6 +56,9 @@ export const Backdrop: React.FC<BackdropProps> = ({ className }) => {
     timing,
   } = useBiaxialExpand()
 
+  // Check if integrated mode is enabled
+  const isIntegrated = config.bottomSlot.integrated === true
+
   const { appearance, animation, layout, confidenceLevel, collapsedBackground } = config
 
   // When collapsed, use collapsedBackground if set, or quaternary on hover
@@ -150,12 +153,15 @@ export const Backdrop: React.FC<BackdropProps> = ({ className }) => {
 
   if (animation.backdropMode === 'clip-path') {
     // Clip-path mode: backdrop is always full size, revealed via clip-path
+    // In integrated mode, always show full clip-path (no animation)
+    const effectiveExpanded = isIntegrated ? true : expanded
+
     // For horizontal slots, we need to account for their width in the clip-path
-    const clipPathLeftInset = expanded ? 0 : leftInset + backdropLeftOffset
-    const clipPathRightInset = expanded ? 0 : rightInset + backdropRightExtension
+    const clipPathLeftInset = effectiveExpanded ? 0 : leftInset + backdropLeftOffset
+    const clipPathRightInset = effectiveExpanded ? 0 : rightInset + backdropRightExtension
 
     const clipPath = getBackdropClipPath(
-      expanded,
+      effectiveExpanded,
       totalBackdropWidth,
       panelHeight,
       layout.triggerWidth,
@@ -188,13 +194,15 @@ export const Backdrop: React.FC<BackdropProps> = ({ className }) => {
           top: -backdropTopOffset,
           left: horizontalPos.left,
           right: horizontalPos.right,
-          marginLeft: expanded ? expandedMarginLeft : horizontalPos.marginLeft,
-          width: expanded ? expandedWidth : layout.panelWidth,
+          marginLeft: effectiveExpanded ? expandedMarginLeft : horizontalPos.marginLeft,
+          width: effectiveExpanded ? expandedWidth : layout.panelWidth,
           height: panelHeight + backdropTopOffset,
           borderRadius: layout.borderRadius,
           clipPath,
-          boxShadow: expanded ? '0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 12px 24px -8px rgba(0, 0, 0, 0.3)' : 'none',
-          transition: `clip-path ${duration}ms ${EASING_EXPO_OUT} ${delay}ms, background-color 150ms ease-out, box-shadow ${duration}ms ${EASING_EXPO_OUT} ${delay}ms, left ${duration}ms ${EASING_EXPO_OUT} ${delay}ms, width ${duration}ms ${EASING_EXPO_OUT} ${delay}ms, margin-left ${duration}ms ${EASING_EXPO_OUT} ${delay}ms`,
+          // Skip animation transitions in integrated mode
+          transition: isIntegrated
+            ? 'background-color 150ms ease-out'
+            : `clip-path ${duration}ms ${EASING_EXPO_OUT} ${delay}ms, background-color 150ms ease-out, left ${duration}ms ${EASING_EXPO_OUT} ${delay}ms, width ${duration}ms ${EASING_EXPO_OUT} ${delay}ms, margin-left ${duration}ms ${EASING_EXPO_OUT} ${delay}ms`,
           pointerEvents: 'none',
         }}
       />
@@ -202,13 +210,15 @@ export const Backdrop: React.FC<BackdropProps> = ({ className }) => {
   }
 
   // Size mode (default): backdrop animates dimensions
-  const backdropWidth = expanded ? totalBackdropWidth : layout.triggerWidth
-  const backdropHeight = expanded
+  // In integrated mode, always use expanded dimensions
+  const effectiveExpandedForSize = isIntegrated ? true : expanded
+  const backdropWidth = effectiveExpandedForSize ? totalBackdropWidth : layout.triggerWidth
+  const backdropHeight = effectiveExpandedForSize
     ? panelHeight + backdropTopOffset
     : layout.triggerHeight
 
   // Get horizontal position for the current width (when collapsed, use trigger width positioning)
-  const horizontalPos = getHorizontalPosition(expandOriginX, layout.panelWidth, expanded ? layout.panelWidth : layout.triggerWidth)
+  const horizontalPos = getHorizontalPosition(expandOriginX, layout.panelWidth, effectiveExpandedForSize ? layout.panelWidth : layout.triggerWidth)
 
   // When expanded, keep same base positioning but shift margin left to accommodate left slot
   // This keeps the panel area aligned with content layer
@@ -224,23 +234,22 @@ export const Backdrop: React.FC<BackdropProps> = ({ className }) => {
       style={{
         ...(DEBUG_LAYOUT ? {} : gradientStyles),
         zIndex: 10,
-        top: expanded ? -backdropTopOffset : 0,
+        top: effectiveExpandedForSize ? -backdropTopOffset : 0,
         left: horizontalPos.left,
         right: horizontalPos.right,
-        marginLeft: expanded ? expandedMarginLeft : horizontalPos.marginLeft,
+        marginLeft: effectiveExpandedForSize ? expandedMarginLeft : horizontalPos.marginLeft,
         width: backdropWidth,
         height: backdropHeight,
         borderRadius: layout.borderRadius,
-        boxShadow: expanded ? '0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 12px 24px -8px rgba(0, 0, 0, 0.3)' : 'none',
         ...(DEBUG_LAYOUT ? { background: 'rgba(255,165,0,0.4)', outline: '3px dashed orange' } : {}),
-        transition: `
+        // Skip transition in integrated mode
+        transition: isIntegrated ? 'background-color 150ms ease-out' : `
           top ${duration}ms ${EASING_EXPO_OUT} ${delay}ms,
           left ${duration}ms ${EASING_EXPO_OUT} ${delay}ms,
           right ${duration}ms ${EASING_EXPO_OUT} ${delay}ms,
           width ${duration}ms ${EASING_EXPO_OUT} ${delay}ms,
           height ${duration}ms ${EASING_EXPO_OUT} ${delay}ms,
           margin-left ${duration}ms ${EASING_EXPO_OUT} ${delay}ms,
-          box-shadow ${duration}ms ${EASING_EXPO_OUT} ${delay}ms,
           background-color 150ms ease-out
         `,
         pointerEvents: 'none',

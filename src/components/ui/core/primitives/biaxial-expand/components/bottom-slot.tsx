@@ -103,20 +103,37 @@ export const BottomSlot: React.FC<SlotProps> = ({
   // Use config.debug for debug visualization
   const showDebug = config.debug
 
+  // For auto height mode, use static positioning so content flows naturally
+  // For fixed/dynamic modes, use absolute positioning with insets
+  const positioningStyles = isAutoHeight
+    ? {
+        // Relative positioning - content flows naturally
+        // Use margin (not padding) to create the visual inset from parent,
+        // matching the appearance of absolute positioning with insets
+        position: 'relative' as const,
+        margin: inset,
+      }
+    : {
+        // Absolute - stretch to fill parent with insets
+        position: 'absolute' as const,
+        top: inset,
+        bottom: inset,
+        left: inset,
+        right: inset,
+      }
+
   return (
     <div
       className={cn(
-        'absolute overflow-hidden',
+        'overflow-hidden',
+        !isAutoHeight && 'absolute',
         config.appearance.squircle && 'corner-squircle',
         !showDebug && getBackgroundClass(slotConfig.background ?? 'secondary'),
         slotConfig.shine && slotConfig.shine !== 'none' && slotConfig.shine,
         className
       )}
       style={{
-        top: inset,
-        bottom: inset,
-        left: inset,
-        right: inset,
+        ...positioningStyles,
         borderRadius: slotConfig.borderRadius ?? 14,
         clipPath,
         transition: `clip-path ${duration}ms ${EASING_EXPO_OUT} ${delay}ms`,

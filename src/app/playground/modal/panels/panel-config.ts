@@ -35,6 +35,18 @@ import {
   TEXT_TRANSITION_MODE_OPTIONS,
   TEXT_EASING_OPTIONS,
   CONTENT_TYPE_OPTIONS,
+  LAYOUT_ANIMATION_STYLE_OPTIONS,
+  LAYOUT_EASING_OPTIONS,
+  ANIMATION_SYNC_MODE_OPTIONS,
+  PRO_CARD_TEXT_STYLE_OPTIONS,
+  PRO_CARD_BACKGROUND_OPTIONS,
+  GLOW_COLOR_OPTIONS,
+  PRO_CARD_FONT_WEIGHT_OPTIONS,
+  FLUID_TIMING_OPTIONS,
+  CHECKMARK_STYLE_OPTIONS,
+  ASSET_TYPE_OPTIONS,
+  COIN_STACK_STATE_OPTIONS,
+  ASSET_ALIGNMENT_OPTIONS,
 } from '../config/options'
 
 // ============================================================================
@@ -52,6 +64,8 @@ export function buildModalPanelConfig(
       buildHeaderSection(config),
       buildContentTopSection(config),
       buildContentBottomSection(config),
+      buildProCardSection(config),
+      buildChecklistSection(config),
       buildButtonsSection(config),
       buildCloseButtonSection(config),
       buildBackdropSection(config),
@@ -136,6 +150,12 @@ function buildContainerSection(config: ModalPlaygroundConfig): Section {
             type: 'toggle',
             label: 'Push Buttons to Bottom',
             value: config.container.pushButtonsToBottom,
+          },
+          {
+            id: 'container.showSeparator',
+            type: 'toggle',
+            label: 'Show Separator',
+            value: config.container.showSeparator,
           },
         ],
       },
@@ -228,6 +248,9 @@ function buildContainerSection(config: ModalPlaygroundConfig): Section {
 }
 
 function buildHeaderSection(config: ModalPlaygroundConfig): Section {
+  const assetConfig = config.header.asset
+  const isCoinStack = assetConfig?.type === 'coin-stack'
+
   return {
     id: 'header',
     label: 'Header',
@@ -250,17 +273,99 @@ function buildHeaderSection(config: ModalPlaygroundConfig): Section {
               title: 'Asset Options',
               controls: [
                 {
-                  id: 'header.assetHeight',
+                  id: 'header.asset.type',
+                  type: 'select' as const,
+                  label: 'Type',
+                  value: assetConfig?.type ?? 'placeholder',
+                  options: [...ASSET_TYPE_OPTIONS],
+                },
+                {
+                  id: 'header.asset.height',
                   type: 'slider' as const,
                   label: 'Height',
-                  value: config.header.assetHeight,
+                  value: assetConfig?.height ?? config.header.assetHeight,
                   min: 32,
                   max: 120,
                   step: 8,
                   formatLabel: (v: number) => `${v}px`,
                 },
+                {
+                  id: 'header.asset.alignment',
+                  type: 'select' as const,
+                  label: 'Alignment',
+                  value: assetConfig?.alignment ?? 'center',
+                  options: [...ASSET_ALIGNMENT_OPTIONS],
+                },
+                {
+                  id: 'header.asset.offsetX',
+                  type: 'slider' as const,
+                  label: 'Offset X',
+                  value: assetConfig?.offsetX ?? 0,
+                  min: -50,
+                  max: 50,
+                  step: 2,
+                  formatLabel: (v: number) => `${v}px`,
+                },
               ],
             },
+            // Coin Stack specific controls
+            ...(isCoinStack
+              ? [
+                  {
+                    title: 'Coin Stack',
+                    controls: [
+                      {
+                        id: 'header.asset.coinStack.width',
+                        type: 'slider' as const,
+                        label: 'Width',
+                        value: assetConfig?.coinStack?.width ?? 100,
+                        min: 50,
+                        max: 200,
+                        step: 10,
+                        formatLabel: (v: number) => `${v}px`,
+                      },
+                      {
+                        id: 'header.asset.coinStack.stateId',
+                        type: 'select' as const,
+                        label: 'Default State',
+                        value: String(assetConfig?.coinStack?.stateId ?? 1),
+                        options: [...COIN_STACK_STATE_OPTIONS],
+                      },
+                      {
+                        id: 'header.asset.coinStack.transitionEnabled',
+                        type: 'toggle' as const,
+                        label: 'Animate Transitions',
+                        value: assetConfig?.coinStack?.transitionEnabled ?? true,
+                      },
+                      // Only show duration/bounce when transitions are enabled
+                      ...(assetConfig?.coinStack?.transitionEnabled !== false
+                        ? [
+                            {
+                              id: 'header.asset.coinStack.transitionDuration',
+                              type: 'slider' as const,
+                              label: 'Duration',
+                              value: assetConfig?.coinStack?.transitionDuration ?? 0.4,
+                              min: 0.1,
+                              max: 1.0,
+                              step: 0.05,
+                              formatLabel: (v: number) => `${v.toFixed(2)}s`,
+                            },
+                            {
+                              id: 'header.asset.coinStack.transitionBounce',
+                              type: 'slider' as const,
+                              label: 'Bounce',
+                              value: assetConfig?.coinStack?.transitionBounce ?? 0.15,
+                              min: 0,
+                              max: 0.5,
+                              step: 0.05,
+                              formatLabel: (v: number) => v.toFixed(2),
+                            },
+                          ]
+                        : []),
+                    ],
+                  },
+                ]
+              : []),
           ]
         : []),
       {
@@ -301,6 +406,59 @@ function buildHeaderSection(config: ModalPlaygroundConfig): Section {
           },
         ],
       },
+      {
+        title: 'Subheader',
+        controls: [
+          {
+            id: 'header.subheader.show',
+            type: 'toggle',
+            label: 'Show Subheader',
+            value: config.header.subheader.show,
+          },
+        ],
+      },
+      ...(config.header.subheader.show
+        ? [
+            {
+              title: 'Subheader Content',
+              controls: [
+                {
+                  id: 'header.subheaderContent',
+                  type: 'text' as const,
+                  label: 'Text',
+                  value: config.header.subheaderContent,
+                  placeholder: 'Subheader text...',
+                },
+              ],
+            },
+            {
+              title: 'Subheader Typography',
+              controls: [
+                {
+                  id: 'header.subheader.size',
+                  type: 'select' as const,
+                  label: 'Size',
+                  value: config.header.subheader.size,
+                  options: [...TEXT_SIZE_OPTIONS],
+                },
+                {
+                  id: 'header.subheader.weight',
+                  type: 'select' as const,
+                  label: 'Weight',
+                  value: config.header.subheader.weight,
+                  options: [...WEIGHT_OPTIONS],
+                },
+                {
+                  id: 'header.subheader.color',
+                  type: 'color-select' as const,
+                  label: 'Color',
+                  value: config.header.subheader.color,
+                  options: [...TEXT_COLOR_OPTIONS],
+                },
+              ],
+            },
+          ]
+        : []),
     ],
   }
 }
@@ -477,6 +635,310 @@ function buildContentBottomSection(config: ModalPlaygroundConfig): Section {
   }
 }
 
+function buildProCardSection(config: ModalPlaygroundConfig): Section {
+  const proCard = config.proCard
+  return {
+    id: 'proCard',
+    label: 'Pro Card',
+    title: 'Pro Card Styling',
+    groups: [
+      {
+        title: 'Content',
+        controls: [
+          {
+            id: 'proCard.title',
+            type: 'text',
+            label: 'Title',
+            value: proCard.title,
+            placeholder: 'Pro',
+          },
+          {
+            id: 'proCard.multiplier',
+            type: 'slider',
+            label: 'Multiplier',
+            value: proCard.multiplier,
+            min: 2,
+            max: 10,
+            step: 1,
+            formatLabel: (v: number) => `${v}x`,
+          },
+          {
+            id: 'proCard.height',
+            type: 'slider',
+            label: 'Height',
+            value: proCard.height,
+            min: 40,
+            max: 300,
+            step: 8,
+            formatLabel: (v: number) => `${v}px`,
+          },
+        ],
+      },
+      {
+        title: 'Typography',
+        controls: [
+          {
+            id: 'proCard.text.fontSize',
+            type: 'slider',
+            label: 'Font Size',
+            value: proCard.text?.fontSize === 'auto' ? 36 : (proCard.text?.fontSize ?? 36),
+            min: 20,
+            max: 72,
+            step: 2,
+            formatLabel: (v: number) => `${v}px`,
+          },
+          {
+            id: 'proCard.text.fontWeight',
+            type: 'select',
+            label: 'Font Weight',
+            value: proCard.text?.fontWeight ?? '700',
+            options: [...PRO_CARD_FONT_WEIGHT_OPTIONS],
+          },
+          {
+            id: 'proCard.text.letterSpacing',
+            type: 'slider',
+            label: 'Letter Spacing',
+            value: proCard.text?.letterSpacing ?? -0.02,
+            min: -0.1,
+            max: 0.1,
+            step: 0.01,
+            formatLabel: (v: number) => `${v.toFixed(2)}em`,
+          },
+        ],
+      },
+      {
+        title: 'Colors',
+        controls: [
+          {
+            id: 'proCard.text.titleGradient',
+            type: 'select',
+            label: 'Title Color',
+            value: proCard.text?.titleGradient ?? proCard.gradient ?? 'arcade-blue',
+            options: [...PRO_CARD_TEXT_STYLE_OPTIONS],
+          },
+          {
+            id: 'proCard.text.multiplierGradient',
+            type: 'select',
+            label: 'Multiplier Color',
+            value: proCard.text?.multiplierGradient ?? proCard.gradient ?? 'arcade-blue',
+            options: [...PRO_CARD_TEXT_STYLE_OPTIONS],
+          },
+        ],
+      },
+      {
+        title: 'Container',
+        controls: [
+          {
+            id: 'proCard.container.background',
+            type: 'color-select',
+            label: 'Background',
+            value: proCard.container.background,
+            options: [...PRO_CARD_BACKGROUND_OPTIONS],
+          },
+          {
+            id: 'proCard.container.shine',
+            type: 'select',
+            label: 'Shine',
+            value: proCard.container.shine,
+            options: [...SHINE_OPTIONS],
+          },
+          {
+            id: 'proCard.container.borderRadius',
+            type: 'slider',
+            label: 'Radius',
+            value: proCard.container.borderRadius,
+            min: 0,
+            max: 24,
+            step: 4,
+            formatLabel: (v: number) => `${v}px`,
+          },
+          {
+            id: 'proCard.container.padding',
+            type: 'slider',
+            label: 'Padding',
+            value: proCard.container.padding,
+            min: 8,
+            max: 32,
+            step: 4,
+            formatLabel: (v: number) => `${v}px`,
+          },
+        ],
+      },
+      {
+        title: 'Glow',
+        controls: [
+          {
+            id: 'proCard.glow.enabled',
+            type: 'toggle',
+            label: 'Enable Glow',
+            value: proCard.glow.enabled,
+          },
+          ...(proCard.glow.enabled
+            ? [
+                {
+                  id: 'proCard.glow.hideOnMobile',
+                  type: 'toggle' as const,
+                  label: 'Hide on Mobile',
+                  value: proCard.glow.hideOnMobile,
+                },
+                {
+                  id: 'proCard.glow.color',
+                  type: 'color-select' as const,
+                  label: 'Color',
+                  value: proCard.glow.color,
+                  options: [...GLOW_COLOR_OPTIONS],
+                },
+                {
+                  id: 'proCard.glow.blur',
+                  type: 'slider' as const,
+                  label: 'Blur',
+                  value: proCard.glow.blur,
+                  min: 8,
+                  max: 48,
+                  step: 4,
+                  formatLabel: (v: number) => `${v}px`,
+                },
+                {
+                  id: 'proCard.glow.opacity',
+                  type: 'slider' as const,
+                  label: 'Opacity',
+                  value: proCard.glow.opacity,
+                  min: 0,
+                  max: 100,
+                  step: 10,
+                  formatLabel: (v: number) => `${v}%`,
+                },
+              ]
+            : []),
+        ],
+      },
+    ],
+  }
+}
+
+function buildChecklistSection(config: ModalPlaygroundConfig): Section {
+  const checklist = config.checklist
+  return {
+    id: 'checklist',
+    label: 'Checklist',
+    title: 'Checklist Styling',
+    groups: [
+      {
+        title: 'Content',
+        controls: [
+          {
+            id: 'checklist.title',
+            type: 'text',
+            label: 'Title',
+            value: checklist.title,
+            placeholder: 'Checklist title...',
+          },
+        ],
+      },
+      {
+        title: 'Items',
+        controls: [
+          {
+            id: 'checklist.items.0',
+            type: 'text',
+            label: 'Item 1',
+            value: checklist.items[0] ?? '',
+            placeholder: 'First item...',
+          },
+          {
+            id: 'checklist.items.1',
+            type: 'text',
+            label: 'Item 2',
+            value: checklist.items[1] ?? '',
+            placeholder: 'Second item...',
+          },
+          {
+            id: 'checklist.items.2',
+            type: 'text',
+            label: 'Item 3',
+            value: checklist.items[2] ?? '',
+            placeholder: 'Third item...',
+          },
+        ],
+      },
+      {
+        title: 'Title Typography',
+        controls: [
+          {
+            id: 'checklist.titleSize',
+            type: 'select',
+            label: 'Size',
+            value: checklist.titleSize,
+            options: [...TEXT_SIZE_OPTIONS],
+          },
+          {
+            id: 'checklist.titleWeight',
+            type: 'select',
+            label: 'Weight',
+            value: checklist.titleWeight,
+            options: [...WEIGHT_OPTIONS],
+          },
+          {
+            id: 'checklist.titleColor',
+            type: 'color-select',
+            label: 'Color',
+            value: checklist.titleColor,
+            options: [...TEXT_COLOR_OPTIONS].slice(0, 3), // Only primary, secondary, tertiary
+          },
+        ],
+      },
+      {
+        title: 'Item Typography',
+        controls: [
+          {
+            id: 'checklist.itemSize',
+            type: 'select',
+            label: 'Size',
+            value: checklist.itemSize,
+            options: [...TEXT_SIZE_OPTIONS],
+          },
+          {
+            id: 'checklist.itemWeight',
+            type: 'select',
+            label: 'Weight',
+            value: checklist.itemWeight,
+            options: [...WEIGHT_OPTIONS],
+          },
+          {
+            id: 'checklist.itemColor',
+            type: 'color-select',
+            label: 'Color',
+            value: checklist.itemColor,
+            options: [...TEXT_COLOR_OPTIONS].slice(0, 3),
+          },
+          {
+            id: 'checklist.checkColor',
+            type: 'color-select',
+            label: 'Check Color',
+            value: checklist.checkColor,
+            options: [...TEXT_COLOR_OPTIONS].slice(0, 3),
+          },
+        ],
+      },
+      {
+        title: 'Spacing',
+        controls: [
+          {
+            id: 'checklist.gap',
+            type: 'slider',
+            label: 'Gap',
+            value: checklist.gap,
+            min: 0,
+            max: 12,
+            step: 2,
+            formatLabel: (v: number) => `${v}px`,
+          },
+        ],
+      },
+    ],
+  }
+}
+
 function buildButtonsSection(config: ModalPlaygroundConfig): Section {
   return {
     id: 'buttons',
@@ -586,6 +1048,81 @@ function buildButtonsSection(config: ModalPlaygroundConfig): Section {
           },
         ],
       },
+      {
+        title: 'Fluid Animations',
+        controls: [
+          {
+            id: 'buttons.fluid.enabled',
+            type: 'toggle',
+            label: 'Enable Fluid',
+            value: config.buttons.fluid.enabled,
+          },
+        ],
+      },
+      ...(config.buttons.fluid.enabled
+        ? [
+            {
+              title: 'Fluid Timing',
+              controls: [
+                {
+                  id: 'buttons.fluid.timing',
+                  type: 'select' as const,
+                  label: 'Preset',
+                  value: config.buttons.fluid.timing,
+                  options: [...FLUID_TIMING_OPTIONS],
+                },
+                {
+                  id: 'buttons.fluid.gap',
+                  type: 'slider' as const,
+                  label: 'Gap',
+                  value: config.buttons.fluid.gap,
+                  min: 4,
+                  max: 24,
+                  step: 4,
+                  formatLabel: (v: number) => `${v}px`,
+                },
+                {
+                  id: 'buttons.fluid.exitBlur',
+                  type: 'toggle' as const,
+                  label: 'Exit Blur',
+                  value: config.buttons.fluid.exitBlur,
+                },
+              ],
+            },
+            {
+              title: 'State Transitions',
+              controls: [
+                {
+                  id: 'buttons.fluid.checkmarkStyle',
+                  type: 'select' as const,
+                  label: 'Checkmark Style',
+                  value: config.buttons.fluid.checkmarkStyle,
+                  options: [...CHECKMARK_STYLE_OPTIONS],
+                },
+                {
+                  id: 'buttons.fluid.textSlideDuration',
+                  type: 'slider' as const,
+                  label: 'Text Slide',
+                  value: config.buttons.fluid.textSlideDuration,
+                  min: 100,
+                  max: 400,
+                  step: 25,
+                  formatLabel: (v: number) => `${v}ms`,
+                },
+                {
+                  id: 'buttons.fluid.checkmarkDrawDuration',
+                  type: 'slider' as const,
+                  label: 'Checkmark Draw',
+                  value: config.buttons.fluid.checkmarkDrawDuration,
+                  min: 150,
+                  max: 500,
+                  step: 25,
+                  formatLabel: (v: number) => `${v}ms`,
+                },
+              ],
+            },
+          ]
+        : []),
     ],
   }
 }
@@ -755,13 +1292,15 @@ function buildBackdropSection(config: ModalPlaygroundConfig): Section {
 }
 
 function buildAnimationSection(config: ModalPlaygroundConfig): Section {
+  const isSynced = config.animation.syncMode === 'synced'
+
   return {
     id: 'animation',
     label: 'Animation',
     title: 'Animation Settings',
     groups: [
       {
-        title: 'Preset',
+        title: 'Entry/Exit',
         controls: [
           {
             id: 'animation.preset',
@@ -773,41 +1312,96 @@ function buildAnimationSection(config: ModalPlaygroundConfig): Section {
         ],
       },
       {
-        title: 'Timing',
+        title: 'Animation Sync',
         controls: [
           {
-            id: 'animation.duration',
-            type: 'slider',
-            label: 'Duration',
-            value: config.animation.duration,
-            min: 100,
-            max: 800,
-            step: 50,
-            formatLabel: (v: number) => `${v}ms`,
-          },
-          {
-            id: 'animation.bounce',
-            type: 'slider',
-            label: 'Bounce',
-            value: config.animation.bounce,
-            min: 0,
-            max: 0.5,
-            step: 0.05,
-            formatLabel: (v: number) => v.toFixed(2),
-          },
-          {
-            id: 'animation.delay',
-            type: 'slider',
-            label: 'Delay',
-            value: config.animation.delay,
-            min: 0,
-            max: 300,
-            step: 25,
-            formatLabel: (v: number) => `${v}ms`,
+            id: 'animation.syncMode',
+            type: 'select',
+            label: 'Mode',
+            value: config.animation.syncMode,
+            options: [...ANIMATION_SYNC_MODE_OPTIONS],
           },
         ],
       },
-      ...(config.animation.preset === 'custom'
+      // Master timing controls (only when synced)
+      ...(isSynced
+        ? [
+            {
+              title: 'Master Timing',
+              controls: [
+                {
+                  id: 'animation.master.duration',
+                  type: 'slider' as const,
+                  label: 'Duration',
+                  value: config.animation.master.duration,
+                  min: 0.15,
+                  max: 0.8,
+                  step: 0.05,
+                  formatLabel: (v: number) => `${v.toFixed(2)}s`,
+                },
+                {
+                  id: 'animation.master.bounce',
+                  type: 'slider' as const,
+                  label: 'Bounce',
+                  value: config.animation.master.bounce,
+                  min: 0,
+                  max: 0.4,
+                  step: 0.02,
+                  formatLabel: (v: number) => v.toFixed(2),
+                },
+                {
+                  id: 'animation.master.stagger',
+                  type: 'slider' as const,
+                  label: 'Line Stagger',
+                  value: config.animation.master.stagger,
+                  min: 0,
+                  max: 0.1,
+                  step: 0.005,
+                  formatLabel: (v: number) => `${Math.round(v * 1000)}ms`,
+                },
+              ],
+            },
+          ]
+        : [
+            // Independent timing controls
+            {
+              title: 'Timing',
+              controls: [
+                {
+                  id: 'animation.duration',
+                  type: 'slider' as const,
+                  label: 'Duration',
+                  value: config.animation.duration,
+                  min: 100,
+                  max: 800,
+                  step: 50,
+                  formatLabel: (v: number) => `${v}ms`,
+                },
+                {
+                  id: 'animation.bounce',
+                  type: 'slider' as const,
+                  label: 'Bounce',
+                  value: config.animation.bounce,
+                  min: 0,
+                  max: 0.5,
+                  step: 0.05,
+                  formatLabel: (v: number) => v.toFixed(2),
+                },
+                {
+                  id: 'animation.delay',
+                  type: 'slider' as const,
+                  label: 'Delay',
+                  value: config.animation.delay,
+                  min: 0,
+                  max: 300,
+                  step: 25,
+                  formatLabel: (v: number) => `${v}ms`,
+                },
+              ],
+            },
+          ]),
+      // Custom preset controls (only when independent and using custom preset)
+      ...(!isSynced && config.animation.preset === 'custom'
         ? [
             {
               title: 'Custom Scale',
@@ -861,205 +1455,368 @@ function buildAnimationSection(config: ModalPlaygroundConfig): Section {
             },
           ]
         : []),
+      // Layout morphing controls (only when independent)
+      ...(!isSynced
+        ? [
+            {
+              title: 'Layout Morphing',
+              controls: [
+                {
+                  id: 'animation.layout.style',
+                  type: 'select' as const,
+                  label: 'Style',
+                  value: config.animation.layout.style,
+                  options: [...LAYOUT_ANIMATION_STYLE_OPTIONS],
+                },
+                {
+                  id: 'animation.layout.duration',
+                  type: 'slider' as const,
+                  label: 'Duration',
+                  value: config.animation.layout.duration,
+                  min: 0.1,
+                  max: 1.0,
+                  step: 0.05,
+                  formatLabel: (v: number) => `${v.toFixed(2)}s`,
+                },
+                ...(config.animation.layout.style === 'spring'
+                  ? [
+                      {
+                        id: 'animation.layout.bounce',
+                        type: 'slider' as const,
+                        label: 'Bounce',
+                        value: config.animation.layout.bounce,
+                        min: 0,
+                        max: 0.5,
+                        step: 0.05,
+                        formatLabel: (v: number) => v.toFixed(2),
+                      },
+                    ]
+                  : [
+                      {
+                        id: 'animation.layout.easing',
+                        type: 'select' as const,
+                        label: 'Easing',
+                        value: config.animation.layout.easing,
+                        options: [...LAYOUT_EASING_OPTIONS],
+                      },
+                    ]),
+              ],
+            },
+          ]
+        : []),
     ],
   }
 }
 
 function buildTextTransitionSection(config: ModalPlaygroundConfig): Section {
+  const isSynced = config.animation.syncMode === 'synced'
+  const isEnabled = config.textTransition.enabled
+
   return {
     id: 'textTransition',
     label: 'Text',
     title: 'Text Transitions',
     groups: [
       {
-        title: 'Mode',
-        controls: [
-          {
-            id: 'textTransition.mode',
-            type: 'select',
-            label: 'Mode',
-            value: config.textTransition.mode,
-            options: [...TEXT_TRANSITION_MODE_OPTIONS],
-          },
-        ],
-      },
-      {
         title: 'Animation',
         controls: [
           {
-            id: 'textTransition.easing',
-            type: 'select',
-            label: 'Easing',
-            value: config.textTransition.easing,
-            options: [...TEXT_EASING_OPTIONS],
+            id: 'textTransition.enabled',
+            type: 'toggle',
+            label: 'Enable Animation',
+            value: config.textTransition.enabled,
           },
-          {
-            id: 'textTransition.yOffset',
-            type: 'slider',
-            label: 'Y Offset',
-            value: config.textTransition.yOffset,
-            min: 4,
-            max: 20,
-            step: 2,
-            formatLabel: (v: number) => `${v}px`,
-          },
-          ...(config.textTransition.easing !== 'spring'
-            ? [
-                {
-                  id: 'textTransition.duration',
-                  type: 'slider' as const,
-                  label: 'Duration',
-                  value: config.textTransition.duration,
-                  min: 100,
-                  max: 400,
-                  step: 25,
-                  formatLabel: (v: number) => `${v}ms`,
-                },
-              ]
-            : []),
         ],
       },
+      ...(isEnabled
+        ? [
+            {
+              title: 'Mode',
+              controls: [
+                {
+                  id: 'textTransition.mode',
+                  type: 'select' as const,
+                  label: 'Mode',
+                  value: config.textTransition.mode,
+                  options: [...TEXT_TRANSITION_MODE_OPTIONS],
+                },
+              ],
+            },
+            {
+              title: 'Settings',
+              controls: [
+                {
+                  id: 'textTransition.yOffset',
+                  type: 'slider' as const,
+                  label: 'Y Offset',
+                  value: config.textTransition.yOffset,
+                  min: 4,
+                  max: 20,
+                  step: 2,
+                  formatLabel: (v: number) => `${v}px`,
+                },
+                // When synced, show info that timing uses master config
+                // When independent, show easing and duration controls
+                ...(isSynced
+                  ? [
+                      {
+                        id: 'textTransition.easing',
+                        type: 'select' as const,
+                        label: 'Timing',
+                        value: 'spring',
+                        options: [{ label: 'Using master timing', value: 'spring' }],
+                        disabled: true,
+                      },
+                    ]
+                  : [
+                      {
+                        id: 'textTransition.easing',
+                        type: 'select' as const,
+                        label: 'Easing',
+                        value: config.textTransition.easing,
+                        options: [...TEXT_EASING_OPTIONS],
+                      },
+                      ...(config.textTransition.easing !== 'spring'
+                        ? [
+                            {
+                              id: 'textTransition.duration',
+                              type: 'slider' as const,
+                              label: 'Duration',
+                              value: config.textTransition.duration,
+                              min: 100,
+                              max: 400,
+                              step: 25,
+                              formatLabel: (v: number) => `${v}ms`,
+                            },
+                          ]
+                        : []),
+                    ]),
+              ],
+            },
+          ]
+        : []),
     ],
   }
 }
 
 function buildStagesSection(config: ModalPlaygroundConfig): Section {
-  // Build groups for each stage (1-4)
-  const stageGroups: ControlGroup[] = STAGE_IDS.flatMap((stageId) => {
+  // Build groups for each stage (1-4) with nested Content A/B/Buttons
+  const stageGroups: ControlGroup[] = STAGE_IDS.map((stageId) => {
     const stage = config.stages[stageId]
     const prefix = `stages.${stageId}`
 
-    const groups: ControlGroup[] = [
-      // Stage header group with title
-      {
-        title: STAGE_LABELS[stageId],
-        defaultCollapsed: stageId !== 1,
-        controls: [
-          {
-            id: `${prefix}.headerTitle`,
-            type: 'text',
-            label: 'Title',
-            value: stage.headerTitle,
-            placeholder: 'Modal title...',
-          },
-        ],
-      },
-      // Content A group
-      {
-        title: 'Content A',
-        defaultCollapsed: true,
-        controls: [
-          {
-            id: `${prefix}.contentA.type`,
-            type: 'select',
-            label: 'Type',
-            value: stage.contentA.type,
-            options: [...CONTENT_TYPE_OPTIONS],
-          },
-          {
-            id: `${prefix}.contentA.height`,
-            type: 'slider',
-            label: 'Height',
-            value: stage.contentA.height,
-            min: 16,
-            max: 120,
-            step: 8,
-            formatLabel: (v: number) => `${v}px`,
-          },
-          ...(stage.contentA.type === 'wireframe'
-            ? [
-                {
-                  id: `${prefix}.contentA.lineCount`,
-                  type: 'slider' as const,
-                  label: 'Lines',
-                  value: stage.contentA.lineCount ?? 3,
-                  min: 1,
-                  max: 6,
-                  step: 1,
-                  formatLabel: (v: number) => `${v}`,
-                },
-              ]
-            : [
-                {
-                  id: `${prefix}.contentA.text`,
-                  type: 'text' as const,
-                  label: 'Text',
-                  value: stage.contentA.text ?? '',
-                  placeholder: 'Enter content text...',
-                },
-              ]),
-        ],
-      },
-      // Content B group
-      {
-        title: 'Content B',
-        defaultCollapsed: true,
-        controls: [
-          {
-            id: `${prefix}.contentB.type`,
-            type: 'select',
-            label: 'Type',
-            value: stage.contentB.type,
-            options: [...CONTENT_TYPE_OPTIONS],
-          },
-          {
-            id: `${prefix}.contentB.height`,
-            type: 'slider',
-            label: 'Height',
-            value: stage.contentB.height,
-            min: 16,
-            max: 120,
-            step: 8,
-            formatLabel: (v: number) => `${v}px`,
-          },
-          ...(stage.contentB.type === 'wireframe'
-            ? [
-                {
-                  id: `${prefix}.contentB.lineCount`,
-                  type: 'slider' as const,
-                  label: 'Lines',
-                  value: stage.contentB.lineCount ?? 2,
-                  min: 1,
-                  max: 6,
-                  step: 1,
-                  formatLabel: (v: number) => `${v}`,
-                },
-              ]
-            : [
-                {
-                  id: `${prefix}.contentB.text`,
-                  type: 'text' as const,
-                  label: 'Text',
-                  value: stage.contentB.text ?? '',
-                  placeholder: 'Enter content text...',
-                },
-              ]),
-        ],
-      },
-      // Buttons group
-      {
-        title: 'Buttons',
-        defaultCollapsed: true,
-        controls: [
-          {
-            id: `${prefix}.buttons.primary`,
-            type: 'text',
-            label: 'Primary',
-            value: stage.buttons.primary,
-            placeholder: 'Primary button...',
-          },
-          {
-            id: `${prefix}.buttons.secondary`,
-            type: 'text',
-            label: 'Secondary',
-            value: stage.buttons.secondary ?? '',
-            placeholder: 'Secondary button...',
-          },
-        ],
-      },
-    ]
-
-    return groups
+    return {
+      title: STAGE_LABELS[stageId],
+      defaultCollapsed: stageId !== 1,
+      // Title and subheader fields stay inline in parent
+      controls: [
+        {
+          id: `${prefix}.headerTitle`,
+          type: 'text',
+          label: 'Title',
+          value: stage.headerTitle,
+          placeholder: 'Modal title...',
+        },
+        ...(config.header.subheader.show
+          ? [
+              {
+                id: `${prefix}.headerSubheader`,
+                type: 'text' as const,
+                label: 'Subheader',
+                value: stage.headerSubheader ?? config.header.subheaderContent,
+                placeholder: 'Subheader text...',
+              },
+            ]
+          : []),
+      ],
+      // Content A, Content B, and Buttons as nested accordions
+      nestedGroups: [
+        // Content A
+        {
+          title: 'Content A',
+          defaultCollapsed: true,
+          controls: [
+            {
+              id: `${prefix}.contentA.show`,
+              type: 'toggle',
+              label: 'Show',
+              value: stage.contentA.show !== false,
+            },
+            {
+              id: `${prefix}.contentA.type`,
+              type: 'select',
+              label: 'Type',
+              value: stage.contentA.type,
+              options: [...CONTENT_TYPE_OPTIONS],
+            },
+            {
+              id: `${prefix}.contentA.height`,
+              type: 'slider',
+              label: 'Height',
+              value: stage.contentA.height,
+              min: 16,
+              max: 300,
+              step: 8,
+              formatLabel: (v: number) => `${v}px`,
+            },
+            // Wireframe-specific controls
+            ...(stage.contentA.type === 'wireframe'
+              ? [
+                  {
+                    id: `${prefix}.contentA.lineCount`,
+                    type: 'slider' as const,
+                    label: 'Lines',
+                    value: stage.contentA.lineCount ?? 3,
+                    min: 1,
+                    max: 6,
+                    step: 1,
+                    formatLabel: (v: number) => `${v}`,
+                  },
+                ]
+              : stage.contentA.type === 'text'
+                ? [
+                    {
+                      id: `${prefix}.contentA.text`,
+                      type: 'text' as const,
+                      label: 'Text',
+                      value: stage.contentA.text ?? '',
+                      placeholder: 'Enter content text...',
+                    },
+                  ]
+                : []),
+            // Pro Card uses global config from Pro Card section
+          ],
+        },
+        // Content B
+        {
+          title: 'Content B',
+          defaultCollapsed: true,
+          controls: [
+            {
+              id: `${prefix}.contentB.show`,
+              type: 'toggle',
+              label: 'Show',
+              value: stage.contentB.show !== false,
+            },
+            {
+              id: `${prefix}.contentB.type`,
+              type: 'select',
+              label: 'Type',
+              value: stage.contentB.type,
+              options: [...CONTENT_TYPE_OPTIONS],
+            },
+            {
+              id: `${prefix}.contentB.height`,
+              type: 'slider',
+              label: 'Height',
+              value: stage.contentB.height,
+              min: 16,
+              max: 300,
+              step: 8,
+              formatLabel: (v: number) => `${v}px`,
+            },
+            // Wireframe-specific controls
+            ...(stage.contentB.type === 'wireframe'
+              ? [
+                  {
+                    id: `${prefix}.contentB.lineCount`,
+                    type: 'slider' as const,
+                    label: 'Lines',
+                    value: stage.contentB.lineCount ?? 2,
+                    min: 1,
+                    max: 6,
+                    step: 1,
+                    formatLabel: (v: number) => `${v}`,
+                  },
+                ]
+              : stage.contentB.type === 'text'
+                ? [
+                    {
+                      id: `${prefix}.contentB.text`,
+                      type: 'text' as const,
+                      label: 'Text',
+                      value: stage.contentB.text ?? '',
+                      placeholder: 'Enter content text...',
+                    },
+                  ]
+                : []),
+            // Pro Card uses global config from Pro Card section
+          ],
+        },
+        // Buttons
+        {
+          title: 'Buttons',
+          defaultCollapsed: true,
+          controls: [
+            // Primary button state controls
+            {
+              id: `${prefix}.buttons.primary.text`,
+              type: 'text',
+              label: 'Primary Text',
+              value: stage.buttons.primary.text,
+              placeholder: 'Primary button...',
+            },
+            {
+              id: `${prefix}.buttons.primary.showText`,
+              type: 'toggle',
+              label: 'Show Text',
+              value: stage.buttons.primary.showText,
+            },
+            {
+              id: `${prefix}.buttons.primary.showSpinner`,
+              type: 'toggle',
+              label: 'Show Spinner',
+              value: stage.buttons.primary.showSpinner,
+            },
+            {
+              id: `${prefix}.buttons.primary.showCheckmark`,
+              type: 'toggle',
+              label: 'Show Checkmark',
+              value: stage.buttons.primary.showCheckmark,
+            },
+            // Secondary button (null = hidden)
+            {
+              id: `${prefix}.buttons.secondary`,
+              type: 'text',
+              label: 'Secondary',
+              value: stage.buttons.secondary ?? '',
+              placeholder: 'Leave empty to hide',
+            },
+          ],
+        },
+        // Layout
+        {
+          title: 'Layout',
+          defaultCollapsed: true,
+          controls: [
+            {
+              id: `${prefix}.pushButtonsToBottom`,
+              type: 'toggle',
+              label: 'Push Buttons to Bottom',
+              value: stage.pushButtonsToBottom ?? config.container.pushButtonsToBottom,
+            },
+          ],
+        },
+        // Asset (per-stage coin stack state)
+        ...(config.header.showAsset && config.header.asset?.type === 'coin-stack'
+          ? [
+              {
+                title: 'Asset',
+                defaultCollapsed: true,
+                controls: [
+                  {
+                    id: `${prefix}.asset.coinStackStateId`,
+                    type: 'select' as const,
+                    label: 'Coin State',
+                    value: String(stage.asset?.coinStackStateId ?? config.header.asset?.coinStack?.stateId ?? 1),
+                    options: [...COIN_STACK_STATE_OPTIONS],
+                  },
+                ],
+              },
+            ]
+          : []),
+      ],
+    }
   })
 
   return {

@@ -238,3 +238,26 @@ export const TIER_OPTIONS = [
   { label: 'Pro 5X (500)', value: 'tier-500' },
   { label: 'Pro 6X (600)', value: 'tier-600' },
 ] as const
+
+// ============================================================================
+// VARIANT B OPTIONS
+// ============================================================================
+
+export const RIGHT_SOURCE_OPTIONS = [
+  { label: 'Plan Name', value: 'planName' },
+  { label: 'Events', value: 'events' },
+  { label: 'Price', value: 'price' },
+  { label: 'Recurring Price', value: 'recurringPrice' },
+  { label: 'Additional Credits', value: 'additionalCredits' },
+  { label: 'Upgrade Fee', value: 'upgradeFee' },
+] as const
+
+export const HEADER_MODE_OPTIONS = [
+  { label: 'Shared (Container)', value: 'shared' },
+  { label: 'Separate', value: 'separate' },
+] as const
+
+export const VARIANT_TRANSITION_TYPE_OPTIONS = [
+  { label: 'Spring', value: 'spring' },
+  { label: 'Tween', value: 'tween' },
+] as const

@@ -40,6 +40,17 @@ export const TriggerSlot: React.FC<SlotProps> = ({
     expandOriginX = 'center',
   } = config.layout
 
+  // Check if we're in integrated mode (bottom slot flows in document)
+  const isIntegrated = config.bottomSlot.integrated === true
+
+  // Determine if using push mode
+  const positionMode = config.layout.positionMode ?? 'overlay'
+  const isPushMode = positionMode === 'push'
+
+  // Use relative positioning for integrated mode OR push mode
+  // Both need trigger to take flow space so content aligns with backdrop
+  const useRelativePositioning = isIntegrated || isPushMode
+
   // Calculate left slot contribution to offset trigger position
   const leftInset = config.leftSlot.appearance?.inset ?? config.leftSlot.inset ?? 4
   const leftGap = config.layout.leftGap ?? 0
@@ -78,19 +89,37 @@ export const TriggerSlot: React.FC<SlotProps> = ({
     <div
       ref={refs.trigger}
       className={cn(
-        'absolute flex items-center group/trigger',
+        // In integrated/push mode, use relative positioning so trigger occupies flow space
+        // In overlay mode, use absolute positioning for floating behavior
+        useRelativePositioning ? 'relative' : 'absolute',
+        'flex items-center group/trigger',
         'motion-reduce:transition-none',
         className
       )}
       style={{
         zIndex: 14, // Above horizontal slots (13)
-        // Offset down by totalTopExtension when ContentLayer extends upward
-        top: totalTopExtension,
-        left: leftOffset,
-        width: currentWidth,
-        height: triggerHeight,
+        // Only apply top/left offset in overlay (absolute) mode
+        ...(useRelativePositioning
+          ? {
+              // In integrated/push mode: trigger is in-flow
+              // Apply marginLeft to compensate for ContentLayer's negative margin
+              // This keeps the trigger aligned with the root container position
+              marginLeft: leftContribution,
+              width: currentWidth,
+              height: triggerHeight,
+            }
+          : {
+              // In overlay mode: absolute positioning with offsets
+              top: totalTopExtension,
+              left: leftOffset,
+              width: currentWidth,
+              height: triggerHeight,
+            }),
         pointerEvents: 'auto',
-        transition: `left ${duration}ms ${EASING_EXPO_OUT}, width ${duration}ms ${EASING_EXPO_OUT}`,
+        // Only animate position in overlay mode
+        transition: useRelativePositioning
+          ? `width ${duration}ms ${EASING_EXPO_OUT}`
+          : `left ${duration}ms ${EASING_EXPO_OUT}, width ${duration}ms ${EASING_EXPO_OUT}`,
         ...(showDebug && {
           background: 'rgba(0,0,255,0.2)',
           outline: '2px dashed blue',

@@ -8,7 +8,68 @@
  * - custom: User-defined variations
  */
 
-import type { BiaxialExpandPresetMeta, BiaxialExpandPlaygroundConfig } from './types'
+import type { BiaxialExpandPresetMeta, BiaxialExpandPlaygroundConfig, VariantBConfig } from './types'
+
+// ============================================================================
+// DEFAULT VARIANT B CONFIG
+// ============================================================================
+
+export const DEFAULT_VARIANT_B_CONFIG: VariantBConfig = {
+  trigger: {
+    planRow: {
+      show: true,
+      leftText: '',                   // Uses tier.planName (Pro, Pro 2x, etc.)
+      rightSource: 'additionalCredits', // "+100 credits" for upgrade flow
+      leftFontSize: 'sm',
+      leftFontWeight: 'medium',
+      leftTextColor: 'primary',
+      leftOpacity: '100',
+      rightFontSize: 'sm',
+      rightFontWeight: 'normal',
+      rightTextColor: 'tertiary',
+      rightOpacity: '60',
+    },
+    paddingX: 20,
+    paddingTop: 16,
+    paddingBottom: 12,
+  },
+  bottomSlot: {
+    dueRow: {
+      show: true,
+      leftText: 'Due today',
+      rightSource: 'upgradeFee',     // Upgrade fee (price difference from Pro)
+      leftFontSize: 'sm',
+      leftFontWeight: 'normal',
+      leftTextColor: 'tertiary',
+      leftOpacity: '100',
+      rightFontSize: 'sm',
+      rightFontWeight: 'semibold',
+      rightTextColor: 'primary',
+      rightOpacity: '100',
+    },
+    subtext: {
+      show: true,
+      template: 'Then {price}/mo. Cancel anytime.', // {price} = monthlyPrice (new recurring)
+      fontSize: 'sm',
+      fontWeight: 'normal',
+      textColor: 'tertiary',
+      opacity: '60',
+    },
+    rowGap: 4,
+    paddingX: 16,
+    paddingTop: 12,
+    paddingBottom: 12,
+  },
+  transition: {
+    enabled: false,
+    type: 'spring',
+    duration: 0.2,
+    bounce: 0.1,
+    yOffset: 2,
+  },
+  headerMode: 'shared',
+  headerText: 'Upgrade fee',
+}
 
 // ============================================================================
 // DEFAULT CONFIG
@@ -18,9 +79,11 @@ export const DEFAULT_BIAXIAL_EXPAND_PLAYGROUND_CONFIG: BiaxialExpandPlaygroundCo
   layout: {
     triggerWidth: 280,
     triggerHeight: 44,
+    triggerHeightB: 44,
     panelWidth: 380,
     maxTopHeight: 0,
     maxBottomHeight: 340,
+    maxBottomHeightB: 340,
     maxLeftWidth: 120,
     maxRightWidth: 120,
     borderRadius: 20,
@@ -139,6 +202,8 @@ export const DEFAULT_BIAXIAL_EXPAND_PLAYGROUND_CONFIG: BiaxialExpandPlaygroundCo
       showLines: true,
       width: 500,
       padding: 10,
+      fixedHeight: false,
+      height: 300,
       header: {
         show: false,
         text: 'Select a plan',
@@ -153,6 +218,9 @@ export const DEFAULT_BIAXIAL_EXPAND_PLAYGROUND_CONFIG: BiaxialExpandPlaygroundCo
   selectMenu: {
     showDropdownIcon: true,
     dropdownIconRotates: true,
+    triggerPaddingX: 16,
+    triggerPaddingTop: 0,
+    triggerPaddingBottom: 0,
     syncedSubtext: {
       syncWithSelection: false,
       separator: ' - ',
@@ -214,6 +282,7 @@ export const DEFAULT_BIAXIAL_EXPAND_PLAYGROUND_CONFIG: BiaxialExpandPlaygroundCo
       },
     },
     availableTiers: ['tier-100', 'tier-200', 'tier-300', 'tier-400', 'tier-500', 'tier-600'],
+    upgradeMode: false,
     showSelectedIndicator: false,
     triggerTypography: {
       label: {
@@ -264,6 +333,7 @@ export const DEFAULT_BIAXIAL_EXPAND_PLAYGROUND_CONFIG: BiaxialExpandPlaygroundCo
       },
     },
   },
+  variantB: DEFAULT_VARIANT_B_CONFIG,
 }
 
 // ============================================================================
@@ -301,6 +371,8 @@ export const BIAXIAL_EXPAND_PRESETS: BiaxialExpandPresetMeta[] = [
           showLines: true,
           width: 500,
           padding: 10,
+          fixedHeight: false,
+          height: 300,
           header: DEFAULT_BIAXIAL_EXPAND_PLAYGROUND_CONFIG.demo.debugContainer.header,
         },
       },
@@ -343,6 +415,8 @@ export const BIAXIAL_EXPAND_PRESETS: BiaxialExpandPresetMeta[] = [
           showLines: true,
           width: 500,
           padding: 10,
+          fixedHeight: false,
+          height: 300,
           header: DEFAULT_BIAXIAL_EXPAND_PLAYGROUND_CONFIG.demo.debugContainer.header,
         },
       },
@@ -403,6 +477,8 @@ export const BIAXIAL_EXPAND_PRESETS: BiaxialExpandPresetMeta[] = [
           showLines: true,
           width: 500,
           padding: 10,
+          fixedHeight: false,
+          height: 300,
           header: DEFAULT_BIAXIAL_EXPAND_PLAYGROUND_CONFIG.demo.debugContainer.header,
         },
       },
@@ -462,6 +538,8 @@ export const BIAXIAL_EXPAND_PRESETS: BiaxialExpandPresetMeta[] = [
           showLines: true,
           width: 500,
           padding: 10,
+          fixedHeight: false,
+          height: 300,
           header: DEFAULT_BIAXIAL_EXPAND_PLAYGROUND_CONFIG.demo.debugContainer.header,
         },
       },
@@ -512,6 +590,8 @@ export const BIAXIAL_EXPAND_PRESETS: BiaxialExpandPresetMeta[] = [
           showLines: true,
           width: 500,
           padding: 10,
+          fixedHeight: false,
+          height: 300,
           header: DEFAULT_BIAXIAL_EXPAND_PLAYGROUND_CONFIG.demo.debugContainer.header,
         },
       },
@@ -581,6 +661,8 @@ export const BIAXIAL_EXPAND_PRESETS: BiaxialExpandPresetMeta[] = [
           showLines: true,
           width: 500,
           padding: 10,
+          fixedHeight: false,
+          height: 300,
           header: DEFAULT_BIAXIAL_EXPAND_PLAYGROUND_CONFIG.demo.debugContainer.header,
         },
       },
@@ -596,9 +678,11 @@ export const BIAXIAL_EXPAND_PRESETS: BiaxialExpandPresetMeta[] = [
       layout: {
         triggerWidth: 200,
         triggerHeight: 88,
+        triggerHeightB: 44,
         panelWidth: 320,
         maxTopHeight: 0,
         maxBottomHeight: 220,
+        maxBottomHeightB: 80,
         maxLeftWidth: 120,
         maxRightWidth: 120,
         borderRadius: 16,
@@ -619,7 +703,7 @@ export const BIAXIAL_EXPAND_PRESETS: BiaxialExpandPresetMeta[] = [
         backdropMode: 'size',
         backdropDelay: 0,
         backdropDurationOffset: 0,
-        animateSlotContainers: true,
+        animateSlotContainers: false,
         slotContainerDelay: 0,
         slotContainerDurationOffset: 100,
         expandOrigin: 'top',
@@ -636,10 +720,24 @@ export const BIAXIAL_EXPAND_PRESETS: BiaxialExpandPresetMeta[] = [
         gradientColor: 'secondary',
         squircle: false,
       },
+      topSlot: {
+        enabled: false,
+        heightMode: 'fixed',
+        height: 48,
+        drivesPanelHeight: false,
+        background: 'secondary',
+        shine: 'none',
+        borderRadius: 14,
+        inset: 4,
+        borderWidth: 1,
+        borderColor: 'primary',
+      },
       bottomSlot: {
         enabled: true,
         heightMode: 'dynamic',
+        integratedHeightMode: 'auto',
         height: 160,
+        integratedHeight: null,
         drivesPanelHeight: true,
         scrollable: true,
         background: 'primary',
@@ -649,6 +747,52 @@ export const BIAXIAL_EXPAND_PRESETS: BiaxialExpandPresetMeta[] = [
         borderWidth: 1,
         borderColor: 'secondary',
       },
+      leftSlot: {
+        enabled: false,
+        heightMode: 'fixed',
+        height: 0,
+        drivesPanelHeight: false,
+        background: 'secondary',
+        shine: 'none',
+        borderRadius: 14,
+        inset: 4,
+        borderWidth: 1,
+        borderColor: 'primary',
+        maxHeight: 200,
+        verticalAlign: 'top',
+        drivingHeight: 200,
+      },
+      rightSlot: {
+        enabled: false,
+        heightMode: 'fixed',
+        height: 0,
+        drivesPanelHeight: false,
+        background: 'secondary',
+        shine: 'none',
+        borderRadius: 14,
+        inset: 4,
+        borderWidth: 1,
+        borderColor: 'primary',
+        maxHeight: 200,
+        verticalAlign: 'top',
+        drivingHeight: 200,
+      },
+      trigger: {
+        collapsed: {
+          background: 'none',
+          shine: 'none',
+          borderRadius: 14,
+          borderWidth: 0,
+          borderColor: 'primary',
+        },
+        expanded: {
+          background: 'none',
+          shine: 'none',
+          borderRadius: 14,
+          borderWidth: 0,
+          borderColor: 'primary',
+        },
+      },
       demo: {
         variant: 'pricing-select',
         pageBackground: 'primary',
@@ -656,9 +800,11 @@ export const BIAXIAL_EXPAND_PRESETS: BiaxialExpandPresetMeta[] = [
         slowMo: false,
         debugContainer: {
           enabled: true,
-          showLines: false,
+          showLines: true,
           width: 420,
           padding: 10,
+          fixedHeight: true,
+          height: 360,
           header: {
             show: true,
             text: 'Upgrade fee',
@@ -671,7 +817,11 @@ export const BIAXIAL_EXPAND_PRESETS: BiaxialExpandPresetMeta[] = [
         },
       },
       selectMenu: {
-        ...DEFAULT_BIAXIAL_EXPAND_PLAYGROUND_CONFIG.selectMenu,
+        showDropdownIcon: true,
+        dropdownIconRotates: true,
+        triggerPaddingX: 20,
+        triggerPaddingTop: 0,
+        triggerPaddingBottom: 0,
         syncedSubtext: {
           syncWithSelection: true,
           separator: '',
@@ -691,15 +841,24 @@ export const BIAXIAL_EXPAND_PRESETS: BiaxialExpandPresetMeta[] = [
             fontSize: 'xs',
             fontWeight: 'normal',
             textColor: 'tertiary',
-            opacity: '40',
+            opacity: '60',
             badgeColor: 'gray',
           },
         },
         showHeader: true,
         headerLabel: 'Plans',
-        itemGap: 0,
+        headerTextColor: 'tertiary',
+        headerFontWeight: 'medium',
+        headerFontSize: 'xs',
         headerOpacity: '40',
+        headerUppercase: false,
         headerPaddingBottom: 0,
+        containerPadding: 4,
+        itemPaddingX: 12,
+        itemPaddingY: 12,
+        itemBorderRadius: 8,
+        itemGap: 0,
+        itemHoverBackground: 'quaternary',
         menuItemLabel: {
           layout: 'inline',
           separator: '',
@@ -724,6 +883,8 @@ export const BIAXIAL_EXPAND_PRESETS: BiaxialExpandPresetMeta[] = [
           },
         },
         availableTiers: ['tier-100', 'tier-200', 'tier-300', 'tier-400', 'tier-500', 'tier-600'],
+        upgradeMode: true,
+        showSelectedIndicator: false,
         triggerTypography: {
           label: {
             text: '200 credits',
@@ -740,7 +901,7 @@ export const BIAXIAL_EXPAND_PRESETS: BiaxialExpandPresetMeta[] = [
             textColor: 'primary',
           },
           priceSuffix: {
-            text: 'per month',
+            text: 'due today',
             show: true,
             fontSize: 'xs',
             fontWeight: 'normal',
@@ -759,7 +920,21 @@ export const BIAXIAL_EXPAND_PRESETS: BiaxialExpandPresetMeta[] = [
           priceRowGap: 8,
           rowGap: 4,
         },
+        itemTypography: {
+          label: {
+            fontSize: 'sm',
+            fontWeight: 'normal',
+            textColor: 'primary',
+          },
+          price: {
+            fontSize: 'sm',
+            fontWeight: 'normal',
+            textColor: 'tertiary',
+            opacity: '100',
+          },
+        },
       },
+      variantB: DEFAULT_VARIANT_B_CONFIG,
     },
   },
 ]

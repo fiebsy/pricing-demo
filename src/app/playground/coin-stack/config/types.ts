@@ -65,3 +65,13 @@ export interface CoinStackPreset {
   description: string
   config: CoinStackConfig
 }
+
+// Stage types for two-tier animation flow
+export type StageId = 1 | 2
+
+export interface StageTransitionConfig {
+  /** Spring animation duration in seconds */
+  duration: number
+  /** Spring bounce amount (0-1) */
+  bounce: number
+}
