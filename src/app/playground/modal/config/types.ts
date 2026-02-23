@@ -318,6 +318,8 @@ export interface ModalPlaygroundConfig {
   proCard: ProCardConfig
   /** Global Checklist configuration (used when content type is 'checklist') */
   checklist: ChecklistConfig
+  /** Global Pricing Select configuration (used when content type is 'pricing-select') */
+  pricingSelect: PricingSelectConfig
   /** Per-stage content configuration (title, content slots, button labels) */
   stages: StagesConfig
 }
@@ -338,8 +340,8 @@ export interface ModalPresetMeta {
 // Stage Configuration (for multi-stage transitions)
 // ============================================================================
 
-/** Content slot type: wireframe placeholder bars, editable text, pro card, or checklist */
-export type ContentSlotType = 'wireframe' | 'text' | 'pro-card' | 'checklist'
+/** Content slot type: wireframe placeholder bars, editable text, pro card, checklist, or pricing-select */
+export type ContentSlotType = 'wireframe' | 'text' | 'pro-card' | 'checklist' | 'pricing-select'
 
 // ============================================================================
 // Asset Configuration (for header)
@@ -476,6 +478,62 @@ export interface ChecklistConfig {
   gap: number
 }
 
+/** Pricing select header configuration */
+export interface PricingSelectHeaderConfig {
+  /** Show header above pricing select */
+  show: boolean
+  /** Header text */
+  text: string
+  /** Font size */
+  fontSize: 'xs' | 'sm' | 'md'
+  /** Font weight */
+  fontWeight: 'normal' | 'medium' | 'semibold'
+  /** Text color */
+  textColor: 'primary' | 'secondary' | 'tertiary'
+  /** Opacity (0-100) */
+  opacity: number
+  /** Margin below header in pixels */
+  marginBottom: number
+}
+
+/** Pricing select menu configuration */
+export interface PricingSelectConfig {
+  /** Available tier IDs for selection */
+  availableTiers: string[]
+  /** Enable upgrade mode (hides base tier) */
+  upgradeMode: boolean
+  /** Variant A dimensions (expandable dropdown) */
+  variantA: {
+    triggerHeight: number
+    maxBottomHeight: number
+  }
+  /** Variant B dimensions (static card) */
+  variantB: {
+    triggerHeight: number
+    bottomHeight: number
+  }
+  /** Panel width (number in px, or 'fill' to fill container) */
+  panelWidth: number | 'fill'
+  /** Appearance styling */
+  appearance: {
+    borderRadius: number
+    shine: string
+    background: 'primary' | 'secondary' | 'tertiary'
+  }
+  /** Variant transition animation */
+  transition: {
+    enabled: boolean
+    duration: number
+    bounce: number
+    yOffset: number
+  }
+  /** Header configuration (shown above pricing select) */
+  header: PricingSelectHeaderConfig
+}
+
+/** Pricing variant for pricing-select content type */
+export type PricingVariant = 'A' | 'B'
+
 /** Content slot configuration with type-specific options */
 export interface ContentSlotConfig {
   /** Show this content slot (defaults to true if omitted) */
@@ -488,6 +546,8 @@ export interface ContentSlotConfig {
   lineCount?: number
   /** Text content (only for text type) */
   text?: string
+  /** Pricing select variant (only for pricing-select type) */
+  pricingVariant?: PricingVariant
 }
 
 // ============================================================================
@@ -533,6 +593,8 @@ export interface FluidButtonConfig {
   textSlideDuration: number
   /** Checkmark draw duration in ms */
   checkmarkDrawDuration: number
+  /** Enable text animation on button label changes */
+  textAnimationEnabled?: boolean
 }
 
 /** Per-stage content configuration */

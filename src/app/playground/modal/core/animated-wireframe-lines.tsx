@@ -41,40 +41,26 @@ export function AnimatedWireframeLines({
   const lineDuration = duration * 0.4
 
   return (
-    <motion.div
-      layout
+    <div
       className="flex w-full flex-col justify-center overflow-hidden"
       style={{ height, gap: lineGap }}
-      transition={{
-        layout: {
-          type: 'spring',
-          duration,
-          bounce,
-        },
-      }}
     >
       <AnimatePresence mode="popLayout" initial={false}>
         {lines.map((line) => (
           <motion.div
             key={line.id}
-            layout
             initial={{ opacity: 0, scaleY: 0.5 }}
             animate={{ opacity: 1, scaleY: 1 }}
             exit={{ opacity: 0, scaleY: 0.5 }}
             transition={{
               duration: lineDuration,
               delay: line.index * stagger,
-              layout: {
-                type: 'spring',
-                duration: duration * 0.75,
-                bounce: bounce * 0.5,
-              },
             }}
             className="h-2 origin-center rounded-full bg-quaternary/40"
             style={{ width: line.width }}
           />
         ))}
       </AnimatePresence>
-    </motion.div>
+    </div>
   )
 }

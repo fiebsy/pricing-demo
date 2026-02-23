@@ -83,6 +83,8 @@ export interface MenuAppearance {
   gradient?: GradientPattern
   gradientColor?: GradientColor
   squircle?: boolean
+  /** Hover background for collapsed panel */
+  triggerHoverBackground?: BackgroundOption
 }
 
 // ============================================================================

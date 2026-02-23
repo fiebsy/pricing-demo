@@ -162,3 +162,11 @@ export const BACKGROUND_CLASSES: Record<BackgroundOption, string> = {
   tertiary: 'bg-tertiary',
   quaternary: 'bg-quaternary',
 }
+
+export const GROUP_HOVER_BACKGROUND_CLASSES: Record<BackgroundOption, string> = {
+  none: '',
+  primary: 'group-hover/panel:bg-primary',
+  secondary: 'group-hover/panel:bg-secondary',
+  tertiary: 'group-hover/panel:bg-tertiary',
+  quaternary: 'group-hover/panel:bg-quaternary',
+}

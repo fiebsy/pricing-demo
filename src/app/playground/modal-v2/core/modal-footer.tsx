@@ -1,13 +1,11 @@
 /**
- * Modal Button Section
+ * Modal Footer Component
  *
  * Integrates FluidButtonGroup with AnimatedRightButton for stage-based
  * button transitions. Handles:
  * - Fluid width transitions (both buttons → single button)
  * - Primary button state changes (text/spinner/checkmark)
  * - Secondary button text crossfades
- *
- * @status incubating
  */
 
 'use client'
@@ -17,42 +15,24 @@ import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/core/primitives/button'
 import { FluidButtonGroup } from '@/components/ui/core/primitives/fluid-button-group'
 
-import type {
-  ButtonsConfig,
-  StageButtonConfig,
-  TextTransitionMode,
-  TextTransitionEasing,
-} from '../config/types'
+import type { Stage, ButtonsConfig, AnimationConfig } from '../config/types'
 import type { ButtonStateConfig, StateTransitionConfig } from '@/app/playground/button-fluid-layout/config/types'
 import type { FluidTiming } from '@/components/ui/core/primitives/fluid-button-group'
 import { AnimatedRightButton } from '@/app/playground/button-fluid-layout/core/animated-right-button'
-import { CrossfadeText } from './crossfade-text'
 
 // ============================================================================
 // Types
 // ============================================================================
 
-interface ModalButtonSectionProps {
-  /** Global button config (variants, sizes, layout) */
+interface ModalFooterProps {
+  /** Current stage */
+  stage: Stage
+  /** Button configuration */
   config: ButtonsConfig
-  /** Per-stage button config (text, spinner, checkmark states) */
-  stageButtons: StageButtonConfig
+  /** Animation configuration */
+  animation: AnimationConfig
   /** Slow motion mode */
   slowMo: boolean
-  /** Text transition duration in seconds */
-  textDuration: number
-  /** Text transition bounce */
-  textBounce: number
-  /** Text Y offset for animations */
-  textYOffset: number
-  /** Text transition mode */
-  textMode: TextTransitionMode
-  /** Text transition easing */
-  textEasing: TextTransitionEasing
-  /** Button radius style override (for sync mode) */
-  buttonRadiusStyle?: React.CSSProperties
-  /** Master duration in seconds when synced (from modal animation.master.duration) */
-  masterDuration?: number
   /** Primary button click handler */
   onPrimaryClick: () => void
   /** Secondary button click handler */
@@ -65,18 +45,15 @@ interface ModalButtonSectionProps {
 
 /**
  * Derives fluid button timing from modal master duration.
- * Maps the master duration (seconds) to fluid timing (milliseconds)
- * while keeping existing ease-out easing curves.
  */
 function deriveFluidTimingFromMaster(masterDuration: number): FluidTiming {
-  // Master duration is in seconds (0.15-0.8), fluid expects milliseconds
   const baseDuration = masterDuration * 1000
 
   return {
-    collapseDuration: baseDuration * 0.4,    // Fast exit (40% of master)
-    expandDuration: baseDuration * 0.85,     // Slower expand (85% of master)
-    showBothDuration: baseDuration * 0.5,    // Mid-range for both
-    collapseEasing: 'cubic-bezier(0.25, 1, 0.5, 1)',  // Keep existing ease-out
+    collapseDuration: baseDuration * 0.4,
+    expandDuration: baseDuration * 0.85,
+    showBothDuration: baseDuration * 0.5,
+    collapseEasing: 'cubic-bezier(0.25, 1, 0.5, 1)',
     expandEasing: 'cubic-bezier(0.25, 1, 0.5, 1)',
     expandDelay: 0,
   }
@@ -88,20 +65,16 @@ function deriveFluidTimingFromMaster(masterDuration: number): FluidTiming {
 
 /**
  * Preserves the previous non-null value during exit animations.
- * When the value becomes null, returns the previous value to maintain
- * consistent button height during the opacity fade out.
  */
 function usePreviousValue<T>(value: T | null): T | null {
   const previousRef = useRef<T | null>(value)
 
   useEffect(() => {
-    // Only update when we have a non-null value
     if (value !== null) {
       previousRef.current = value
     }
   }, [value])
 
-  // Return current value if non-null, otherwise return previous
   return value ?? previousRef.current
 }
 
@@ -109,43 +82,39 @@ function usePreviousValue<T>(value: T | null): T | null {
 // Component
 // ============================================================================
 
-export function ModalButtonSection({
+export function ModalFooter({
+  stage,
   config,
-  stageButtons,
+  animation,
   slowMo,
-  textDuration,
-  textBounce,
-  textYOffset,
-  textMode,
-  textEasing,
-  buttonRadiusStyle,
-  masterDuration,
   onPrimaryClick,
   onSecondaryClick,
-}: ModalButtonSectionProps) {
-  const { fluid, primary, secondary, cornerSquircle } = config
+}: ModalFooterProps) {
+  const { primary, secondary, cornerSquircle, fluid } = config
+  const { buttons: stageButtons } = stage
 
-  // Preserve secondary text during exit animation to maintain button height
-  const preservedSecondaryText = usePreviousValue(stageButtons.secondary)
+  // Derive secondary text from stage config
+  const secondaryText = stageButtons.secondary?.text ?? null
 
-  // Resolve timing: use derived timing when 'synced' and masterDuration is provided
-  const resolvedTiming = fluid.timing === 'synced' && masterDuration != null
-    ? deriveFluidTimingFromMaster(masterDuration)
-    : fluid.timing === 'synced'
-      ? 'default'  // Fallback to default if synced but no masterDuration
-      : fluid.timing
+  // Preserve secondary text during exit animation
+  const preservedSecondaryText = usePreviousValue(secondaryText)
+
+  // Resolve timing
+  const resolvedTiming = fluid.timing === 'synced'
+    ? deriveFluidTimingFromMaster(animation.duration)
+    : fluid.timing
 
   // Determine visibility based on secondary button presence
-  const showSecondary = stageButtons.secondary !== null
+  const showSecondary = secondaryText !== null
   const visible = showSecondary ? 'both' : 'primary'
 
   // Convert stage button config to AnimatedRightButton's expected format
   const primaryButtonState: ButtonStateConfig = {
     id: 'primary',
-    text: stageButtons.primary.text,
-    showSpinner: stageButtons.primary.showSpinner,
-    showCheckmark: stageButtons.primary.showCheckmark,
-    showText: stageButtons.primary.showText,
+    text: stageButtons.primary.text ?? '',
+    showSpinner: stageButtons.primary.loading ?? false,
+    showCheckmark: stageButtons.primary.checkmark ?? false,
+    showText: stageButtons.primary.showText ?? true,
     showLeftButton: showSecondary,
   }
 
@@ -163,7 +132,7 @@ export function ModalButtonSection({
     return (
       <div
         className={cn(
-          'flex items-center',
+          'flex w-full items-center',
           config.layout === 'vertical' && 'flex-col',
           config.layout === 'horizontal-reverse' && 'flex-row-reverse'
         )}
@@ -175,17 +144,8 @@ export function ModalButtonSection({
             size={secondary.size}
             onClick={onSecondaryClick}
             className={cn('flex-1', !cornerSquircle && 'corner-round')}
-            style={buttonRadiusStyle}
           >
-            <CrossfadeText
-              text={stageButtons.secondary ?? ''}
-              duration={textEasing === 'spring' ? textDuration : textDuration}
-              bounce={textBounce}
-              yOffset={textYOffset}
-              mode={textMode}
-              easing={textEasing}
-              useSpring={textEasing === 'spring'}
-            />
+            {secondaryText}
           </Button>
         )}
 
@@ -194,17 +154,8 @@ export function ModalButtonSection({
           size={primary.size}
           onClick={onPrimaryClick}
           className={cn('flex-1', !cornerSquircle && 'corner-round')}
-          style={buttonRadiusStyle}
         >
-          <CrossfadeText
-            text={stageButtons.primary.text}
-            duration={textEasing === 'spring' ? textDuration : textDuration}
-            bounce={textBounce}
-            yOffset={textYOffset}
-            mode={textMode}
-            easing={textEasing}
-            useSpring={textEasing === 'spring'}
-          />
+          {stageButtons.primary.text}
         </Button>
 
         {showSecondary && config.layout === 'horizontal-reverse' && (
@@ -213,17 +164,8 @@ export function ModalButtonSection({
             size={secondary.size}
             onClick={onSecondaryClick}
             className={cn('flex-1', !cornerSquircle && 'corner-round')}
-            style={buttonRadiusStyle}
           >
-            <CrossfadeText
-              text={stageButtons.secondary ?? ''}
-              duration={textEasing === 'spring' ? textDuration : textDuration}
-              bounce={textBounce}
-              yOffset={textYOffset}
-              mode={textMode}
-              easing={textEasing}
-              useSpring={textEasing === 'spring'}
-            />
+            {secondaryText}
           </Button>
         )}
       </div>
@@ -244,9 +186,7 @@ export function ModalButtonSection({
           size={secondary.size}
           onClick={onSecondaryClick}
           className={cn('w-full', !cornerSquircle && 'corner-round')}
-          style={buttonRadiusStyle}
         >
-          {/* Use preserved text during exit to maintain button height */}
           {preservedSecondaryText}
         </Button>
       }

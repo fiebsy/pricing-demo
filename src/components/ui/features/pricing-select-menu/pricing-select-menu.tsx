@@ -42,7 +42,7 @@ export const PricingSelectMenuRoot: React.FC<PricingSelectMenuRootProps> = ({
 
   // Slot dimension state
   const bottomHeightMode = config.bottomSlot.heightMode ?? 'dynamic'
-  const initialBottomHeight = config.bottomSlot.enabled
+  const configBottomHeight = config.bottomSlot.enabled
     ? (bottomHeightMode === 'fixed'
         ? (config.bottomSlot.height ?? config.layout.maxBottomHeight)
         : config.layout.maxBottomHeight)
@@ -50,9 +50,18 @@ export const PricingSelectMenuRoot: React.FC<PricingSelectMenuRootProps> = ({
 
   const [dimensions, setDimensions] = useState<SlotDimensions>({
     triggerHeight: config.layout.triggerHeight,
-    bottomHeight: initialBottomHeight,
+    bottomHeight: configBottomHeight,
     panelWidth: config.layout.panelWidth,
   })
+
+  // Sync dimensions when config changes (e.g., variant switch without remount)
+  useEffect(() => {
+    setDimensions({
+      triggerHeight: config.layout.triggerHeight,
+      bottomHeight: configBottomHeight,
+      panelWidth: config.layout.panelWidth,
+    })
+  }, [config.layout.triggerHeight, configBottomHeight, config.layout.panelWidth])
 
   // Refs
   const containerRef = useRef<HTMLDivElement>(null)
@@ -148,7 +157,7 @@ export const PricingSelectMenuRoot: React.FC<PricingSelectMenuRootProps> = ({
     <PricingSelectMenuProvider value={contextValue}>
       <div
         ref={containerRef}
-        className={cn('relative inline-block overflow-visible', className)}
+        className={cn('relative inline-block overflow-visible group/panel', className)}
         style={{
           width: config.layout.triggerWidth,
           height: config.layout.triggerHeight,

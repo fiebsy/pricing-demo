@@ -11,10 +11,12 @@
 'use client'
 
 import { motion, AnimatePresence } from 'motion/react'
-import type { ContentSlotConfig, ProCardConfig, ChecklistConfig, TextTransitionEasing, TextTransitionMode } from '../config/types'
+import type { ContentSlotConfig, ProCardConfig, ChecklistConfig, PricingSelectConfig, TextTransitionEasing, TextTransitionMode } from '../config/types'
+import type { PricingTier } from '@/components/ui/features/pricing-select-menu'
 import { AnimatedWireframeLines } from './animated-wireframe-lines'
 import { ProCard } from './pro-card'
 import { Checklist } from './checklist'
+import { PricingSelectSlot } from './pricing-select-slot'
 
 // Easing curves for text animations
 const EASING_CURVES = {
@@ -29,6 +31,12 @@ interface ContentSlotProps {
   proCardConfig?: ProCardConfig
   /** Global Checklist configuration (used when type is 'checklist') */
   checklistConfig?: ChecklistConfig
+  /** Global Pricing Select configuration (used when type is 'pricing-select') */
+  pricingSelectConfig?: PricingSelectConfig
+  /** Currently selected pricing tier (used when type is 'pricing-select') */
+  selectedTier?: PricingTier
+  /** Handler for tier selection (used when type is 'pricing-select') */
+  onTierSelect?: (tier: PricingTier) => void
   /** Gap between wireframe lines in pixels */
   lineGap: number
   /** Duration of layout/content animations in seconds */
@@ -45,12 +53,17 @@ interface ContentSlotProps {
   textYOffset?: number
   /** Whether text animation is enabled */
   textEnabled?: boolean
+  /** Container width for 'fill' mode calculation in pricing-select */
+  containerWidth?: number
 }
 
 export function ContentSlot({
   config,
   proCardConfig,
   checklistConfig,
+  pricingSelectConfig,
+  selectedTier,
+  onTierSelect,
   lineGap,
   duration = 0.4,
   bounce = 0.1,
@@ -59,6 +72,7 @@ export function ContentSlot({
   textEasing = 'spring',
   textYOffset = 8,
   textEnabled = true,
+  containerWidth,
 }: ContentSlotProps) {
   const { type, height, lineCount, text } = config
 
@@ -86,26 +100,31 @@ export function ContentSlot({
     return <Checklist config={checklistConfig} duration={duration} bounce={bounce} />
   }
 
+  // Pricing select content type (uses global pricingSelectConfig)
+  if (type === 'pricing-select' && pricingSelectConfig && selectedTier && onTierSelect) {
+    return (
+      <PricingSelectSlot
+        config={config}
+        globalConfig={pricingSelectConfig}
+        selectedTier={selectedTier}
+        onTierSelect={onTierSelect}
+        containerWidth={containerWidth}
+      />
+    )
+  }
+
   // Text content type
   // When animation disabled, render static text
   if (!textEnabled) {
     return (
-      <motion.div
-        layout
+      <div
         className="flex w-full flex-col justify-center overflow-hidden"
         style={{ height }}
-        transition={{
-          layout: {
-            type: 'spring',
-            duration,
-            bounce,
-          },
-        }}
       >
         <p className="text-sm text-secondary leading-relaxed">
           {text || 'Enter content text...'}
         </p>
-      </motion.div>
+      </div>
     )
   }
 
@@ -122,17 +141,9 @@ export function ContentSlot({
   const animatePresenceMode = textMode === 'flip' ? 'wait' : 'popLayout'
 
   return (
-    <motion.div
-      layout
+    <div
       className="flex w-full flex-col justify-center overflow-hidden"
       style={{ height }}
-      transition={{
-        layout: {
-          type: 'spring',
-          duration,
-          bounce,
-        },
-      }}
     >
       <AnimatePresence mode={animatePresenceMode} initial={false}>
         <motion.p
@@ -146,6 +157,6 @@ export function ContentSlot({
           {text || 'Enter content text...'}
         </motion.p>
       </AnimatePresence>
-    </motion.div>
+    </div>
   )
 }

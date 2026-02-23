@@ -10,7 +10,7 @@
 import * as React from 'react'
 import { cn } from '@/lib/utils'
 import { usePricingSelectMenu } from '../context'
-import { EASING_EXPO_OUT } from '../constants'
+import { EASING_EXPO_OUT, GROUP_HOVER_BACKGROUND_CLASSES } from '../constants'
 import { getPopupClasses, getGradientStyles } from '../utils'
 import type { BackdropProps } from '../types'
 
@@ -20,6 +20,11 @@ export const Backdrop: React.FC<BackdropProps> = ({ className }) => {
   const { appearance, layout } = config
   const popupClasses = getPopupClasses(appearance)
   const gradientStyles = getGradientStyles(appearance)
+
+  // Hover background only applies when collapsed
+  const hoverClass = !expanded && appearance.triggerHoverBackground
+    ? GROUP_HOVER_BACKGROUND_CLASSES[appearance.triggerHoverBackground]
+    : ''
 
   const duration = timing.backdropDuration
 
@@ -37,6 +42,7 @@ export const Backdrop: React.FC<BackdropProps> = ({ className }) => {
       className={cn(
         'absolute motion-reduce:transition-none',
         popupClasses,
+        hoverClass,
         className
       )}
       style={{

@@ -17,6 +17,7 @@ import { HugeIcon } from '@/components/ui/core/primitives/icon'
 import Cancel01Icon from '@hugeicons-pro/core-stroke-rounded/Cancel01Icon'
 
 import type { ModalPlaygroundConfig, StageId } from '../config/types'
+import type { PricingTier } from '@/components/ui/features/pricing-select-menu'
 import { CrossfadeText } from './crossfade-text'
 import { ContentSlot } from './content-slot'
 import { ModalButtonSection } from './modal-button-section'
@@ -42,6 +43,10 @@ interface PlaygroundModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   activeStage?: StageId
+  /** Currently selected pricing tier (passed to pricing-select content) */
+  selectedTier?: PricingTier
+  /** Handler for tier selection (passed to pricing-select content) */
+  onTierSelect?: (tier: PricingTier) => void
 }
 
 // ============================================================================
@@ -97,7 +102,7 @@ function DebugWrapper({
 }) {
   if (!show) return <>{children}</>
   return (
-    <div className={cn('relative border-2 border-dashed', color)}>
+    <div className={cn('relative border-2 border-dashed overflow-visible', color)}>
       <span
         className={cn(
           'absolute -top-3 left-2 px-1 text-[10px] bg-secondary',
@@ -115,8 +120,8 @@ function DebugWrapper({
 // Modal Component
 // ============================================================================
 
-export function PlaygroundModal({ config, open, onOpenChange, activeStage = 1 }: PlaygroundModalProps) {
-  const { backdrop, animation, textTransition, closeButton, header, contentTop, contentBottom, buttons, demo, proCard, checklist, stages } =
+export function PlaygroundModal({ config, open, onOpenChange, activeStage = 1, selectedTier, onTierSelect }: PlaygroundModalProps) {
+  const { backdrop, animation, textTransition, closeButton, header, contentTop, contentBottom, buttons, demo, proCard, checklist, pricingSelect, stages } =
     config
 
   // Get stage content from config
@@ -180,6 +185,9 @@ export function PlaygroundModal({ config, open, onOpenChange, activeStage = 1 }:
       ? { borderRadius: Math.max(0, config.container.borderRadius - config.container.padding) }
       : undefined
 
+  // Calculate content area width for pricing-select 'fill' mode
+  const contentAreaWidth = config.container.width - (2 * config.container.padding)
+
   // Handle button click
   const handlePrimaryClick = () => {
     onOpenChange(false)
@@ -228,30 +236,10 @@ export function PlaygroundModal({ config, open, onOpenChange, activeStage = 1 }:
                       containerClasses
                     )}
                     style={containerStyles}
-                    layout
                     initial={variants.initial}
                     animate={variants.animate}
                     exit={variants.exit}
-                    transition={{
-                      ...transition,
-                      layout: isSynced
-                        ? {
-                            type: 'spring',
-                            duration: effectiveTiming.layoutDuration,
-                            bounce: effectiveTiming.layoutBounce,
-                          }
-                        : animation.layout.style === 'spring'
-                          ? {
-                              type: 'spring',
-                              duration: effectiveTiming.layoutDuration,
-                              bounce: effectiveTiming.layoutBounce,
-                            }
-                          : {
-                              type: 'tween',
-                              duration: effectiveTiming.layoutDuration,
-                              ease: animation.layout.easing,
-                            },
-                    }}
+                    transition={transition}
                   >
                     {/* Close Button */}
                     {closeButton.show && (
@@ -289,7 +277,7 @@ export function PlaygroundModal({ config, open, onOpenChange, activeStage = 1 }:
                           color="border-blue-500"
                           show={demo.showContainerOutlines}
                         >
-                          <motion.div layout="position" className="flex flex-col" style={{ gap: config.container.gap / 2 }}>
+                          <div className="flex flex-col" style={{ gap: config.container.gap / 2 }}>
                             {/* Asset - placeholder or coin-stack with per-stage transitions */}
                             {header.showAsset && (
                               <AssetRenderer
@@ -329,30 +317,43 @@ export function PlaygroundModal({ config, open, onOpenChange, activeStage = 1 }:
                                 />
                               </Dialog.Description>
                             )}
-                          </motion.div>
+                          </div>
                         </DebugWrapper>
 
                         {/* Content Top Section - height morphs, content animates */}
+                        {/* Note: pricing-select needs high z-index when expanded to overlay other sections */}
                         {contentTop.show && effectiveContentA.show !== false && (
-                          <DebugWrapper
-                            label="Content A"
-                            color="border-green-500"
-                            show={demo.showContainerOutlines}
+                          <div
+                            className="relative"
+                            style={{
+                              zIndex: effectiveContentA.type === 'pricing-select' ? 50 : 'auto',
+                              overflow: 'visible',
+                            }}
                           >
-                            <ContentSlot
-                              config={effectiveContentA}
-                              proCardConfig={proCard}
-                              checklistConfig={checklist}
-                              lineGap={contentTop.lineGap}
-                              duration={effectiveTiming.layoutDuration}
-                              bounce={effectiveTiming.layoutBounce}
-                              stagger={effectiveTiming.stagger}
-                              textMode={textMode}
-                              textEasing={textEasing}
-                              textYOffset={textYOffset}
-                              textEnabled={textEnabled}
-                            />
-                          </DebugWrapper>
+                            <DebugWrapper
+                              label="Content A"
+                              color="border-green-500"
+                              show={demo.showContainerOutlines}
+                            >
+                              <ContentSlot
+                                config={effectiveContentA}
+                                proCardConfig={proCard}
+                                checklistConfig={checklist}
+                                pricingSelectConfig={pricingSelect}
+                                selectedTier={selectedTier}
+                                onTierSelect={onTierSelect}
+                                lineGap={contentTop.lineGap}
+                                duration={effectiveTiming.layoutDuration}
+                                bounce={effectiveTiming.layoutBounce}
+                                stagger={effectiveTiming.stagger}
+                                textMode={textMode}
+                                textEasing={textEasing}
+                                textYOffset={textYOffset}
+                                textEnabled={textEnabled}
+                                containerWidth={contentAreaWidth}
+                              />
+                            </DebugWrapper>
+                          </div>
                         )}
 
                         {/* Content Bottom Section - height morphs, content animates */}
@@ -366,6 +367,9 @@ export function PlaygroundModal({ config, open, onOpenChange, activeStage = 1 }:
                               config={effectiveContentB}
                               proCardConfig={proCard}
                               checklistConfig={checklist}
+                              pricingSelectConfig={pricingSelect}
+                              selectedTier={selectedTier}
+                              onTierSelect={onTierSelect}
                               lineGap={contentBottom.lineGap}
                               duration={effectiveTiming.layoutDuration}
                               bounce={effectiveTiming.layoutBounce}
@@ -374,6 +378,7 @@ export function PlaygroundModal({ config, open, onOpenChange, activeStage = 1 }:
                               textEasing={textEasing}
                               textYOffset={textYOffset}
                               textEnabled={textEnabled}
+                              containerWidth={contentAreaWidth}
                             />
                           </DebugWrapper>
                         )}
@@ -391,17 +396,7 @@ export function PlaygroundModal({ config, open, onOpenChange, activeStage = 1 }:
 
                         {/* Line Separator */}
                         {config.container.showSeparator && (
-                          <motion.div
-                            layout
-                            className="h-px w-full bg-tertiary"
-                            transition={{
-                              layout: {
-                                type: 'spring',
-                                duration: effectiveTiming.layoutDuration,
-                                bounce: effectiveTiming.layoutBounce,
-                              },
-                            }}
-                          />
+                          <div className="h-px w-full bg-tertiary" />
                         )}
 
                         {/* Button Section - fluid layout with animated states */}

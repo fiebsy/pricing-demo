@@ -87,6 +87,7 @@ export interface SelectMenuConfig {
   itemBorderRadius: number
   itemGap: number
   itemHoverBackground: BackgroundOption
+  triggerHoverBackground: BackgroundOption
   menuItemLabel: MenuItemLabelConfig
   availableTiers: string[]
   upgradeMode: boolean

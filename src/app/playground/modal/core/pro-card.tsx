@@ -9,7 +9,6 @@
 
 'use client'
 
-import { motion } from 'motion/react'
 import { cn } from '@/lib/utils'
 import type { ProCardConfig, ProCardGradient, ProCardTextStyle } from '../config/types'
 
@@ -92,8 +91,7 @@ export function ProCard({ config, height, duration = 0.4, bounce = 0.1 }: ProCar
   const sameStyle = titleStyle === multiplierStyle
 
   return (
-    <motion.div
-      layout
+    <div
       className={cn(
         'flex w-full items-center justify-center overflow-hidden',
         BACKGROUND_CLASSES[container.background],
@@ -104,7 +102,6 @@ export function ProCard({ config, height, duration = 0.4, bounce = 0.1 }: ProCar
         borderRadius: container.borderRadius,
         padding: container.padding,
       }}
-      transition={{ layout: { type: 'spring', duration, bounce } }}
     >
       <div className="relative flex items-center justify-center">
         {/* Glow effect layer */}
@@ -159,6 +156,6 @@ export function ProCard({ config, height, duration = 0.4, bounce = 0.1 }: ProCar
           </span>
         )}
       </div>
-    </motion.div>
+    </div>
   )
 }

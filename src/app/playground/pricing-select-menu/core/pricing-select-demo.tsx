@@ -9,10 +9,10 @@
 
 import * as React from 'react'
 import { useState, useEffect, useMemo } from 'react'
-import { AnimatePresence, motion } from 'motion/react'
 
 import {
   PricingSelectMenu,
+  AnimatedSlotContent,
   type PricingSelectMenuConfig,
   type PricingTier,
 } from '@/components/ui/features/pricing-select-menu'
@@ -76,6 +76,7 @@ function playgroundConfigToMenuConfig(
       gradient: playgroundConfig.appearance.gradient,
       gradientColor: playgroundConfig.appearance.gradientColor,
       squircle: playgroundConfig.appearance.squircle,
+      triggerHoverBackground: playgroundConfig.selectMenu.triggerHoverBackground,
     },
     bottomSlot: {
       enabled: playgroundConfig.bottomSlot.enabled,
@@ -115,18 +116,38 @@ export function PricingSelectDemo({
   const [selectedTier, setSelectedTier] = useState<PricingTier>(PRICING_TIERS[0])
 
   // Filter available tiers based on config
+  // In upgrade mode, hide Pro base tier (tier-100) - matches biaxial-expand behavior
   const availableTiers = useMemo(() => {
-    return PRICING_TIERS.filter((tier) =>
-      config.selectMenu.availableTiers.includes(tier.id)
-    )
-  }, [config.selectMenu.availableTiers])
+    const tierIds = config.selectMenu.availableTiers
+    const upgradeMode = config.selectMenu.upgradeMode
+    return PRICING_TIERS.filter((tier) => {
+      if (!tierIds.includes(tier.id)) return false
+      // In upgrade mode, hide Pro base tier (tier-100)
+      if (upgradeMode && tier.id === 'tier-100') return false
+      return true
+    })
+  }, [config.selectMenu.availableTiers, config.selectMenu.upgradeMode])
 
-  // Auto-open effect
+  // Ensure selected tier stays valid when available tiers change
   useEffect(() => {
-    if (autoOpen) {
+    if (!availableTiers.find((t) => t.id === selectedTier.id)) {
+      setSelectedTier(availableTiers[0] || PRICING_TIERS[0])
+    }
+  }, [availableTiers, selectedTier.id])
+
+  // Compute effective expanded state:
+  // - Variant B: always expanded (like a static card)
+  // - Variant A: normal expand/collapse behavior
+  // - autoOpen: playground debug setting to keep expanded
+  const isVariantA = pricingVariant === 'A'
+  const effectiveExpanded = !isVariantA ? true : autoOpen ? true : expanded
+
+  // Auto-open effect for Variant A
+  useEffect(() => {
+    if (autoOpen && isVariantA) {
       setExpanded(true)
     }
-  }, [autoOpen])
+  }, [autoOpen, isVariantA])
 
   // Handle tier selection
   const handleTierSelect = (tier: PricingTier) => {
@@ -144,98 +165,80 @@ export function PricingSelectDemo({
   const transitionConfig = config.variantB.transition
 
   return (
-    <AnimatePresence mode="wait">
-      <motion.div
-        key={pricingVariant}
-        initial={
-          transitionConfig.enabled
-            ? { opacity: 0, y: transitionConfig.yOffset }
-            : false
-        }
-        animate={{ opacity: 1, y: 0 }}
-        exit={
-          transitionConfig.enabled
-            ? { opacity: 0, y: -transitionConfig.yOffset }
-            : undefined
-        }
-        transition={
-          transitionConfig.enabled
-            ? transitionConfig.type === 'spring'
-              ? {
-                  type: 'spring',
-                  duration: transitionConfig.duration,
-                  bounce: transitionConfig.bounce,
-                }
-              : { type: 'tween', duration: transitionConfig.duration }
-            : { duration: 0 }
-        }
-      >
-        <PricingSelectMenu.Root
-          config={menuConfig}
-          expanded={expanded}
-          onExpandedChange={setExpanded}
-        >
-          <PricingSelectMenu.Backdrop />
-          <PricingSelectMenu.Content>
-            <PricingSelectMenu.Trigger>
-              {pricingVariant === 'A' ? (
-                <PricingSelectMenu.TriggerContentA
-                  selectedTier={selectedTier}
-                  showDropdownIcon={config.selectMenu.showDropdownIcon}
-                  dropdownIconRotates={config.selectMenu.dropdownIconRotates}
-                  triggerTypography={config.selectMenu.triggerTypography}
-                  syncedSubtext={config.selectMenu.syncedSubtext}
-                  triggerPaddingX={config.selectMenu.triggerPaddingX}
-                  triggerPaddingTop={config.selectMenu.triggerPaddingTop}
-                  triggerPaddingBottom={config.selectMenu.triggerPaddingBottom}
-                  triggerStyle={config.trigger}
+    <PricingSelectMenu.Root
+      config={menuConfig}
+      expanded={effectiveExpanded}
+      onExpandedChange={setExpanded}
+    >
+      <PricingSelectMenu.Backdrop />
+      <PricingSelectMenu.Content>
+        <PricingSelectMenu.Trigger>
+          <AnimatedSlotContent
+            variantKey={isVariantA ? 'trigger-a' : 'trigger-b'}
+            transition={transitionConfig}
+          >
+            {isVariantA ? (
+              <PricingSelectMenu.TriggerContentA
+                selectedTier={selectedTier}
+                showDropdownIcon={config.selectMenu.showDropdownIcon}
+                dropdownIconRotates={config.selectMenu.dropdownIconRotates}
+                triggerTypography={config.selectMenu.triggerTypography}
+                syncedSubtext={config.selectMenu.syncedSubtext}
+                triggerPaddingX={config.selectMenu.triggerPaddingX}
+                triggerPaddingTop={config.selectMenu.triggerPaddingTop}
+                triggerPaddingBottom={config.selectMenu.triggerPaddingBottom}
+                triggerStyle={config.trigger}
+                upgradeMode={config.selectMenu.upgradeMode}
+              />
+            ) : (
+              <PricingSelectMenu.TriggerContentB
+                selectedTier={selectedTier}
+                variantBConfig={config.variantB.trigger}
+                triggerStyle={config.trigger}
+              />
+            )}
+          </AnimatedSlotContent>
+        </PricingSelectMenu.Trigger>
+        <PricingSelectMenu.ContentWrapper>
+          <PricingSelectMenu.BottomSlot>
+            <AnimatedSlotContent
+              variantKey={isVariantA ? 'bottom-a' : 'bottom-b'}
+              transition={transitionConfig}
+            >
+              {isVariantA ? (
+                <PricingSelectMenu.OptionsList
+                  tiers={availableTiers}
+                  selectedId={selectedTier.id}
+                  onSelect={handleTierSelect}
+                  showHeader={config.selectMenu.showHeader}
+                  headerLabel={config.selectMenu.headerLabel}
+                  headerTextColor={config.selectMenu.headerTextColor}
+                  headerFontWeight={config.selectMenu.headerFontWeight}
+                  headerFontSize={config.selectMenu.headerFontSize}
+                  headerOpacity={config.selectMenu.headerOpacity}
+                  headerUppercase={config.selectMenu.headerUppercase}
+                  headerPaddingBottom={config.selectMenu.headerPaddingBottom}
+                  containerPadding={config.selectMenu.containerPadding}
+                  itemPaddingX={config.selectMenu.itemPaddingX}
+                  itemPaddingY={config.selectMenu.itemPaddingY}
+                  itemBorderRadius={config.selectMenu.itemBorderRadius}
+                  itemGap={config.selectMenu.itemGap}
+                  itemHoverBackground={config.selectMenu.itemHoverBackground}
+                  showSelectedIndicator={config.selectMenu.showSelectedIndicator}
+                  itemTypography={config.selectMenu.itemTypography}
+                  menuItemLabel={config.selectMenu.menuItemLabel}
                   upgradeMode={config.selectMenu.upgradeMode}
                 />
               ) : (
-                <PricingSelectMenu.TriggerContentB
+                <PricingSelectMenu.BottomContentB
                   selectedTier={selectedTier}
-                  variantBConfig={config.variantB.trigger}
-                  triggerStyle={config.trigger}
+                  variantBConfig={config.variantB.bottomSlot}
                 />
               )}
-            </PricingSelectMenu.Trigger>
-            <PricingSelectMenu.ContentWrapper>
-              <PricingSelectMenu.BottomSlot>
-                {pricingVariant === 'A' ? (
-                  <PricingSelectMenu.OptionsList
-                    tiers={availableTiers}
-                    selectedId={selectedTier.id}
-                    onSelect={handleTierSelect}
-                    showHeader={config.selectMenu.showHeader}
-                    headerLabel={config.selectMenu.headerLabel}
-                    headerTextColor={config.selectMenu.headerTextColor}
-                    headerFontWeight={config.selectMenu.headerFontWeight}
-                    headerFontSize={config.selectMenu.headerFontSize}
-                    headerOpacity={config.selectMenu.headerOpacity}
-                    headerUppercase={config.selectMenu.headerUppercase}
-                    headerPaddingBottom={config.selectMenu.headerPaddingBottom}
-                    containerPadding={config.selectMenu.containerPadding}
-                    itemPaddingX={config.selectMenu.itemPaddingX}
-                    itemPaddingY={config.selectMenu.itemPaddingY}
-                    itemBorderRadius={config.selectMenu.itemBorderRadius}
-                    itemGap={config.selectMenu.itemGap}
-                    itemHoverBackground={config.selectMenu.itemHoverBackground}
-                    showSelectedIndicator={config.selectMenu.showSelectedIndicator}
-                    itemTypography={config.selectMenu.itemTypography}
-                    menuItemLabel={config.selectMenu.menuItemLabel}
-                    upgradeMode={config.selectMenu.upgradeMode}
-                  />
-                ) : (
-                  <PricingSelectMenu.BottomContentB
-                    selectedTier={selectedTier}
-                    variantBConfig={config.variantB.bottomSlot}
-                  />
-                )}
-              </PricingSelectMenu.BottomSlot>
-            </PricingSelectMenu.ContentWrapper>
-          </PricingSelectMenu.Content>
-        </PricingSelectMenu.Root>
-      </motion.div>
-    </AnimatePresence>
+            </AnimatedSlotContent>
+          </PricingSelectMenu.BottomSlot>
+        </PricingSelectMenu.ContentWrapper>
+      </PricingSelectMenu.Content>
+    </PricingSelectMenu.Root>
   )
 }

@@ -21,7 +21,7 @@ export const DEFAULT_MODAL_CONFIG: ModalPlaygroundConfig = {
     borderRadius: 16,
     cornerShape: 'round',
     background: 'secondary',
-    shine: 'shine-1-intense',
+    shine: 'shine-3',
     depth: 'depth-gradient-2',
     shadow: 'lg',
     dropShadow: 'none',
@@ -106,6 +106,7 @@ export const DEFAULT_MODAL_CONFIG: ModalPlaygroundConfig = {
       checkmarkStyle: 'flip',
       textSlideDuration: 200,
       checkmarkDrawDuration: 250,
+      textAnimationEnabled: true,
     },
   },
   closeButton: {
@@ -122,7 +123,7 @@ export const DEFAULT_MODAL_CONFIG: ModalPlaygroundConfig = {
   },
   backdrop: {
     blur: 4,
-    opacity: 50,
+    opacity: 10,
     dismissable: true,
   },
   animation: {
@@ -209,13 +210,49 @@ export const DEFAULT_MODAL_CONFIG: ModalPlaygroundConfig = {
     checkColor: 'text-primary',
     gap: 8,
   },
+  // Global Pricing Select configuration (used when content type is 'pricing-select')
+  pricingSelect: {
+    availableTiers: ['tier-100', 'tier-200', 'tier-300', 'tier-400', 'tier-500', 'tier-600'],
+    upgradeMode: true,
+    variantA: {
+      triggerHeight: 88,
+      maxBottomHeight: 180,
+    },
+    variantB: {
+      triggerHeight: 44,
+      bottomHeight: 80,
+    },
+    // Use 'fill' to automatically fill modal content area
+    panelWidth: 'fill',
+    appearance: {
+      borderRadius: 12,
+      shine: 'shine-0',
+      background: 'secondary',
+    },
+    transition: {
+      enabled: true,
+      duration: 0.25,
+      bounce: 0.1,
+      yOffset: 4,
+    },
+    header: {
+      show: true,
+      text: 'Upgrade fee',
+      fontSize: 'sm',
+      fontWeight: 'medium',
+      textColor: 'tertiary',
+      opacity: 80,
+      marginBottom: 12,
+    },
+  },
   stages: {
-    // Stage 1: Limit reached - single "Upgrade" button
+    // Stage 1: Limit reached - Pricing select variant A (expandable dropdown)
+    // Height: triggerHeight(88) + maxBottomHeight(180) = 268px when expanded
     1: {
-      headerTitle: 'Limit reached',
-      headerSubheader: "You've used up your monthly credits. Upgrade to keep creating.",
-      contentA: { type: 'wireframe', height: 48, lineCount: 3 },
-      contentB: { type: 'checklist', height: 32, lineCount: 2 },
+      headerTitle: 'Out of credits',
+      headerSubheader: 'You need 80 more credits to generate this video. Upgrade to keep going.',
+      contentA: { type: 'pricing-select', height: 268, pricingVariant: 'A' },
+      contentB: { type: 'checklist', height: 32, lineCount: 2, show: true },
       buttons: {
         primary: { text: 'Upgrade', showSpinner: false, showCheckmark: false, showText: true },
         secondary: null,
@@ -223,24 +260,26 @@ export const DEFAULT_MODAL_CONFIG: ModalPlaygroundConfig = {
       asset: { coinStackStateId: 1 },
       pushButtonsToBottom: true,
     },
-    // Stage 2: Review Modal - "Back" + "Upgrade"
+    // Stage 2: Review Modal - Pricing select variant B (static card, no header)
+    // Height: triggerHeight(44) + bottomHeight(80) = 124px
     2: {
-      headerTitle: 'Review Your Upgrade',
+      headerTitle: 'Upgrade to Pro 2x',
       headerSubheader: 'Confirm your selection below',
-      contentA: { type: 'wireframe', height: 64, lineCount: 4 },
-      contentB: { type: 'wireframe', height: 48, lineCount: 3 },
+      contentA: { type: 'pricing-select', height: 124, pricingVariant: 'B' },
+      contentB: { type: 'wireframe', height: 48, lineCount: 3, show: false },
       buttons: {
         primary: { text: 'Upgrade', showSpinner: false, showCheckmark: false, showText: true },
         secondary: 'Back',
       },
       asset: { coinStackStateId: 1 },
     },
-    // Stage 3: Review Modal (same content) - Processing
+    // Stage 3: Review Modal - Processing with variant B (no header)
+    // Height: triggerHeight(44) + bottomHeight(80) = 124px
     3: {
-      headerTitle: 'Review Your Upgrade',
+      headerTitle: 'Upgrade to Pro 2x',
       headerSubheader: 'Confirm your selection below',
-      contentA: { type: 'wireframe', height: 64, lineCount: 4 },
-      contentB: { type: 'wireframe', height: 48, lineCount: 3 },
+      contentA: { type: 'pricing-select', height: 124, pricingVariant: 'B' },
+      contentB: { type: 'wireframe', height: 48, lineCount: 3, show: false },
       buttons: {
         primary: { text: 'Upgrading', showSpinner: true, showCheckmark: false, showText: true },
         secondary: 'Back',
@@ -249,8 +288,8 @@ export const DEFAULT_MODAL_CONFIG: ModalPlaygroundConfig = {
     },
     // Stage 4: Confirmation Modal - Checkmark only
     4: {
-      headerTitle: 'Upgrade Complete',
-      headerSubheader: "You're all set to start creating",
+      headerTitle: 'You are all set',
+      headerSubheader: 'Your plan has been upgraded with +100 credits. Keep creating amazing demos.',
       contentA: { type: 'pro-card', height: 80 },
       contentB: { type: 'wireframe', height: 16, lineCount: 1, show: false },
       buttons: {
@@ -261,8 +300,8 @@ export const DEFAULT_MODAL_CONFIG: ModalPlaygroundConfig = {
     },
     // Stage 5: Confirmation Modal (same content) - "Let's create"
     5: {
-      headerTitle: 'Upgrade Complete',
-      headerSubheader: "You're all set to start creating",
+      headerTitle: 'You are all set',
+      headerSubheader: 'Your plan has been upgraded with +100 credits. Keep creating amazing demos.',
       contentA: { type: 'pro-card', height: 80 },
       contentB: { show: false, type: 'wireframe', height: 16, lineCount: 1 },
       buttons: {

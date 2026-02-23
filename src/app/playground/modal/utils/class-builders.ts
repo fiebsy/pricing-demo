@@ -74,6 +74,8 @@ export function buildContainerStyles(config: ModalPlaygroundConfig): React.CSSPr
     borderStyle: container.borderWidth > 0 ? 'solid' : 'none',
     borderColor,
     filter: dropShadowFilter,
+    // Allow absolute-positioned children (like expanded pricing select) to overflow
+    overflow: 'visible',
   }
 }
 

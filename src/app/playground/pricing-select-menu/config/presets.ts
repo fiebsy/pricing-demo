@@ -91,11 +91,11 @@ export const DEFAULT_PRICING_SELECT_MENU_PLAYGROUND_CONFIG: PricingSelectMenuPla
   },
   appearance: {
     borderRadius: 'xl',
-    shadow: 'lg',
-    shine: 'shine-1-subtle',
+    shadow: 'none',
+    shine: 'shine-0',
     background: 'secondary',
-    gradient: 'subtle-depth-sm',
-    gradientColor: 'secondary',
+    gradient: 'subtle-depth-md',
+    gradientColor: 'tertiary',
     squircle: false,
   },
   bottomSlot: {
@@ -108,7 +108,7 @@ export const DEFAULT_PRICING_SELECT_MENU_PLAYGROUND_CONFIG: PricingSelectMenuPla
     borderRadius: 12,
     inset: 4,
     borderWidth: 1,
-    borderColor: 'secondary',
+    borderColor: 'primary',
   },
   trigger: {
     collapsed: {
@@ -132,9 +132,9 @@ export const DEFAULT_PRICING_SELECT_MENU_PLAYGROUND_CONFIG: PricingSelectMenuPla
     slowMo: false,
     debugContainer: {
       enabled: true,
-      showLines: true,
+      showLines: false,
       width: 420,
-      padding: 10,
+      padding: 0,
       fixedHeight: true,
       height: 360,
       header: {
@@ -161,7 +161,7 @@ export const DEFAULT_PRICING_SELECT_MENU_PLAYGROUND_CONFIG: PricingSelectMenuPla
       planName: {
         show: true,
         displayMode: 'text',
-        fontSize: 'xs',
+        fontSize: 'sm',
         fontWeight: 'medium',
         textColor: 'tertiary',
         opacity: '100',
@@ -170,7 +170,7 @@ export const DEFAULT_PRICING_SELECT_MENU_PLAYGROUND_CONFIG: PricingSelectMenuPla
       credits: {
         show: true,
         displayMode: 'text',
-        fontSize: 'xs',
+        fontSize: 'sm',
         fontWeight: 'normal',
         textColor: 'tertiary',
         opacity: '60',
@@ -190,7 +190,8 @@ export const DEFAULT_PRICING_SELECT_MENU_PLAYGROUND_CONFIG: PricingSelectMenuPla
     itemPaddingY: 12,
     itemBorderRadius: 8,
     itemGap: 0,
-    itemHoverBackground: 'quaternary',
+    itemHoverBackground: 'tertiary',
+    triggerHoverBackground: 'tertiary',
     menuItemLabel: {
       layout: 'inline',
       separator: '',
@@ -235,7 +236,7 @@ export const DEFAULT_PRICING_SELECT_MENU_PLAYGROUND_CONFIG: PricingSelectMenuPla
       priceSuffix: {
         text: 'due today',
         show: true,
-        fontSize: 'xs',
+        fontSize: 'sm',
         fontWeight: 'normal',
         textColor: 'tertiary',
         opacity: '60',

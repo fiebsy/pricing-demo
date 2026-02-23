@@ -8,7 +8,6 @@
 
 'use client'
 
-import { motion } from 'motion/react'
 import { HugeIcon } from '@/components/ui/core/primitives/icon'
 import Tick02Icon from '@hugeicons-pro/core-stroke-rounded/Tick02Icon'
 import { cn } from '@/lib/utils'
@@ -57,17 +56,9 @@ export function Checklist({ config, duration = 0.4, bounce = 0.1 }: ChecklistPro
   } = config
 
   return (
-    <motion.div
-      layout
+    <div
       className="flex w-full flex-col"
       style={{ gap }}
-      transition={{
-        layout: {
-          type: 'spring',
-          duration,
-          bounce,
-        },
-      }}
     >
       {/* Title */}
       <span
@@ -102,6 +93,6 @@ export function Checklist({ config, duration = 0.4, bounce = 0.1 }: ChecklistPro
           </div>
         ))}
       </div>
-    </motion.div>
+    </div>
   )
 }
