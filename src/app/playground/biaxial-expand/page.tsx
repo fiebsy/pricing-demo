@@ -16,12 +16,14 @@ import {
 
 import { cn } from '@/lib/utils'
 import { DemoSwitcher } from './core/demo-variants'
+import { VariantControls } from './components/variant-controls'
 import type {
   BiaxialExpandPlaygroundConfig,
   FontSizeOption,
   FontWeightOption,
   TextColorOption,
   OpacityOption,
+  PricingVariantId,
 } from './config/types'
 import {
   DEFAULT_BIAXIAL_EXPAND_PLAYGROUND_CONFIG,
@@ -124,10 +126,13 @@ export default function BiaxialExpandPlayground() {
   const [activePresetId, setActivePresetId] = useState<string | null>('default')
   const [resetKey, setResetKey] = useState(0)
   const [autoOpen, setAutoOpen] = useState(false)
+  const [pricingVariant, setPricingVariant] = useState<PricingVariantId>('A')
 
   const handleChange = useCallback((event: ControlChangeEvent) => {
     // Handle preset-related changes
     if (event.controlId === 'demo.variant') {
+      // Reset pricing variant when switching demo types
+      setPricingVariant('A')
       // When demo variant changes, find matching preset if available
       const variantPresetMap: Record<string, string> = {
         'command-menu': 'command-menu',
@@ -222,6 +227,10 @@ export default function BiaxialExpandPlayground() {
     setAutoOpen(enabled)
   }, [])
 
+  const handlePricingVariantChange = useCallback((variantId: PricingVariantId) => {
+    setPricingVariant(variantId)
+  }, [])
+
   // Calculate effective widths based on debug container and sync settings
   const effectiveConfig = useMemo(() => {
     let panelWidth = config.layout.panelWidth
@@ -307,7 +316,7 @@ export default function BiaxialExpandPlayground() {
               </div>
             )}
 
-            <DemoSwitcher config={effectiveConfig} autoOpen={autoOpen} />
+            <DemoSwitcher config={effectiveConfig} autoOpen={autoOpen} pricingVariant={pricingVariant} />
 
             {/* Right test block - gets pushed when RightSlot expands */}
             {config.rightSlot.enabled && (
@@ -326,7 +335,7 @@ export default function BiaxialExpandPlayground() {
             </div>
           )}
 
-          <DemoSwitcher config={effectiveConfig} autoOpen={autoOpen} />
+          <DemoSwitcher config={effectiveConfig} autoOpen={autoOpen} pricingVariant={pricingVariant} />
 
           {/* Right test block - gets pushed when RightSlot expands */}
           {config.rightSlot.enabled && (
@@ -335,6 +344,14 @@ export default function BiaxialExpandPlayground() {
             </div>
           )}
         </div>
+      )}
+
+      {/* A/B Variant Controls - shown only for pricing-select variant */}
+      {config.demo.variant === 'pricing-select' && (
+        <VariantControls
+          activeVariant={pricingVariant}
+          onVariantChange={handlePricingVariantChange}
+        />
       )}
     </PlaygroundLayout>
   )

@@ -8,6 +8,7 @@
 
 import * as React from 'react'
 import { useState } from 'react'
+import { motion, AnimatePresence } from 'motion/react'
 import { cn } from '@/lib/utils'
 import { HugeIcon } from '@/components/ui/core/primitives/icon'
 import ArrowUp01Icon from '@hugeicons-pro/core-stroke-rounded/ArrowUp01Icon'
@@ -36,6 +37,7 @@ import type {
   MenuItemLabelConfig,
   BadgeColor,
   LabelLayout,
+  PricingVariantId,
 } from '../config/types'
 import {
   SAMPLE_COMMANDS,
@@ -460,6 +462,7 @@ export function CustomDemo({ config, autoOpen }: CustomDemoProps) {
 interface PricingSelectDemoProps {
   config: BiaxialExpandPlaygroundConfig
   autoOpen?: boolean
+  pricingVariant?: PricingVariantId
 }
 
 interface PricingSelectTriggerProps {
@@ -708,6 +711,80 @@ function TextSegment({ text, config }: TextSegmentProps) {
   )
 }
 
+// ============================================================================
+// PRICING SELECT B - PLACEHOLDER COMPONENTS
+// ============================================================================
+
+/**
+ * Placeholder trigger for Pricing Select B variant.
+ * Displays a static card header with wireframe-style content
+ * instead of the interactive pricing select trigger.
+ */
+function PricingSelectBTrigger() {
+  return (
+    <div className="flex flex-col items-start justify-center w-full h-full px-4 gap-2">
+      <div className="h-2.5 w-20 rounded-full bg-quaternary/60" />
+      <div className="h-4 w-28 rounded-full bg-quaternary/40" />
+      <div className="h-2 w-16 rounded-full bg-quaternary/30" />
+    </div>
+  )
+}
+
+/**
+ * Placeholder bottom slot content for Pricing Select B variant.
+ * Displays static card content with wireframe bars instead of
+ * the interactive tier selection list.
+ */
+function PricingSelectBContent({ containerPadding = 4 }: { containerPadding?: number }) {
+  return (
+    <div className="flex flex-col gap-3" style={{ padding: containerPadding }}>
+      <div className="flex flex-col gap-2 px-3 pt-2">
+        <div className="h-2 w-12 rounded-full bg-quaternary/30" />
+        <div className="h-2.5 w-full rounded-full bg-quaternary/40" />
+        <div className="h-2.5 w-full rounded-full bg-quaternary/40" />
+        <div className="h-2.5 w-3/4 rounded-full bg-quaternary/40" />
+      </div>
+      <div className="flex flex-col gap-2 px-3 pb-2">
+        <div className="h-2 w-16 rounded-full bg-quaternary/30" />
+        <div className="h-2.5 w-full rounded-full bg-quaternary/40" />
+        <div className="h-2.5 w-2/3 rounded-full bg-quaternary/40" />
+      </div>
+    </div>
+  )
+}
+
+/**
+ * Animated slot wrapper that crossfades between A and B content.
+ * Uses AnimatePresence with popLayout mode for smooth overlapping transitions.
+ * The container uses layout animation for smooth height morphing.
+ */
+function AnimatedSlotContent({
+  variantKey,
+  children,
+}: {
+  variantKey: string
+  children: React.ReactNode
+}) {
+  return (
+    <AnimatePresence mode="popLayout" initial={false}>
+      <motion.div
+        key={variantKey}
+        initial={{ opacity: 0, y: 6 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -6 }}
+        transition={{
+          type: 'spring',
+          duration: 0.35,
+          bounce: 0.1,
+        }}
+        className="w-full"
+      >
+        {children}
+      </motion.div>
+    </AnimatePresence>
+  )
+}
+
 function PricingSelectOptions({
   tiers,
   selectedId,
@@ -814,7 +891,7 @@ function PricingSelectOptions({
   )
 }
 
-export function PricingSelectDemo({ config, autoOpen }: PricingSelectDemoProps) {
+export function PricingSelectDemo({ config, autoOpen, pricingVariant = 'A' }: PricingSelectDemoProps) {
   // Filter tiers by availableTiers config
   const availableTiers = React.useMemo(() => {
     const tierIds = config.selectMenu.availableTiers
@@ -832,6 +909,8 @@ export function PricingSelectDemo({ config, autoOpen }: PricingSelectDemoProps) 
   }, [availableTiers, selectedTier.id])
 
   const biaxialConfig = playgroundConfigToBiaxialConfig(config)
+
+  const isVariantA = pricingVariant === 'A'
 
   return (
     <BiaxialExpand.Root config={biaxialConfig} expanded={autoOpen || undefined}>
@@ -852,40 +931,52 @@ export function PricingSelectDemo({ config, autoOpen }: PricingSelectDemoProps) 
         )}
 
         <BiaxialExpand.Trigger>
-          <PricingSelectTrigger
-            selectedTier={selectedTier}
-            showDropdownIcon={config.selectMenu.showDropdownIcon}
-            dropdownIconRotates={config.selectMenu.dropdownIconRotates}
-            triggerTypography={config.selectMenu.triggerTypography}
-            syncedSubtext={config.selectMenu.syncedSubtext}
-          />
+          <AnimatedSlotContent variantKey={pricingVariant === 'A' ? 'trigger-a' : 'trigger-b'}>
+            {isVariantA ? (
+              <PricingSelectTrigger
+                selectedTier={selectedTier}
+                showDropdownIcon={config.selectMenu.showDropdownIcon}
+                dropdownIconRotates={config.selectMenu.dropdownIconRotates}
+                triggerTypography={config.selectMenu.triggerTypography}
+                syncedSubtext={config.selectMenu.syncedSubtext}
+              />
+            ) : (
+              <PricingSelectBTrigger />
+            )}
+          </AnimatedSlotContent>
         </BiaxialExpand.Trigger>
 
         {config.bottomSlot.enabled && (
           <BiaxialExpand.ContentWrapper>
             <BiaxialExpand.BottomSlot>
-              <PricingSelectOptions
-                tiers={availableTiers}
-                selectedId={selectedTier.id}
-                onSelect={setSelectedTier}
-                showHeader={config.selectMenu.showHeader}
-                headerLabel={config.selectMenu.headerLabel}
-                headerTextColor={config.selectMenu.headerTextColor}
-                headerFontWeight={config.selectMenu.headerFontWeight}
-                headerFontSize={config.selectMenu.headerFontSize}
-                headerOpacity={config.selectMenu.headerOpacity}
-                headerUppercase={config.selectMenu.headerUppercase}
-                headerPaddingBottom={config.selectMenu.headerPaddingBottom}
-                containerPadding={config.selectMenu.containerPadding}
-                itemPaddingX={config.selectMenu.itemPaddingX}
-                itemPaddingY={config.selectMenu.itemPaddingY}
-                itemBorderRadius={config.selectMenu.itemBorderRadius}
-                itemGap={config.selectMenu.itemGap}
-                itemHoverBackground={config.selectMenu.itemHoverBackground}
-                showSelectedIndicator={config.selectMenu.showSelectedIndicator}
-                itemTypography={config.selectMenu.itemTypography}
-                menuItemLabel={config.selectMenu.menuItemLabel}
-              />
+              <AnimatedSlotContent variantKey={pricingVariant === 'A' ? 'bottom-a' : 'bottom-b'}>
+                {isVariantA ? (
+                  <PricingSelectOptions
+                    tiers={availableTiers}
+                    selectedId={selectedTier.id}
+                    onSelect={setSelectedTier}
+                    showHeader={config.selectMenu.showHeader}
+                    headerLabel={config.selectMenu.headerLabel}
+                    headerTextColor={config.selectMenu.headerTextColor}
+                    headerFontWeight={config.selectMenu.headerFontWeight}
+                    headerFontSize={config.selectMenu.headerFontSize}
+                    headerOpacity={config.selectMenu.headerOpacity}
+                    headerUppercase={config.selectMenu.headerUppercase}
+                    headerPaddingBottom={config.selectMenu.headerPaddingBottom}
+                    containerPadding={config.selectMenu.containerPadding}
+                    itemPaddingX={config.selectMenu.itemPaddingX}
+                    itemPaddingY={config.selectMenu.itemPaddingY}
+                    itemBorderRadius={config.selectMenu.itemBorderRadius}
+                    itemGap={config.selectMenu.itemGap}
+                    itemHoverBackground={config.selectMenu.itemHoverBackground}
+                    showSelectedIndicator={config.selectMenu.showSelectedIndicator}
+                    itemTypography={config.selectMenu.itemTypography}
+                    menuItemLabel={config.selectMenu.menuItemLabel}
+                  />
+                ) : (
+                  <PricingSelectBContent containerPadding={config.selectMenu.containerPadding} />
+                )}
+              </AnimatedSlotContent>
             </BiaxialExpand.BottomSlot>
           </BiaxialExpand.ContentWrapper>
         )}
@@ -901,16 +992,17 @@ export function PricingSelectDemo({ config, autoOpen }: PricingSelectDemoProps) 
 interface DemoSwitcherProps {
   config: BiaxialExpandPlaygroundConfig
   autoOpen?: boolean
+  pricingVariant?: PricingVariantId
 }
 
-export function DemoSwitcher({ config, autoOpen }: DemoSwitcherProps) {
+export function DemoSwitcher({ config, autoOpen, pricingVariant }: DemoSwitcherProps) {
   switch (config.demo.variant) {
     case 'command-menu':
       return <CommandMenuDemo config={config} autoOpen={autoOpen} />
     case 'dashboard-metric':
       return <DashboardMetricDemo config={config} autoOpen={autoOpen} />
     case 'pricing-select':
-      return <PricingSelectDemo config={config} autoOpen={autoOpen} />
+      return <PricingSelectDemo config={config} autoOpen={autoOpen} pricingVariant={pricingVariant} />
     case 'custom':
       return <CustomDemo config={config} autoOpen={autoOpen} />
     default:

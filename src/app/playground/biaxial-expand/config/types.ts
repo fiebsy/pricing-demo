@@ -30,6 +30,9 @@ export type DemoVariant = 'command-menu' | 'dashboard-metric' | 'custom' | 'pric
 export type PageBackground = 'primary' | 'secondary' | 'tertiary'
 export type HeightMode = 'fixed' | 'auto' | 'dynamic'
 
+/** Pricing select A/B variant ID for toggling between select menu and card display */
+export type PricingVariantId = 'A' | 'B'
+
 // ============================================================================
 // TRIGGER CONFIGURATION
 // ============================================================================
