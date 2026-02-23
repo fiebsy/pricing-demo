@@ -40,9 +40,17 @@ function setNestedValue<T>(obj: T, path: string, value: unknown): T {
 
   for (let i = 0; i < keys.length - 1; i++) {
     const key = keys[i]
+    const nextKey = keys[i + 1]
+    const nextIsArrayIndex = /^\d+$/.test(nextKey)
+
     if (typeof current[key] !== 'object' || current[key] === null) {
-      current[key] = {}
+      // Create array or object based on next key
+      current[key] = nextIsArrayIndex ? [] : {}
+    } else if (Array.isArray(current[key])) {
+      // Clone array
+      current[key] = [...(current[key] as unknown[])]
     } else {
+      // Clone object
       current[key] = { ...(current[key] as Record<string, unknown>) }
     }
     current = current[key] as Record<string, unknown>
