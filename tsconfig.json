@@ -36,8 +36,7 @@
     ".next/dev/types/**/*.ts"
   ],
   "exclude": [
-    "node_modules",
-    "src/components/ui/deprecated/**"
+    "node_modules"
   ]
 }
 
