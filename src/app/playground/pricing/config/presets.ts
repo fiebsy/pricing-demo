@@ -13,7 +13,7 @@ import type { PricingPlaygroundConfig, PricingPresetMeta } from './types'
 export const DEFAULT_PRICING_CONFIG: PricingPlaygroundConfig = {
   container: {
     width: 380,
-    height: 460,
+    height: 480,
     padding: 24,
     gap: 24,
     borderRadius: 16,
@@ -270,7 +270,7 @@ export const DEFAULT_PRICING_CONFIG: PricingPlaygroundConfig = {
     },
     'flow-b': {
       headerTitle: 'Ready to upgrade?',
-      headerSubheader: 'Confirm to add {credits} credits.',
+      headerSubheader: 'Confirm to add {additionalCredits} credits.',
       contentA: {
         show: true,
         type: 'pricing-select',
