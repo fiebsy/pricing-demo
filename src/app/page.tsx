@@ -26,6 +26,16 @@ const PLAYGROUNDS = [
     description: 'Animated coin stack asset with spring transitions',
     href: '/playground/coin-stack',
   },
+  {
+    title: 'Video Generator (Semantic)',
+    description: 'Arcade Video Generator UI using semantic design tokens',
+    href: '/demo',
+  },
+  {
+    title: 'Video Generator (Raw)',
+    description: 'Arcade Video Generator UI with original gray-scale colors',
+    href: '/demo-raw',
+  },
 ]
 
 export default function HomePage() {

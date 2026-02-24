@@ -15,161 +15,15 @@ import { useMemo, useEffect, useState } from 'react'
 
 import {
   PricingSelectMenu,
+  UPGRADE_FLOW_PRESET,
+  AnimatedSlotContent,
   type PricingSelectMenuConfig,
   type PricingTier,
+  type VariantTransitionConfig,
 } from '@/components/ui/features/pricing-select-menu'
 
 import type { ContentSlotConfig, PricingSelectConfig } from '../config/types'
 import { PRICING_TIERS } from './pricing-tiers'
-
-// ============================================================================
-// DEFAULT CONFIGS (for variant B display)
-// ============================================================================
-
-const DEFAULT_VARIANT_B_TRIGGER = {
-  planRow: {
-    show: true,
-    leftText: '',
-    rightSource: 'additionalCredits' as const,
-    leftFontSize: 'sm' as const,
-    leftFontWeight: 'medium' as const,
-    leftTextColor: 'primary' as const,
-    leftOpacity: '100' as const,
-    rightFontSize: 'sm' as const,
-    rightFontWeight: 'normal' as const,
-    rightTextColor: 'tertiary' as const,
-    rightOpacity: '60' as const,
-  },
-  paddingX: 20,
-  paddingTop: 16,
-  paddingBottom: 12,
-}
-
-const DEFAULT_VARIANT_B_BOTTOM = {
-  dueRow: {
-    show: true,
-    leftText: 'Due today',
-    rightSource: 'upgradeFee' as const,
-    leftFontSize: 'sm' as const,
-    leftFontWeight: 'normal' as const,
-    leftTextColor: 'tertiary' as const,
-    leftOpacity: '100' as const,
-    rightFontSize: 'sm' as const,
-    rightFontWeight: 'semibold' as const,
-    rightTextColor: 'primary' as const,
-    rightOpacity: '100' as const,
-  },
-  subtext: {
-    show: true,
-    template: 'Then {price}/mo. Cancel anytime.',
-    fontSize: 'sm' as const,
-    fontWeight: 'normal' as const,
-    textColor: 'tertiary' as const,
-    opacity: '60' as const,
-  },
-  rowGap: 4,
-  paddingX: 16,
-  paddingTop: 12,
-  paddingBottom: 12,
-}
-
-const DEFAULT_TRIGGER_TYPOGRAPHY = {
-  label: {
-    text: '',
-    show: false,
-    fontSize: 'sm' as const,
-    fontWeight: 'semibold' as const,
-    textColor: 'primary' as const,
-  },
-  price: {
-    prefix: '$',
-    show: true,
-    fontSize: '3xl' as const,
-    fontWeight: 'medium' as const,
-    textColor: 'primary' as const,
-  },
-  priceSuffix: {
-    text: 'due today',
-    show: true,
-    fontSize: 'sm' as const,
-    fontWeight: 'normal' as const,
-    textColor: 'tertiary' as const,
-    opacity: '60' as const,
-  },
-  subtext: {
-    text: '',
-    show: false,
-    fontSize: 'xs' as const,
-    fontWeight: 'normal' as const,
-    textColor: 'tertiary' as const,
-    opacity: '60' as const,
-  },
-  priceRowAlign: 'center' as const,
-  priceRowGap: 8,
-  rowGap: 4,
-}
-
-const DEFAULT_SYNCED_SUBTEXT = {
-  syncWithSelection: true,
-  separator: '',
-  gap: 4,
-  planName: {
-    show: true,
-    displayMode: 'text' as const,
-    fontSize: 'sm' as const,
-    fontWeight: 'medium' as const,
-    textColor: 'tertiary' as const,
-    opacity: '100' as const,
-    badgeColor: 'brand' as const,
-  },
-  credits: {
-    show: true,
-    displayMode: 'text' as const,
-    fontSize: 'sm' as const,
-    fontWeight: 'normal' as const,
-    textColor: 'tertiary' as const,
-    opacity: '60' as const,
-    badgeColor: 'gray' as const,
-  },
-}
-
-const DEFAULT_ITEM_TYPOGRAPHY = {
-  label: {
-    fontSize: 'sm' as const,
-    fontWeight: 'normal' as const,
-    textColor: 'primary' as const,
-  },
-  price: {
-    fontSize: 'sm' as const,
-    fontWeight: 'normal' as const,
-    textColor: 'tertiary' as const,
-    opacity: '100' as const,
-  },
-}
-
-const DEFAULT_MENU_ITEM_LABEL = {
-  layout: 'inline' as const,
-  separator: '',
-  gap: 6,
-  planName: {
-    show: true,
-    displayMode: 'text' as const,
-    fontSize: 'sm' as const,
-    fontWeight: 'medium' as const,
-    textColor: 'primary' as const,
-    opacity: '100' as const,
-    badgeColor: 'brand' as const,
-  },
-  credits: {
-    show: true,
-    displayMode: 'text' as const,
-    fontSize: 'sm' as const,
-    fontWeight: 'normal' as const,
-    textColor: 'tertiary' as const,
-    opacity: '60' as const,
-    badgeColor: 'gray' as const,
-  },
-}
 
 // ============================================================================
 // COMPONENT
@@ -300,6 +154,15 @@ export function PricingSelectSlot({
     }
   }, [globalConfig, isVariantA, effectivePanelWidth])
 
+  // Build transition config for AnimatedSlotContent
+  const transitionConfig: VariantTransitionConfig = {
+    enabled: globalConfig.transition.enabled,
+    type: 'spring',
+    duration: globalConfig.transition.duration,
+    bounce: globalConfig.transition.bounce,
+    yOffset: globalConfig.transition.yOffset,
+  }
+
   // Header config
   const headerConfig = globalConfig.header
 
@@ -345,57 +208,67 @@ export function PricingSelectSlot({
         <PricingSelectMenu.Backdrop />
         <PricingSelectMenu.Content>
           <PricingSelectMenu.Trigger>
-            {isVariantA ? (
-              <PricingSelectMenu.TriggerContentA
-                selectedTier={selectedTier}
-                showDropdownIcon={true}
-                dropdownIconRotates={true}
-                triggerTypography={DEFAULT_TRIGGER_TYPOGRAPHY}
-                syncedSubtext={DEFAULT_SYNCED_SUBTEXT}
-                triggerPaddingX={20}
-                triggerPaddingTop={0}
-                triggerPaddingBottom={0}
-                upgradeMode={globalConfig.upgradeMode}
-              />
-            ) : (
-              <PricingSelectMenu.TriggerContentB
-                selectedTier={selectedTier}
-                variantBConfig={DEFAULT_VARIANT_B_TRIGGER}
-              />
-            )}
-          </PricingSelectMenu.Trigger>
-          <PricingSelectMenu.ContentWrapper>
-            <PricingSelectMenu.BottomSlot>
+            <AnimatedSlotContent
+              variantKey={isVariantA ? 'trigger-a' : 'trigger-b'}
+              transition={transitionConfig}
+            >
               {isVariantA ? (
-                <PricingSelectMenu.OptionsList
-                  tiers={availableTiers}
-                  selectedId={selectedTier.id}
-                  onSelect={handleTierSelect}
-                  showHeader={true}
-                  headerLabel="Plans"
-                  headerTextColor="tertiary"
-                  headerFontWeight="medium"
-                  headerFontSize="xs"
-                  headerOpacity="40"
-                  headerUppercase={false}
-                  headerPaddingBottom={0}
-                  containerPadding={4}
-                  itemPaddingX={12}
-                  itemPaddingY={12}
-                  itemBorderRadius={8}
-                  itemGap={0}
-                  itemHoverBackground="tertiary"
-                  showSelectedIndicator={false}
-                  itemTypography={DEFAULT_ITEM_TYPOGRAPHY}
-                  menuItemLabel={DEFAULT_MENU_ITEM_LABEL}
+                <PricingSelectMenu.TriggerContentA
+                  selectedTier={selectedTier}
+                  showDropdownIcon={true}
+                  dropdownIconRotates={true}
+                  triggerTypography={UPGRADE_FLOW_PRESET.typography.trigger}
+                  syncedSubtext={UPGRADE_FLOW_PRESET.typography.syncedSubtext}
+                  triggerPaddingX={20}
+                  triggerPaddingTop={0}
+                  triggerPaddingBottom={0}
                   upgradeMode={globalConfig.upgradeMode}
                 />
               ) : (
-                <PricingSelectMenu.BottomContentB
+                <PricingSelectMenu.TriggerContentB
                   selectedTier={selectedTier}
-                  variantBConfig={DEFAULT_VARIANT_B_BOTTOM}
+                  variantBConfig={UPGRADE_FLOW_PRESET.variantB.trigger}
                 />
               )}
+            </AnimatedSlotContent>
+          </PricingSelectMenu.Trigger>
+          <PricingSelectMenu.ContentWrapper>
+            <PricingSelectMenu.BottomSlot>
+              <AnimatedSlotContent
+                variantKey={isVariantA ? 'options-list' : 'bottom-b'}
+                transition={transitionConfig}
+              >
+                {isVariantA ? (
+                  <PricingSelectMenu.OptionsList
+                    tiers={availableTiers}
+                    selectedId={selectedTier.id}
+                    onSelect={handleTierSelect}
+                    showHeader={true}
+                    headerLabel="Plans"
+                    headerTextColor="tertiary"
+                    headerFontWeight="medium"
+                    headerFontSize="xs"
+                    headerOpacity="40"
+                    headerUppercase={false}
+                    headerPaddingBottom={0}
+                    containerPadding={4}
+                    itemPaddingX={12}
+                    itemPaddingY={12}
+                    itemBorderRadius={8}
+                    itemGap={0}
+                    itemHoverBackground="tertiary"
+                    showSelectedIndicator={false}
+                    itemTypography={UPGRADE_FLOW_PRESET.typography.items}
+                    menuItemLabel={UPGRADE_FLOW_PRESET.typography.menuItemLabel}
+                    upgradeMode={globalConfig.upgradeMode}
+                  />
+                ) : (
+                  <PricingSelectMenu.BottomContentB
+                    selectedTier={selectedTier}
+                    variantBConfig={UPGRADE_FLOW_PRESET.variantB.bottom}
+                  />
+                )}
+              </AnimatedSlotContent>
             </PricingSelectMenu.BottomSlot>
           </PricingSelectMenu.ContentWrapper>
         </PricingSelectMenu.Content>

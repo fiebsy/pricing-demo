@@ -15,7 +15,15 @@ import {
   BADGE_COLOR_CLASSES,
   OPACITY_VALUES,
 } from '../constants'
-import type { TextSegmentConfig } from '../types'
+import type { TextSegmentConfig, TextColorOption } from '../types'
+
+/** Maps text color options to CSS variable names for shimmer animation */
+const TEXT_COLOR_VARS: Record<TextColorOption, string> = {
+  primary: 'var(--text-color-primary)',
+  secondary: 'var(--text-color-secondary)',
+  tertiary: 'var(--text-color-tertiary)',
+  brand: 'var(--text-color-brand-primary)',
+}
 
 export interface TextSegmentProps {
   text: string
@@ -45,10 +53,23 @@ export const TextSegment: React.FC<TextSegmentProps> = ({ text, config }) => {
     )
   }
 
+  // Build style object - include shimmer base color if shimmer is enabled
+  const style: React.CSSProperties = {
+    opacity: OPACITY_VALUES[config.opacity],
+    ...(config.shimmer && {
+      '--shimmer-base-color': TEXT_COLOR_VARS[config.textColor],
+    } as React.CSSProperties),
+  }
+
   return (
     <span
-      className={cn(baseClasses, TEXT_COLOR_CLASSES[config.textColor])}
-      style={{ opacity: OPACITY_VALUES[config.opacity] }}
+      className={cn(
+        baseClasses,
+        // Only apply text color class when shimmer is disabled (shimmer handles color via gradient)
+        !config.shimmer && TEXT_COLOR_CLASSES[config.textColor],
+        config.shimmer && 'animate-text-shimmer-subtle'
+      )}
+      style={style}
     >
       {text}
     </span>

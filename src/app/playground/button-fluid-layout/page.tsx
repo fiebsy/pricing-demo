@@ -1,11 +1,13 @@
 /**
  * Button Fluid Layout Playground
  *
- * Uses the production FluidButtonGroup component.
+ * Uses the production FluidButtonGroup component with the new
+ * useButtonStateMachine hook for automatic state management.
  *
  * Features:
  * - Two buttons fill a configurable container width
  * - Toggling visibility causes remaining button to expand fluidly
+ * - State machine eliminates manual showBothButtons sync
  * - Timing presets (default, snappy, smooth) or custom timing
  * - Optional exit blur effect
  */
@@ -18,19 +20,22 @@ import {
   PlaygroundLayout,
   type ControlChangeEvent,
 } from '@/components/ui/patterns/control-panel'
-import { HugeIcon } from '@/components/ui/core/primitives/icon'
 import { Button } from '@/components/ui/core/primitives/button'
 import { FluidButtonGroup } from '@/components/ui/core/primitives/fluid-button-group'
-import ViewIcon from '@hugeicons-pro/core-stroke-rounded/ViewIcon'
-import ViewOffIcon from '@hugeicons-pro/core-stroke-rounded/ViewOffIcon'
+import {
+  useButtonStateMachine,
+  useAllStateIds,
+  AnimatedRightButton,
+  type ButtonStateId,
+} from '@/components/ui/core/primitives/fluid-button-layout'
 
 import type { ButtonFluidLayoutConfig, FluidBlurConfig } from './config/types'
-import { AnimatedRightButton } from './core/animated-right-button'
 import {
   DEFAULT_BUTTON_FLUID_LAYOUT_CONFIG,
   BUTTON_FLUID_LAYOUT_PRESETS,
 } from './config/presets'
 import { buildButtonFluidLayoutPanelConfig } from './panels/panel-config'
+import { useAutoTransitions } from './hooks/use-auto-transitions'
 
 // ============================================================================
 // Utility: Deep set nested value
@@ -56,71 +61,25 @@ function setNestedValue<T>(obj: T, path: string, value: unknown): T {
 }
 
 // ============================================================================
-// Toggle Controls
-// ============================================================================
-
-interface ToggleControlsProps {
-  showBothButtons: boolean
-  onShowBoth: () => void
-  onShowSingle: () => void
-}
-
-function ToggleControls({
-  showBothButtons,
-  onShowBoth,
-  onShowSingle,
-}: ToggleControlsProps) {
-  return (
-    <div className="flex items-center gap-3">
-      <button
-        type="button"
-        onClick={onShowBoth}
-        className={`flex size-10 items-center justify-center rounded-lg transition-colors ${
-          showBothButtons
-            ? 'bg-tertiary text-primary'
-            : 'bg-secondary text-secondary hover:bg-tertiary hover:text-primary'
-        }`}
-        aria-label="Show both buttons"
-        aria-pressed={showBothButtons}
-      >
-        <HugeIcon icon={ViewIcon} size={20} strokeWidth={1.5} />
-      </button>
-      <span className="text-xs text-tertiary">Toggle</span>
-      <button
-        type="button"
-        onClick={onShowSingle}
-        className={`flex size-10 items-center justify-center rounded-lg transition-colors ${
-          !showBothButtons
-            ? 'bg-tertiary text-primary'
-            : 'bg-secondary text-secondary hover:bg-tertiary hover:text-primary'
-        }`}
-        aria-label="Show right button only"
-        aria-pressed={!showBothButtons}
-      >
-        <HugeIcon icon={ViewOffIcon} size={20} strokeWidth={1.5} />
-      </button>
-    </div>
-  )
-}
-
-// ============================================================================
 // State Selector
 // ============================================================================
 
 interface StateSelectorProps {
-  activeState: 1 | 2 | 3 | 4
-  onStateChange: (state: 1 | 2 | 3 | 4) => void
+  activeState: ButtonStateId
+  onStateChange: (state: ButtonStateId) => void
 }
 
 function StateSelector({ activeState, onStateChange }: StateSelectorProps) {
+  const stateIds = useAllStateIds()
+
   return (
     <div className="flex items-center gap-2">
-      {([1, 2, 3, 4] as const).map((state) => (
+      {stateIds.map((state) => (
         <button
           key={state}
           type="button"
           onClick={() => onStateChange(state)}
-          className={`flex size-10 items-center justify-center rounded-lg text-sm font-medium transition-colors ${
+          className={`flex h-10 min-w-10 items-center justify-center rounded-lg px-3 text-sm font-medium transition-colors ${
             activeState === state
               ? 'bg-tertiary text-primary'
               : 'bg-secondary text-secondary hover:bg-tertiary hover:text-primary'
@@ -140,18 +99,18 @@ function StateSelector({ activeState, onStateChange }: StateSelectorProps) {
 
 interface DemoContentProps {
   config: ButtonFluidLayoutConfig
-  showBothButtons: boolean
-  onShowBoth: () => void
-  onShowSingle: () => void
-  onStateChange: (state: 1 | 2 | 3 | 4) => void
+  currentStateId: ButtonStateId
+  showSecondary: boolean
+  onStateChange: (state: ButtonStateId) => void
+  onButtonClick: () => void
 }
 
 function DemoContent({
   config,
-  showBothButtons,
-  onShowBoth,
-  onShowSingle,
+  currentStateId,
+  showSecondary,
   onStateChange,
+  onButtonClick,
 }: DemoContentProps) {
   const { timing, blur, layout, demo, buttonStates, stateTransition } = config
 
@@ -163,9 +122,12 @@ function DemoContent({
     ? { enabled: true, amount: blur.amount, duration: blur.duration }
     : { enabled: false }
 
-  // Get current button state
-  const stateKey = `state${buttonStates.activeState}` as const
-  const currentState = buttonStates.states[stateKey]
+  // Get current button state config (for AnimatedRightButton)
+  const stateKey = `state${currentStateId}` as keyof typeof buttonStates.states
+  const currentStateConfig = buttonStates.states[stateKey]
+
+  // Determine if button is clickable (only in states A, B1, C2)
+  const isClickable = currentStateId === 'A' || currentStateId === 'B1' || currentStateId === 'C2'
 
   return (
     <div className="flex flex-col items-center gap-8">
@@ -174,7 +136,7 @@ function DemoContent({
         style={{ width: layout.containerWidth }}
       >
         <FluidButtonGroup
-          visible={showBothButtons ? 'both' : 'primary'}
+          visible={showSecondary ? 'both' : 'primary'}
           timing={resolvedTiming}
           gap={layout.gap}
           syncToExpand={timing.syncToExpand}
@@ -186,22 +148,24 @@ function DemoContent({
             </Button>
           }
           primaryButton={
-            <AnimatedRightButton
-              state={currentState}
-              transition={stateTransition}
-              variant={layout.rightButtonVariant}
-              slowMo={demo.slowMo}
-            />
+            <button
+              type="button"
+              onClick={onButtonClick}
+              className="w-full"
+              style={{ cursor: isClickable ? 'pointer' : 'default' }}
+            >
+              <AnimatedRightButton
+                state={currentStateConfig}
+                transition={stateTransition}
+                variant={layout.rightButtonVariant}
+                slowMo={demo.slowMo}
+              />
+            </button>
           }
         />
       </div>
-      <ToggleControls
-        showBothButtons={showBothButtons}
-        onShowBoth={onShowBoth}
-        onShowSingle={onShowSingle}
-      />
       <StateSelector
-        activeState={buttonStates.activeState}
+        activeState={currentStateId}
         onStateChange={onStateChange}
       />
     </div>
@@ -217,47 +181,57 @@ export default function ButtonFluidLayoutPlayground() {
     DEFAULT_BUTTON_FLUID_LAYOUT_CONFIG
   )
   const [activePresetId, setActivePresetId] = useState<string | null>('default')
-  const [showBothButtons, setShowBothButtons] = useState(true)
 
-  // Toggle handlers
-  const handleShowBoth = useCallback(() => {
-    setShowBothButtons(true)
-  }, [])
+  // Use the state machine hook - showSecondary is now DERIVED automatically
+  const { stateId, transitionTo, showSecondary } = useButtonStateMachine({
+    initialState: config.buttonStates.activeState,
+  })
 
-  const handleShowSingle = useCallback(() => {
-    setShowBothButtons(false)
-  }, [])
+  // Auto transitions hook for B2 → C1 → C2 flow
+  const { cancelPendingTransitions } = useAutoTransitions({
+    stateId,
+    config: config.autoTransition,
+    transitionTo,
+    slowMo: config.demo.slowMo,
+  })
 
-  // State change handler - syncs toggle to state's showLeftButton config
-  const handleStateChange = useCallback((state: 1 | 2 | 3 | 4) => {
-    const stateKey = `state${state}` as const
-    setConfig((prev) => {
-      const newState = prev.buttonStates.states[stateKey]
-      // Sync toggle to state's showLeftButton config
-      setShowBothButtons(newState.showLeftButton)
-      return {
-        ...prev,
-        buttonStates: { ...prev.buttonStates, activeState: state },
-      }
-    })
+  // Button click handler for interactive state flow
+  const handleButtonClick = useCallback(() => {
+    cancelPendingTransitions()
+    switch (stateId) {
+      case 'A':
+        transitionTo('B1')
+        break
+      case 'B1':
+        transitionTo('B2')
+        break
+      case 'C2':
+        transitionTo('A') // Restart
+        break
+      // B2 and C1 are auto-transition states, no click action
+    }
+  }, [stateId, transitionTo, cancelPendingTransitions])
+
+  // State change handler (from StateSelector) - no more manual sync needed!
+  const handleStateChange = useCallback((newStateId: ButtonStateId) => {
+    // Cancel any pending auto transitions
+    cancelPendingTransitions()
+    // Transition the state machine
+    transitionTo(newStateId)
+
+    // Update config to track active state (for presets/persistence)
+    setConfig((prev) => ({
+      ...prev,
+      buttonStates: { ...prev.buttonStates, activeState: newStateId },
+    }))
     setActivePresetId(null)
-  }, [])
+  }, [transitionTo, cancelPendingTransitions])
 
   // Handle control changes
   const handleChange = useCallback((event: ControlChangeEvent) => {
-    let { value } = event
-    // Convert activeState from string to number
-    if (event.controlId === 'buttonStates.activeState') {
-      value = Number(value) as 1 | 2 | 3 | 4
-    }
+    const { value } = event
     setConfig((prev) => {
       const newConfig = setNestedValue(prev, event.controlId, value)
-      // If showLeftButton for the current state changed, sync the toggle
-      const currentStateKey = `state${newConfig.buttonStates.activeState}` as const
-      const showLeftButtonPath = `buttonStates.states.${currentStateKey}.showLeftButton`
-      if (event.controlId === showLeftButtonPath) {
-        setShowBothButtons(value as boolean)
-      }
       return newConfig
     })
     setActivePresetId(null)
@@ -267,17 +241,22 @@ export default function ButtonFluidLayoutPlayground() {
   const handlePresetChange = useCallback((presetId: string) => {
     const preset = BUTTON_FLUID_LAYOUT_PRESETS.find((p) => p.id === presetId)
     if (preset) {
+      cancelPendingTransitions()
       setConfig(preset.data)
       setActivePresetId(presetId)
+      // Sync state machine to preset's active state
+      transitionTo(preset.data.buttonStates.activeState)
     }
-  }, [])
+  }, [transitionTo, cancelPendingTransitions])
 
   // Handle reset
   const handleReset = useCallback(() => {
+    cancelPendingTransitions()
     setConfig(DEFAULT_BUTTON_FLUID_LAYOUT_CONFIG)
     setActivePresetId('default')
-    setShowBothButtons(true)
-  }, [])
+    // Reset state machine to default state
+    transitionTo(DEFAULT_BUTTON_FLUID_LAYOUT_CONFIG.buttonStates.activeState)
+  }, [transitionTo, cancelPendingTransitions])
 
   // Debug control handlers
   const handleSlowMoChange = useCallback((enabled: boolean) => {
@@ -322,10 +301,10 @@ export default function ButtonFluidLayoutPlayground() {
     >
       <DemoContent
         config={config}
-        showBothButtons={showBothButtons}
-        onShowBoth={handleShowBoth}
-        onShowSingle={handleShowSingle}
+        currentStateId={stateId}
+        showSecondary={showSecondary}
         onStateChange={handleStateChange}
+        onButtonClick={handleButtonClick}
       />
     </PlaygroundLayout>
   )

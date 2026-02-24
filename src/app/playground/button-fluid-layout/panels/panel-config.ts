@@ -22,6 +22,9 @@ import {
   CHECKMARK_DRAW_DURATION_RANGE,
   SPINNER_TO_CHECKMARK_DURATION_RANGE,
   CHECKMARK_ENTRANCE_OPTIONS,
+  STATE_OPTIONS,
+  B2_TO_C1_DELAY_RANGE,
+  C1_TO_C2_DELAY_RANGE,
 } from '../config/options'
 
 // ============================================================================
@@ -36,6 +39,7 @@ export function buildButtonFluidLayoutPanelConfig(
   return {
     sections: [
       buildButtonStatesSection(config),
+      buildFlowSection(config),
       buildTimingSection(config),
       buildBlurSection(config),
       buildLayoutSection(config),
@@ -59,7 +63,7 @@ export function buildButtonFluidLayoutPanelConfig(
 
 function buildButtonStatesSection(config: ButtonFluidLayoutConfig): Section {
   const activeState = config.buttonStates.activeState
-  const stateKey = `state${activeState}` as const
+  const stateKey = `state${activeState}` as keyof typeof config.buttonStates.states
   const currentState = config.buttonStates.states[stateKey]
 
   return {
@@ -74,13 +78,11 @@ function buildButtonStatesSection(config: ButtonFluidLayoutConfig): Section {
             id: 'buttonStates.activeState',
             type: 'select',
             label: 'State',
-            value: String(activeState),
-            options: [
-              { label: 'State 1', value: '1' },
-              { label: 'State 2', value: '2' },
-              { label: 'State 3', value: '3' },
-              { label: 'State 4', value: '4' },
-            ],
+            value: activeState,
+            options: STATE_OPTIONS.map((opt) => ({
+              label: `State ${opt.label}`,
+              value: opt.id,
+            })),
           },
         ],
       },
@@ -158,6 +160,51 @@ function buildButtonStatesSection(config: ButtonFluidLayoutConfig): Section {
             label: 'Checkmark Style',
             value: config.stateTransition.checkmarkEntranceStyle,
             options: [...CHECKMARK_ENTRANCE_OPTIONS],
+          },
+        ],
+      },
+    ],
+  }
+}
+
+function buildFlowSection(config: ButtonFluidLayoutConfig): Section {
+  const formatSeconds = (ms: number) => `${(ms / 1000).toFixed(1)}s`
+
+  return {
+    id: 'flow',
+    label: 'Flow',
+    title: 'Auto Flow',
+    groups: [
+      {
+        title: 'Auto Transitions',
+        controls: [
+          {
+            id: 'autoTransition.enabled',
+            type: 'toggle',
+            label: 'Enable Auto Flow',
+            value: config.autoTransition.enabled,
+          },
+          {
+            id: 'autoTransition.b2ToC1Delay',
+            type: 'slider',
+            label: 'B2 → C1 Delay',
+            value: config.autoTransition.b2ToC1Delay,
+            min: B2_TO_C1_DELAY_RANGE.min,
+            max: B2_TO_C1_DELAY_RANGE.max,
+            step: B2_TO_C1_DELAY_RANGE.step,
+            formatLabel: formatSeconds,
+            disabled: !config.autoTransition.enabled,
+          },
+          {
+            id: 'autoTransition.c1ToC2Delay',
+            type: 'slider',
+            label: 'C1 → C2 Delay',
+            value: config.autoTransition.c1ToC2Delay,
+            min: C1_TO_C2_DELAY_RANGE.min,
+            max: C1_TO_C2_DELAY_RANGE.max,
+            step: C1_TO_C2_DELAY_RANGE.step,
+            formatLabel: formatSeconds,
+            disabled: !config.autoTransition.enabled,
           },
         ],
       },

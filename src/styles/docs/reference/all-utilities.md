@@ -314,7 +314,6 @@ Examples: `shine-1-shadow-md`, `shine-2-subtle-shadow-sm`, `shine-brand-intense-
 
 | Class | Description |
 |-------|-------------|
-| `corner-squircle` | Superellipse corners |
 | `corner-round` | Standard round |
 | `corner-bevel` | Diagonal cut |
 | `corner-scoop` | Concave round |

@@ -122,15 +122,15 @@ export interface BottomSlotConfig {
 // ANIMATION CONFIG
 // ============================================================================
 
+export type EasingOption = 'expo-out' | 'ease-out' | 'ease-in-out' | 'cubic-out' | 'quart-out' | 'back-out' | 'linear'
+
 export interface AnimationConfig {
   /** Duration for expand animation (ms) */
   duration: number
   /** Duration for collapse animation (ms) */
   collapseDuration: number
-  /** Content fade duration (ms) */
-  contentFadeDuration: number
-  /** Content fade delay (ms) */
-  contentFadeDelay: number
+  /** Easing function for animations */
+  easing: EasingOption
   /** Enable menu container animation */
   animateSlotContainers: boolean
   /** Slot container delay (ms) */
@@ -260,6 +260,8 @@ export interface TextSegmentConfig {
   textColor: TextColorOption
   opacity: OpacityOption
   badgeColor: BadgeColor
+  /** Enable subtle shimmer animation on text */
+  shimmer?: boolean
 }
 
 /**
@@ -437,3 +439,17 @@ export interface VariantTransitionConfig {
 // ============================================================================
 
 export type PricingVariantId = 'A' | 'B'
+
+// ============================================================================
+// DROPDOWN ICON CONFIG
+// ============================================================================
+
+export type CaretDirection = 'down' | 'right'
+
+export interface DropdownIconConfig {
+  show: boolean
+  size: number
+  color: TextColorOption
+  direction: CaretDirection
+  rotatesOnOpen: boolean
+}

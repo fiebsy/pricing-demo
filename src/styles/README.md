@@ -150,7 +150,6 @@ text-display-*     // xs, sm, md, lg, xl, 2xl
 shine-1            // Glossy effect
 shine-1-shadow-md  // Shine + shadow
 depth-gradient-1   // Subtle depth
-corner-squircle    // iOS-style corners
 ```
 
 ---

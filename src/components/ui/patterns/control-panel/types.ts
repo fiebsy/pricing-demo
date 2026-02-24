@@ -244,8 +244,6 @@ export interface UnifiedControlPanelProps<T = unknown> {
   cornerSize?: number
   /** Radius of the sidebar inverse corner clip in pixels */
   cornerRadius?: number
-  /** Enable corner-squircle on the sliding indicator */
-  cornerSquircle?: boolean
 }
 
 // -----------------------------------------------------------------------------

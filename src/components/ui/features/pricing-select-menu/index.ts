@@ -48,6 +48,7 @@ import {
   TriggerContentB,
   OptionsList,
   BottomContentB,
+  CaretIcon,
 } from './components'
 
 // Export compound component
@@ -80,10 +81,15 @@ export {
   TriggerContentB,
   OptionsList,
   BottomContentB,
+  CaretIcon,
 }
 
-// Export hooks
+// Export context hooks
 export { usePricingSelectMenu, usePricingSelectMenuOptional } from './context'
+
+// Export state management hooks
+export { usePricingSelect } from './hooks'
+export type { UsePricingSelectOptions, UsePricingSelectReturn } from './hooks'
 
 // Export types
 export type {
@@ -94,6 +100,7 @@ export type {
   SlotDimensions,
   AnimationConfig,
   LayoutConfig,
+  EasingOption,
   // Appearance types
   BackgroundOption,
   BorderColorOption,
@@ -142,6 +149,9 @@ export type {
   VariantBBottomSlotConfig,
   VariantTransitionType,
   VariantTransitionConfig,
+  // Dropdown icon types
+  CaretDirection,
+  DropdownIconConfig,
   // Pricing types
   PricingTier,
   PricingVariantId,
@@ -155,6 +165,7 @@ export {
   DEFAULT_TRIGGER_SLOT_CONFIG,
   DEFAULT_BOTTOM_SLOT_CONFIG,
   EASING_EXPO_OUT,
+  EASING_MAP,
   TEXT_COLOR_CLASSES,
   FONT_WEIGHT_CLASSES,
   FONT_SIZE_CLASSES,
@@ -174,4 +185,26 @@ export {
   getBorderColorVar,
   getPopupClasses,
   getGradientStyles,
+  filterAvailableTiers,
+  toggleTierInList,
+  sortTierIds,
 } from './utils'
+
+// Export presets
+export {
+  UPGRADE_FLOW_PRESET,
+  UPGRADE_FLOW_DIMENSIONS,
+  UPGRADE_FLOW_ANIMATION,
+  UPGRADE_FLOW_APPEARANCE,
+  UPGRADE_FLOW_BOTTOM_SLOT,
+  UPGRADE_FLOW_DROPDOWN_ICON,
+  UPGRADE_FLOW_TRIGGER_PADDING,
+  UPGRADE_FLOW_TRIGGER_TYPOGRAPHY,
+  UPGRADE_FLOW_SYNCED_SUBTEXT,
+  UPGRADE_FLOW_OPTIONS_LIST,
+  UPGRADE_FLOW_ITEM_TYPOGRAPHY,
+  UPGRADE_FLOW_MENU_ITEM_LABEL,
+  UPGRADE_FLOW_VARIANT_B_TRIGGER,
+  UPGRADE_FLOW_VARIANT_B_BOTTOM,
+  UPGRADE_FLOW_VARIANT_B_TRANSITION,
+} from './presets'

@@ -911,7 +911,7 @@
   --color-bg-brand-primary_alt: var(--color-brand-50);
   --color-bg-secondary_alt: var(--color-gray-50);
   --color-bg-overlay: var(--color-gray-950);
-  --color-bg-secondary_subtle: var(--color-gray-25);
+  --color-bg-secondary_subtle: var(--color-gray-50);
   --color-bg-brand-section: var(--color-brand-800);
   --color-bg-brand-section_subtle: var(--color-brand-700);
   --color-bg-primary-solid: var(--color-gray-950);

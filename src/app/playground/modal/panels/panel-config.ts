@@ -1040,12 +1040,6 @@ function buildButtonsSection(config: ModalPlaygroundConfig): Section {
             value: config.buttons.buttonRadius,
             options: [...BUTTON_RADIUS_OPTIONS],
           },
-          {
-            id: 'buttons.cornerSquircle',
-            type: 'toggle',
-            label: 'Corner Squircle',
-            value: config.buttons.cornerSquircle,
-          },
         ],
       },
       {

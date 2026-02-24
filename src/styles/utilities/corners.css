@@ -7,7 +7,6 @@
  * The corner-shape property works alongside border-radius to provide more control.
  *
  * Usage:
- *   - corner-squircle: Apply squircle corners (most common)
  *   - corner-round: Standard rounded corners (default border-radius behavior)
  *   - corner-bevel: Straight diagonal corners
  *   - corner-scoop: Concave rounded corners
@@ -23,9 +22,6 @@
  *   - corner-b-{shape}: Bottom edge (both corners)
  *   - corner-l-{shape}: Left edge (both corners)
  *   - corner-r-{shape}: Right edge (both corners)
- *
- * Superellipse functional values:
- *   - corner-superellipse/{value}: Custom curve (e.g., corner-superellipse/2)
  *
  * Related:
  *   - borders.css: Border utilities

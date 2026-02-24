@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
 import { interBody, interDisplay } from '@/lib/fonts'
-import { ThemeProvider } from '@/components/theme-provider'
 import '../styles/globals.css'
 
 export const metadata: Metadata = {
@@ -14,27 +13,9 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={`${interBody.variable} ${interDisplay.variable} bg-secondary_alt overscroll-none dark-mode`} style={{ scrollbarGutter: 'stable' }} suppressHydrationWarning>
-      <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                try {
-                  var theme = localStorage.getItem('theme');
-                  if (theme === 'light') {
-                    document.documentElement.classList.remove('dark-mode');
-                  }
-                } catch (e) {}
-              })();
-            `,
-          }}
-        />
-      </head>
+    <html lang="en" className={`${interBody.variable} ${interDisplay.variable} bg-secondary_alt overscroll-none`} style={{ scrollbarGutter: 'stable' }}>
       <body className="font-body bg-secondary_alt noise-overlay noise-fixed noise-opacity-90">
-        <ThemeProvider>
-          {children}
-        </ThemeProvider>
+        {children}
       </body>
     </html>
   )

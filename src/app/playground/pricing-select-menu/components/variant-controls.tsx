@@ -22,32 +22,31 @@ export function VariantControls({
   className,
 }: VariantControlsProps) {
   return (
-    <div className={cn('flex items-center gap-2', className)}>
-      <span className="text-xs text-tertiary font-medium">Variant:</span>
-      <div className="inline-flex rounded-lg bg-secondary p-1">
+    <div className={cn('flex items-center justify-center gap-2', className)}>
+      <div className="inline-flex rounded-lg bg-tertiary/10 p-1">
         <button
           type="button"
           onClick={() => onVariantChange('A')}
           className={cn(
-            'px-3 py-1 text-xs font-medium rounded-md transition-colors',
+            'px-4 py-1.5 text-xs font-medium rounded-md transition-colors',
             activeVariant === 'A'
-              ? 'bg-primary text-primary'
+              ? 'bg-primary text-primary shadow-sm'
               : 'text-tertiary hover:text-secondary'
           )}
         >
-          A
+          Flow A
         </button>
         <button
           type="button"
           onClick={() => onVariantChange('B')}
           className={cn(
-            'px-3 py-1 text-xs font-medium rounded-md transition-colors',
+            'px-4 py-1.5 text-xs font-medium rounded-md transition-colors',
             activeVariant === 'B'
-              ? 'bg-primary text-primary'
+              ? 'bg-primary text-primary shadow-sm'
               : 'text-tertiary hover:text-secondary'
           )}
         >
-          B
+          Flow B
         </button>
       </div>
     </div>

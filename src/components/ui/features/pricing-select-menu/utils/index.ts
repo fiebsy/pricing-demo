@@ -10,3 +10,4 @@ export {
   getPopupClasses,
   getGradientStyles,
 } from './styling'
+export { filterAvailableTiers, toggleTierInList, sortTierIds } from './tier-utils'

@@ -13,13 +13,13 @@ export const sliderConfig = {
 
 export const inlineSliderStyles = {
   /** Container styles */
-  container: 'bg-tertiary/50 relative flex h-7 items-center rounded-md corner-squircle',
+  container: 'bg-tertiary/50 relative flex h-7 items-center rounded-md',
   /** Fill wrapper styles - min-w-2 ensures drag handle visible at 0% */
   fillWrapper: 'group absolute inset-y-0 left-0 flex min-w-3 items-center transition-[width] duration-75',
   /** Fill wrapper active (dragging) state - shorter transition for snappier tracking */
   fillWrapperActive: 'duration-[45ms]',
   /** Fill background styles */
-  fillBackground: 'bg-quaternary absolute inset-0 rounded-md corner-squircle transition-shadow duration-150',
+  fillBackground: 'bg-quaternary absolute inset-0 rounded-md transition-shadow duration-150',
   /** Fill background active (dragging) state - shine effect */
   fillBackgroundActive: 'shine-2',
   /** Drag handle container styles */

@@ -5,6 +5,7 @@
  */
 
 import type {
+  AutoTransitionConfig,
   ButtonFluidLayoutConfig,
   ButtonFluidLayoutPresetMeta,
   ButtonStateMachineConfig,
@@ -17,12 +18,13 @@ import { TIMING_PRESETS } from '@/components/ui/core/primitives/fluid-button-gro
 // ============================================================================
 
 export const DEFAULT_BUTTON_STATES: ButtonStateMachineConfig = {
-  activeState: 1,
+  activeState: 'A',
   states: {
-    state1: { id: 'upgrade', text: 'Upgrade', showSpinner: false, showCheckmark: false, showText: true, showLeftButton: true },
-    state2: { id: 'upgrading', text: 'Upgrading', showSpinner: true, showCheckmark: false, showText: true, showLeftButton: true },
-    state3: { id: 'completed', text: '', showSpinner: false, showCheckmark: true, showText: false, showLeftButton: false },
-    state4: { id: 'start-creating', text: "Let's create", showSpinner: false, showCheckmark: false, showText: true, showLeftButton: false },
+    stateA: { id: 'upgrade-alone', text: 'Upgrade', showSpinner: false, showCheckmark: false, showText: true, showLeftButton: false },
+    stateB1: { id: 'upgrade', text: 'Upgrade', showSpinner: false, showCheckmark: false, showText: true, showLeftButton: true },
+    stateB2: { id: 'upgrading', text: 'Upgrading', showSpinner: true, showCheckmark: false, showText: true, showLeftButton: true },
+    stateC1: { id: 'completed', text: '', showSpinner: false, showCheckmark: true, showText: false, showLeftButton: false },
+    stateC2: { id: 'start-creating', text: "Let's create", showSpinner: false, showCheckmark: false, showText: true, showLeftButton: false },
   },
 }
 
@@ -32,6 +34,12 @@ export const DEFAULT_STATE_TRANSITION: StateTransitionConfig = {
   spinnerToCheckmarkDuration: 300,
   checkmarkDrawDuration: 250,
   checkmarkEntranceStyle: 'flip',
+}
+
+export const DEFAULT_AUTO_TRANSITION: AutoTransitionConfig = {
+  enabled: true,
+  b2ToC1Delay: 3100,
+  c1ToC2Delay: 1300,
 }
 
 // ============================================================================
@@ -61,6 +69,7 @@ export const DEFAULT_BUTTON_FLUID_LAYOUT_CONFIG: ButtonFluidLayoutConfig = {
   },
   buttonStates: DEFAULT_BUTTON_STATES,
   stateTransition: DEFAULT_STATE_TRANSITION,
+  autoTransition: DEFAULT_AUTO_TRANSITION,
 }
 
 // ============================================================================

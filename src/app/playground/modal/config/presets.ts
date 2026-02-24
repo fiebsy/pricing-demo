@@ -97,7 +97,6 @@ export const DEFAULT_MODAL_CONFIG: ModalPlaygroundConfig = {
     layout: 'horizontal',
     gap: 12,
     buttonRadius: 'default',
-    cornerSquircle: true,
     fluid: {
       enabled: true,
       timing: 'default',

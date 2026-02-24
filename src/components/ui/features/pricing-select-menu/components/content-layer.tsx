@@ -12,7 +12,7 @@
 import * as React from 'react'
 import { cn } from '@/lib/utils'
 import { usePricingSelectMenu } from '../context'
-import { EASING_EXPO_OUT } from '../constants'
+import { EASING_MAP } from '../constants'
 import { getContentClipPath } from '../utils'
 import type { ContentLayerProps } from '../types'
 
@@ -20,15 +20,21 @@ export const ContentLayer: React.FC<ContentLayerProps> = ({
   children,
   className,
 }) => {
-  const { expanded, config, timing, dimensions } = usePricingSelectMenu()
+  const { expanded, config, timing } = usePricingSelectMenu()
 
-  const { layout } = config
+  const { layout, animation } = config
   const duration = timing.duration
+  const easing = EASING_MAP[animation.easing] || EASING_MAP['expo-out']
 
-  // Calculate panel height
-  const panelHeight = config.bottomSlot.enabled
-    ? layout.triggerHeight + layout.bottomGap + dimensions.bottomHeight
-    : layout.triggerHeight
+  // Calculate panel height using config values directly for consistency
+  // Note: dimensions.bottomHeight can be stale during flow transitions (updated via useEffect)
+  // Using layout.maxBottomHeight ensures panelHeight is always in sync with other layout values
+  const effectiveBottomHeight = config.bottomSlot.enabled
+    ? (config.bottomSlot.heightMode === 'fixed'
+        ? (config.bottomSlot.height ?? layout.maxBottomHeight)
+        : layout.maxBottomHeight)
+    : 0
+  const panelHeight = layout.triggerHeight + layout.bottomGap + effectiveBottomHeight
 
   // Calculate clip-path
   const clipPath = getContentClipPath(
@@ -49,7 +55,7 @@ export const ContentLayer: React.FC<ContentLayerProps> = ({
         width: layout.panelWidth,
         height: panelHeight,
         clipPath,
-        transition: `clip-path ${duration}ms ${EASING_EXPO_OUT}, height ${duration}ms ${EASING_EXPO_OUT}`,
+        transition: `clip-path ${duration}ms ${easing}, height ${duration}ms ${easing}`,
         pointerEvents: expanded ? 'auto' : 'none',
       }}
     >

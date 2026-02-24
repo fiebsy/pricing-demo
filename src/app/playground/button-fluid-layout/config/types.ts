@@ -18,6 +18,12 @@ export type { FluidTiming, FluidTimingPreset, FluidBlurConfig }
 /** Checkmark entrance animation style */
 export type CheckmarkEntranceStyle = 'draw' | 'flip'
 
+/** Hierarchical state identifiers for modal integration */
+export type ButtonStateId = 'A' | 'B1' | 'B2' | 'C1' | 'C2'
+
+/** Phase groupings for state transitions */
+export type ButtonPhase = 'A' | 'B' | 'C'
+
 /** Individual state configuration for the right button */
 export interface ButtonStateConfig {
   id: string
@@ -30,12 +36,13 @@ export interface ButtonStateConfig {
 
 /** State machine configuration for multi-state button */
 export interface ButtonStateMachineConfig {
-  activeState: 1 | 2 | 3 | 4
+  activeState: ButtonStateId
   states: {
-    state1: ButtonStateConfig
-    state2: ButtonStateConfig
-    state3: ButtonStateConfig
-    state4: ButtonStateConfig
+    stateA: ButtonStateConfig
+    stateB1: ButtonStateConfig
+    stateB2: ButtonStateConfig
+    stateC1: ButtonStateConfig
+    stateC2: ButtonStateConfig
   }
 }
 
@@ -90,6 +97,20 @@ export interface LayoutConfig {
 }
 
 // ============================================================================
+// Auto Transition Configuration
+// ============================================================================
+
+/** Automatic transition configuration for state flow */
+export interface AutoTransitionConfig {
+  /** Enable automatic transitions for B2 → C1 and C1 → C2 */
+  enabled: boolean
+  /** Delay in ms before transitioning from B2 to C1 (processing simulation) */
+  b2ToC1Delay: number
+  /** Delay in ms before transitioning from C1 to C2 (success display) */
+  c1ToC2Delay: number
+}
+
+// ============================================================================
 // Demo Configuration
 // ============================================================================
 
@@ -111,6 +132,7 @@ export interface ButtonFluidLayoutConfig {
   demo: DemoConfig
   buttonStates: ButtonStateMachineConfig
   stateTransition: StateTransitionConfig
+  autoTransition: AutoTransitionConfig
 }
 
 // ============================================================================

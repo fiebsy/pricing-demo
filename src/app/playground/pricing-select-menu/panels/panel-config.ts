@@ -17,6 +17,7 @@ import {
   GRADIENT_COLOR_OPTIONS,
   HEIGHT_MODE_OPTIONS,
   EXPAND_ORIGIN_OPTIONS,
+  EASING_OPTIONS,
   TEXT_COLOR_OPTIONS,
   FONT_WEIGHT_OPTIONS,
   FONT_SIZE_OPTIONS,
@@ -24,6 +25,12 @@ import {
   VERTICAL_ALIGN_OPTIONS,
   DISPLAY_MODE_OPTIONS,
   LABEL_LAYOUT_OPTIONS,
+  PANEL_WIDTH_MODE_OPTIONS,
+  WIDTH_MODE_OPTIONS,
+  WRAPPER_HEIGHT_MODE_OPTIONS,
+  OVERFLOW_MODE_OPTIONS,
+  MODAL_BACKGROUND_OPTIONS,
+  CARET_DIRECTION_OPTIONS,
 } from '../config/options'
 
 // ============================================================================
@@ -40,14 +47,25 @@ function buildLayoutSection(config: PricingSelectMenuPlaygroundConfig): Section 
         title: 'Dimensions',
         controls: [
           {
-            id: 'layout.panelWidth',
-            type: 'slider',
-            label: 'Panel Width',
-            value: config.layout.panelWidth,
-            min: 200,
-            max: 500,
-            step: 10,
+            id: 'layout.panelWidthMode',
+            type: 'select',
+            label: 'Panel Width Mode',
+            value: config.layout.panelWidthMode,
+            options: [...PANEL_WIDTH_MODE_OPTIONS],
           },
+          ...(config.layout.panelWidthMode === 'fixed'
+            ? [
+                {
+                  id: 'layout.panelWidth',
+                  type: 'slider' as const,
+                  label: 'Panel Width',
+                  value: config.layout.panelWidth,
+                  min: 200,
+                  max: 500,
+                  step: 10,
+                },
+              ]
+            : []),
           {
             id: 'layout.triggerHeight',
             type: 'slider',
@@ -115,6 +133,187 @@ function buildLayoutSection(config: PricingSelectMenuPlaygroundConfig): Section 
           },
         ],
       },
+      {
+        title: 'Wrapper',
+        controls: [
+          {
+            id: 'layout.wrapper.enabled',
+            type: 'toggle',
+            label: 'Enable Wrapper',
+            value: config.layout.wrapper.enabled,
+          },
+          ...(config.layout.wrapper.enabled
+            ? [
+                {
+                  id: 'layout.wrapper.showBorderLines',
+                  type: 'toggle' as const,
+                  label: 'Show Border Lines',
+                  value: config.layout.wrapper.showBorderLines,
+                },
+                {
+                  id: 'layout.wrapper.widthMode',
+                  type: 'select' as const,
+                  label: 'Width Mode',
+                  value: config.layout.wrapper.widthMode,
+                  options: [...WIDTH_MODE_OPTIONS],
+                },
+                ...(config.layout.wrapper.widthMode === 'fixed'
+                  ? [
+                      {
+                        id: 'layout.wrapper.width',
+                        type: 'slider' as const,
+                        label: 'Width',
+                        value: config.layout.wrapper.width,
+                        min: 300,
+                        max: 600,
+                        step: 10,
+                      },
+                    ]
+                  : []),
+                {
+                  id: 'layout.wrapper.heightModeA',
+                  type: 'select' as const,
+                  label: 'Height Mode (A)',
+                  value: config.layout.wrapper.heightModeA,
+                  options: [...WRAPPER_HEIGHT_MODE_OPTIONS],
+                },
+                ...(config.layout.wrapper.heightModeA === 'fixed'
+                  ? [
+                      {
+                        id: 'layout.wrapper.heightA',
+                        type: 'slider' as const,
+                        label: 'Height (A)',
+                        value: config.layout.wrapper.heightA,
+                        min: 200,
+                        max: 500,
+                        step: 10,
+                      },
+                    ]
+                  : []),
+                {
+                  id: 'layout.wrapper.heightModeB',
+                  type: 'select' as const,
+                  label: 'Height Mode (B)',
+                  value: config.layout.wrapper.heightModeB,
+                  options: [...WRAPPER_HEIGHT_MODE_OPTIONS],
+                },
+                ...(config.layout.wrapper.heightModeB === 'fixed'
+                  ? [
+                      {
+                        id: 'layout.wrapper.heightB',
+                        type: 'slider' as const,
+                        label: 'Height (B)',
+                        value: config.layout.wrapper.heightB,
+                        min: 200,
+                        max: 500,
+                        step: 10,
+                      },
+                    ]
+                  : []),
+                {
+                  id: 'layout.wrapper.overflow',
+                  type: 'select' as const,
+                  label: 'Overflow',
+                  value: config.layout.wrapper.overflow,
+                  options: [...OVERFLOW_MODE_OPTIONS],
+                },
+                {
+                  id: 'layout.wrapper.header.show',
+                  type: 'toggle' as const,
+                  label: 'Show Header',
+                  value: config.layout.wrapper.header.show,
+                },
+                ...(config.layout.wrapper.header.show
+                  ? [
+                      {
+                        id: 'layout.wrapper.header.text',
+                        type: 'text' as const,
+                        label: 'Header Text',
+                        value: config.layout.wrapper.header.text,
+                        placeholder: 'Upgrade fee',
+                      },
+                    ]
+                  : []),
+              ]
+            : []),
+        ],
+      },
+      {
+        title: 'Modal Preview',
+        controls: [
+          {
+            id: 'layout.modalPreview.enabled',
+            type: 'toggle',
+            label: 'Show in Modal',
+            value: config.layout.modalPreview.enabled,
+          },
+          ...(config.layout.modalPreview.enabled
+            ? [
+                {
+                  id: 'layout.modalPreview.background',
+                  type: 'select' as const,
+                  label: 'Backdrop',
+                  value: config.layout.modalPreview.background,
+                  options: [...MODAL_BACKGROUND_OPTIONS],
+                },
+                {
+                  id: 'layout.modalPreview.modalWidth',
+                  type: 'slider' as const,
+                  label: 'Width',
+                  value: config.layout.modalPreview.modalWidth,
+                  min: 300,
+                  max: 800,
+                  step: 10,
+                },
+                {
+                  id: 'layout.modalPreview.modalHeight',
+                  type: 'slider' as const,
+                  label: 'Height',
+                  value: config.layout.modalPreview.modalHeight,
+                  min: 200,
+                  max: 600,
+                  step: 10,
+                },
+                {
+                  id: 'layout.modalPreview.modalBackground',
+                  type: 'select' as const,
+                  label: 'Background',
+                  value: config.layout.modalPreview.modalBackground,
+                  options: BACKGROUND_OPTIONS.filter((o) => o.value !== 'none'),
+                },
+                {
+                  id: 'layout.modalPreview.modalBorderRadius',
+                  type: 'slider' as const,
+                  label: 'Border Radius',
+                  value: config.layout.modalPreview.modalBorderRadius,
+                  min: 0,
+                  max: 32,
+                  step: 2,
+                },
+                {
+                  id: 'layout.modalPreview.modalBorderWidth',
+                  type: 'slider' as const,
+                  label: 'Border Width',
+                  value: config.layout.modalPreview.modalBorderWidth,
+                  min: 0,
+                  max: 4,
+                  step: 1,
+                },
+                ...(config.layout.modalPreview.modalBorderWidth > 0
+                  ? [
+                      {
+                        id: 'layout.modalPreview.modalBorderColor',
+                        type: 'select' as const,
+                        label: 'Border Color',
+                        value: config.layout.modalPreview.modalBorderColor,
+                        options: [...BORDER_COLOR_OPTIONS],
+                      },
+                    ]
+                  : []),
+              ]
+            : []),
+        ],
+      },
     ],
   }
 }
@@ -146,24 +345,53 @@ function buildAnimationSection(config: PricingSelectMenuPlaygroundConfig): Secti
             max: 400,
             step: 25,
           },
+          {
+            id: 'animation.easing',
+            type: 'select',
+            label: 'Easing',
+            value: config.animation.easing,
+            options: [...EASING_OPTIONS],
+          },
         ],
       },
       {
         title: 'Behavior',
         controls: [
           {
-            id: 'animation.expandOrigin',
-            type: 'select',
-            label: 'Expand Origin',
-            value: config.animation.expandOrigin,
-            options: [...EXPAND_ORIGIN_OPTIONS],
-          },
-          {
             id: 'animation.animateSlotContainers',
             type: 'toggle',
             label: 'Animate Slot Containers',
             value: config.animation.animateSlotContainers,
           },
+          ...(config.animation.animateSlotContainers
+            ? [
+                {
+                  id: 'animation.expandOrigin',
+                  type: 'select' as const,
+                  label: 'Expand Origin',
+                  value: config.animation.expandOrigin,
+                  options: [...EXPAND_ORIGIN_OPTIONS],
+                },
+                {
+                  id: 'animation.slotContainerDelay',
+                  type: 'slider' as const,
+                  label: 'Slot Container Delay (ms)',
+                  value: config.animation.slotContainerDelay,
+                  min: 0,
+                  max: 200,
+                  step: 10,
+                },
+                {
+                  id: 'animation.slotContainerDurationOffset',
+                  type: 'slider' as const,
+                  label: 'Duration Offset (ms)',
+                  value: config.animation.slotContainerDurationOffset,
+                  min: 0,
+                  max: 200,
+                  step: 10,
+                },
+              ]
+            : []),
         ],
       },
     ],
@@ -328,18 +556,6 @@ function buildSelectMenuSection(config: PricingSelectMenuPlaygroundConfig): Sect
         title: 'Trigger',
         controls: [
           {
-            id: 'selectMenu.showDropdownIcon',
-            type: 'toggle',
-            label: 'Show Dropdown Icon',
-            value: config.selectMenu.showDropdownIcon,
-          },
-          {
-            id: 'selectMenu.dropdownIconRotates',
-            type: 'toggle',
-            label: 'Icon Rotates',
-            value: config.selectMenu.dropdownIconRotates,
-          },
-          {
             id: 'selectMenu.upgradeMode',
             type: 'toggle',
             label: 'Upgrade Mode',
@@ -352,6 +568,50 @@ function buildSelectMenuSection(config: PricingSelectMenuPlaygroundConfig): Sect
             value: config.selectMenu.triggerHoverBackground,
             options: [...BACKGROUND_OPTIONS],
           },
+        ],
+      },
+      {
+        title: 'Dropdown Icon',
+        controls: [
+          {
+            id: 'selectMenu.dropdownIcon.show',
+            type: 'toggle',
+            label: 'Show Icon',
+            value: config.selectMenu.dropdownIcon.show,
+          },
+          ...(config.selectMenu.dropdownIcon.show
+            ? [
+                {
+                  id: 'selectMenu.dropdownIcon.direction',
+                  type: 'select' as const,
+                  label: 'Direction',
+                  value: config.selectMenu.dropdownIcon.direction,
+                  options: [...CARET_DIRECTION_OPTIONS],
+                },
+                {
+                  id: 'selectMenu.dropdownIcon.rotatesOnOpen',
+                  type: 'toggle' as const,
+                  label: 'Rotate on Open',
+                  value: config.selectMenu.dropdownIcon.rotatesOnOpen,
+                },
+                {
+                  id: 'selectMenu.dropdownIcon.size',
+                  type: 'slider' as const,
+                  label: 'Size',
+                  value: config.selectMenu.dropdownIcon.size,
+                  min: 12,
+                  max: 24,
+                  step: 2,
+                },
+                {
+                  id: 'selectMenu.dropdownIcon.color',
+                  type: 'select' as const,
+                  label: 'Color',
+                  value: config.selectMenu.dropdownIcon.color,
+                  options: [...TEXT_COLOR_OPTIONS],
+                },
+              ]
+            : []),
         ],
       },
       {
@@ -561,6 +821,12 @@ function buildSyncedSubtextSection(config: PricingSelectMenuPlaygroundConfig): S
             value: config.selectMenu.syncedSubtext.planName.fontSize,
             options: [...FONT_SIZE_OPTIONS],
           },
+          {
+            id: 'selectMenu.syncedSubtext.planName.shimmer',
+            type: 'toggle',
+            label: 'Shimmer',
+            value: config.selectMenu.syncedSubtext.planName.shimmer ?? false,
+          },
         ],
       },
       {
@@ -686,60 +952,6 @@ function buildDemoSection(config: PricingSelectMenuPlaygroundConfig): Section {
             type: 'toggle',
             label: 'Slow Motion',
             value: config.demo.slowMo,
-          },
-        ],
-      },
-      {
-        title: 'Container',
-        controls: [
-          {
-            id: 'demo.debugContainer.enabled',
-            type: 'toggle',
-            label: 'Debug Container',
-            value: config.demo.debugContainer.enabled,
-          },
-          {
-            id: 'demo.debugContainer.showLines',
-            type: 'toggle',
-            label: 'Show Container Lines',
-            value: config.demo.debugContainer.showLines,
-          },
-          {
-            id: 'demo.debugContainer.width',
-            type: 'slider',
-            label: 'Container Width',
-            value: config.demo.debugContainer.width,
-            min: 300,
-            max: 600,
-            step: 10,
-          },
-          {
-            id: 'demo.debugContainer.fixedHeight',
-            type: 'toggle',
-            label: 'Fixed Height',
-            value: config.demo.debugContainer.fixedHeight,
-          },
-          {
-            id: 'demo.debugContainer.height',
-            type: 'slider',
-            label: 'Container Height',
-            value: config.demo.debugContainer.height,
-            min: 200,
-            max: 500,
-            step: 10,
-          },
-          {
-            id: 'demo.debugContainer.header.show',
-            type: 'toggle',
-            label: 'Show Header',
-            value: config.demo.debugContainer.header.show,
-          },
-          {
-            id: 'demo.debugContainer.header.text',
-            type: 'text',
-            label: 'Header Text',
-            value: config.demo.debugContainer.header.text,
-            placeholder: 'Upgrade fee',
           },
         ],
       },

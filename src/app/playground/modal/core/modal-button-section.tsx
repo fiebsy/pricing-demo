@@ -2,7 +2,9 @@
  * Modal Button Section
  *
  * Integrates FluidButtonGroup with AnimatedRightButton for stage-based
- * button transitions. Handles:
+ * button transitions. Uses shared adapters for state conversion.
+ *
+ * Handles:
  * - Fluid width transitions (both buttons → single button)
  * - Primary button state changes (text/spinner/checkmark)
  * - Secondary button text crossfades
@@ -16,6 +18,13 @@ import { useRef, useEffect } from 'react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/core/primitives/button'
 import { FluidButtonGroup } from '@/components/ui/core/primitives/fluid-button-group'
+import {
+  AnimatedRightButton,
+  deriveFluidTimingFromMaster,
+  buildStateTransitionConfig,
+  getFluidVisibility,
+  type ModalStageButtonConfig,
+} from '@/components/ui/core/primitives/fluid-button-layout'
 
 import type {
   ButtonsConfig,
@@ -23,9 +32,6 @@ import type {
   TextTransitionMode,
   TextTransitionEasing,
 } from '../config/types'
-import type { ButtonStateConfig, StateTransitionConfig } from '@/app/playground/button-fluid-layout/config/types'
-import type { FluidTiming } from '@/components/ui/core/primitives/fluid-button-group'
-import { AnimatedRightButton } from '@/app/playground/button-fluid-layout/core/animated-right-button'
 import { CrossfadeText } from './crossfade-text'
 
 // ============================================================================
@@ -57,29 +63,6 @@ interface ModalButtonSectionProps {
   onPrimaryClick: () => void
   /** Secondary button click handler */
   onSecondaryClick: () => void
-}
-
-// ============================================================================
-// Helper Functions
-// ============================================================================
-
-/**
- * Derives fluid button timing from modal master duration.
- * Maps the master duration (seconds) to fluid timing (milliseconds)
- * while keeping existing ease-out easing curves.
- */
-function deriveFluidTimingFromMaster(masterDuration: number): FluidTiming {
-  // Master duration is in seconds (0.15-0.8), fluid expects milliseconds
-  const baseDuration = masterDuration * 1000
-
-  return {
-    collapseDuration: baseDuration * 0.4,    // Fast exit (40% of master)
-    expandDuration: baseDuration * 0.85,     // Slower expand (85% of master)
-    showBothDuration: baseDuration * 0.5,    // Mid-range for both
-    collapseEasing: 'cubic-bezier(0.25, 1, 0.5, 1)',  // Keep existing ease-out
-    expandEasing: 'cubic-bezier(0.25, 1, 0.5, 1)',
-    expandDelay: 0,
-  }
 }
 
 // ============================================================================
@@ -123,7 +106,7 @@ export function ModalButtonSection({
   onPrimaryClick,
   onSecondaryClick,
 }: ModalButtonSectionProps) {
-  const { fluid, primary, secondary, cornerSquircle } = config
+  const { fluid, primary, secondary } = config
 
   // Preserve secondary text during exit animation to maintain button height
   const preservedSecondaryText = usePreviousValue(stageButtons.secondary)
@@ -135,31 +118,29 @@ export function ModalButtonSection({
       ? 'default'  // Fallback to default if synced but no masterDuration
       : fluid.timing
 
-  // Determine visibility based on secondary button presence
-  const showSecondary = stageButtons.secondary !== null
-  const visible = showSecondary ? 'both' : 'primary'
+  // Use shared adapter for visibility determination
+  const visible = getFluidVisibility(stageButtons as ModalStageButtonConfig)
 
-  // Convert stage button config to AnimatedRightButton's expected format
-  const primaryButtonState: ButtonStateConfig = {
+  // Build primary button state for AnimatedRightButton
+  const primaryButtonState = {
     id: 'primary',
     text: stageButtons.primary.text,
     showSpinner: stageButtons.primary.showSpinner,
     showCheckmark: stageButtons.primary.showCheckmark,
     showText: stageButtons.primary.showText,
-    showLeftButton: showSecondary,
   }
 
-  // Build state transition config for AnimatedRightButton
-  const stateTransition: StateTransitionConfig = {
+  // Use shared adapter for state transition config
+  const stateTransition = buildStateTransitionConfig({
+    checkmarkStyle: fluid.checkmarkStyle,
     textSlideDuration: fluid.textSlideDuration,
-    textSlideEasing: 'cubic-bezier(0.25, 1, 0.5, 1)',
-    spinnerToCheckmarkDuration: 200,
     checkmarkDrawDuration: fluid.checkmarkDrawDuration,
-    checkmarkEntranceStyle: fluid.checkmarkStyle,
-  }
+  })
 
   // If fluid is disabled, fall back to standard buttons
   if (!fluid.enabled) {
+    const showSecondary = stageButtons.secondary !== null
+
     return (
       <div
         className={cn(
@@ -174,7 +155,7 @@ export function ModalButtonSection({
             variant={secondary.variant}
             size={secondary.size}
             onClick={onSecondaryClick}
-            className={cn('flex-1', !cornerSquircle && 'corner-round')}
+            className="flex-1"
             style={buttonRadiusStyle}
           >
             <CrossfadeText
@@ -193,7 +174,7 @@ export function ModalButtonSection({
           variant={primary.variant}
           size={primary.size}
           onClick={onPrimaryClick}
-          className={cn('flex-1', !cornerSquircle && 'corner-round')}
+          className="flex-1"
           style={buttonRadiusStyle}
         >
           <CrossfadeText
@@ -212,7 +193,7 @@ export function ModalButtonSection({
             variant={secondary.variant}
             size={secondary.size}
             onClick={onSecondaryClick}
-            className={cn('flex-1', !cornerSquircle && 'corner-round')}
+            className="flex-1"
             style={buttonRadiusStyle}
           >
             <CrossfadeText
@@ -243,7 +224,7 @@ export function ModalButtonSection({
           variant={secondary.variant}
           size={secondary.size}
           onClick={onSecondaryClick}
-          className={cn('w-full', !cornerSquircle && 'corner-round')}
+          className="w-full"
           style={buttonRadiusStyle}
         >
           {/* Use preserved text during exit to maintain button height */}
@@ -256,7 +237,6 @@ export function ModalButtonSection({
           transition={stateTransition}
           variant={primary.variant === 'primary' ? 'primary' : primary.variant === 'secondary' ? 'secondary' : 'tertiary'}
           slowMo={slowMo}
-          className={cn(!cornerSquircle && 'corner-round')}
         />
       }
     />

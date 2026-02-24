@@ -1,0 +1,154 @@
+/**
+ * ProCard Component (Pricing Playground)
+ *
+ * Displays a "Pro 2X" style badge with gradient text,
+ * shine border container, and optional glow effect.
+ * Duplicated from modal playground for independent iteration.
+ */
+
+'use client'
+
+import { cn } from '@/lib/utils'
+import type { ProCardConfig, ProCardGradient, ProCardTextStyle } from '../config/types'
+
+// Gradient class mappings for text
+const GRADIENT_CLASSES: Record<ProCardGradient, string> = {
+  'arcade-blue': 'from-sky-300 via-sky-400 to-blue-500',
+  'ocean-depth': 'from-blue-400 via-blue-500 to-blue-600',
+  frost: 'from-white via-sky-200 to-sky-400',
+  electric: 'from-indigo-400 via-blue-400 to-blue-500',
+}
+
+// Semantic text color tokens
+const SEMANTIC_TEXT_COLORS = ['text-primary', 'text-secondary', 'text-tertiary'] as const
+
+const isSemanticToken = (style: ProCardTextStyle): style is typeof SEMANTIC_TEXT_COLORS[number] =>
+  SEMANTIC_TEXT_COLORS.includes(style as typeof SEMANTIC_TEXT_COLORS[number])
+
+// Glow color hex values
+const GLOW_COLORS: Record<string, string> = {
+  'sky-300': '#7dd3fc',
+  'sky-400': '#38bdf8',
+  'blue-400': '#60a5fa',
+  'blue-500': '#3b82f6',
+  white: '#ffffff',
+}
+
+// Background class mappings
+const BACKGROUND_CLASSES: Record<string, string> = {
+  primary: 'bg-primary',
+  secondary: 'bg-secondary',
+  tertiary: 'bg-tertiary',
+  transparent: 'bg-transparent',
+}
+
+// Font weight class mappings
+const FONT_WEIGHT_CLASSES: Record<string, string> = {
+  '400': 'font-normal',
+  '500': 'font-medium',
+  '600': 'font-semibold',
+  '700': 'font-bold',
+  '800': 'font-extrabold',
+  '900': 'font-black',
+}
+
+interface ProCardProps {
+  config: ProCardConfig
+  /** Height of the card - when 'fill' is true this is ignored and flex-1 is used */
+  height?: number
+  /** Whether the card should fill available space */
+  fill?: boolean
+}
+
+function getTextClasses(style: ProCardTextStyle): string {
+  if (isSemanticToken(style)) {
+    return style
+  }
+  return cn('bg-gradient-to-r bg-clip-text text-transparent', GRADIENT_CLASSES[style])
+}
+
+export function ProCard({ config, height, fill = false }: ProCardProps) {
+  const { title, multiplier, container, glow, text } = config
+
+  // Calculate font size (auto from height or manual)
+  const effectiveHeight = fill ? 120 : (height ?? 120)
+  const fontSize = text?.fontSize === 'auto' || !text?.fontSize
+    ? Math.max(28, effectiveHeight * 0.45)
+    : text.fontSize
+
+  const titleStyle = text?.titleGradient ?? config.gradient
+  const multiplierStyle = text?.multiplierGradient ?? config.gradient
+  const fontWeight = text?.fontWeight ?? '700'
+  const letterSpacing = text?.letterSpacing ?? -0.02
+  const sameStyle = titleStyle === multiplierStyle
+
+  return (
+    <div
+      className={cn(
+        'flex w-full items-center justify-center overflow-hidden',
+        fill && 'flex-1',
+        BACKGROUND_CLASSES[container.background],
+        container.shine !== 'none' && container.shine
+      )}
+      style={{
+        ...(!fill && height ? { height } : {}),
+        borderRadius: container.borderRadius,
+        padding: container.padding,
+      }}
+    >
+      <div className="relative flex items-center justify-center">
+        {/* Glow effect layer */}
+        {glow.enabled && (
+          <div
+            className={cn(
+              'pointer-events-none absolute inset-0',
+              glow.hideOnMobile && 'hidden sm:block'
+            )}
+            style={{
+              background: GLOW_COLORS[glow.color] ?? '#3b82f6',
+              filter: `blur(${glow.blur}px)`,
+              opacity: glow.opacity / 100,
+              transform: 'scale(1.5)',
+            }}
+          />
+        )}
+
+        {/* Text rendering */}
+        {sameStyle ? (
+          <span
+            className={cn(
+              'relative z-10 tracking-tight',
+              getTextClasses(titleStyle),
+              FONT_WEIGHT_CLASSES[fontWeight]
+            )}
+            style={{
+              fontSize,
+              letterSpacing: `${letterSpacing}em`,
+            }}
+          >
+            {title} {multiplier}x
+          </span>
+        ) : (
+          <span
+            className={cn(
+              'relative z-10 tracking-tight',
+              FONT_WEIGHT_CLASSES[fontWeight]
+            )}
+            style={{
+              fontSize,
+              letterSpacing: `${letterSpacing}em`,
+            }}
+          >
+            <span className={getTextClasses(titleStyle)}>
+              {title}
+            </span>
+            {' '}
+            <span className={getTextClasses(multiplierStyle)}>
+              {multiplier}x
+            </span>
+          </span>
+        )}
+      </div>
+    </div>
+  )
+}

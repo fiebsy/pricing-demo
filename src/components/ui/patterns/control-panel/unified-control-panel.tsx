@@ -152,7 +152,6 @@ function PanelInner<T>({
   getConfigForCopy,
   cornerSize,
   cornerRadius,
-  cornerSquircle,
 }: PanelInnerProps<T>) {
   const { isMinimized, activeTab, setActiveTab, toggleMinimized, direction } = usePanelContext()
 
@@ -283,7 +282,6 @@ function PanelInner<T>({
                 headerOffset={38}
                 cornerSize={cornerSize}
                 cornerRadius={cornerRadius}
-                cornerSquircle={cornerSquircle}
               />
             </div>
           </motion.div>
@@ -387,7 +385,6 @@ export function UnifiedControlPanel<T>({
   onMinimizedChange,
   cornerSize,
   cornerRadius,
-  cornerSquircle,
 }: UnifiedControlPanelProps<T>) {
   const {
     sections,
@@ -433,7 +430,6 @@ export function UnifiedControlPanel<T>({
         getConfigForCopy={getConfigForCopy}
         cornerSize={cornerSize}
         cornerRadius={cornerRadius}
-        cornerSquircle={cornerSquircle}
       />
     </PanelProvider>
   )

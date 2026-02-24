@@ -67,15 +67,12 @@ interface SlidingIndicatorProps {
   cornerSize?: number
   /** Radius of the inverse corner clip in pixels */
   cornerRadius?: number
-  /** Enable corner-squircle on the sliding indicator */
-  cornerSquircle?: boolean
 }
 
 function SlidingIndicator({
   activeIndex,
   cornerSize = 40,
   cornerRadius = 16,
-  cornerSquircle = false,
 }: SlidingIndicatorProps) {
   // Calculate Y position based on active index
   // Each item is ITEM_HEIGHT tall with ITEM_GAP gap between them
@@ -85,32 +82,16 @@ function SlidingIndicator({
   const s = cornerSize
   const r = Math.min(cornerRadius, cornerSize) // clamp radius to size
 
-  let topClip: string
-  let bottomClip: string
-
-  if (cornerSquircle) {
-    // Superellipse (squircle) curve using cubic bezier
-    // Control points sit closer to the corner for a flatter, more continuous curve
-    const k = r * 0.448 // squircle control point factor
-    // Top clip: bottom-right inverse corner
-    // Start at (s, s-r), curve to (s-r, s), line to (s, s), close
-    topClip = `path('M ${s} ${s - r} C ${s} ${s - k}, ${s - k} ${s}, ${s - r} ${s} L ${s} ${s} Z')`
-    // Bottom clip: top-right inverse corner
-    // Start at (s-r, 0), curve to (s, r), line to (s, 0), close
-    bottomClip = `path('M ${s - r} 0 C ${s - k} 0, ${s} ${k}, ${s} ${r} L ${s} 0 Z')`
-  } else {
-    // Standard circular arc
-    topClip = `path('M ${s} ${s - r} A ${r} ${r} 0 0 1 ${s - r} ${s} L ${s} ${s} Z')`
-    bottomClip = `path('M ${s - r} 0 A ${r} ${r} 0 0 1 ${s} ${r} L ${s} 0 Z')`
-  }
+  // Standard circular arc
+  const topClip = `path('M ${s} ${s - r} A ${r} ${r} 0 0 1 ${s - r} ${s} L ${s} ${s} Z')`
+  const bottomClip = `path('M ${s - r} 0 A ${r} ${r} 0 0 1 ${s} ${r} L ${s} 0 Z')`
 
   return (
     <motion.div
       className={cx(
         'pointer-events-none absolute left-0 right-0 overflow-visible rounded-l-lg',
         'bg-quaternary', // Main background color
-        'z-[2]', // Above non-active button backgrounds, below text content (z-10)
-        cornerSquircle && 'corner-squircle'
+        'z-[2]' // Above non-active button backgrounds, below text content (z-10)
       )}
       style={{ height: ITEM_HEIGHT, top: 0 }}
       initial={false}
@@ -213,8 +194,6 @@ export interface SidebarNavigationProps {
   cornerSize?: number
   /** Radius of the inverse corner clip in pixels */
   cornerRadius?: number
-  /** Enable corner-squircle on the sliding indicator */
-  cornerSquircle?: boolean
 }
 
 export function SidebarNavigation({
@@ -227,7 +206,6 @@ export function SidebarNavigation({
   headerOffset = 0,
   cornerSize,
   cornerRadius,
-  cornerSquircle,
 }: SidebarNavigationProps) {
   const [isHovered, setIsHovered] = useState(false)
   const isExpanded = forceExpanded || isHovered
@@ -264,7 +242,6 @@ export function SidebarNavigation({
                   activeIndex={activeIndex}
                   cornerSize={cornerSize}
                   cornerRadius={cornerRadius}
-                  cornerSquircle={cornerSquircle}
                 />
               )}
 

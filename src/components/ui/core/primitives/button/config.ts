@@ -2,7 +2,7 @@ import type { ButtonRoundness, ButtonSize, ButtonVariant } from './types'
 
 /**
  * Button size configurations
- * Note: Roundness (rounded-*, corner-squircle) is handled by roundnessStyles
+ * Note: Roundness (rounded-*) is handled by roundnessStyles
  */
 export const sizeStyles: Record<ButtonSize, string> = {
   xs: 'gap-0.5 px-2 py-1.5 text-xs font-semibold',
@@ -14,14 +14,14 @@ export const sizeStyles: Record<ButtonSize, string> = {
 
 /**
  * Button roundness configurations
- * - default: rounded-xl with corner squircle
- * - pill: fully rounded, no corner squircle
- * - squircle: fully rounded with corner squircle
+ * - default: rounded-lg
+ * - pill: fully rounded
+ * - squircle: fully rounded (legacy name, same as pill)
  */
 export const roundnessStyles: Record<ButtonRoundness, string> = {
-  default: 'rounded-xl corner-squircle before:rounded-[calc(0.75rem-1px)] before:corner-squircle',
+  default: 'rounded-lg before:rounded-[calc(0.5rem-1px)]',
   pill: 'rounded-full before:rounded-full',
-  squircle: 'rounded-full corner-squircle before:rounded-full before:corner-squircle',
+  squircle: 'rounded-full before:rounded-full',
 }
 
 /**
@@ -45,7 +45,7 @@ export const variantStyles: Record<ButtonVariant, string> = {
   primary: [
     'bg-brand-solid text-white shadow-xs-skeumorphic ring-1 ring-transparent ring-inset',
     // Inner border gradient (skeuomorphic effect)
-    'before:absolute before:inset-px before:border before:border-white/12 before:mask-b-from-0% before:corner-squircle',
+    'before:absolute before:inset-px before:border before:border-white/12 before:mask-b-from-0%',
     'hover:bg-brand-solid_hover',
     'data-[pressed]:bg-brand-solid_hover data-[pressed]:scale-[0.98]',
     'data-[disabled]:bg-disabled data-[disabled]:text-fg-disabled data-[disabled]:shadow-xs data-[disabled]:ring-disabled_subtle',
@@ -128,7 +128,7 @@ export const variantStyles: Record<ButtonVariant, string> = {
   'primary-destructive': [
     'bg-error-solid text-white shadow-xs-skeumorphic ring-1 ring-transparent ring-inset outline-error',
     // Inner border gradient (skeuomorphic effect)
-    'before:absolute before:inset-px before:border before:border-white/12 before:mask-b-from-0% before:corner-squircle',
+    'before:absolute before:inset-px before:border before:border-white/12 before:mask-b-from-0%',
     'hover:bg-error-solid_hover',
     'data-[pressed]:bg-error-solid_hover data-[pressed]:scale-[0.98]',
     'data-[disabled]:bg-disabled data-[disabled]:text-fg-disabled data-[disabled]:shadow-xs data-[disabled]:ring-disabled_subtle',
@@ -167,7 +167,7 @@ export const variantStyles: Record<ButtonVariant, string> = {
   'primary-success': [
     'bg-success-solid text-white shadow-xs-skeumorphic ring-1 ring-transparent ring-inset outline-success',
     // Inner border gradient (skeuomorphic effect)
-    'before:absolute before:inset-px before:border before:border-white/12 before:mask-b-from-0% before:corner-squircle',
+    'before:absolute before:inset-px before:border before:border-white/12 before:mask-b-from-0%',
     'hover:bg-success-solid_hover',
     'data-[pressed]:bg-success-solid_hover data-[pressed]:scale-[0.98]',
     'data-[disabled]:bg-disabled data-[disabled]:text-fg-disabled data-[disabled]:shadow-xs data-[disabled]:ring-disabled_subtle',
@@ -195,7 +195,6 @@ export const variantStyles: Record<ButtonVariant, string> = {
 
 /**
  * Common styles applied to all buttons
- * Note: corner-squircle is handled by roundnessStyles
  */
 export const commonStyles = [
   // Layout

@@ -151,8 +151,6 @@ export interface ButtonsConfig {
   gap: number
   /** Button corner radius mode */
   buttonRadius: 'default' | 'sync'
-  /** Enable corner-squircle on buttons */
-  cornerSquircle: boolean
   /** Fluid button animation config */
   fluid: FluidButtonConfig
 }

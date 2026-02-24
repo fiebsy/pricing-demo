@@ -32,7 +32,7 @@ export const activeHoverOverrideStyles: Record<ButtonUtilityColor, string> = {
  * Shape styles for ButtonUtility variants
  */
 export const shapeStyles: Record<ButtonUtilityShape, string> = {
-  square: 'rounded-md corner-squircle',
+  square: 'rounded-md',
   circular: 'rounded-full',
 }
 

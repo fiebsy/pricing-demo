@@ -9,9 +9,8 @@
 
 import * as React from 'react'
 import { cn } from '@/lib/utils'
-import { HugeIcon } from '@/components/ui/core/primitives/icon'
-import ArrowDown01Icon from '@hugeicons-pro/core-stroke-rounded/ArrowDown01Icon'
 import { usePricingSelectMenu } from '../context'
+import { CaretIcon } from './caret-icon'
 import {
   FONT_SIZE_CLASSES,
   FONT_WEIGHT_CLASSES,
@@ -29,6 +28,7 @@ import type {
   TriggerStateStyle,
   VariantBTriggerConfig,
   VariantBRightSource,
+  DropdownIconConfig,
 } from '../types'
 
 // ============================================================================
@@ -37,8 +37,12 @@ import type {
 
 export interface TriggerContentAProps {
   selectedTier: PricingTier
+  /** @deprecated Use dropdownIcon.show instead */
   showDropdownIcon?: boolean
+  /** @deprecated Use dropdownIcon.rotatesOnOpen instead */
   dropdownIconRotates?: boolean
+  /** Full dropdown icon configuration */
+  dropdownIcon?: DropdownIconConfig
   triggerTypography: TriggerTypographyConfig
   syncedSubtext: SyncedSubtextConfig
   triggerPaddingX?: number
@@ -53,8 +57,9 @@ export interface TriggerContentAProps {
 
 export const TriggerContentA: React.FC<TriggerContentAProps> = ({
   selectedTier,
-  showDropdownIcon = true,
-  dropdownIconRotates = true,
+  showDropdownIcon,
+  dropdownIconRotates,
+  dropdownIcon,
   triggerTypography,
   syncedSubtext,
   triggerPaddingX = 16,
@@ -64,6 +69,15 @@ export const TriggerContentA: React.FC<TriggerContentAProps> = ({
   upgradeMode = false,
 }) => {
   const { expanded, setExpanded } = usePricingSelectMenu()
+
+  // Resolve icon config with backward compatibility
+  const iconConfig: DropdownIconConfig = dropdownIcon ?? {
+    show: showDropdownIcon ?? true,
+    size: 18,
+    color: 'tertiary',
+    direction: 'down',
+    rotatesOnOpen: dropdownIconRotates ?? true,
+  }
 
   const { label, price, priceSuffix, subtext, priceRowAlign, priceRowGap, rowGap } =
     triggerTypography
@@ -192,14 +206,13 @@ export const TriggerContentA: React.FC<TriggerContentAProps> = ({
           </span>
         )}
       </div>
-      {showDropdownIcon && (
-        <HugeIcon
-          icon={ArrowDown01Icon}
-          size={16}
-          className={cn(
-            'shrink-0 text-tertiary transition-transform duration-200',
-            dropdownIconRotates && expanded && 'rotate-180'
-          )}
+      {iconConfig.show && (
+        <CaretIcon
+          size={iconConfig.size}
+          color={iconConfig.color}
+          direction={iconConfig.direction}
+          isOpen={expanded}
+          rotatesOnOpen={iconConfig.rotatesOnOpen}
         />
       )}
     </button>

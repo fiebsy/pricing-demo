@@ -200,7 +200,6 @@ className="text-tertiary"     // Muted text
 // Effects (see .claude/styles/utilities/effects.md)
 className="shine-1-subtle"    // Subtle shine
 className="depth-gradient-2"  // Medium depth
-className="corner-squircle"   // Squircle corners
 ```
 
 ### Animation Preferences (CRITICAL)

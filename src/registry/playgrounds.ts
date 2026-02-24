@@ -52,6 +52,20 @@ export const activePlaygrounds: PlaygroundEntry[] = [
     status: 'active',
     description: 'Animated coin stack asset with spring transitions',
   },
+  {
+    name: 'Pricing Modal',
+    route: '/playground/pricing',
+    category: 'component',
+    status: 'active',
+    description: 'Flow-based pricing modal with ProCard and configurable content',
+  },
+  {
+    name: 'Checklist',
+    route: '/playground/checklist',
+    category: 'component',
+    status: 'active',
+    description: 'Focused checklist component with full text and icon styling control',
+  },
 ]
 
 export const allPlaygrounds: PlaygroundEntry[] = [...activePlaygrounds]

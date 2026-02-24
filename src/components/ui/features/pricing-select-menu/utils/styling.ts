@@ -112,10 +112,6 @@ export function getPopupClasses(appearance: MenuAppearance): string {
     classes.push(BORDER_RADIUS_CLASSES[merged.borderRadius])
   }
 
-  // Squircle corners
-  if (merged.squircle) {
-    classes.push('corner-squircle')
-  }
 
   // Handle shine + shadow combination (both use box-shadow CSS property)
   const hasShine = merged.shine && merged.shine !== 'none'

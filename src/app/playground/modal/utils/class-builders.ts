@@ -22,8 +22,8 @@ export function buildContainerClasses(config: ModalPlaygroundConfig): string {
         ? 'bg-secondary'
         : 'bg-tertiary'
 
-  // Corner shape
-  const cornerClass = container.cornerShape === 'squircle' ? 'corner-squircle' : ''
+  // Corner shape (squircle removed)
+  const cornerClass = ''
 
   // Shine
   const shineClass = container.shine !== 'none' ? container.shine : ''

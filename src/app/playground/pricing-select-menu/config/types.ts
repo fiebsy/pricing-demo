@@ -30,6 +30,8 @@ import type {
   VariantBBottomSlotConfig,
   VariantTransitionType,
   PricingVariantId,
+  CaretDirection,
+  DropdownIconConfig,
 } from '@/components/ui/features/pricing-select-menu'
 
 // ============================================================================
@@ -37,6 +39,12 @@ import type {
 // ============================================================================
 
 export type PageBackground = 'primary' | 'secondary' | 'tertiary'
+export type EasingOption = 'expo-out' | 'ease-out' | 'ease-in-out' | 'cubic-out' | 'quart-out' | 'back-out' | 'linear'
+export type WidthMode = 'fixed' | 'fit-content' | 'full'
+export type PanelWidthMode = 'fixed' | 'fill'
+export type WrapperHeightMode = 'auto' | 'fixed'
+export type OverflowMode = 'visible' | 'hidden' | 'scroll'
+export type ModalBackground = 'none' | 'light' | 'dark' | 'blur'
 
 export interface TriggerPlaygroundConfig {
   collapsed: TriggerStateStyle
@@ -66,9 +74,32 @@ export interface ContainerHeaderConfig {
   marginBottom: number
 }
 
+export interface WrapperConfig {
+  enabled: boolean
+  showBorderLines: boolean
+  width: number
+  widthMode: WidthMode
+  heightModeA: WrapperHeightMode
+  heightA: number
+  heightModeB: WrapperHeightMode
+  heightB: number
+  overflow: OverflowMode
+  header: ContainerHeaderConfig
+}
+
+export interface ModalPreviewConfig {
+  enabled: boolean
+  background: ModalBackground
+  modalWidth: number
+  modalHeight: number
+  modalBackground: BackgroundOption
+  modalBorderWidth: number
+  modalBorderColor: BorderColorOption
+  modalBorderRadius: number
+}
+
 export interface SelectMenuConfig {
-  showDropdownIcon: boolean
-  dropdownIconRotates: boolean
+  dropdownIcon: DropdownIconConfig
   triggerPaddingX: number
   triggerPaddingTop: number
   triggerPaddingBottom: number
@@ -116,17 +147,19 @@ export interface PricingSelectMenuPlaygroundConfig {
     triggerHeight: number
     triggerHeightB: number
     panelWidth: number
+    panelWidthMode: PanelWidthMode
     maxBottomHeight: number
     maxBottomHeightB: number
     borderRadius: number
     bottomGap: number
     syncTriggerWidth: boolean
+    wrapper: WrapperConfig
+    modalPreview: ModalPreviewConfig
   }
   animation: {
     duration: number
     collapseDuration: number
-    contentFadeDuration: number
-    contentFadeDelay: number
+    easing: EasingOption
     animateSlotContainers: boolean
     slotContainerDelay: number
     slotContainerDurationOffset: number
@@ -147,15 +180,6 @@ export interface PricingSelectMenuPlaygroundConfig {
     pageBackground: PageBackground
     showDebug: boolean
     slowMo: boolean
-    debugContainer: {
-      enabled: boolean
-      showLines: boolean
-      width: number
-      padding: number
-      fixedHeight: boolean
-      height: number
-      header: ContainerHeaderConfig
-    }
   }
   selectMenu: SelectMenuConfig
   variantB: VariantBConfig
@@ -201,4 +225,7 @@ export type {
   VariantBTriggerConfig,
   VariantBBottomSlotConfig,
   PricingVariantId,
+  CaretDirection,
+  DropdownIconConfig,
 }
+

@@ -52,6 +52,9 @@ export interface OptionsListProps {
   itemTypography: ItemTypographyConfig
   menuItemLabel: MenuItemLabelConfig
   upgradeMode?: boolean
+  /** Show a disabled "current plan" option at top */
+  currentPlan?: PricingTier
+  currentPlanSuffix?: string
 }
 
 export const OptionsList: React.FC<OptionsListProps> = ({
@@ -68,14 +71,16 @@ export const OptionsList: React.FC<OptionsListProps> = ({
   headerPaddingBottom = 8,
   containerPadding = 4,
   itemPaddingX = 12,
-  itemPaddingY = 12,
+  itemPaddingY = 10,
   itemBorderRadius = 8,
-  itemGap = 2,
+  itemGap = 4,
   itemHoverBackground = 'quaternary',
   showSelectedIndicator = false,
   itemTypography,
   menuItemLabel,
   upgradeMode = false,
+  currentPlan,
+  currentPlanSuffix = '(current plan)',
 }) => {
   const { setExpanded } = usePricingSelectMenu()
 
@@ -103,6 +108,40 @@ export const OptionsList: React.FC<OptionsListProps> = ({
         </div>
       )}
       <div className="flex flex-col" style={{ gap: itemGap }}>
+        {/* Disabled current plan option */}
+        {currentPlan && (
+          <div
+            className="flex items-center justify-between opacity-50 cursor-not-allowed"
+            style={{
+              paddingLeft: itemPaddingX,
+              paddingRight: itemPaddingX,
+              paddingTop: itemPaddingY,
+              paddingBottom: itemPaddingY,
+              borderRadius: itemBorderRadius,
+            }}
+          >
+            <span
+              className={cn('flex', isStacked ? 'flex-col items-start' : 'items-center')}
+              style={{ gap: isStacked ? 2 : menuItemLabel.gap }}
+            >
+              <span className={cn(
+                FONT_SIZE_CLASSES[menuItemLabel.planName.fontSize],
+                FONT_WEIGHT_CLASSES[menuItemLabel.planName.fontWeight],
+                TEXT_COLOR_CLASSES[menuItemLabel.planName.textColor]
+              )}>
+                {currentPlan.planName}
+              </span>
+              <span className={cn(
+                FONT_SIZE_CLASSES[menuItemLabel.credits.fontSize],
+                FONT_WEIGHT_CLASSES[menuItemLabel.credits.fontWeight],
+                TEXT_COLOR_CLASSES[menuItemLabel.credits.textColor]
+              )}>
+                {currentPlan.priceLabel}
+              </span>
+            </span>
+            <span className="text-tertiary text-sm">{currentPlanSuffix}</span>
+          </div>
+        )}
         {tiers.map((tier) => {
           const isSelected = selectedId === tier.id
           return (
@@ -117,7 +156,7 @@ export const OptionsList: React.FC<OptionsListProps> = ({
                 'flex items-center justify-between',
                 'transition-colors duration-150',
                 HOVER_BACKGROUND_CLASSES[itemHoverBackground],
-                isSelected && 'text-brand-primary'
+                isSelected && 'text-brand-primary bg-quaternary/30'
               )}
               style={{
                 paddingLeft: itemPaddingX,
@@ -142,6 +181,10 @@ export const OptionsList: React.FC<OptionsListProps> = ({
                 />
               </span>
               <div className="flex items-center gap-2">
+                {/* Selected indicator dot */}
+                {isSelected && (
+                  <span className="size-1.5 rounded-full bg-blue-500 shrink-0" />
+                )}
                 <span
                   className={cn(
                     FONT_SIZE_CLASSES[itemTypography.price.fontSize],

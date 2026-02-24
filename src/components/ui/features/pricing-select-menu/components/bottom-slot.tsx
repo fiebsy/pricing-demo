@@ -12,7 +12,7 @@ import { useEffect, useRef } from 'react'
 import { ScrollArea } from '@base-ui/react/scroll-area'
 import { cn } from '@/lib/utils'
 import { usePricingSelectMenu } from '../context'
-import { EASING_EXPO_OUT } from '../constants'
+import { EASING_MAP } from '../constants'
 import { getBackgroundClass, getBorderColorVar, getSlotContainerClipPath } from '../utils'
 import type { BottomSlotProps } from '../types'
 
@@ -46,6 +46,7 @@ export const BottomSlot: React.FC<BottomSlotProps> = ({
 
   const duration = timing.slotDuration()
   const delay = timing.slotDelay()
+  const easing = EASING_MAP[config.animation.easing] || EASING_MAP['expo-out']
 
   // Optional clip-path animation for "grow from origin" effect
   const clipPath = config.animation.animateSlotContainers
@@ -58,7 +59,6 @@ export const BottomSlot: React.FC<BottomSlotProps> = ({
     <div
       className={cn(
         'absolute overflow-hidden',
-        config.appearance.squircle && 'corner-squircle',
         getBackgroundClass(slotConfig.background ?? 'secondary'),
         slotConfig.shine && slotConfig.shine !== 'none' && slotConfig.shine,
         className
@@ -70,7 +70,7 @@ export const BottomSlot: React.FC<BottomSlotProps> = ({
         right: inset,
         borderRadius: slotConfig.borderRadius ?? 14,
         clipPath,
-        transition: `clip-path ${duration}ms ${EASING_EXPO_OUT} ${delay}ms`,
+        transition: `clip-path ${duration}ms ${easing} ${delay}ms`,
         ...(slotConfig.borderWidth && slotConfig.borderWidth > 0 && {
           borderWidth: slotConfig.borderWidth,
           borderStyle: 'solid',

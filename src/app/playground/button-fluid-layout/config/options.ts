@@ -135,3 +135,33 @@ export const CHECKMARK_ENTRANCE_OPTIONS = [
   { label: 'Draw', value: 'draw' },
   { label: 'Flip', value: 'flip' },
 ] as const
+
+// ============================================================================
+// State Options (Hierarchical)
+// ============================================================================
+
+export const STATE_OPTIONS = [
+  { id: 'A', label: 'A' },
+  { id: 'B1', label: 'B1' },
+  { id: 'B2', label: 'B2' },
+  { id: 'C1', label: 'C1' },
+  { id: 'C2', label: 'C2' },
+] as const
+
+// ============================================================================
+// Auto Transition Delay Ranges
+// ============================================================================
+
+export const B2_TO_C1_DELAY_RANGE = {
+  min: 500,
+  max: 5000,
+  step: 100,
+  default: 2000,
+} as const
+
+export const C1_TO_C2_DELAY_RANGE = {
+  min: 500,
+  max: 3000,
+  step: 100,
+  default: 1000,
+} as const

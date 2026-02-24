@@ -23,7 +23,20 @@ import type {
 // EASING
 // ============================================================================
 
+import type { EasingOption } from './types'
+
 export const EASING_EXPO_OUT = 'cubic-bezier(0.16, 1, 0.3, 1)'
+
+/** CSS cubic-bezier mappings for easing options */
+export const EASING_MAP: Record<EasingOption, string> = {
+  'expo-out': 'cubic-bezier(0.16, 1, 0.3, 1)',
+  'ease-out': 'cubic-bezier(0, 0, 0.2, 1)',
+  'ease-in-out': 'cubic-bezier(0.4, 0, 0.2, 1)',
+  'cubic-out': 'cubic-bezier(0.33, 1, 0.68, 1)',
+  'quart-out': 'cubic-bezier(0.25, 1, 0.5, 1)',
+  'back-out': 'cubic-bezier(0.34, 1.56, 0.64, 1)',
+  'linear': 'linear',
+}
 
 // ============================================================================
 // DEFAULT ANIMATION CONFIG
@@ -32,8 +45,7 @@ export const EASING_EXPO_OUT = 'cubic-bezier(0.16, 1, 0.3, 1)'
 export const DEFAULT_ANIMATION_CONFIG: AnimationConfig = {
   duration: 300,
   collapseDuration: 150,
-  contentFadeDuration: 0,
-  contentFadeDelay: 0,
+  easing: 'expo-out',
   animateSlotContainers: false,
   slotContainerDelay: 0,
   slotContainerDurationOffset: 100,

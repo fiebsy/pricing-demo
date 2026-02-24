@@ -88,6 +88,16 @@ export const EXPAND_ORIGIN_OPTIONS = [
   { value: 'bottom', label: 'Bottom' },
 ]
 
+export const EASING_OPTIONS = [
+  { value: 'expo-out', label: 'Expo Out (Default)' },
+  { value: 'ease-out', label: 'Ease Out' },
+  { value: 'ease-in-out', label: 'Ease In-Out' },
+  { value: 'cubic-out', label: 'Cubic Out' },
+  { value: 'quart-out', label: 'Quart Out' },
+  { value: 'back-out', label: 'Back Out (Overshoot)' },
+  { value: 'linear', label: 'Linear' },
+]
+
 // ============================================================================
 // TYPOGRAPHY OPTIONS
 // ============================================================================
@@ -165,4 +175,46 @@ export const VARIANT_B_RIGHT_SOURCE_OPTIONS = [
 export const VARIANT_TRANSITION_TYPE_OPTIONS = [
   { value: 'spring', label: 'Spring' },
   { value: 'tween', label: 'Tween' },
+]
+
+// ============================================================================
+// WRAPPER OPTIONS
+// ============================================================================
+
+export const WIDTH_MODE_OPTIONS = [
+  { value: 'fixed', label: 'Fixed' },
+  { value: 'fit-content', label: 'Fit Content' },
+  { value: 'full', label: 'Full Width' },
+]
+
+export const PANEL_WIDTH_MODE_OPTIONS = [
+  { value: 'fixed', label: 'Fixed' },
+  { value: 'fill', label: 'Fill Container' },
+]
+
+export const WRAPPER_HEIGHT_MODE_OPTIONS = [
+  { value: 'auto', label: 'Auto' },
+  { value: 'fixed', label: 'Fixed' },
+]
+
+export const OVERFLOW_MODE_OPTIONS = [
+  { value: 'visible', label: 'Visible' },
+  { value: 'hidden', label: 'Hidden' },
+  { value: 'scroll', label: 'Scroll' },
+]
+
+export const MODAL_BACKGROUND_OPTIONS = [
+  { value: 'none', label: 'None' },
+  { value: 'light', label: 'Light' },
+  { value: 'dark', label: 'Dark' },
+  { value: 'blur', label: 'Blur' },
+]
+
+// ============================================================================
+// ICON OPTIONS
+// ============================================================================
+
+export const CARET_DIRECTION_OPTIONS = [
+  { value: 'down', label: 'Down' },
+  { value: 'right', label: 'Right' },
 ]

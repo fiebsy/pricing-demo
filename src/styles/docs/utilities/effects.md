@@ -253,7 +253,6 @@ Uses the `@toolwind/corner-shape` plugin.
 
 | Utility | Effect |
 |---------|--------|
-| `corner-squircle` | iOS-style superellipse corners |
 | `corner-round` | Standard rounded (default) |
 | `corner-bevel` | Straight diagonal cut |
 | `corner-scoop` | Concave rounded |
@@ -261,15 +260,10 @@ Uses the `@toolwind/corner-shape` plugin.
 | `corner-square` | Sharp 90° |
 
 ```tsx
-// Squircle corners (like iOS icons)
-<div className="corner-squircle rounded-3xl bg-primary">
-  Squircle shape
-</div>
-
 // Per-corner control
 <div className="
-  corner-tl-squircle
-  corner-br-squircle
+  corner-tl-bevel
+  corner-br-bevel
   corner-tr-round
   corner-bl-round
   rounded-xl
@@ -289,15 +283,6 @@ corner-t-{shape}   // Top edge (both)
 corner-b-{shape}   // Bottom edge (both)
 corner-l-{shape}   // Left edge (both)
 corner-r-{shape}   // Right edge (both)
-```
-
-### Superellipse Custom Values
-
-```tsx
-// Custom curve value
-<div className="corner-superellipse/2 rounded-xl">
-  Custom superellipse
-</div>
 ```
 
 ## Scrollbar Utilities
@@ -409,7 +394,6 @@ These use semantic tokens to match the design system.
   shine-2-subtle-shadow-lg
   depth-gradient-2
   bg-secondary
-  corner-squircle
   rounded-3xl
   p-6
 ">
@@ -429,7 +413,6 @@ These use semantic tokens to match the design system.
   shine-brand
   bg-brand-solid
   hover:bg-brand-solid_hover
-  corner-squircle
   rounded-2xl
   px-6 py-3
   text-white
