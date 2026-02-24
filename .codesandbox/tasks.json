@@ -1,0 +1,23 @@
+{
+  "$schema": "https://codesandbox.io/schemas/tasks.json",
+  "setupTasks": [
+    {
+      "name": "Install Dependencies",
+      "command": "corepack enable && pnpm install --no-frozen-lockfile"
+    }
+  ],
+  "tasks": {
+    "dev": {
+      "name": "Development Server",
+      "command": "pnpm dev",
+      "runAtStart": true,
+      "preview": {
+        "port": 3000
+      }
+    },
+    "build": {
+      "name": "Build",
+      "command": "pnpm build"
+    }
+  }
+}
