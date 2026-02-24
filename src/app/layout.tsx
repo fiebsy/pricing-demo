@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { neueHaasGroteskText, neueHaasGroteskDisplay } from '@/lib/fonts'
+import { interBody, interDisplay } from '@/lib/fonts'
 import { ThemeProvider } from '@/components/theme-provider'
 import '../styles/globals.css'
 
@@ -14,7 +14,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={`${neueHaasGroteskText.variable} ${neueHaasGroteskDisplay.variable} bg-secondary_alt overscroll-none dark-mode`} style={{ scrollbarGutter: 'stable' }} suppressHydrationWarning>
+    <html lang="en" className={`${interBody.variable} ${interDisplay.variable} bg-secondary_alt overscroll-none dark-mode`} style={{ scrollbarGutter: 'stable' }} suppressHydrationWarning>
       <head>
         <script
           dangerouslySetInnerHTML={{
