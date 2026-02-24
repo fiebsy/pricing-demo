@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import {
   AnimatedCreditsBadge,
@@ -13,6 +13,100 @@ import {
   CommandIcon,
 } from './components'
 
+// ============================================================================
+// Capture Mode Types
+// ============================================================================
+
+type FlowState = 'demo' | 'A-collapsed' | 'A-expanded' | 'B1' | 'B2' | 'C1' | 'C2' | 'post-upgrade' | 'credits-animation'
+
+interface CaptureState {
+  enabled: boolean
+  slowMo: boolean
+  pauseCredits: boolean
+  forceDropdownExpanded: boolean
+  currentFlow: FlowState
+}
+
+// ============================================================================
+// Capture Debug Panel Component
+// ============================================================================
+
+function CaptureDebugPanel({
+  state,
+  onStateChange,
+  onSetFlow,
+}: {
+  state: CaptureState
+  onStateChange: (updates: Partial<CaptureState>) => void
+  onSetFlow: (flow: FlowState) => void
+}) {
+  const flowStates: FlowState[] = ['demo', 'A-collapsed', 'A-expanded', 'B1', 'B2', 'C1', 'C2', 'post-upgrade', 'credits-animation']
+
+  return (
+    <div className="fixed bottom-4 right-4 z-[1000] bg-gray-900 text-white rounded-lg shadow-2xl p-4 min-w-[280px] font-mono text-xs">
+      <div className="flex items-center gap-2 mb-3 pb-2 border-b border-gray-700">
+        <span className="text-lg">📸</span>
+        <span className="font-semibold text-sm">Capture Mode</span>
+      </div>
+
+      <div className="space-y-2">
+        <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-800 p-1 rounded">
+          <input
+            type="checkbox"
+            checked={state.slowMo}
+            onChange={(e) => onStateChange({ slowMo: e.target.checked })}
+            className="accent-blue-500"
+          />
+          <span>SlowMo transitions (5x)</span>
+        </label>
+
+        <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-800 p-1 rounded">
+          <input
+            type="checkbox"
+            checked={state.pauseCredits}
+            onChange={(e) => onStateChange({ pauseCredits: e.target.checked })}
+            className="accent-blue-500"
+          />
+          <span>Pause credit animation</span>
+        </label>
+
+        <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-800 p-1 rounded">
+          <input
+            type="checkbox"
+            checked={state.forceDropdownExpanded}
+            onChange={(e) => onStateChange({ forceDropdownExpanded: e.target.checked })}
+            className="accent-blue-500"
+          />
+          <span>Force dropdown expanded</span>
+        </label>
+      </div>
+
+      <div className="mt-3 pt-2 border-t border-gray-700">
+        <div className="text-gray-400 mb-2">Flow State:</div>
+        <div className="flex flex-wrap gap-1">
+          {flowStates.map((flow) => (
+            <button
+              key={flow}
+              onClick={() => onSetFlow(flow)}
+              className={`px-2 py-1 rounded text-[10px] transition-colors ${
+                state.currentFlow === flow
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+              }`}
+            >
+              {flow}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-3 pt-2 border-t border-gray-700 text-gray-500 text-[10px]">
+        URL param: ?capture=true
+      </div>
+    </div>
+  )
+}
+
 export default function DemoPage() {
   // Credit state
   const [credits, setCredits] = useState(20)
@@ -23,6 +117,65 @@ export default function DemoPage() {
 
   // Modal state
   const [modalOpen, setModalOpen] = useState(false)
+
+  // Capture mode state
+  const [captureState, setCaptureState] = useState<CaptureState>({
+    enabled: false,
+    slowMo: false,
+    pauseCredits: false,
+    forceDropdownExpanded: false,
+    currentFlow: 'demo',
+  })
+
+  // Check for capture mode URL param
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('capture') === 'true') {
+      setCaptureState((prev) => ({ ...prev, enabled: true }))
+    }
+  }, [])
+
+  // Handle flow state changes from debug panel
+  const handleSetFlow = useCallback((flow: FlowState) => {
+    setCaptureState((prev) => ({ ...prev, currentFlow: flow }))
+
+    switch (flow) {
+      case 'demo':
+        setModalOpen(false)
+        setCredits(20)
+        setPreviousCredits(20)
+        setIsAnimating(false)
+        break
+      case 'A-collapsed':
+        setModalOpen(true)
+        setCaptureState((prev) => ({ ...prev, forceDropdownExpanded: false }))
+        break
+      case 'A-expanded':
+        setModalOpen(true)
+        setCaptureState((prev) => ({ ...prev, forceDropdownExpanded: true }))
+        break
+      case 'B1':
+      case 'B2':
+      case 'C1':
+      case 'C2':
+        setModalOpen(true)
+        setCaptureState((prev) => ({ ...prev, forceDropdownExpanded: false }))
+        // Note: Actual flow state changes need to be triggered through modal interaction
+        break
+      case 'post-upgrade':
+        setModalOpen(false)
+        setCredits(500)
+        setPreviousCredits(500)
+        setIsAnimating(false)
+        break
+      case 'credits-animation':
+        setModalOpen(false)
+        setCredits(500)
+        setPreviousCredits(20)
+        setIsAnimating(true)
+        break
+    }
+  }, [])
 
   const hasEnoughCredits = credits >= 100
 
@@ -81,6 +234,7 @@ export default function DemoPage() {
               previousValue={previousCredits}
               isAnimating={isAnimating}
               onAnimationComplete={handleAnimationComplete}
+              pauseAtProgress={captureState.pauseCredits ? 0.5 : undefined}
             />
           </div>
         </div>
@@ -189,7 +343,18 @@ export default function DemoPage() {
         open={modalOpen}
         onOpenChange={setModalOpen}
         onUpgradeComplete={handleUpgradeComplete}
+        slowMo={captureState.slowMo}
+        forceDropdownExpanded={captureState.forceDropdownExpanded}
       />
+
+      {/* Capture Mode Debug Panel */}
+      {captureState.enabled && (
+        <CaptureDebugPanel
+          state={captureState}
+          onStateChange={(updates) => setCaptureState((prev) => ({ ...prev, ...updates }))}
+          onSetFlow={handleSetFlow}
+        />
+      )}
     </div>
   )
 }

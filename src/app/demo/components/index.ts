@@ -13,4 +13,6 @@ export {
   VideoIcon,
   CommandIcon,
 } from './icons'
-export { DemoPricingWrapper } from './demo-pricing-wrapper'
+
+// Pricing components from self-contained pricing folder
+export { DemoPricingWrapper } from './pricing'

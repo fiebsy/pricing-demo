@@ -14,6 +14,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${interBody.variable} ${interDisplay.variable} bg-secondary_alt overscroll-none`} style={{ scrollbarGutter: 'stable' }}>
+      <head />
       <body className="font-body bg-secondary_alt noise-overlay noise-fixed noise-opacity-90">
         {children}
       </body>

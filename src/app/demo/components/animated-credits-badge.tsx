@@ -16,6 +16,8 @@ interface AnimatedCreditsBadgeProps {
   previousValue: number
   isAnimating: boolean
   onAnimationComplete?: () => void
+  /** Pause animation at a specific progress (0-1). Used for capture mode. */
+  pauseAtProgress?: number
 }
 
 export function AnimatedCreditsBadge({
@@ -23,6 +25,7 @@ export function AnimatedCreditsBadge({
   previousValue,
   isAnimating,
   onAnimationComplete,
+  pauseAtProgress,
 }: AnimatedCreditsBadgeProps) {
   const displayValue = useSpring(previousValue, {
     stiffness: 100,
@@ -52,6 +55,19 @@ export function AnimatedCreditsBadge({
 
   useEffect(() => {
     if (isAnimating) {
+      // Check if we should pause at a specific progress
+      const isPaused = pauseAtProgress !== undefined
+
+      if (isPaused) {
+        // Set values to specific progress point for capture
+        const targetValue = previousValue + (value - previousValue) * pauseAtProgress
+        displayValue.set(targetValue)
+        scale.set(1 + 0.15 * (1 - Math.abs(pauseAtProgress - 0.2) * 2)) // Peak at ~0.2
+        colorProgress.set(pauseAtProgress < 0.75 ? 1 : 1 - (pauseAtProgress - 0.75) * 4)
+        // Don't trigger completion when paused
+        return
+      }
+
       // Trigger scale bounce
       scale.set(1.15)
       setTimeout(() => scale.set(1), 150)
@@ -70,7 +86,7 @@ export function AnimatedCreditsBadge({
 
       return () => clearTimeout(timeout)
     }
-  }, [isAnimating, value, displayValue, scale, colorProgress, onAnimationComplete])
+  }, [isAnimating, value, previousValue, displayValue, scale, colorProgress, onAnimationComplete, pauseAtProgress])
 
   useEffect(() => {
     const unsubscribe = displayValue.on('change', (latest) => {

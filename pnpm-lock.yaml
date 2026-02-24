@@ -11,27 +11,6 @@ importers:
       '@base-ui/react':
         specifier: ^1.0.0-alpha.8
         version: 1.0.0(@types/react@19.2.5)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
-      '@hugeicons-pro/core-bulk-rounded':
-        specifier: ^1.2.1
-        version: 1.2.1
-      '@hugeicons-pro/core-duotone-rounded':
-        specifier: ^1.2.1
-        version: 1.2.1
-      '@hugeicons-pro/core-solid-rounded':
-        specifier: ^1.2.1
-        version: 1.2.1
-      '@hugeicons-pro/core-solid-standard':
-        specifier: ^3.1.0
-        version: 3.1.0
-      '@hugeicons-pro/core-stroke-rounded':
-        specifier: ^1.2.1
-        version: 1.2.1
-      '@hugeicons-pro/core-twotone-rounded':
-        specifier: ^1.2.1
-        version: 1.2.1
-      '@hugeicons/react':
-        specifier: ^1.1.5
-        version: 1.1.5(react@19.2.0)
       '@silk-hq/components':
         specifier: ^0.9.12
         version: 0.9.12(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -154,29 +133,6 @@ packages:
 
   '@formatjs/intl-localematcher@0.6.2':
     resolution: {integrity: sha512-XOMO2Hupl0wdd172Y06h6kLpBz6Dv+J4okPLl4LPtzbr8f66WbIoy4ev98EBuZ6ZK4h5ydTN6XneT4QVpD7cdA==}
-
-  '@hugeicons-pro/core-bulk-rounded@1.2.1':
-    resolution: {integrity: sha512-mTGsTcWvNLT9PapxQPvg6eI15nNqTW31+6fuyAmu1PZIYPpSQZdgmh1dE939aQKApN0jPZjYlJKucF2V21j2SA==}
-
-  '@hugeicons-pro/core-duotone-rounded@1.2.1':
-    resolution: {integrity: sha512-ABJ1efDEncctrv6cZdwPUt6gZLUvVb3/XL6v1FaZJzyZBi8dKW+uSRoTK2KMcid0VCvTjQKbryWH7d2L5w88og==}
-
-  '@hugeicons-pro/core-solid-rounded@1.2.1':
-    resolution: {integrity: sha512-95G7Hi7p9U89buXnCPufkqJMg2meeclC1kypKgSjsX6Vnzuroa7cRxCPinCI8Qlh2BsPkydco9rXVRkPwDxHEQ==}
-
-  '@hugeicons-pro/core-solid-standard@3.1.0':
-    resolution: {integrity: sha512-zwVKOOFqBlfs+pvbBvBY4ZRvHepzDvs9DXx+8Doz0qgrnqMgy9KUPWbIn2SfLLD6m+q//hw8aIMgLQ8G+6H3rA==}
-
-  '@hugeicons-pro/core-stroke-rounded@1.2.1':
-    resolution: {integrity: sha512-ZPusdsQ9xrIVzQwl37CiFbutVQ7tLOS9B8i+lFtpKak3S6Jwdit7hmVwqbEuzDN2ly1hYD5WGPii0aJ4n+fZtQ==}
-
-  '@hugeicons-pro/core-twotone-rounded@1.2.1':
-    resolution: {integrity: sha512-W/txKFSwlXoQbl3aBoTUmft0aOtqsWb8ullMpOT5wyPf7KPCbSzxWc/zp1NIS1WBDFkzjkzltIdvTzPtn/vpuw==}
-
-  '@hugeicons/react@1.1.5':
-    resolution: {integrity: sha512-JX/iDz3oO7hWdVqbjwFwRrAjHk8h2vI+mBkNzp4JcXG3t4idoupfjon73nLOA7cr27m0M8hrRC1Q2h6nEBGKVA==}
-    peerDependencies:
-      react: '>=16.0.0'
 
   '@img/colour@1.0.0':
     resolution: {integrity: sha512-A5P/LfWGFSl6nsckYtjw9da+19jB8hkJ6ACTGcDfEJ0aE+l2n2El7dsVM7UVHZQ9s2lmYMWlrS21YLy2IR1LUw==}
@@ -1502,22 +1458,6 @@ snapshots:
   '@formatjs/intl-localematcher@0.6.2':
     dependencies:
       tslib: 2.8.1
-
-  '@hugeicons-pro/core-bulk-rounded@1.2.1': {}
-
-  '@hugeicons-pro/core-duotone-rounded@1.2.1': {}
-
-  '@hugeicons-pro/core-solid-rounded@1.2.1': {}
-
-  '@hugeicons-pro/core-solid-standard@3.1.0': {}
-
-  '@hugeicons-pro/core-stroke-rounded@1.2.1': {}
-
-  '@hugeicons-pro/core-twotone-rounded@1.2.1': {}
-
-  '@hugeicons/react@1.1.5(react@19.2.0)':
-    dependencies:
-      react: 19.2.0
 
   '@img/colour@1.0.0':
     optional: true

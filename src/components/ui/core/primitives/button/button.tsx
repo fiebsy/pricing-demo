@@ -5,7 +5,6 @@ import type { FC, ReactNode } from 'react'
 import { Button as BaseButton } from '@base-ui/react/button'
 import { cn } from '@/lib/utils'
 
-import { HugeIcon } from '@/components/ui/core/primitives/icon'
 import type { ButtonProps, IconProp } from './types'
 import {
   commonStyles,
@@ -20,19 +19,6 @@ import {
 // ============================================================================
 // UTILITIES
 // ============================================================================
-
-/**
- * Check if a value is a HugeIcon array format
- * HugeIcons export arrays like: [["circle", {...}], ["path", {...}]]
- */
-function isHugeIconArray(value: unknown): boolean {
-  return (
-    Array.isArray(value) &&
-    value.length > 0 &&
-    Array.isArray(value[0]) &&
-    typeof value[0][0] === 'string'
-  )
-}
 
 /**
  * Check if a value is a React component function
@@ -50,19 +36,6 @@ function renderIcon(icon: IconProp | undefined, position: 'leading' | 'trailing'
   // Already a React element
   if (isValidElement(icon)) {
     return icon
-  }
-
-  // HugeIcon array - needs HugeIcon wrapper
-  if (isHugeIconArray(icon)) {
-    return (
-      <HugeIcon
-        icon={icon}
-        size={20}
-        strokeWidth={1.5}
-        data-icon={position}
-        className={iconStyles}
-      />
-    )
   }
 
   // React component function

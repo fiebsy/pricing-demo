@@ -41,8 +41,8 @@ export const UPGRADE_FLOW_DIMENSIONS = {
 // ============================================================================
 
 export const UPGRADE_FLOW_ANIMATION: AnimationConfig = {
-  duration: 425,
-  collapseDuration: 250,
+  duration: 212,
+  collapseDuration: 125,
   easing: 'expo-out',
   animateSlotContainers: false,
   slotContainerDelay: 0,

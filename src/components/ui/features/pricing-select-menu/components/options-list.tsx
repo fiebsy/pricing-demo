@@ -8,8 +8,7 @@
 
 import * as React from 'react'
 import { cn } from '@/lib/utils'
-import { HugeIcon } from '@/components/ui/core/primitives/icon'
-import Tick01Icon from '@hugeicons-pro/core-stroke-rounded/Tick01Icon'
+import { CheckIcon } from '@/app/demo/components/pricing/assets/inline-icons'
 import { usePricingSelectMenu } from '../context'
 import {
   FONT_SIZE_CLASSES,
@@ -196,7 +195,7 @@ export const OptionsList: React.FC<OptionsListProps> = ({
                   {upgradeMode ? tier.upgradeFeeLabel : tier.priceLabel}
                 </span>
                 {showSelectedIndicator && isSelected && (
-                  <HugeIcon icon={Tick01Icon} size={16} className="text-brand-primary" />
+                  <CheckIcon size={16} className="text-brand-primary" />
                 )}
               </div>
             </button>

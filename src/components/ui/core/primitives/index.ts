@@ -4,10 +4,6 @@
  * Stable, hardened UI primitives that are production-ready.
  */
 
-// Icon
-export { HugeIcon, Icon } from './icon'
-export type { HugeIconData, IconSize } from './icon'
-
 // Button
 export * from './button'
 

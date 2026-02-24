@@ -4,5 +4,4 @@
  * Complex, reusable UI patterns that provide sophisticated functionality.
  */
 
-// Control Panel - Unified configuration panel for playgrounds
-export * from './control-panel'
+// No patterns currently exported - control-panel removed for CodeSandbox deployment

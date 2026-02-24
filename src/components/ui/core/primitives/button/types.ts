@@ -35,7 +35,7 @@ export type ButtonVariant =
   | 'tertiary-success'
 
 /**
- * Icon prop type - can be a component, element, or HugeIcon array
+ * Icon prop type - can be a component or React element
  */
 export type IconProp = FC<{ className?: string }> | ReactNode
 
