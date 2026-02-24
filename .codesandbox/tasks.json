@@ -3,13 +3,13 @@
   "setupTasks": [
     {
       "name": "Install Dependencies",
-      "command": "corepack enable && pnpm install --no-frozen-lockfile"
+      "command": "npm install --legacy-peer-deps"
     }
   ],
   "tasks": {
     "dev": {
       "name": "Development Server",
-      "command": "pnpm dev",
+      "command": "npm run dev",
       "runAtStart": true,
       "preview": {
         "port": 3000
@@ -17,7 +17,7 @@
     },
     "build": {
       "name": "Build",
-      "command": "pnpm build"
+      "command": "npm run build"
     }
   }
 }

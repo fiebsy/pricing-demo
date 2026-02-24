@@ -22,7 +22,6 @@
   ],
   "author": "Derick Fiebiger",
   "license": "MIT",
-  "packageManager": "pnpm@9.15.0",
   "dependencies": {
     "@base-ui/react": "^1.0.0-alpha.8",
     "@silk-hq/components": "^0.9.12",
