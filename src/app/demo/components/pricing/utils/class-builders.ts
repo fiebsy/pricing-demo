@@ -23,7 +23,6 @@ import type {
 export function buildContainerClasses(config: PricingPlaygroundConfig): string {
   const { container } = config
 
-  const bgClass = `bg-${container.background}`
   const cornerClass = ''
   const depthClass = container.depth !== 'none' ? container.depth : ''
 
@@ -50,7 +49,7 @@ export function buildContainerClasses(config: PricingPlaygroundConfig): string {
     effectClass = `shadow-${container.shadow}`
   }
 
-  return cn(bgClass, cornerClass, depthClass, effectClass)
+  return cn(cornerClass, depthClass, effectClass)
 }
 
 export function buildContainerStyles(config: PricingPlaygroundConfig): React.CSSProperties {
@@ -70,6 +69,7 @@ export function buildContainerStyles(config: PricingPlaygroundConfig): React.CSS
     borderWidth: container.borderWidth,
     borderStyle: container.borderWidth > 0 ? 'solid' : 'none',
     borderColor,
+    backgroundColor: `var(--background-color-${container.background})`,
     overflow: 'visible',
   }
 }
