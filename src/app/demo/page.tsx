@@ -255,6 +255,7 @@ export default function DemoPage() {
               </label>
               <div className="relative">
                 <textarea
+                  suppressHydrationWarning
                   placeholder="Describe your video or drop your script and assets here..."
                   className="text-primary placeholder:text-secondary h-40 w-full resize-none rounded-lg bg-secondary p-3 focus:outline-none hover:bg-tertiary focus:bg-tertiary transition-colors flex items-center justify-between"
                 />
