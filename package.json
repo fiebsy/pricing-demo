@@ -1,7 +1,7 @@
 {
-  "name": "payva-design-system-modal",
+  "name": "design-system-modal",
   "version": "1.0.0",
-  "description": "PAYVA design system — modal challenge showcase",
+  "description": "Design system — modal challenge showcase",
   "private": true,
   "engines": {
     "node": ">=20.9.0"

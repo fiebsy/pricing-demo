@@ -3,7 +3,7 @@ import { interBody, interDisplay } from '@/lib/fonts'
 import '../styles/globals.css'
 
 export const metadata: Metadata = {
-  title: 'PAYVA Design System — Modal Challenge',
+  title: 'Design System — Modal Challenge',
   description: 'Core design system components and modal showcase',
 }
 

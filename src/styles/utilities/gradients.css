@@ -268,8 +268,8 @@
     var(--gradient-color) 100%
   );
 
-  /* Payva logo minimal gradient */
-  --gradient-pattern-payva-logo-minimal: linear-gradient(
+  /* Logo minimal gradient */
+  --gradient-pattern-logo-minimal: linear-gradient(
     180deg,
     transparent 0%,
     color-mix(in srgb, var(--gradient-color) 20%, transparent) 100%
@@ -518,8 +518,8 @@
 }
 
 /* Special gradients */
-@utility bg-gradient-payva-logo-minimal {
-  background-image: var(--gradient-pattern-payva-logo-minimal);
+@utility bg-gradient-logo-minimal {
+  background-image: var(--gradient-pattern-logo-minimal);
 }
 
 /* ========================================
