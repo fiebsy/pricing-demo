@@ -1,0 +1,354 @@
+/* Animation utilities - Reusable animation classes and keyframes */
+
+/* Button Animation V2 - Child to parent promotion animation */
+@keyframes pulse-once {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.95;
+  }
+}
+
+.animate-pulse-once {
+  animation: pulse-once 0.3s ease-out;
+}
+
+/* Click animation - scale effect for interactive elements */
+.click-animation {
+  transition: transform 0.1s ease-in-out;
+}
+
+.click-animation:active {
+  transform: scale(0.95);
+}
+
+/* Animated gradient text */
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-gradient {
+  animation: gradient 3s ease infinite;
+}
+
+/* ============================================================================
+   COLUMN ADD/REMOVE ANIMATIONS - Sticky Data Table
+
+   Performance: S-Tier (transform + opacity + clip-path)
+   Technique: FLIP-compatible with WAAPI for neighbor sliding
+   Accessibility: motion-reduce fallbacks included
+
+   EXPERIMENTAL: Using clip-path to prevent content clipping during animation
+   ============================================================================ */
+
+/* Column entering - simple fade in */
+@keyframes column-enter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Column leaving - fade out with slide to left, clip from LEFT to prevent overlap */
+@keyframes column-leave {
+  0% {
+    opacity: 1;
+    transform: translateX(0);
+    clip-path: inset(0 0 0 0); /* Fully visible */
+  }
+  40% {
+    opacity: 0; /* Fade out quickly */
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-1.5rem);
+    clip-path: inset(0 0 0 100%); /* Clip from LEFT edge */
+  }
+}
+
+/* Animation classes - S-Tier only (no filter effects) */
+.animate-column-enter {
+  animation: column-enter 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+.animate-column-leave {
+  animation: column-leave 0.25s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  pointer-events: none;
+}
+
+/* Data attribute variants (preferred for Tailwind v4 integration) */
+[data-column-entering] {
+  animation: column-enter 0.15s ease-out forwards;
+}
+
+[data-column-leaving] {
+  animation: column-leave 0.25s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  pointer-events: none;
+  overflow: visible;
+  transform-origin: left center;
+  z-index: 0; /* Leaving column renders behind */
+}
+
+/* FLIP shift animation - applied via WAAPI, but CSS fallback for simple cases */
+[data-column-shifting] {
+  transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* Motion-reduce: Respect user preferences */
+@media (prefers-reduced-motion: reduce) {
+  .animate-column-enter,
+  .animate-column-leave,
+  [data-column-entering],
+  [data-column-leaving],
+  [data-column-shifting] {
+    animation: none;
+    transition: none;
+    opacity: 1;
+    transform: none;
+    clip-path: none;
+  }
+}
+
+/* Legacy class names for backwards compatibility */
+.animate-column-add {
+  animation: column-enter 0.15s ease-out forwards;
+}
+
+.animate-column-remove {
+  animation: column-leave 0.25s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  pointer-events: none;
+  overflow: visible;
+  transform-origin: left center;
+  z-index: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-column-add,
+  .animate-column-remove {
+    animation: none;
+    opacity: 1;
+    transform: none;
+    clip-path: none;
+  }
+}
+
+/* ============================================================================
+   PROFILE SCORE ANIMATIONS
+   Used by b/profile SubScore component for stagger reveal
+   ============================================================================ */
+
+/* Fade + slide in from top - S-tier animation */
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================================================
+   ACCORDION ANIMATIONS
+   Used by animated-line accordion component
+   ============================================================================ */
+
+/* Line drawing animation */
+@keyframes accordion-draw-line {
+  from {
+    stroke-dashoffset: 1000;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Line fade in animation */
+@keyframes accordion-fade-in-line {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Button/item slide-in animation - uses CSS custom properties for dynamic values */
+@keyframes accordion-fade-in-up {
+  from {
+    opacity: var(--accordion-opacity-start, 1);
+    transform: translateX(var(--accordion-translate-x, -29px)) scale(var(--accordion-scale-start, 0.83));
+  }
+  to {
+    opacity: var(--accordion-opacity-end, 1);
+    transform: translateX(0) scale(var(--accordion-scale-end, 1));
+  }
+}
+
+/* ============================================================================
+   RIPPLE ANIMATION
+   Material-style ripple effect for button clicks
+   ============================================================================ */
+
+@keyframes ripple {
+  from {
+    transform: scale(0);
+    opacity: 0.6;
+  }
+  to {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+.animate-ripple {
+  animation: ripple 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-ripple {
+    animation: none;
+    opacity: 0;
+  }
+}
+
+/* ============================================================================
+   PULSATING DOT ANIMATION
+   Continuous pulse effect for chart "Today" indicator
+   ============================================================================ */
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.8);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+.animate-pulse-ring {
+  animation: pulse-ring 2s ease-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-pulse-ring {
+    animation: none;
+    opacity: 0;
+  }
+}
+
+/* ============================================================================
+   SHIMMER ANIMATION
+   Stripe-style button shine effect
+   ============================================================================ */
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-shimmer {
+    animation: none;
+  }
+}
+
+/* ============================================================================
+   TEXT SHIMMER ANIMATION
+   Subtle gradient highlight sweep for text elements
+
+   Usage: Apply to text element with --shimmer-base-color set inline
+   The base color must be passed as a CSS variable since background-clip: text
+   requires color: transparent, making currentColor unavailable.
+
+   Required CSS variable (set inline on element):
+   - --shimmer-base-color: the text color to use (e.g., var(--text-color-tertiary))
+
+   Optional customization:
+   - --shimmer-duration: animation duration (default: 4s)
+   ============================================================================ */
+
+@keyframes text-shimmer {
+  0% {
+    background-position: 200% center;
+  }
+  100% {
+    background-position: -200% center;
+  }
+}
+
+.animate-text-shimmer {
+  --shimmer-duration: 4s;
+
+  background: linear-gradient(
+    90deg,
+    var(--shimmer-base-color) 0%,
+    var(--shimmer-base-color) 35%,
+    color-mix(in srgb, var(--shimmer-base-color) 50%, white) 50%,
+    var(--shimmer-base-color) 65%,
+    var(--shimmer-base-color) 100%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: text-shimmer var(--shimmer-duration) linear infinite;
+}
+
+/* Vibrant variant - blue-focused shimmer */
+.animate-text-shimmer-subtle {
+  --shimmer-duration: 3s;
+
+  background: linear-gradient(
+    90deg,
+    var(--shimmer-base-color) 0%,
+    #60a5fa 25%,
+    #3b82f6 50%,
+    #818cf8 75%,
+    var(--shimmer-base-color) 100%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: text-shimmer var(--shimmer-duration) linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-text-shimmer,
+  .animate-text-shimmer-subtle {
+    animation: none;
+    background: none;
+    -webkit-background-clip: unset;
+    background-clip: unset;
+    color: var(--shimmer-base-color);
+  }
+}

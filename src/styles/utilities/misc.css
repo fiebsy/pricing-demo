@@ -1,0 +1,68 @@
+/* Miscellaneous utility classes */
+
+/* Navigation clearance - provides top padding to account for fixed nav */
+@utility nav-clearance {
+  padding-top: 56px;
+}
+
+/* Bottom nav clearance for mobile */
+@utility nav-clearance-bottom {
+  padding-bottom: 72px;
+}
+
+@utility scrollbar-hide {
+  /* For Webkit-based browsers (Chrome, Safari and Opera) */
+  &::-webkit-scrollbar {
+    display: none;
+    -webkit-appearance: none;
+  }
+
+  /* For IE, Edge and Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+@utility scrollbar-overlay {
+  /* Always reserve scrollbar space to prevent layout shift */
+  overflow-y: scroll;
+
+  /* Firefox - hidden by default, visible on hover */
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+
+  &:hover {
+    scrollbar-color: var(--color-fg-quaternary) transparent;
+  }
+
+  /* Webkit - hidden by default, visible on hover */
+  &::-webkit-scrollbar {
+    width: 2px;
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+    margin-block: 2px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 3px;
+    transition: background 150ms ease;
+  }
+
+  /* Show scrollbar on container hover or active scroll */
+  &:hover::-webkit-scrollbar-thumb {
+    background: var(--color-fg-quaternary);
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: var(--color-fg-quaternary_hover);
+  }
+}
+
+@utility transition-inherit-all {
+  transition-property: inherit;
+  transition-duration: inherit;
+  transition-timing-function: inherit;
+}

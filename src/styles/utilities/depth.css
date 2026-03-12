@@ -1,0 +1,1026 @@
+/* ========================================
+   SUBTLE DEPTH GRADIENT UTILITIES
+   ========================================
+
+   Purpose: Depth gradient background presets for cards and containers
+
+   Structure:
+   - Intensity levels: 10, 20, 30, 40, 50 (half the original opacity)
+   - Color modifiers: -primary (default), -brand, -secondary
+   - Direction modifiers: -left, -right, -top, -bottom (where depth appears)
+
+   Naming Convention:
+   subtle-depth-{intensity}-{color}-{direction}
+
+   Directions (where the depth/shadow appears):
+   - left: Depth on LEFT side (gradient 270deg)
+   - right: Depth on RIGHT side (gradient 90deg)
+   - top: Depth on TOP (gradient 0deg)
+   - bottom: Depth on BOTTOM (gradient 180deg) - DEFAULT
+
+   Usage:
+   <!-- Default color (primary) and direction (right) -->
+   <div className="subtle-depth-20-primary bg-primary">Primary depth on right</div>
+
+   <!-- Specific direction -->
+   <div className="subtle-depth-20-brand-left bg-primary">Brand depth on left</div>
+   <div className="subtle-depth-30-primary-top bg-primary">Primary depth on top</div>
+   <div className="subtle-depth-30-brand-bottom bg-primary">Brand depth on bottom</div>
+
+   Key Benefits:
+   - ONE class does it all (vs old: bg-gradient-subtle-depth + gradient-color-brand)
+   - Clear intensity scale (10-50)
+   - Intuitive direction naming (where depth appears)
+   - Dark mode support built-in
+
+   ======================================== */
+
+:root {
+  /* ========================================
+     SUBTLE DEPTH BASE COLORS
+     ========================================
+
+     These define the base colors used for depth gradients.
+     They remap in dark mode for proper contrast.
+  */
+  --subtle-depth-color-primary: var(--color-gray-600);
+  --subtle-depth-color-brand: var(--color-brand-600);
+  --subtle-depth-color-secondary: var(--color-gray-400);
+
+  /* Default color (used when no color modifier specified) */
+  --subtle-depth-color: var(--subtle-depth-color-primary);
+
+  /* ========================================
+     GRADIENT ANGLES
+     ========================================
+     Named by where the DEPTH/SHADOW appears
+  */
+  --subtle-depth-angle-left: 270deg;   /* Light on right, dark on left */
+  --subtle-depth-angle-right: 90deg;   /* Light on left, dark on right */
+  --subtle-depth-angle-top: 0deg;      /* Light on bottom, dark on top */
+  --subtle-depth-angle-bottom: 180deg; /* Light on top, dark on bottom */
+}
+
+/* Dark mode adjustments */
+.dark-mode {
+  --subtle-depth-color-primary: var(--color-gray-400);
+  --subtle-depth-color-brand: var(--color-brand-400);
+  --subtle-depth-color-secondary: var(--color-gray-500);
+}
+
+/* ========================================
+   INTENSITY 10 - Very Subtle
+   Opacity range: 0.5% → 5% (was 1% → 10%)
+   ======================================== */
+
+/* Primary - All directions */
+@utility subtle-depth-10-primary {
+  --subtle-depth-color: var(--subtle-depth-color-primary);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-bottom),
+    color-mix(in srgb, var(--subtle-depth-color) 0.5%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 1.5%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 2.5%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 4%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 5%, transparent) 100%
+  );
+}
+
+@utility subtle-depth-10-primary-left {
+  --subtle-depth-color: var(--subtle-depth-color-primary);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-left),
+    color-mix(in srgb, var(--subtle-depth-color) 0.5%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 1.5%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 2.5%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 4%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 5%, transparent) 100%
+  );
+}
+
+@utility subtle-depth-10-primary-right {
+  --subtle-depth-color: var(--subtle-depth-color-primary);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-right),
+    color-mix(in srgb, var(--subtle-depth-color) 0.5%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 1.5%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 2.5%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 4%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 5%, transparent) 100%
+  );
+}
+
+@utility subtle-depth-10-primary-top {
+  --subtle-depth-color: var(--subtle-depth-color-primary);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-top),
+    color-mix(in srgb, var(--subtle-depth-color) 0.5%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 1.5%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 2.5%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 4%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 5%, transparent) 100%
+  );
+}
+
+@utility subtle-depth-10-primary-bottom {
+  --subtle-depth-color: var(--subtle-depth-color-primary);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-bottom),
+    color-mix(in srgb, var(--subtle-depth-color) 0.5%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 1.5%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 2.5%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 4%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 5%, transparent) 100%
+  );
+}
+
+/* Brand - All directions */
+@utility subtle-depth-10-brand {
+  --subtle-depth-color: var(--subtle-depth-color-brand);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-bottom),
+    color-mix(in srgb, var(--subtle-depth-color) 0.5%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 1.5%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 2.5%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 4%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 5%, transparent) 100%
+  );
+}
+
+@utility subtle-depth-10-brand-left {
+  --subtle-depth-color: var(--subtle-depth-color-brand);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-left),
+    color-mix(in srgb, var(--subtle-depth-color) 0.5%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 1.5%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 2.5%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 4%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 5%, transparent) 100%
+  );
+}
+
+@utility subtle-depth-10-brand-right {
+  --subtle-depth-color: var(--subtle-depth-color-brand);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-right),
+    color-mix(in srgb, var(--subtle-depth-color) 0.5%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 1.5%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 2.5%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 4%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 5%, transparent) 100%
+  );
+}
+
+@utility subtle-depth-10-brand-top {
+  --subtle-depth-color: var(--subtle-depth-color-brand);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-top),
+    color-mix(in srgb, var(--subtle-depth-color) 0.5%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 1.5%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 2.5%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 4%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 5%, transparent) 100%
+  );
+}
+
+@utility subtle-depth-10-brand-bottom {
+  --subtle-depth-color: var(--subtle-depth-color-brand);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-bottom),
+    color-mix(in srgb, var(--subtle-depth-color) 0.5%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 1.5%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 2.5%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 4%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 5%, transparent) 100%
+  );
+}
+
+/* Secondary - All directions */
+@utility subtle-depth-10-secondary {
+  --subtle-depth-color: var(--subtle-depth-color-secondary);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-bottom),
+    color-mix(in srgb, var(--subtle-depth-color) 0.5%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 1.5%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 2.5%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 4%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 5%, transparent) 100%
+  );
+}
+
+@utility subtle-depth-10-secondary-left {
+  --subtle-depth-color: var(--subtle-depth-color-secondary);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-left),
+    color-mix(in srgb, var(--subtle-depth-color) 0.5%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 1.5%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 2.5%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 4%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 5%, transparent) 100%
+  );
+}
+
+@utility subtle-depth-10-secondary-right {
+  --subtle-depth-color: var(--subtle-depth-color-secondary);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-right),
+    color-mix(in srgb, var(--subtle-depth-color) 0.5%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 1.5%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 2.5%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 4%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 5%, transparent) 100%
+  );
+}
+
+@utility subtle-depth-10-secondary-top {
+  --subtle-depth-color: var(--subtle-depth-color-secondary);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-top),
+    color-mix(in srgb, var(--subtle-depth-color) 0.5%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 1.5%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 2.5%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 4%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 5%, transparent) 100%
+  );
+}
+
+@utility subtle-depth-10-secondary-bottom {
+  --subtle-depth-color: var(--subtle-depth-color-secondary);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-bottom),
+    color-mix(in srgb, var(--subtle-depth-color) 0.5%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 1.5%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 2.5%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 4%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 5%, transparent) 100%
+  );
+}
+
+/* ========================================
+   INTENSITY 20 - Subtle
+   Opacity range: 1% → 10% (was 2% → 20%)
+   ======================================== */
+
+/* Primary - All directions */
+@utility subtle-depth-20-primary {
+  --subtle-depth-color: var(--subtle-depth-color-primary);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-bottom),
+    color-mix(in srgb, var(--subtle-depth-color) 1%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 3%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 5%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 7.5%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 10%, transparent) 100%
+  );
+}
+
+@utility subtle-depth-20-primary-left {
+  --subtle-depth-color: var(--subtle-depth-color-primary);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-left),
+    color-mix(in srgb, var(--subtle-depth-color) 1%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 3%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 5%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 7.5%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 10%, transparent) 100%
+  );
+}
+
+@utility subtle-depth-20-primary-right {
+  --subtle-depth-color: var(--subtle-depth-color-primary);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-right),
+    color-mix(in srgb, var(--subtle-depth-color) 1%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 3%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 5%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 7.5%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 10%, transparent) 100%
+  );
+}
+
+@utility subtle-depth-20-primary-top {
+  --subtle-depth-color: var(--subtle-depth-color-primary);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-top),
+    color-mix(in srgb, var(--subtle-depth-color) 1%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 3%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 5%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 7.5%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 10%, transparent) 100%
+  );
+}
+
+@utility subtle-depth-20-primary-bottom {
+  --subtle-depth-color: var(--subtle-depth-color-primary);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-bottom),
+    color-mix(in srgb, var(--subtle-depth-color) 1%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 3%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 5%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 7.5%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 10%, transparent) 100%
+  );
+}
+
+/* Brand - All directions */
+@utility subtle-depth-20-brand {
+  --subtle-depth-color: var(--subtle-depth-color-brand);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-bottom),
+    color-mix(in srgb, var(--subtle-depth-color) 1%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 3%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 5%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 7.5%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 10%, transparent) 100%
+  );
+}
+
+@utility subtle-depth-20-brand-left {
+  --subtle-depth-color: var(--subtle-depth-color-brand);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-left),
+    color-mix(in srgb, var(--subtle-depth-color) 1%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 3%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 5%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 7.5%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 10%, transparent) 100%
+  );
+}
+
+@utility subtle-depth-20-brand-right {
+  --subtle-depth-color: var(--subtle-depth-color-brand);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-right),
+    color-mix(in srgb, var(--subtle-depth-color) 1%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 3%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 5%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 7.5%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 10%, transparent) 100%
+  );
+}
+
+@utility subtle-depth-20-brand-top {
+  --subtle-depth-color: var(--subtle-depth-color-brand);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-top),
+    color-mix(in srgb, var(--subtle-depth-color) 1%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 3%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 5%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 7.5%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 10%, transparent) 100%
+  );
+}
+
+@utility subtle-depth-20-brand-bottom {
+  --subtle-depth-color: var(--subtle-depth-color-brand);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-bottom),
+    color-mix(in srgb, var(--subtle-depth-color) 1%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 3%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 5%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 7.5%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 10%, transparent) 100%
+  );
+}
+
+/* Secondary - All directions */
+@utility subtle-depth-20-secondary {
+  --subtle-depth-color: var(--subtle-depth-color-secondary);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-bottom),
+    color-mix(in srgb, var(--subtle-depth-color) 1%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 3%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 5%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 7.5%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 10%, transparent) 100%
+  );
+}
+
+@utility subtle-depth-20-secondary-left {
+  --subtle-depth-color: var(--subtle-depth-color-secondary);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-left),
+    color-mix(in srgb, var(--subtle-depth-color) 1%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 3%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 5%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 7.5%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 10%, transparent) 100%
+  );
+}
+
+@utility subtle-depth-20-secondary-right {
+  --subtle-depth-color: var(--subtle-depth-color-secondary);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-right),
+    color-mix(in srgb, var(--subtle-depth-color) 1%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 3%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 5%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 7.5%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 10%, transparent) 100%
+  );
+}
+
+@utility subtle-depth-20-secondary-top {
+  --subtle-depth-color: var(--subtle-depth-color-secondary);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-top),
+    color-mix(in srgb, var(--subtle-depth-color) 1%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 3%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 5%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 7.5%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 10%, transparent) 100%
+  );
+}
+
+@utility subtle-depth-20-secondary-bottom {
+  --subtle-depth-color: var(--subtle-depth-color-secondary);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-bottom),
+    color-mix(in srgb, var(--subtle-depth-color) 1%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 3%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 5%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 7.5%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 10%, transparent) 100%
+  );
+}
+
+/* ========================================
+   INTENSITY 30 - Light
+   Opacity range: 1.5% → 15% (was 3% → 30%)
+   ======================================== */
+
+/* Primary - All directions */
+@utility subtle-depth-30-primary {
+  --subtle-depth-color: var(--subtle-depth-color-primary);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-bottom),
+    color-mix(in srgb, var(--subtle-depth-color) 1.5%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 5%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 9%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 12%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 15%, transparent) 100%
+  );
+}
+
+@utility subtle-depth-30-primary-left {
+  --subtle-depth-color: var(--subtle-depth-color-primary);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-left),
+    color-mix(in srgb, var(--subtle-depth-color) 1.5%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 5%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 9%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 12%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 15%, transparent) 100%
+  );
+}
+
+@utility subtle-depth-30-primary-right {
+  --subtle-depth-color: var(--subtle-depth-color-primary);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-right),
+    color-mix(in srgb, var(--subtle-depth-color) 1.5%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 5%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 9%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 12%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 15%, transparent) 100%
+  );
+}
+
+@utility subtle-depth-30-primary-top {
+  --subtle-depth-color: var(--subtle-depth-color-primary);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-top),
+    color-mix(in srgb, var(--subtle-depth-color) 1.5%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 5%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 9%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 12%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 15%, transparent) 100%
+  );
+}
+
+@utility subtle-depth-30-primary-bottom {
+  --subtle-depth-color: var(--subtle-depth-color-primary);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-bottom),
+    color-mix(in srgb, var(--subtle-depth-color) 1.5%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 5%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 9%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 12%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 15%, transparent) 100%
+  );
+}
+
+/* Brand - All directions */
+@utility subtle-depth-30-brand {
+  --subtle-depth-color: var(--subtle-depth-color-brand);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-bottom),
+    color-mix(in srgb, var(--subtle-depth-color) 1.5%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 5%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 9%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 12%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 15%, transparent) 100%
+  );
+}
+
+@utility subtle-depth-30-brand-left {
+  --subtle-depth-color: var(--subtle-depth-color-brand);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-left),
+    color-mix(in srgb, var(--subtle-depth-color) 1.5%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 5%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 9%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 12%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 15%, transparent) 100%
+  );
+}
+
+@utility subtle-depth-30-brand-right {
+  --subtle-depth-color: var(--subtle-depth-color-brand);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-right),
+    color-mix(in srgb, var(--subtle-depth-color) 1.5%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 5%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 9%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 12%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 15%, transparent) 100%
+  );
+}
+
+@utility subtle-depth-30-brand-top {
+  --subtle-depth-color: var(--subtle-depth-color-brand);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-top),
+    color-mix(in srgb, var(--subtle-depth-color) 1.5%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 5%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 9%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 12%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 15%, transparent) 100%
+  );
+}
+
+@utility subtle-depth-30-brand-bottom {
+  --subtle-depth-color: var(--subtle-depth-color-brand);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-bottom),
+    color-mix(in srgb, var(--subtle-depth-color) 1.5%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 5%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 9%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 12%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 15%, transparent) 100%
+  );
+}
+
+/* Secondary - All directions */
+@utility subtle-depth-30-secondary {
+  --subtle-depth-color: var(--subtle-depth-color-secondary);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-bottom),
+    color-mix(in srgb, var(--subtle-depth-color) 1.5%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 5%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 9%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 12%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 15%, transparent) 100%
+  );
+}
+
+@utility subtle-depth-30-secondary-left {
+  --subtle-depth-color: var(--subtle-depth-color-secondary);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-left),
+    color-mix(in srgb, var(--subtle-depth-color) 1.5%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 5%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 9%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 12%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 15%, transparent) 100%
+  );
+}
+
+@utility subtle-depth-30-secondary-right {
+  --subtle-depth-color: var(--subtle-depth-color-secondary);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-right),
+    color-mix(in srgb, var(--subtle-depth-color) 1.5%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 5%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 9%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 12%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 15%, transparent) 100%
+  );
+}
+
+@utility subtle-depth-30-secondary-top {
+  --subtle-depth-color: var(--subtle-depth-color-secondary);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-top),
+    color-mix(in srgb, var(--subtle-depth-color) 1.5%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 5%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 9%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 12%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 15%, transparent) 100%
+  );
+}
+
+@utility subtle-depth-30-secondary-bottom {
+  --subtle-depth-color: var(--subtle-depth-color-secondary);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-bottom),
+    color-mix(in srgb, var(--subtle-depth-color) 1.5%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 5%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 9%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 12%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 15%, transparent) 100%
+  );
+}
+
+/* ========================================
+   INTENSITY 40 - Medium
+   Opacity range: 2.5% → 20% (was 5% → 40%)
+   ======================================== */
+
+/* Primary - All directions */
+@utility subtle-depth-40-primary {
+  --subtle-depth-color: var(--subtle-depth-color-primary);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-bottom),
+    color-mix(in srgb, var(--subtle-depth-color) 2.5%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 7%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 12%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 16%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 20%, transparent) 100%
+  );
+}
+
+@utility subtle-depth-40-primary-left {
+  --subtle-depth-color: var(--subtle-depth-color-primary);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-left),
+    color-mix(in srgb, var(--subtle-depth-color) 2.5%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 7%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 12%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 16%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 20%, transparent) 100%
+  );
+}
+
+@utility subtle-depth-40-primary-right {
+  --subtle-depth-color: var(--subtle-depth-color-primary);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-right),
+    color-mix(in srgb, var(--subtle-depth-color) 2.5%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 7%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 12%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 16%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 20%, transparent) 100%
+  );
+}
+
+@utility subtle-depth-40-primary-top {
+  --subtle-depth-color: var(--subtle-depth-color-primary);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-top),
+    color-mix(in srgb, var(--subtle-depth-color) 2.5%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 7%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 12%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 16%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 20%, transparent) 100%
+  );
+}
+
+@utility subtle-depth-40-primary-bottom {
+  --subtle-depth-color: var(--subtle-depth-color-primary);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-bottom),
+    color-mix(in srgb, var(--subtle-depth-color) 2.5%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 7%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 12%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 16%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 20%, transparent) 100%
+  );
+}
+
+/* Brand - All directions */
+@utility subtle-depth-40-brand {
+  --subtle-depth-color: var(--subtle-depth-color-brand);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-bottom),
+    color-mix(in srgb, var(--subtle-depth-color) 2.5%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 7%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 12%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 16%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 20%, transparent) 100%
+  );
+}
+
+@utility subtle-depth-40-brand-left {
+  --subtle-depth-color: var(--subtle-depth-color-brand);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-left),
+    color-mix(in srgb, var(--subtle-depth-color) 2.5%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 7%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 12%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 16%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 20%, transparent) 100%
+  );
+}
+
+@utility subtle-depth-40-brand-right {
+  --subtle-depth-color: var(--subtle-depth-color-brand);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-right),
+    color-mix(in srgb, var(--subtle-depth-color) 2.5%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 7%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 12%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 16%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 20%, transparent) 100%
+  );
+}
+
+@utility subtle-depth-40-brand-top {
+  --subtle-depth-color: var(--subtle-depth-color-brand);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-top),
+    color-mix(in srgb, var(--subtle-depth-color) 2.5%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 7%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 12%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 16%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 20%, transparent) 100%
+  );
+}
+
+@utility subtle-depth-40-brand-bottom {
+  --subtle-depth-color: var(--subtle-depth-color-brand);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-bottom),
+    color-mix(in srgb, var(--subtle-depth-color) 2.5%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 7%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 12%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 16%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 20%, transparent) 100%
+  );
+}
+
+/* Secondary - All directions */
+@utility subtle-depth-40-secondary {
+  --subtle-depth-color: var(--subtle-depth-color-secondary);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-bottom),
+    color-mix(in srgb, var(--subtle-depth-color) 2.5%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 7%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 12%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 16%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 20%, transparent) 100%
+  );
+}
+
+@utility subtle-depth-40-secondary-left {
+  --subtle-depth-color: var(--subtle-depth-color-secondary);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-left),
+    color-mix(in srgb, var(--subtle-depth-color) 2.5%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 7%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 12%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 16%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 20%, transparent) 100%
+  );
+}
+
+@utility subtle-depth-40-secondary-right {
+  --subtle-depth-color: var(--subtle-depth-color-secondary);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-right),
+    color-mix(in srgb, var(--subtle-depth-color) 2.5%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 7%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 12%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 16%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 20%, transparent) 100%
+  );
+}
+
+@utility subtle-depth-40-secondary-top {
+  --subtle-depth-color: var(--subtle-depth-color-secondary);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-top),
+    color-mix(in srgb, var(--subtle-depth-color) 2.5%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 7%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 12%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 16%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 20%, transparent) 100%
+  );
+}
+
+@utility subtle-depth-40-secondary-bottom {
+  --subtle-depth-color: var(--subtle-depth-color-secondary);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-bottom),
+    color-mix(in srgb, var(--subtle-depth-color) 2.5%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 7%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 12%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 16%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 20%, transparent) 100%
+  );
+}
+
+/* ========================================
+   INTENSITY 50 - Strong
+   Opacity range: 4% → 25% (was 8% → 50%)
+   ======================================== */
+
+/* Primary - All directions */
+@utility subtle-depth-50-primary {
+  --subtle-depth-color: var(--subtle-depth-color-primary);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-bottom),
+    color-mix(in srgb, var(--subtle-depth-color) 4%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 9%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 15%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 20%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 25%, transparent) 100%
+  );
+}
+
+@utility subtle-depth-50-primary-left {
+  --subtle-depth-color: var(--subtle-depth-color-primary);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-left),
+    color-mix(in srgb, var(--subtle-depth-color) 4%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 9%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 15%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 20%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 25%, transparent) 100%
+  );
+}
+
+@utility subtle-depth-50-primary-right {
+  --subtle-depth-color: var(--subtle-depth-color-primary);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-right),
+    color-mix(in srgb, var(--subtle-depth-color) 4%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 9%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 15%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 20%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 25%, transparent) 100%
+  );
+}
+
+@utility subtle-depth-50-primary-top {
+  --subtle-depth-color: var(--subtle-depth-color-primary);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-top),
+    color-mix(in srgb, var(--subtle-depth-color) 4%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 9%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 15%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 20%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 25%, transparent) 100%
+  );
+}
+
+@utility subtle-depth-50-primary-bottom {
+  --subtle-depth-color: var(--subtle-depth-color-primary);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-bottom),
+    color-mix(in srgb, var(--subtle-depth-color) 4%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 9%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 15%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 20%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 25%, transparent) 100%
+  );
+}
+
+/* Brand - All directions */
+@utility subtle-depth-50-brand {
+  --subtle-depth-color: var(--subtle-depth-color-brand);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-bottom),
+    color-mix(in srgb, var(--subtle-depth-color) 4%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 9%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 15%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 20%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 25%, transparent) 100%
+  );
+}
+
+@utility subtle-depth-50-brand-left {
+  --subtle-depth-color: var(--subtle-depth-color-brand);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-left),
+    color-mix(in srgb, var(--subtle-depth-color) 4%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 9%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 15%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 20%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 25%, transparent) 100%
+  );
+}
+
+@utility subtle-depth-50-brand-right {
+  --subtle-depth-color: var(--subtle-depth-color-brand);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-right),
+    color-mix(in srgb, var(--subtle-depth-color) 4%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 9%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 15%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 20%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 25%, transparent) 100%
+  );
+}
+
+@utility subtle-depth-50-brand-top {
+  --subtle-depth-color: var(--subtle-depth-color-brand);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-top),
+    color-mix(in srgb, var(--subtle-depth-color) 4%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 9%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 15%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 20%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 25%, transparent) 100%
+  );
+}
+
+@utility subtle-depth-50-brand-bottom {
+  --subtle-depth-color: var(--subtle-depth-color-brand);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-bottom),
+    color-mix(in srgb, var(--subtle-depth-color) 4%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 9%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 15%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 20%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 25%, transparent) 100%
+  );
+}
+
+/* Secondary - All directions */
+@utility subtle-depth-50-secondary {
+  --subtle-depth-color: var(--subtle-depth-color-secondary);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-bottom),
+    color-mix(in srgb, var(--subtle-depth-color) 4%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 9%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 15%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 20%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 25%, transparent) 100%
+  );
+}
+
+@utility subtle-depth-50-secondary-left {
+  --subtle-depth-color: var(--subtle-depth-color-secondary);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-left),
+    color-mix(in srgb, var(--subtle-depth-color) 4%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 9%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 15%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 20%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 25%, transparent) 100%
+  );
+}
+
+@utility subtle-depth-50-secondary-right {
+  --subtle-depth-color: var(--subtle-depth-color-secondary);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-right),
+    color-mix(in srgb, var(--subtle-depth-color) 4%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 9%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 15%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 20%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 25%, transparent) 100%
+  );
+}
+
+@utility subtle-depth-50-secondary-top {
+  --subtle-depth-color: var(--subtle-depth-color-secondary);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-top),
+    color-mix(in srgb, var(--subtle-depth-color) 4%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 9%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 15%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 20%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 25%, transparent) 100%
+  );
+}
+
+@utility subtle-depth-50-secondary-bottom {
+  --subtle-depth-color: var(--subtle-depth-color-secondary);
+  background-image: linear-gradient(
+    var(--subtle-depth-angle-bottom),
+    color-mix(in srgb, var(--subtle-depth-color) 4%, transparent) 0%,
+    color-mix(in srgb, var(--subtle-depth-color) 9%, transparent) 25%,
+    color-mix(in srgb, var(--subtle-depth-color) 15%, transparent) 50%,
+    color-mix(in srgb, var(--subtle-depth-color) 20%, transparent) 75%,
+    color-mix(in srgb, var(--subtle-depth-color) 25%, transparent) 100%
+  );
+}
+
+/* ========================================
+   RESET UTILITY
+   ======================================== */
+
+@utility subtle-depth-none {
+  background-image: none;
+}
+
+
+
+
+
+
+
+
+
